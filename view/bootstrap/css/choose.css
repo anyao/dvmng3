@@ -1,0 +1,38 @@
+.choose > li ,.choose-result > li{
+	display: inline;
+	padding:5px 5px;
+}
+
+
+.choose, .choose-result{
+	display:inline;
+	padding: 0px ;
+}
+.choose > li > a {
+	text-decoration: none;
+
+}
+.choose-which{
+	margin-top:35px; 
+	margin-left:5%;
+	margin-right: 5%;
+	margin-bottom: 40px;
+	padding-top: 30px;
+	padding-bottom: 20px;
+	padding-left: 4%;
+	padding-right: 4%;
+	border:1px solid #081F34;
+	border-radius: 8px;
+
+}
+.choose-which .row{
+	min-height: 40px !important
+}
+
+.row{
+	margin-bottom: 10px;
+}
+
+.row > div > ul > li {
+	/*margin-right: 15px;*/
+} 
