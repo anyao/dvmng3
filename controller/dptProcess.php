@@ -54,14 +54,126 @@ if (!empty($_REQUEST['flag'])) {
 	else if ($flag=="delDpt") {
 		$id=$_GET['id'];
 		$res=$dptService->delDpt($id);
-
+		if ($res!=0) {
+			header("location:../view/dptUser.php");
+		}else{
+			echo "删除部门失败，请联系管理员：0310-5178939";
+		}
 	}
 
 	else if ($flag=="findSon") {
 		$id=$_GET['id'];
 		$res=$dptService->findSon($id);
-		echo "{$res['num']}";
+		echo $res;
 		exit();
 	}
+
+	else if ($flag=="addUser") {
+		$code=$_GET['code'];
+		$name=$_GET['name'];
+		$permit=$_GET['permit'];
+		$dptid=$_GET['dptid'];
+		$psw=$_GET['psw'];
+
+		$res=$dptService->checkUser($code);
+		if ($res['num']!=0) {
+			echo "error";
+			exit();
+		}else{
+			$res=$dptService->addUser($code,$name,$permit,$dptid,$psw);
+			if ($res!=0) {
+				echo "success";
+				exit();
+			}else{
+				echo "fail";
+				exit();
+			}
+		}
+	}
+
+	else if ($flag=="getUserForUpt") {
+		$id=$_GET['id'];
+		$res=$dptService->getUserForUpt($id);	
+		echo "$res";
+		exit();
+	}
+
+	else if($flag=="uptUser"){
+		$id=$_GET['id'];
+		$code=$_GET['code'];
+		$dptid=$_GET['dptid'];
+		$name=$_GET['name'];
+		$permit=$_GET['permit'];
+		$psw=$_GET['psw'];
+		$res=$dptService->uptUser($code,$dptid,$name,$permit,$psw,$id);
+		if ($res!=0) {
+			echo "success";
+			exit();
+		}else{
+			echo "fail";
+			exit();
+		}
+	}
+
+	else if($flag=="delUser"){
+		$id=$_GET['id'];
+		$res=$dptService->delUser($id);
+		if ($res!=0) {
+			echo "success";
+			exit();
+		}else{
+			echo "fail";
+			exit();
+		}
+	}
+
+	else if ($flag=="getCon") {
+		$uid=$_GET['uid'];
+		$res=$dptService->getConById($uid);
+		echo "$res";
+		exit();
+	}
+
+	else if($flag=="setCon"){
+		$con=$_POST['con'];
+		$oCon=explode(",",$_POST['oCon']);
+		$uid=$_POST['uid'];
+		// 删掉的部分也就是停止管理
+		$diff=array_diff($oCon,$con);
+		
+		if (!empty($diff)) {
+			$diff=array_values($diff);
+			$delOld=$dptService->delCon($diff);
+			
+		}
+
+		// 开始新的管理关系
+		if (!empty($_POST['dev'])) {
+			$dev=$_POST['dev'];
+			$addNew=$dptService->addCon($dev,$uid);
+		}
+
+		if ($delOld!=0) {
+			if ($addNew!=0) {
+				echo "success";
+				exit();
+			}else{
+				echo "failAdd";
+				exit();
+			}
+		}else{
+			echo "failDel";
+			exit();
+		}	
+	}
+
+	else if($flag=="findUser"){
+		$kword=$_GET['kword'];
+		$res=$dptService->findUser($kword);
+		echo "$res";
+		exit();
+	}
+
+
 }
 ?>

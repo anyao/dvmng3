@@ -104,6 +104,7 @@ include "message.php";
         </li>
       </ul>
        <ul class="nav navbar-nav navbar-right">
+        <li><a href="dptUser.php">用户管理</a></li>
         <li class="dropdown">
         <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button"><?php 
               if (empty($user)) {
@@ -118,6 +119,7 @@ include "message.php";
             <li class="divider">&nbsp;</li>
             <li><a href="login.php">注销</a></li>
           </ul>
+        </li>
       </ul>
 
     </div><!--/.nav-collapse -->

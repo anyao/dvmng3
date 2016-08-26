@@ -197,64 +197,64 @@
 
 <!-- 添加任务信息-->
 <div class="modal fade" id="addMis" role="dialog">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">添加点检任务</h4>
-        </div>
-        <form class="form-horizontal" action="../controller/inspectProcess.php" method="post">
-          <div class="modal-body">
-            <div class="form-group">
-              <label class="col-sm-3 control-label">点检时间：</label>
-              <div class="col-sm-7">
-                  <input type="text" class="form-control datetime">        
-              </div>
-              <div class="btn-set">
-               <a href="javascript:void(0);" id="yesTime" class='glyphicon glyphicon-ok'></a>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label class="col-sm-3  control-label">时间列表：</label>
-              <div class="col-sm-8" id="forTime">
-              </div>
-            </div>
-
-            <div class='form-group' >
-              <label class='col-sm-3 control-label'>点检设备：</label>
-                <div class='col-sm-7'>
-              <div class='input-group'>
-                <input type='text' class='form-control' name="devName">
-                <div class='input-group-btn'>
-                  <button type='button' class='btn btn-default dropdown-toggle' data-toggle='dropdown'>
-                    <span class='caret'></span>
-                  </button>
-                  <ul class='dropdown-menu dropdown-menu-right' role='menu'>
-                  </ul>
-                </div>
-              </div>
-            </div>
-              <div class="btn-set">
-               <a href="javascript:void(0);" id="yesDev" class='glyphicon glyphicon-ok'></a>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label class="col-sm-3 control-label">设备列表：</label>
-              <div class="col-sm-8" id="forDev">
-              </div>
-            </div>
-            <div class="modal-footer">
-              <input type="hidden" name="flag" value="addMis">
-              <button type="submit" class="btn btn-primary" id="addYes">确认添加</button>
-              <button type="button" class="btn btn-danger" data-dismiss="modal">取消</button>
-            </div>
-            </div>
-          </form>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">添加点检任务</h4>
       </div>
+      <form class="form-horizontal" action="../controller/inspectProcess.php" method="post">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="col-sm-3 control-label">点检时间：</label>
+            <div class="col-sm-7">
+                <input type="text" class="form-control datetime">        
+            </div>
+            <div class="btn-set">
+             <a href="javascript:void(0);" id="yesTime" class='glyphicon glyphicon-ok'></a>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="col-sm-3  control-label">时间列表：</label>
+            <div class="col-sm-8" id="forTime">
+            </div>
+          </div>
+
+          <div class='form-group' >
+            <label class='col-sm-3 control-label'>点检设备：</label>
+              <div class='col-sm-7'>
+            <div class='input-group'>
+              <input type='text' class='form-control' name="devName">
+              <div class='input-group-btn'>
+                <button type='button' class='btn btn-default dropdown-toggle' data-toggle='dropdown'>
+                  <span class='caret'></span>
+                </button>
+                <ul class='dropdown-menu dropdown-menu-right' role='menu'>
+                </ul>
+              </div>
+            </div>
+          </div>
+            <div class="btn-set">
+             <a href="javascript:void(0);" id="yesDev" class='glyphicon glyphicon-ok'></a>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="col-sm-3 control-label">设备列表：</label>
+            <div class="col-sm-8" id="forDev">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <input type="hidden" name="flag" value="addMis">
+            <button type="submit" class="btn btn-primary" id="addYes">确认添加</button>
+            <button type="button" class="btn btn-danger" data-dismiss="modal">取消</button>
+          </div>
+          </div>
+        </form>
     </div>
   </div>
+</div>
 
 
 <!-- 搜索点检任务 -->

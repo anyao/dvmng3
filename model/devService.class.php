@@ -54,7 +54,7 @@ class devService{
 	function getDevById($id){
 		$sql="select a.*,b.name as parent
 			  from 
-			  (select device.`id`, `name`, `code`, `no`, `class`, `state`, `dateManu`, `dateInstall`, `periodVali`, `dateEnd`, `number`, `brand`, `pid`, `price`, `supplier`, device.`path`, `dvdinfo`, `divide`, `tgther`,
+			  (select device.`id`, `name`, `code`, `no`, `class`, `state`, `dateManu`, `dateInstall`, `periodVali`, `dateEnd`, `number`, `brand`, device.`pid`, `price`, `supplier`, device.`path`, `dvdinfo`, `divide`, `tgther`,
 			  depart.depart,factory.depart as factory
 			  from device
 			  inner join depart
@@ -63,7 +63,7 @@ class devService{
 			  on device.factory=factory.id)
 			  as a
 			  left join 
-			  (select device.`id`, `name`, `code`, `no`, `class`, `state`, `dateManu`, `dateInstall`, `periodVali`, `dateEnd`, `number`, `brand`, `pid`, `price`, `supplier`, device.`path`, `dvdinfo`, `divide`, `tgther`,
+			  (select device.`id`, `name`, `code`, `no`, `class`, `state`, `dateManu`, `dateInstall`, `periodVali`, `dateEnd`, `number`, `brand`, device.`pid`, `price`, `supplier`, device.`path`, `dvdinfo`, `divide`, `tgther`,
 			  depart.depart,factory.depart as factory
 			  from device
 			  inner join depart
