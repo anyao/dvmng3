@@ -23,7 +23,7 @@ if (!empty($_REQUEST['flag'])) {
 		$info=$_POST['info'];
 		$res=$inspectService->updateStd($id,$iden,$info);
 		if ($res!=0) {
-			header("location:../view/inspStd.php");
+			header("location:../inspStd.php");
 			exit();
 		}else{
 			echo "修改巡检标准失败，请联系管理员。<br/>联系电话：0310-5178939。";
@@ -36,7 +36,7 @@ if (!empty($_REQUEST['flag'])) {
 		$id=$_GET['id'];
 		$res=$inspectService->delStd($id);
 		if ($res!=0) {
-			header("location:../view/inspStd.php");
+			header("location:../inspStd.php");
 			exit();
 		}else{
 			echo "删除巡检标准失败，请联系管理员。<br/>联系电话：0310-5178939。";
@@ -51,7 +51,7 @@ if (!empty($_REQUEST['flag'])) {
 		$info=$_POST['info'];
 		$res=$inspectService->addStd($devid,$iden,$info);
 		if ($res!=0) {
-			header("location:../view/inspStd.php");
+			header("location:../inspStd.php");
 			exit();
 		}else{
 			echo "添加巡检标准失败，请联系管理员。<br/>联系电话：0310-5178939。";
@@ -66,7 +66,7 @@ if (!empty($_REQUEST['flag'])) {
 		$misid=explode(",",$misid);
 		$res=$inspectService->delMis($misid);
 		if (!in_array(0,$res)) {
-			header("location:../view/inspMis.php");
+			header("location:../inspMis.php");
 			exit();
 		}else{
 			echo "删除巡检任务失败，请联系管理员。<br/>联系电话：0310-5178939。";
@@ -93,7 +93,7 @@ if (!empty($_REQUEST['flag'])) {
 			// 添加新的点检任务
 			$resAdd=$inspectService->addMis($dev,$start);
 			if ($resAdd!=0) {
-				header("location:../view/inspMis.php");
+				header("location:../inspMis.php");
 				exit();
 			}else{
 				echo "添加巡检任务失败，请联系管理员。<br/>联系电话：0310-5178939。";
@@ -110,7 +110,7 @@ if (!empty($_REQUEST['flag'])) {
 		$time=$_POST['time'];
 		$res=$inspectService->addMis($dev,$time);
 		if ($res!=0) {
-			header("location:../view/inspMis.php");
+			header("location:../inspMis.php");
 			exit();
 		}else{
 			echo "添加巡检任务失败，请联系管理员。<br/>联系电话：0310-5178939。";
@@ -140,7 +140,7 @@ if (!empty($_REQUEST['flag'])) {
 		// 			$info='无';
 		// 			$result="正常";
 		// 		}else{
-		// 			header("location:../view/inspList.php");
+		// 			header("location:../inspList.php");
 		// 			exit();
 		// 		}
 		// 	}
@@ -164,7 +164,7 @@ if (!empty($_REQUEST['flag'])) {
 					$info='无';
 					$result="正常";
 				}else{
-					header("location:../view/inspList.php");
+					header("location:../inspList.php");
 					exit();
 				}
 			}
@@ -172,7 +172,7 @@ if (!empty($_REQUEST['flag'])) {
 
 		$res=$inspectService->addInfo($result,$liable,$time,$idList,$info);
 		if ($res!=0) {
-			header("location:../view/inspList.php");
+			header("location:../inspList.php");
 			exit();
 		}else{
 			echo "fail";
@@ -198,7 +198,7 @@ if (!empty($_REQUEST['flag'])) {
 
 		$res=$inspectService->updateInfo($devid,$id,$info,$liable,$result,$time);
 		if ($res!=0) {
-			header("location:../view/inspList.php");
+			header("location:../inspList.php");
 			exit();
 		}else{
 			echo "修改巡检内容失败，请联系管理员。<br/>联系电话：0310-5178939。";
@@ -210,7 +210,7 @@ if (!empty($_REQUEST['flag'])) {
 		$id=$_GET['id'];
 		$res=$inspectService->delInfo($id);
 		if ($res!=0) {
-			header("location:../view/inspList.php");
+			header("location:../inspList.php");
 			exit();
 		}else{
 			echo "删除巡检记录失败，请联系管理员。<br/>联系电话：0310-5178939。";
@@ -231,7 +231,7 @@ if (!empty($_REQUEST['flag'])) {
 		$time=$_POST['time'];
 		$res=$inspectService->addInfoByDev($devid,$info,$liable,$result,$time);
 		if ($res!=0) {
-			header("location:../view/using.php?id=$devid");
+			header("location:../using.php?id=$devid");
 			exit(); 
 		}
 	}
@@ -255,7 +255,7 @@ if (!empty($_REQUEST['flag'])) {
 		$time=$_POST['time'];
 		$res=$inspectService->updateInfoByDev($id,$info,$liable,$result,$time);
 		if ($res!=0) {
-			header("location:../view/using.php?id=$devid");
+			header("location:../using.php?id=$devid");
 			exit();
 		}else{
 			echo "修改巡检记录失败，请联系管理员。<br/>联系电话：0310-5178939。";
@@ -268,7 +268,7 @@ if (!empty($_REQUEST['flag'])) {
 		$id=$_GET['id'];
 		$res=$inspectService->delInfo($id);
 		if ($res!=0) {
-			header("location:../view/using.php?id=$devid");
+			header("location:../using.php?id=$devid");
 			exit();
 		}else{
 			echo "删除巡检记录失败，请联系管理员。<br/>联系电话：0310-5178939。";

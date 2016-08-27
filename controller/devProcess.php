@@ -34,11 +34,11 @@ if (!empty($_REQUEST['flag'])) {
 						exit();
 					}
 			}
-		header("location:../view/usingList.php");
+		header("location:../usingList.php");
 		exit();
 
 			}
-			header("location:../view/usingList.php");
+			header("location:../usingList.php");
 			exit();
 		}else{
 			echo "添加设备基本信息失败，请联系管理员。<br/>联系电话：0310-5178939。";
@@ -73,10 +73,10 @@ if (!empty($_REQUEST['flag'])) {
 				$res=$devService->updateDetail($paraid,$id);
 				if(!in_array(0,$res)){
 					if ($pid==0) {
-						header("location:../view/using.php?id=$id");
+						header("location:../using.php?id=$id");
 						exit();
 					}else{
-						header("location:../view/usingSon.php?id=$id");
+						header("location:../usingSon.php?id=$id");
 						exit();
 					}
 				}else{
@@ -84,7 +84,7 @@ if (!empty($_REQUEST['flag'])) {
 				exit();
 				}
 			}else{
-				header("location:../view/using.php?id=$id");
+				header("location:../using.php?id=$id");
 				exit();
 			}
 		}else{
@@ -111,7 +111,7 @@ if (!empty($_REQUEST['flag'])) {
 
 		$res=$devService->addPrt($brand,$class,$code,$dateInstall,$dateManu,$depart,$name,$no,$periodVali,$price,$supplier,$liable,$factory);
 		if(!in_array(0,$res)){
-			header("location:../view/usingList.php");
+			header("location:../usingList.php");
 			exit();
 		}else{
 			echo "添加根节点失败，请联系管理员。<br/>联系电话：0310-5178939。";
@@ -125,7 +125,7 @@ if (!empty($_REQUEST['flag'])) {
 		$res=$devService->delDevById($id);
 		if ($res[0]!=0) {
 			if ($res[1]!=0) {
-					header("location:../view/usingList.php");
+					header("location:../usingList.php");
 					exit();
 			}else{
 					echo "删除具体属性参数失败，请联系管理员。<br/>联系电话：0310-5178939。";
@@ -184,7 +184,7 @@ if (!empty($_REQUEST['flag'])) {
 
 			$res=$devService->addDev($brand,$code,$dateInstall,$dateManu,$name,$periodVali,$price,$size,$spec,$supplier,$class,$factory,$depart,$liable,$number,$pid,$path,$no);
 			if($res==1){
-				header("location:../view/usingList.php");
+				header("location:../usingList.php");
 				exit();
 			}else{
 				echo "添加更换记录失败，请联系管理员。<br/>联系电话：0310-5178939。";
@@ -200,7 +200,7 @@ if (!empty($_REQUEST['flag'])) {
 		$id=$_GET['id'];
 		$res=$devService->delTypePa($id);
 		if($res==1){
-			header("location:../view/devPara.php");
+			header("location:../devPara.php");
 			exit();
 		}else{
 			echo "删除设备根类别失败，请联系管理员。<br/>联系电话：0310-5178939。";
@@ -215,7 +215,7 @@ if (!empty($_REQUEST['flag'])) {
 		if($res==1){
 			$res=$devService->delParaByType($id);
 			if ($res!=0) {	
-				header("location:../view/devPara.php");
+				header("location:../devPara.php");
 				exit();
 			}else{
 				echo "删除设备属性参数失败，请联系管理员。<br/>联系电话：0310-5178939。";
@@ -249,7 +249,7 @@ if (!empty($_REQUEST['flag'])) {
 					exit();
 				}
 			}
-			header("location:../view/devPara.php");
+			header("location:../devPara.php");
 			exit();
 		}else{
 			echo "添加新类别失败，请联系管理员。<br/>联系电话：0310-5178939。";
@@ -262,7 +262,7 @@ if (!empty($_REQUEST['flag'])) {
 		$name=$_POST['typeName'];
 		$res=$devService->addTypePa($name);
 		if($res!=0){
-			header("location:../view/devPara.php");
+			header("location:../devPara.php");
 			exit();
 		}else{
 			echo "添加新根类别失败，请联系管理员。<br/>联系电话：0310-5178939。";
@@ -297,7 +297,7 @@ if (!empty($_REQUEST['flag'])) {
 			if (!in_array(0,$res)) {
 				$resAddPara=$devService->addPara($id,$paraNew);
 				if (!in_array(0,$resAddPara)) {
-					header("location:../view/devPara.php");
+					header("location:../devPara.php");
 					exit();
 				}else{
 					echo "添加新的属性参数失败，请联系管理员。<br/>联系电话：0310-5178939。";
@@ -362,7 +362,7 @@ if (!empty($_REQUEST['flag'])) {
 			$dif=array_values($dif);
 			$delOld=$devService->delCon($dif);
 		}
-		header("location:../view/using.php?id=$devid");
+		header("location:../using.php?id=$devid");
 		exit();
 	}
 
@@ -411,7 +411,7 @@ if (!empty($_REQUEST['flag'])) {
 	
 		$res=$devService->chgeDetail($nid,$oid);
 		if($res!=0){
-			header("location:../view/usingSon.php?id=$nid");
+			header("location:../usingSon.php?id=$nid");
 			exit();
 		}else{
 			echo "更换失败，请联系管理员。<br/>联系电话：0310-5178939。";
@@ -424,7 +424,7 @@ if (!empty($_REQUEST['flag'])) {
 		$id=$_GET['id'];	
 		$res=$devService->stopDev($id);
 		if($res!=0){
-			header("location:../view/using.php?id=$id");
+			header("location:../using.php?id=$id");
 			exit();
 		}else{
 			echo "停用失败，请联系管理员。<br/>联系电话：0310-5178939。";

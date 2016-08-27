@@ -1,20 +1,22 @@
 <?php
-require_once "classifyBuild.php";
-header("content-type:text/html;charset=utf-8");
-require_once "sqlHelper.class.php";
-    $comp=1;
-		$sqlHelper=new sqlHelper();
-    $sql="select id,depart,pid from depart where comp=$comp";
-    $res=$sqlHelper->dql_arr($sql);
-    $sqlHelper->close_connect();
-    $info="";
-    for ($i=0; $i < count($res); $i++) { 
-      $info[$i]=array("text"=>"{$res[$i]['depart']}","dptid"=>"{$res[$i]['id']}","pid"=>"{$res[$i]['pid']}");
-    }
-        $info=json_encode($info,JSON_UNESCAPED_UNICODE);
-    echo "<pre>";
-    print_r($info);
-    echo "</pre>";
+
+phpinfo();
+// require_once "classifyBuild.php";
+// header("content-type:text/html;charset=utf-8");
+// require_once "sqlHelper.class.php";
+//     $comp=1;
+// 		$sqlHelper=new sqlHelper();
+//     $sql="select id,depart,pid from depart where comp=$comp";
+//     $res=$sqlHelper->dql_arr($sql);
+//     $sqlHelper->close_connect();
+//     $info="";
+//     for ($i=0; $i < count($res); $i++) { 
+//       $info[$i]=array("text"=>"{$res[$i]['depart']}","dptid"=>"{$res[$i]['id']}","pid"=>"{$res[$i]['pid']}");
+//     }
+//         $info=json_encode($info,JSON_UNESCAPED_UNICODE);
+//     echo "<pre>";
+//     print_r($info);
+//     echo "</pre>";
         // return $info;
 
 
@@ -37,43 +39,4 @@ require_once "sqlHelper.class.php";
 //     console.log("onUnsetSelectValue");
 // });
 // 
-$(function(){
-  $("#uptDpt input[name=pid]").val(dptid);
-  var slPy='<?php $slPy=$dptService->getDptAllByJson(1); echo $slPy; ?>';
-  var slDataTree = transData(eval(slPy),'dptid',  'pid', 'nodes'); 
-  dataPy=JSON.stringify(slDataTree); 
-
-  var slZp='<?php $slZp=$dptService->getDptAllByJson(2); echo $slZp; ?>';
-  var slDataTree = transData(eval(slZp),'dptid',  'pid', 'nodes'); 
-  dataZp=JSON.stringify(slDataTree); 
-
-  var slGp='<?php $slGp=$dptService->getDptAllByJson(3); echo $slGp; ?>';
-  var slDataTree = transData(eval(slGp),'dptid',  'pid', 'nodes'); 
-  dataGp=JSON.stringify(slDataTree); 
-
-  $('#dpt1-select').treeview({
-    selectedBackColor:"#DBDBDB",
-      // color: "#428bca",
-      showBorder: false,
-      data: dataPy,
-      levels: 1,
-      // showTags: true
-    });
-  $('#dpt2-select').treeview({
-    selectedBackColor:"#DBDBDB",
-      // color: "#428bca",
-      showBorder: false,
-      data: dataZp,
-      levels: 1,
-      // showTags: true
-    });
-  $('#dpt3-select').treeview({
-    selectedBackColor:"#DBDBDB",
-      // color: "#428bca",
-      showBorder: false,
-      data: dataGp,
-      levels: 1,
-      // showTags: true
-    });
-
-});
+?>

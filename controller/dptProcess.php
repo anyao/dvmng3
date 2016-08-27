@@ -30,7 +30,7 @@ if (!empty($_REQUEST['flag'])) {
 		$pid=$_POST['pid'];
 		$res=$dptService->addDpt($pid,$name);
 		if ($res!=0) {
-			header("location:../view/dptUser.php");
+			header("location:../dptUser.php");
 		}else{
 			echo "添加部门失败，请联系管理员：0310-5178939";
 		}
@@ -45,7 +45,7 @@ if (!empty($_REQUEST['flag'])) {
 		$res=$dptService->uptDpt($id,$name,$pid,$path);
 
 		if ($res!=0) {
-			header("location:../view/uptDpt.php?id=".$id);
+			header("location:../uptDpt.php?id=".$id);
 		}else{
 			echo "修改部门信息失败，请联系管理员：0310-5178939";
 		}
@@ -55,7 +55,7 @@ if (!empty($_REQUEST['flag'])) {
 		$id=$_GET['id'];
 		$res=$dptService->delDpt($id);
 		if ($res!=0) {
-			header("location:../view/dptUser.php");
+			header("location:../dptUser.php");
 		}else{
 			echo "删除部门失败，请联系管理员：0310-5178939";
 		}

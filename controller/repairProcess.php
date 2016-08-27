@@ -46,7 +46,7 @@ else if($flag=="addMis"){
 	$time=$_POST['time'];
 	$res=$repairService->addMis($devid,$err,$liable,$time);
 	if($res!=0){
-		header("location:../view/repMis.php");
+		header("location:../repMis.php");
 		exit();
 	}else{
 		echo "添加维修任务失败，请联系管理员。<br/>联系电话：0310-5178939。";
@@ -62,7 +62,7 @@ else if($flag=="updateMis"){
 	$time=$_POST['time'];
 	$res=$repairService->updateMis($devid,$err,$liable,$misid,$time);
 	if($res!=0){
-		header("location:../view/repMis.php");
+		header("location:../repMis.php");
 		exit();
 	}else{
 		echo "修改维修任务失败，请联系管理员。<br/>联系电话：0310-5178939。";
@@ -75,7 +75,7 @@ else if($flag=="delMis"){
 	$id=$_GET['id'];
 	$res=$repairService->delMis($id);
 	if($res!=0){
-		header("location:../view/repMis.php");
+		header("location:../repMis.php");
 		exit();
 	}else{
 		echo "删除维修任务失败，请联系管理员。<br/>联系电话：0310-5178939。";
@@ -94,7 +94,7 @@ else if ($flag=="addInfoByMis"){
 	$time=$_POST['time'];
 	$res=$repairService->addInfoByMis($devid,$err,$liable,$reason,$solve,$time,$misid);
 	if(!in_array(0,$res)){
-		header("location:../view/repmis.php");
+		header("location:../repmis.php");
 		exit();
 	}else{
 		echo "添加维修记录并更新维修任务部分字段失败，请联系管理员。<br/>联系电话：0310-5178939。";
@@ -120,7 +120,7 @@ else if ($flag=="addInfo"){
 	$time=$_POST['time'];
 	$res=$repairService->addInfo($devid,$err,$liable,$reason,$solve,$time);
 	if($res!=0){
-		header("location:../view/repList.php");
+		header("location:../repList.php");
 		exit();
 	}else{
 		echo "添加维修记录失败，请联系管理员。<br/>联系电话：0310-5178939。";
@@ -143,7 +143,7 @@ else if($flag=="updateInfo"){
 	$time=$_POST['time'];
 	$res=$repairService->updateInfo($devid,$err,$id,$liable,$reason,$solve,$time);
 	if($res!=0){
-		header("location:../view/repList.php");
+		header("location:../repList.php");
 		exit();
 	}else{
 		echo "修改维修记录失败，请联系管理员。<br/>联系电话：0310-5178939。";
@@ -156,7 +156,7 @@ else if($flag=="delInfo"){
 	$id=$_GET['id'];
 	$res=$repairService->delInfo($id);
 	if($res!=0){
-		header("location:../view/repList.php");
+		header("location:../repList.php");
 		exit();
 	}else{
 		echo "删除维修记录失败，请联系管理员。<br/>联系电话：0310-5178939。";
@@ -174,7 +174,7 @@ else if ($flag=="addRepByDev"){
 	$time=$_POST['time'];
 	$res=$repairService->addInfo($devid,$err,$liable,$reason,$solve,$time);
 	if($res!=0){
-		header("location:../view/using.php?id=$devid");
+		header("location:../using.php?id=$devid");
 		exit();
 	}else{
 		echo "添加维修记录失败，请联系管理员。<br/>联系电话：0310-5178939。";
@@ -201,7 +201,7 @@ else if($flag=="updtRepByDev"){
 	$devid=$_POST['devid'];
 	$res=$repairService->updtRepByDev($err,$id,$liable,$reason,$solve,$time);
 	if($res!=0){
-		header("location:../view/using.php?id=$devid");
+		header("location:../using.php?id=$devid");
 		exit();
 	}else{
 		echo "添加维修记录失败，请联系管理员。<br/>联系电话：0310-5178939。";
@@ -216,7 +216,7 @@ else if($flag=="delrepByDev"){
 	$devid=$_GET['devid'];
 	$res=$repairService->delInfo($id);
 	if($res!=0){
-		header("location:../view/using.php?id=$devid");
+		header("location:../using.php?id=$devid");
 		exit();
 	}else{
 		echo "删除维修记录失败，请联系管理员。<br/>联系电话：0310-5178939。";

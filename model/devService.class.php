@@ -626,7 +626,7 @@ class devService{
 			on depart.id=device.depart
 			inner join depart as factory
 			on factory.id=device.factory
-			where pid=0";
+			where device.pid=0";
 		$sqlHelper=new sqlHelper();
 		$res=$sqlHelper->dql_arr($sql);
 		$sqlHelper->close_connect();

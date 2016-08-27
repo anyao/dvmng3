@@ -33,15 +33,15 @@ if ($checkUser!=1 && $checkUser!=2) {
 	session_start();
 	$_SESSION['user']=$checkUser;
 	// echo $_SESSION['user'];
-	header("location:../view/homePage.php");
+	header("location:../homePage.php");
 	exit();
 }else if($checkUser==1){
 	// 用户不存在或用户名错误
-	header("location:../view/login.php?err=1");
+	header("location:../login.php?err=1");
 	exit();
 }else if($checkUser==2){
 	// 密码错误
-	header("location:../view/login.php?err=2");
+	header("location:../login.php?err=2");
 	exit();
 }
 

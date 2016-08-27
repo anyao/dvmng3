@@ -21,7 +21,7 @@ if(!empty($_REQUEST['flag'])){
 
 		$res=$spareService->addSpare($brand,$class,$code,$dateEnd,$dateManu,$depart,$factory,$name,$no,$number,$price,$supplier);
 		if($res==1){
-			header("location:../view/spareList.php");
+			header("location:../spareList.php");
 			exit();
 		}else{
 			echo "添加设备信息失败，请联系管理员。<br/>联系电话：0310-5178939。";
@@ -33,7 +33,7 @@ if(!empty($_REQUEST['flag'])){
 		$id=$_GET['id'];
 		$res=$spareService->delSpare($id);
 		if(!in_array(0,$res)){
-			header("location:../view/spareList.php");
+			header("location:../spareList.php");
 			exit();
 		}else{
 			echo "删除设备信息失败，请联系管理员。<br/>联系电话：0310-5178939。";
@@ -48,10 +48,10 @@ if(!empty($_REQUEST['flag'])){
 		$res=$spareService->toUsing($id,$pid);
 		if($res[1]!=0){
 			if (empty($res[0])) {
-				header("location:../view/using.php?id=$id");
+				header("location:../using.php?id=$id");
 				exit();
 			}else{
-				header("location:../view/usingSon.php?id=$id");
+				header("location:../usingSon.php?id=$id");
 				exit();
 			}	
 		}else{
@@ -67,7 +67,7 @@ if(!empty($_REQUEST['flag'])){
 		$dvd=$_POST['dvd'];
 		$res=$spareService->dvd($dvd,$id);
 		if ($res!=0) {
-			header("location:../view/spare.php?id=$id");
+			header("location:../spare.php?id=$id");
 			exit();
 		}else{
 			echo "拆解失败，请联系管理员。<br/>联系电话：0310-5178939。";
@@ -96,7 +96,7 @@ if(!empty($_REQUEST['flag'])){
 
 		$res=$spareService->updateSpare($brand,$class,$code,$dateEnd,$dateInstall,$dateManu,$factory,$id,$name,$no,$number,$para,$periodVali,$price,$supplier);
 		if (!in_array(0,$res)) {
-			header("location:../view/spare.php?id=$id");
+			header("location:../spare.php?id=$id");
 		}else{
 			echo "更新设备信息失败，请联系管理员。<br/>联系电话：0310-5178939。";
 			exit();
@@ -126,7 +126,7 @@ if(!empty($_REQUEST['flag'])){
 		$sname=$_POST['typeNew'];
 		$res=$spareService->addType($pname,$sname);
 		if ($res!=0) {
-			header("location:../view/spareList.php");
+			header("location:../spareList.php");
 			exit();
 		}else{
 			echo "添加备用设备类型失败请联系管理员。<br/>联系电话：0310-5178939。";
@@ -138,7 +138,7 @@ if(!empty($_REQUEST['flag'])){
 		$name=$_POST['nameDel'];
 		$res=$spareService->delType($name);
 		if ($res!=0) {
-			header("location:../view/spareList.php");
+			header("location:../spareList.php");
 			exit();
 		}else{
 			echo "删除备用设备类别失败请联系管理员。<br/>联系电话：0310-5178939。";
@@ -163,7 +163,7 @@ if(!empty($_REQUEST['flag'])){
 
 		$res=$spareService->tgther($class,$code,$depart,$devid,$factory,$info,$liable,$name,$no,$tgther,$time);
 		if(!in_array(0,$res)){
-			header("location:../view/spare.php?id=$devid");
+			header("location:../spare.php?id=$devid");
 			exit();
 		}else{
 			echo "拼装失败请联系管理员。<br/>联系电话：0310-5178939。";
