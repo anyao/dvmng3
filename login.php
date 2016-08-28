@@ -132,12 +132,7 @@ session_destroy();
     </div>
   </div>
 </div>
-<?php 
-// if (!empty($_GET['err'])) {
-//   $resLogin=$_GET['err'];
-//   echo "<div style='background-color:pink'>11111111111111111111</div>$resLogin"; 
-// }
-?>
+
 
 <script src="bootstrap/js/jquery.js"></script>
 <script src="bootstrap/js/bootstrap.js"></script>

@@ -11,10 +11,12 @@ function getCookieval($key){
 //验证是否登录，若未登录则返回登录页面
 function checkValidate(){
 	session_start();
-
 	if(empty($_SESSION['user'])){
-		header("location:../login.php");
+		header("location:./login.php");
 		exit();
 	}
 }
+
+// 返回用户部门、权限用于权限管理
+// function right()
 ?>

@@ -30,8 +30,12 @@ if (!empty($_POST['keep'])) {
 $userService=new userService();
 $checkUser=$userService->checkUser($code,$psw);
 if ($checkUser!=1 && $checkUser!=2) {
+	$checkUser=explode(",",$checkUser);
+
 	session_start();
-	$_SESSION['user']=$checkUser;
+	$_SESSION['user']=$checkUser[0];
+	$_SESSION['dptid']=$checkUser[1];
+	$_SESSION['permit']=$checkUser[2];
 	// echo $_SESSION['user'];
 	header("location:../homePage.php");
 	exit();

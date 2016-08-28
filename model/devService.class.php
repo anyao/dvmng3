@@ -4,6 +4,58 @@ require_once 'sqlHelper.class.php';
 require_once 'paging.class.php';
 require_once 'classifyBuild.php';
 class devService{
+	public $authWhr="";
+	public $authAnd="";
+	// public $authDpt="";
+	// public $authDptAnd="";
+	// public $authUsr="";
+	// public $authUsrAnd="";
+
+	function __construct(){
+		$sqlHelper=new sqlHelper();
+		$upid=$_SESSION['dptid'];
+		$pmt=$_SESSION['permit'];
+		switch ($pmt) {
+			case '0':
+				$this->authWhr="";
+				$this->authAnd="";
+				break;
+			case '1':
+				$sql="select id from depart where id=$upid or path in('%-{$upid}','%-{$upid}-%')";
+				$upid=$sqlHelper->dql_arr($sql);
+				$upid=implode(",",array_column($upid,'id'));
+				$this->authWhr=" where device.depart in(".$upid.") ";
+				$this->authAnd=" and device.depart in(".$upid.") ";
+				// $this->authDpt=" where depart.id in(".$upid.") ";
+				// $this->authDptAnd=" and depart.id in(".$upid.") ";
+				// $this->authUsr=""
+				break;
+			case '2':
+				$this->authWhr=" where device.depart=$upid ";
+				$this->authAnd=" and device.depart=$upid ";
+				break;
+		}
+		$sqlHelper->close_connect();	
+	}
+
+	function getPaging($paging){	
+		$sqlHelper=new sqlHelper();
+		$sql1="	select id,code,name,state,insp,rep,dateInstall,dateEnd
+				from device 
+				left join 
+				(select time as insp,devid from insplist where id in (select max(id) from insplist group by devid)) as insptime
+				on device.id=insptime.devid
+				left join 
+				(select time as rep,devid from replist where id in (select max(id) from replist group by devid)) as replist
+				on device.id=replist.devid
+				where device.pid=0 and state in ('正常','停用')".$this->authAnd."
+				order by device.id
+			  	limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
+		$sql2="select count(*) from device where pid='0' and state in ('正常','停用')".$this->authAnd;
+		$sqlHelper->dqlPaging($sql1,$sql2,$paging);
+		$sqlHelper->close_connect();	
+	}
+
 	// 搜索所有部门
 	function getDptAll($idFct){
 		$sqlHelper=new sqlHelper();
@@ -103,7 +155,7 @@ class devService{
 			inner join depart 
 			on depart.id=device.depart
 			inner join depart as factory
-			on factory.id=device.factory";
+			on factory.id=device.factory".$this->authWhr;
 		$res=$sqlHelper->dql_arr($sql);
 		$res=json_encode($res,JSON_UNESCAPED_UNICODE);
 		$sqlHelper->close_connect();
@@ -265,7 +317,7 @@ class devService{
 
 	//获取当前页数
 	function getPageCount($pageSize){
-		$sql="select count(id) from device";
+		$sql="select count(id) from device".$this->authWhr;
 		$sqlHelper=new sqlHelper;
 		$res=$sqlHelper->dql($sql);
 
@@ -278,31 +330,15 @@ class devService{
 	}
 
 	//获取当页数据
-	function getDevListByPage($pageNow,$pageSize){
-		$sql="select * from device limit ".($pageNow-1)*$pageSize.",$pageSize";
-		$sqlHelper=new sqlHelper();
-		$res=$sqlHelper->dql_arr($sql);
-		$sqlHelper->close_connect();
-		return $res;
-	}
+	// function getDevListByPage($pageNow,$pageSize){
+	// 	$sql="select * from device limit ".($pageNow-1)*$pageSize.",$pageSize";
+	// 	$sqlHelper=new sqlHelper();
+	// 	$res=$sqlHelper->dql_arr($sql);
+	// 	$sqlHelper->close_connect();
+	// 	return $res;
+	// }
 
-	function getPaging($paging){	
-		$sqlHelper=new sqlHelper();
-		$sql1="	select id,code,name,state,insp,rep,dateInstall,dateEnd
-				from device 
-				left join 
-				(select time as insp,devid from insplist where id in (select max(id) from insplist group by devid)) as insptime
-				on device.id=insptime.devid
-				left join 
-				(select time as rep,devid from replist where id in (select max(id) from replist group by devid)) as replist
-				on device.id=replist.devid
-				where device.pid=0 and state in ('正常','停用')
-				order by device.id
-			  	limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";	
-		$sql2="select count(*) from device where pid='0' and state in ('正常','停用')";
-		$sqlHelper->dqlPaging($sql1,$sql2,$paging);
-		$sqlHelper->close_connect();	
-	}
+
 
 	//计算维修次数
 	function frequency($id){
@@ -529,8 +565,6 @@ class devService{
 	// 删除设备参数
 	function delDetail($devid){
 		$sql="delete from devdetail where devid=$devid";
-		// echo "$sql";
-		// exit();
 		$sqlHelper=new sqlHelper();
 		$res[]=$sqlHelper->dml($sql);
 		$sqlHelper->close_connect();
@@ -538,7 +572,6 @@ class devService{
 	}
 
 	function updateDetail($paraid,$id){
-		// $sql="";
 		$sqlHelper=new sqlHelper();
 		foreach ($paraid as $key => $value) {
 			$sql="update devdetail set paraval='{$value}' where devid=$id and paraid=$key;";
@@ -578,19 +611,6 @@ class devService{
 		return $res;
 	}
 
-	// 修改当前设备管理员
-	// function updateLia($devid,$uid,$oid){
-	// 	// 停止管理
-	// 	$sqlHelper=new sqlHelper();
-	// 	$oid=explode(",",$oid);
-	// 	$res[0]=$devid;
-	// 	for ($i=0; $i < count($oid); $i++) { 
-	// 		$sql="update dev_user set info='停管' where id=$oid[$i];";
-	// 		$res[1][]=$sqlHelper->dml($sql);
-	// 	}
-
-
-	
 	// 添加新的设备与管理员关系
 	function addCon($devid,$uid){
 		$sqlHelper=new sqlHelper();
@@ -626,7 +646,7 @@ class devService{
 			on depart.id=device.depart
 			inner join depart as factory
 			on factory.id=device.factory
-			where device.pid=0";
+			where device.pid=0".$this->authAnd;
 		$sqlHelper=new sqlHelper();
 		$res=$sqlHelper->dql_arr($sql);
 		$sqlHelper->close_connect();
@@ -635,7 +655,6 @@ class devService{
 	}
 
 	// 主页搜索功能
-	
 	function findDev($depart,$factory,$keyword,$devid,$office,$paging){
 		$where="";
 		$location="";
@@ -674,10 +693,10 @@ class devService{
 			  left join 
 			  (select time as rep,devid from replist where id in (select max(id) from replist group by devid)) as replist
 			  on device.id=replist.devid
-			  where pid=0 and ".$where
+			  where pid=0 and ".$where.$this->authAnd
 			  ."limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
 		$sql2="select count(id) from device 
-			   where pid=0 and ".$where;
+			   where pid=0 and ".$where.$this->authAnd;
 		$sqlHelper=new sqlHelper();
 		$res=$sqlHelper->dqlPaging($sql1,$sql2,$paging);
 		$sqlHelper->close_connect();
@@ -711,33 +730,29 @@ class devService{
 	// 停用父设备，包括停用其下子设备
 	function stopDev($id){
 		$sqlHelper=new sqlHelper();
-		$sql="select id from device where path like '-{$id}%'";
+		// $sql="select id from device where path like '-{$id}%'";
+		$sql="select id from device where path in('%-{$id}-%','%-{$id}')";
 		$res=$sqlHelper->dql_arr($sql);
-		$sql="update device set state='停用' where id=$id or ";
-		for ($i=0; $i < count($res); $i++) { 
-			if ($i!=count($res)-1) {	
-				$sql.="id={$res[$i]['id']} or ";
-			}else{
-				$sql.="id={$res[$i]['id']}";
-			}
-		}
+		$res=implode(",",array_column($res,'id'));
+		$sql="update device set state='停用' where id in(".$res.")";
+		// for ($i=0; $i < count($res); $i++) { 
+		// 	if ($i!=count($res)-1) {	
+		// 		$sql.="id={$res[$i]['id']} or ";
+		// 	}else{
+		// 		$sql.="id={$res[$i]['id']}";
+		// 	}
+		// }
 		$res=$sqlHelper->dml($sql);
 		$sqlHelper->close_connect();
 		return $res;
 	}
 
-	// function getType(){
-	// 	$sqlHelper=new sqlHelper();
-	// 	$sql="(select name,id,pid from devtype where pid is null) union (select name,id,pid from devtype where pid in (select id from devtype where pid is null)) ";
-	// 	$res=$sqlHelper->dql_arr($sql);
-	
-	
-	// }
 	
 	function departNavi(){
 		$sqlHelper=new sqlHelper();
 		for ($i=1; $i <= 3; $i++) {
 			$sql="select depart as name,id,pid from depart  where comp=$i";
+
 			$res[$i]=$sqlHelper->dql_arr($sql);
 			$classify = new classifyBuild($res[$i]);  
 		    $classify->name = false;  
@@ -760,10 +775,10 @@ class devService{
 			(select time as rep,devid from replist where id in (select max(id) from replist group by devid)) as replist
 			on device.id=replist.devid
 			where device.pid=0 and state in ('正常','停用')
-			and device.factory=$id
+			and device.factory=$id".$this->authAnd."
 			order by device.id
 		  	limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
-		$sql2="select count(*) from device where device.pid=0 and state in ('正常','停用') and device.factory=$id";
+		$sql2="select count(*) from device where device.pid=0 and state in ('正常','停用') and device.factory=$id".$this->authAnd;
 		$sqlHelper->dqlPaging($sql1,$sql2,$paging);
 		$sqlHelper->close_connect();	
 	}
@@ -780,10 +795,10 @@ class devService{
 			(select time as rep,devid from replist where id in (select max(id) from replist group by devid)) as replist
 			on device.id=replist.devid
 			where device.pid=0 and state in ('正常','停用')
-			and device.depart=$id
+			and device.depart=$id".$this->authAnd."
 			order by device.id
 		  	limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
-		$sql2="select count(*) from device where device.pid=0 and state in ('正常','停用') and device.depart=$id";
+		$sql2="select count(*) from device where device.pid=0 and state in ('正常','停用') and device.depart=$id".$this->authAnd;
 		$sqlHelper->dqlPaging($sql1,$sql2,$paging);
 		$sqlHelper->close_connect();
 	}
