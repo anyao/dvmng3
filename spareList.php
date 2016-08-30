@@ -220,14 +220,14 @@ include "message.php";
               ?>
             </tbody>
           </table>
-          <div id="null_info">
+          <!-- <div id="null_info">
            <div class="null_info_suggest">
               <span class="null_info_add">该设备下暂时没有子设备，可点击添加</span>  
               <span class="badge-button" data-toggle="modal" data-target="#typeAdd">
                 <span class="glyphicon glyphicon-plus"></span> 添加设备
               </span>
           </div>
-          </div>   
+          </div>  -->  
           <?php
           echo "<div class='page-count'>$paging->navi</div>";
           ?>
@@ -764,14 +764,14 @@ include "message.php";
     <?php 
       // $page_count=count($paging->res_array);
     ?>
-    $(function(){
-      var count_page=1;
-      // <?php echo $page_count;?>;
-      // alert("hello world");
-      if (count_page==0) {
-        $("#null_info").show();
-      }
-    });
+    // $(function(){
+    //   var count_page=1;
+
+    //   // alert("hello world");
+    //   if (count_page==0) {
+    //     $("#null_info").show();
+    //   }
+    // });
     //弹出框
     $(function() 
       { $("[data-toggle='popover']").popover();

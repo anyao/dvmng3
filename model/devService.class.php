@@ -26,9 +26,6 @@ class devService{
 				$upid=implode(",",array_column($upid,'id'));
 				$this->authWhr=" where device.depart in(".$upid.") ";
 				$this->authAnd=" and device.depart in(".$upid.") ";
-				// $this->authDpt=" where depart.id in(".$upid.") ";
-				// $this->authDptAnd=" and depart.id in(".$upid.") ";
-				// $this->authUsr=""
 				break;
 			case '2':
 				$this->authWhr=" where device.depart=$upid ";

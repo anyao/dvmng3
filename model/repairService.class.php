@@ -2,6 +2,37 @@
 require_once 'sqlHelper.class.php';
 require_once 'paging.class.php';
 class repairService{
+	public $authWhr="";
+	public $authAnd="";
+	// public $authDpt="";
+	// public $authDptAnd="";
+	// public $authUsr="";
+	// public $authUsrAnd="";
+
+	function __construct(){
+		$sqlHelper=new sqlHelper();
+		$upid=$_SESSION['dptid'];
+		$pmt=$_SESSION['permit'];
+		switch ($pmt) {
+			case '0':
+				$this->authWhr="";
+				$this->authAnd="";
+				break;
+			case '1':
+				$sql="select id from depart where id=$upid or path in('%-{$upid}','%-{$upid}-%')";
+				$upid=$sqlHelper->dql_arr($sql);
+				$upid=implode(",",array_column($upid,'id'));
+				$this->authWhr=" where device.depart in(".$upid.") ";
+				$this->authAnd=" and device.depart in(".$upid.") ";
+				break;
+			case '2':
+				$this->authWhr=" where device.depart=$upid ";
+				$this->authAnd=" and device.depart=$upid ";
+				break;
+		}
+		$sqlHelper->close_connect();	
+	}
+
 	// 获取维修任务列表并分页显示
 	function getPagingMis($paging){
 		$sqlHelper=new sqlHelper();
@@ -10,10 +41,14 @@ class repairService{
 			   inner JOIN device
 			   ON repmis.devid=device.id
 			   inner join depart
-			   on depart.id=device.depart
+			   on depart.id=device.depart".$this->authWhr."
 			   ORDER BY repmis.id desc
 			  limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
-		$sql2="select count(id) from repmis";		
+		$sql2="select count(repmis.id) from repmis
+			   inner JOIN device
+			   ON repmis.devid=device.id
+			   inner join depart
+			   on depart.id=device.depart".$this->authWhr;		
 		$sqlHelper->dqlPaging($sql1,$sql2,$paging);
 		$sqlHelper->close_connect();	
 	}
@@ -28,10 +63,16 @@ class repairService{
 			   inner join depart 
 			   on depart.id=device.depart
 			   inner join depart as factory
-			   on factory.id=device.factory
+			   on factory.id=device.factory".$this->authWhr."
 			   ORDER BY replist.id desc
 			  limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
-		$sql2="select count(id) from replist";		
+		$sql2="select count(replist.id) from replist
+			   inner JOIN device
+			   ON replist.devid=device.id
+			   inner join depart 
+			   on depart.id=device.depart
+			   inner join depart as factory
+			   on factory.id=device.factory".$this->authWhr;		
 		$sqlHelper->dqlPaging($sql1,$sql2,$paging);
 		$sqlHelper->close_connect();
 	}
@@ -55,11 +96,15 @@ class repairService{
 
 	// 获得新任务数量
 	function getMisCount(){
-		$sql="select count(id) from repmis where seen=0";
+		$sql="select count(repmis.id) from repmis 
+			  left join device
+			  on repmis.devid=device.id
+			  where seen=0".$this->authAnd;
+			  
 		$sqlHelper=new sqlHelper();
 		$res=$sqlHelper->dql($sql);
 		$sqlHelper->close_connect();
-		return $res['count(id)'];
+		return $res['count(repmis.id)'];
 	}
 
 	// 获取指定日期需执行的维修任务
@@ -107,7 +152,7 @@ class repairService{
 			  on device.depart=depart.id	
 			  inner join depart as factory
 			  on device.factory=factory.id		
-			  where device.pid=0";
+			  where device.pid=0".$this->authAnd;
 		$sqlHelper=new sqlHelper();
 		$res=$sqlHelper->dql_arr($sql);
 		$res=json_encode($res,JSON_UNESCAPED_UNICODE);
@@ -156,12 +201,12 @@ class repairService{
 				$info.="and result='{$result}' ";
 			}
 		}
-		$sql1.=$info."limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
+		$sql1.=$info.$this->authAnd."limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
 
 		$sql2="SELECT count(repmis.id)
 			  FROM	repmis
 			  LEFT JOIN device
-			  ON repmis.devid=device.id ".$info;
+			  ON repmis.devid=device.id ".$info.$this->authAnd;
 
 		$sqlHelper->dqlPaging($sql1,$sql2,$paging);
 		$sqlHelper->close_connect();
@@ -253,11 +298,11 @@ class repairService{
 				$info.="and time like '{$time}%' ";
 			}
 		}
-		$sql1.=$info."limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
+		$sql1.=$info.$this->authAnd."limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
 		$sql2="SELECT count(replist.id)
 			  FROM	replist
 			  LEFT JOIN device
-			  ON replist.devid=device.id ".$info;		
+			  ON replist.devid=device.id ".$info.$this->authAnd;		
 		$sqlHelper->dqlPaging($sql1,$sql2,$paging);
 		$sqlHelper->close_connect();
 	}

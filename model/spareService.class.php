@@ -3,9 +3,41 @@ require_once "sqlHelper.class.php";
 require_once 'paging.class.php';
 header("content-type:text/html;charset=utf-8");
 class spareService{
+	public $authWhr="";
+	public $authAnd="";
+	// public $authDpt="";
+	// public $authDptAnd="";
+	// public $authUsr="";
+	// public $authUsrAnd="";
+
+	function __construct(){
+		$sqlHelper=new sqlHelper();
+		$upid=$_SESSION['dptid'];
+		$pmt=$_SESSION['permit'];
+		switch ($pmt) {
+			case '0':
+				$this->authWhr="";
+				$this->authAnd="";
+				break;
+			case '1':
+				$sql="select id from depart where id=$upid or path in('%-{$upid}','%-{$upid}-%')";
+				$upid=$sqlHelper->dql_arr($sql);
+				$upid=implode(",",array_column($upid,'id'));
+				$this->authWhr=" where device.depart in(".$upid.") ";
+				$this->authAnd=" and device.depart in(".$upid.") ";
+				break;
+			case '2':
+				$this->authWhr=" where device.depart=$upid ";
+				$this->authAnd=" and device.depart=$upid ";
+				break;
+		}
+		$sqlHelper->close_connect();	
+	}
+
+
 	//获取当前页数
 	function getPageCount($pageSize){
-		$sql="select count(id) from spare";
+		$sql="select count(id) from device where state='备用'".$this->authAnd;
 		$sqlHelper=new sqlHelper;
 		$res=$sqlHelper->dql($sql);
 
@@ -15,6 +47,7 @@ class spareService{
 		mysql_free_result($res);
 		$sqlHelper->close_connect($pageSize);
 		return $pageCount;
+		
 	}
 
 	// 搜索备件
@@ -33,8 +66,8 @@ class spareService{
 				$where.="and name like '%{$name}%' ";
 			}
 		}
-		$sql1.=$where."limit ".($paging->pageNow-1)*$paging->pageSize.",".$paging->pageSize;
-		$sql2="select count(id) from device ".$where;
+		$sql1.=$where.$this->authAnd."limit ".($paging->pageNow-1)*$paging->pageSize.",".$paging->pageSize;
+		$sql2="select count(id) from device ".$where.$this->authAnd;
 		$sqlHelper->dqlPaging($sql1,$sql2,$paging);
 		$sqlHelper->close_connect();
 	}
@@ -62,9 +95,18 @@ class spareService{
 	// 根据页数限制取设备记录
 	function getPaging($paging){
 		$sqlHelper=new sqlHelper();
-		$sql1="select id,code,name,no,brand,depart,factory from device
-			   where state= '备用' limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";	
-		$sql2="select count(id) from device";
+		$sql1="select device.id,code,name,no,brand,depart.depart,factory.depart as factory from device
+			   left join depart
+			   on device.depart=depart.id
+			   left join depart as factory
+			   on device.factory=factory.id
+			   where state= '备用'".$this->authAnd." limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";	
+		$sql2="select count(device.id) from device left join depart
+			   on device.depart=depart.id
+			   left join depart as factory
+			   on device.factory=factory.id where state='备用'".$this->authAnd;
+		// echo "$sql1";
+		// exit();
 		$sqlHelper->dqlPaging($sql1,$sql2,$paging);
 		$sqlHelper->close_connect();	
 	}
@@ -242,7 +284,7 @@ class spareService{
 	}
 
 	function getDev(){
-		$sql="select name,id from device where state='正常'";
+		$sql="select name,id from device where state='正常'".$this->authAnd;
 		$sqlHelper=new sqlHelper();
 		$res=$sqlHelper->dql_arr($sql);
 		$sqlHelper->close_connect();
@@ -277,7 +319,7 @@ class spareService{
 	// 获得所有备件的名称
 	function getNameAll(){
 		$sqlHelper=new sqlHelper();
-		$sql="select name,id from device where state='备用'";
+		$sql="select name,id from device where state='备用'".$this->authAnd;
 		$res=$sqlHelper->dql_arr($sql);
 		$sqlHelper->close_connect();
 		$res= json_encode($res,JSON_UNESCAPED_UNICODE);

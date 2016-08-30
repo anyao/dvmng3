@@ -2,15 +2,48 @@
 require_once 'sqlHelper.class.php';
 require_once 'paging.class.php';
 class inspectService{
+	public $authWhr="";
+	public $authAnd="";
+	// public $authDpt="";
+	// public $authDptAnd="";
+	// public $authUsr="";
+	// public $authUsrAnd="";
+
+	function __construct(){
+		$sqlHelper=new sqlHelper();
+		$upid=$_SESSION['dptid'];
+		$pmt=$_SESSION['permit'];
+		switch ($pmt) {
+			case '0':
+				$this->authWhr="";
+				$this->authAnd="";
+				break;
+			case '1':
+				$sql="select id from depart where id=$upid or path in('%-{$upid}','%-{$upid}-%')";
+				$upid=$sqlHelper->dql_arr($sql);
+				$upid=implode(",",array_column($upid,'id'));
+				$this->authWhr=" where device.depart in(".$upid.") ";
+				$this->authAnd=" and device.depart in(".$upid.") ";
+				break;
+			case '2':
+				$this->authWhr=" where device.depart=$upid ";
+				$this->authAnd=" and device.depart=$upid ";
+				break;
+		}
+		$sqlHelper->close_connect();	
+	}
+
 	// 获得巡检记录所有信息用于显示在记录表中
 	function getPagingInfo($paging){
 		$sqlHelper=new sqlHelper();
 		$sql1="select insplist.*,device.name
 			   from inspList
 			   left join device 
-			   on inspList.devid=device.id order by insplist.id desc
+			   on inspList.devid=device.id ".$this->authWhr."
+			   order by insplist.id desc
 			   limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
-		$sql2="select count(id) from inspList";
+		$sql2="select count(insplist.id) from insplist left join device 
+			   on inspList.devid=device.id ".$this->authWhr;
 		
 		$sqlHelper->dqlPaging($sql1,$sql2,$paging);
 		$sqlHelper->close_connect();	
@@ -24,10 +57,15 @@ class inspectService{
 				inner join device
 				on inspstd.devid=device.id 
 				inner join depart
-				on depart.id=device.depart
+				on depart.id=device.depart".$this->authWhr."
 				order by inspstd.id desc
 			    limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
-		$sql2="select count(id) from inspstd";
+			    // aecho "$sql1";
+			    // exit();
+		$sql2="select count(inspstd.id) from inspstd inner join device
+				on inspstd.devid=device.id 
+				inner join depart
+				on depart.id=device.depart".$this->authWhr;
 		$sqlHelper->dqlPaging($sql1,$sql2,$paging);
 		$sqlHelper->close_connect();	
 	}
@@ -64,22 +102,30 @@ class inspectService{
 	}
 
 	function findStd($code,$depart,$devid,$name,$paging){
+		$where=" where ";
+		if (!empty($devid)) {
+			$where=" devid=$devid ";
+		}else if (!empty($code)) {
+			$where=" device.code='{$code}' ";
+		}else if(!empty($name) && !empty($depart)){
+			$where=" depart.depart='{$depart}' and device.name like '%{$name}%' ";
+		}else if (!empty($name)) {
+			$where=" device.name like '%{$name}%' ";
+		}else{
+			$where=" depart.depart='{$depart}' ";
+		}
+		// where devid='{$devid}' or device.code='{$code}' or (depart.depart='{$depart}' and device.name like '%{$name}%') or (depart.depart='{$depart}') or (device.name like '%{$name}%')
 		$sql1="select inspstd.*,device.name,device.code,depart.depart
 			   from inspstd inner join device
 			   on inspstd.devid=device.id
 			   inner join depart
 			   on depart.id=device.depart
-			   where devid='{$devid}' or device.code='{$code}' or (depart.depart='{$depart}' and device.name like '%{$name}%')
-			   												   or (depart.depart='{$depart}')
-			   												   or (device.name like '%{$name}%')
+			   ".$where.$this->authAnd."
 			   limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
 		
 		$sql2="select count(*)
 			   from inspstd left join device
-			   on inspstd.devid=device.id
-			   where devid='{$devid}' or device.code='{$code}' or (depart.depart='{$depart}' and device.name like '%{$name}%')
-			   												   or (depart.depart='{$depart}')
-			   												   or (device.name like '%{$name}%')"; 												   
+			   on inspstd.devid=device.id".$this->authAnd; 												   
 		$sqlHelper=new sqlHelper();			   										
 		$sqlHelper->dqlPaging($sql1,$sql2,$paging);
 		$sqlHelper->close_connect();
@@ -92,7 +138,7 @@ class inspectService{
 			  on depart.id=device.depart
 			  inner join depart as factory
 			  on factory.id=device.factory
-			   where device.pid=0";
+			   where device.pid=0".$this->authAnd;
 		$sqlHelper=new sqlHelper();
 		$res=$sqlHelper->dql_arr($sql);
 		$sqlHelper->close_connect();
@@ -119,10 +165,16 @@ class inspectService{
 				inner join depart
 				on depart.id=device.depart
 				inner join depart as factory
-				on factory.id=device.factory
+				on factory.id=device.factory".$this->authWhr."
 				order by start
 			    limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
-		$sql2="select count(id) from inspmis";
+		$sql2="select count(inspmis.id) from inspmis
+				inner join device
+				on inspmis.devid=device.id
+				inner join depart
+				on depart.id=device.depart
+				inner join depart as factory
+				on factory.id=device.factory".$this->authWhr;
 		$sqlHelper->dqlPaging($sql1,$sql2,$paging);
 		$sqlHelper->close_connect();	
 	}
@@ -145,7 +197,7 @@ class inspectService{
 			  from inspmis
 			  left join device 
 			  on device.id=inspmis.devid 
-			  where start='{$start}'";
+			  where start='{$start}'".$this->authAnd;
 		$sqlHelper=new sqlHelper();
 		$res=$sqlHelper->dql_arr($sql);
 		$sqlHelper->close_connect();
@@ -161,7 +213,7 @@ class inspectService{
 			  inner join depart
 			  on depart.id=device.depart
 			  inner join depart as factory
-			  on factory.id=device.factory
+			  on factory.id=device.factory".$this->authWhr."
 			  order by start
 			  limit 0,10";
 		$sqlHelper=new sqlHelper();
@@ -210,14 +262,14 @@ class inspectService{
 				inner join depart as factory
 				on factory.id=device.factory
 				where (devid='{$devid}' and start='{$time}') or devid='{$devid}' or start='{$time}'
-				   or name like '%{$name}%' or (name like '%{$name}%' and start='{$time}')
+				   or name like '%{$name}%' or (name like '%{$name}%' and start='{$time}')".$this->authAnd."
 				order by start
 			    limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
 		$sql2="select count(*) from inspmis 
 				left join device
 				on inspmis.devid=device.id
 				where (devid='{$devid}' and start='{$time}') or devid='{$devid}' or start='{$time}'
-				   or name like '%{$name}%' or (name like '%{$name}%' and start='{$time}')";
+				   or name like '%{$name}%' or (name like '%{$name}%' and start='{$time}')".$this->authAnd;
 		$sqlHelper->dqlPaging($sql1,$sql2,$paging);
 		$sqlHelper->close_connect();
 	}
@@ -263,14 +315,14 @@ class inspectService{
 			   inner join depart
 			   on depart.id=device.depart
 			   where (time between '{$begin}' and '{$end}') or depart.depart='{$depart}'
-			   or ((time between '{$begin}' and '{$end}') or depart.depart='{$depart}')
+			   or ((time between '{$begin}' and '{$end}') or depart.depart='{$depart}')".$this->authAnd."
 			   limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
 		$sql2="select count(device.id)
 			   from inspList
 			   left join device 
 			   on inspList.devid=device.id 
 			   where (time between '{$begin}' and '{$end}') or depart.depart='{$depart}'
-			   or ((time between '{$begin}' and '{$end}') or depart.depart='{$depart}')";
+			   or ((time between '{$begin}' and '{$end}') or depart.depart='{$depart}')".$this->authAnd;
 		$sqlHelper->dqlPaging($sql1,$sql2,$paging);
 		$sqlHelper->close_connect();
 	}
@@ -299,7 +351,7 @@ class inspectService{
 		$sql="select insplist.*,device.name
 			  from inspList
 			  left join device 
-			  on inspList.devid=device.id where insplist.id=$id";
+			  on inspList.devid=device.id where insplist.id=$id".$this->authAnd;
 		$sqlHelper=new sqlHelper();
 		$res=$sqlHelper->dql($sql);
 		$res=json_encode($res,JSON_UNESCAPED_UNICODE);
