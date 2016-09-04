@@ -94,9 +94,14 @@ $user=$_SESSION['user'];
           <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">设备档案 <span class="caret"></span></a>
           <ul class="dropdown-menu">
             <li><a href="usingList.php">在用设备</a></li>
+             <?php if ($_SESSION['permit']==2) {
+                 echo "<li role='separator' class='divider'></li>";
+              } ?>
             <li><a href="spareList.php">备品备件</a></li>
-            <li role="separator" class="divider"></li>
-            <li><a href="devPara.php">属性参数</a></li>
+            
+            <?php if ($_SESSION['permit']<2) {
+                 echo "<li role='separator' class='divider'></li><li><a href='devPara.php'>属性参数</a></li>";
+               } ?>
           </ul>
         </li>
         <li class="dropdown">

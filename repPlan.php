@@ -80,10 +80,15 @@ $user=$_SESSION['user'];
         <li class="dropdown">
           <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">日常巡检 <span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="inspStd.php">巡检标准</a></li>
-            <li><a href="inspMis.php">巡检计划</a></li>
-            <li class="divider">&nbsp;</li>
-            <li><a href="inspList.php">巡检记录</a></li>
+            <li><a href="usingList.php">在用设备</a></li>
+             <?php if ($_SESSION['permit']==2) {
+                 echo "<li role='separator' class='divider'></li>";
+              } ?>
+            <li><a href="spareList.php">备品备件</a></li>
+            
+            <?php if ($_SESSION['permit']<2) {
+                 echo "<li role='separator' class='divider'></li><li><a href='devPara.php'>属性参数</a></li>";
+               } ?>
           </ul>
         </li>
         <li class="dropdown active">
