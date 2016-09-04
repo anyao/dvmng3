@@ -242,6 +242,7 @@ $arr=$devService->getDevById($id);
   </div>    
   </div>
 </div>
+</div>
 <!-- 更多具体信息 -->
 <div class="row">
   <div class="col-md-12">
@@ -316,8 +317,8 @@ $arr=$devService->getDevById($id);
                   <input type="hidden" name="id" value="<?php echo $arr[0]['id'];?>">
                   <input type="hidden" name="pid" value="<?php echo $arr[0]['pid'];?>">
                   <input type="hidden" name="flag" value="updateDev">
-                   <input type="hidden" name="depart">
-                  <input type="hidden" name="factory">
+                   <input type="hidden" name="depart" value="<?php echo $arr[0]['did'];?>">
+                  <input type="hidden" name="factory" value="<?php echo $arr[0]['fid'];?>">
                   <a class="btn btn-default using-btn"><span class="glyphicon glyphicon-link"></span> 设备说明书 / 图纸</a>
                   <button class="btn btn-primary using-btn" id="updateInfo">修改设备信息</button>
                  </div>
@@ -354,20 +355,27 @@ $arr=$devService->getDevById($id);
               <div class="col-md-6 table-responsive graph" id="install_table">
                 <table class="table table-striped table-hover">
                     <thead><tr>
-                      <th>编号</th><th>名称</th><th>更换时间</th><th>供应商</th><th>更换原因</th>
+                      <th>编号</th><th>名称</th><th>更换时间</th><th>价格</th>
                       <th><a href="javascript:chgeDev(<?php echo $id;?>)" class="glyphicon glyphicon-transfer"></a></th>
                     </tr></thead>
                     <tbody>
                       <?php
                         $chgInfo=$devService->getChgInfo($id);
                         // [info] => test reason [nid] => 189 [name] => 电流表 [dateInstall] => 2016-07-16 [supplier] => testChge2 
-                        for ($i=0; $i < count($chgInfo); $i++) { 
+                        for ($i=0; $i < count($chgInfo); $i++) {
                           echo "<tr><td>{$chgInfo[$i]['id']}</td>
-                          <td><a href='usingSon.php?id={$chgInfo[$i]['id']}'>{$chgInfo[$i]['name']}</a></td>
-                                    <td>{$chgInfo[$i]['dateInstall']}</td><td>{$chgInfo[$i]['supplier']}</td>
-                                    <td>{$chgInfo[$i]['info']}</td>
-                                    <td>&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>";
+                                    <td><a href='usingSon.php?id={$chgInfo[$i]['id']}'>{$chgInfo[$i]['name']}</a></td>
+                                    <td>{$chgInfo[$i]['dateInstall']}</td><td>{$chgInfo[$i]['price']}</td>
+                                    <td><a class='glyphicon glyphicon-resize-small' href='javascript:void(0)' onclick='openInfo(this,{$chgInfo[$i]['id']})'></a></td>
+                                <tr style='display:none' id='change-{$chgInfo[$i]['id']}'>
+                                  <td colspan='12'> 
+                                  <p><b>更换原因：</b>{$chgInfo[$i]['info']}</p>
+                                  <p><b>供应商：</b>{$chgInfo[$i]['supplier']}</p>
+                                  </td>  
+                                </tr>";
                         }
+                          // print_r(array_column($chgInfo,'price'));
+                          // exit();
                       ?>
                     </tbody>
                   </table>
@@ -409,100 +417,6 @@ $arr=$devService->getDevById($id);
 </div>   
 
 
-  <!-- 更换新设备弹出框 -->
-<!-- <form class="form-horizontal" action="controller/devProcess.php" method="post"> -->
- <!--  <div class="modal fade" id="devChange" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" style="margin-top: -50px">
-    <div class="modal-dialog modal-lg" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title" id="myModalLabel">在&nbsp;<?php;?>&nbsp;下更换设备</h4>
-        </div>
-        <div class="modal-body" id="repairInfo">
-          <div class="row">
-            <div class="col-md-6 add-left">
-              <div class="form-group">
-                <label class="col-sm-4 control-label">设备编号：</label>
-                <div class="col-sm-8">
-                  <input type="text" class="form-control" name="devCode" placeholder="请输入要新设备编号">
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="col-sm-4 control-label">设备名称：</label>
-                <div class="col-sm-8">
-                  <input type="text" class="form-control" name="devName" placeholder="请输入要新设备名称">
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="col-sm-4 control-label">安装时间：</label>
-                <div class="col-sm-8">
-                  <input type="text" class="form-control datetime" name="devTime" placeholder="请点击选择更换时间" readonly="readonly">
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="col-sm-4 control-label">设备型号：</label>
-                <div class="col-sm-8">
-                  <input type="text" class="form-control" name="devNo" placeholder="请输入新设备型号">
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="col-sm-4 control-label">所属类型：</label>
-                <div class="col-sm-8">
-                  <input type="text" class="form-control" name="devType" placeholder="请输入新设备所属类型">
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="col-sm-4 control-label">所在部门：</label>
-                <div class="col-sm-8">
-                  <input type="text" class="form-control" name="depart" placeholder="请输入新设备所在部门">
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6 add-right">
-              <div class="form-group">
-                <label class="col-sm-4 control-label">负责人员：</label>
-                <div class="col-sm-8">
-                  <input type="text" class="form-control" name="devChar" placeholder="请输入新设备的负责人员">
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="col-sm-4 control-label">购入价格：</label>
-                <div class="col-sm-8">
-                  <input type="text" class="form-control" name="devPrice" placeholder="请输入新设备的购入价格">
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="col-sm-4 control-label">供应商：</label>
-                <div class="col-sm-8">
-                  <input type="text" class="form-control" name="supplierName" placeholder="请输入新设备的供应源">
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label class="col-sm-4 control-label">设备品牌：</label>
-                <div class="col-sm-8">
-                  <input type="text" class="form-control" name="devBrand" placeholder="请输入新设备所属品牌">
-                </div>
-              </div>
-              <div class="form-group">
-            <label class="col-sm-4 control-label">更换说明：</label>
-            <div class="col-sm-8">
-              <textarea class="form-control" rows="3" name="repairInfo" placeholder="请简要描述更换原因和情况(必填)..."></textarea>
-            </div>
-          </div>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <input type="hidden" name="flag" value="repairDev"></input>
-          <input type="hidden" name="parentId" value="<?php   $parentId;?>"></input>
-          <button type="submit" class="btn btn-primary" id="repair">更换设备</button>
-          <button type="button" class="btn btn-danger" data-dismiss="modal">取消</button>
-        </div>
-      </div>
-    </div>
-  </div>  
- -->
 <!-- 确认更换提示框 -->
 <div class='modal fade'  id='failChg'>
   <div class='modal-dialog modal-sm' role='document' style='margin-top: 150px'>
@@ -546,7 +460,7 @@ $arr=$devService->getDevById($id);
                 <input type="radio" name="devState" value="正常"> 正常
               </label>
               <label class="radio-inline">
-                <input type="radio" name="devState"value="需维修"> 需维修
+                <input type="radio" name="devState" value="需维修"> 需维修
               </label>
               </div>
             </div>
@@ -564,9 +478,10 @@ $arr=$devService->getDevById($id);
                 <textarea class="form-control" rows="3" name="inspectInfo" placeholder="请输入巡检基本分析..."></textarea>
               </div>
             </div>   
+            </div>
             <div class="modal-footer">
               <input type="hidden" name="flag" value="addInspect">
-              <input type="hidden" name="return" value="list"></input>
+              <input type="hidden" name="return" value="list">
               <button type="submit" class="btn btn-primary" id="add">确认添加</button>
               <button type="button" class="btn btn-danger" data-dismiss="modal">取消</button>
             </div>
@@ -577,7 +492,7 @@ $arr=$devService->getDevById($id);
 </div>
 
 
-<!-- 添加新的维修记录 -->
+<!-- 添加更换记录 -->
 <div class="modal fade" id="chgeDev">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -635,7 +550,7 @@ $arr=$devService->getDevById($id);
           <textarea class="form-control" rows="2" name="info"></textarea>
         </div>
       </div>
-
+      </div>
       <div class="modal-footer">
         <input type="hidden" name="flag" value="chgeDev">
         <input type="hidden" name="oid" value="<?php echo $id?>">
@@ -646,7 +561,7 @@ $arr=$devService->getDevById($id);
     </div>
   </div>
 </div>
-</div>
+
 
 
 <!-- 添加记录不完整提示框 -->
@@ -665,7 +580,25 @@ $arr=$devService->getDevById($id);
     </div>
   </div>
 </div>
-</body>
+
+<!-- 权限警告 -->
+<div class="modal fade"  id="failAuth">
+  <div class="modal-dialog modal-sm" role="document" >
+    <div class="modal-content">
+         <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
+         </div>
+         <div class="modal-body"><br/>
+            <div class="loginModal">您无权限进行此操作。</div><br/>
+         </div>
+         <div class="modal-footer">  
+          <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+        </div>
+    </div>
+  </div>
+</div> 
+
+
 <script src="bootstrap/js/jquery.js"></script>
 <script src="bootstrap/js/bootstrap.js"></script>
 <script src="tp/bootstrap-datetimepicker.js"></script>
@@ -674,8 +607,15 @@ $arr=$devService->getDevById($id);
 <script src="bootstrap/js/chartEffects.js"></script>
 <script src="bootstrap/js/chartModernizr.js"></script>
 <script src="bootstrap/js/bootstrap-suggest.js"></script>
-
 <script type="text/javascript">
+var auth='<?php echo "{$_SESSION['permit']}"; ?>';
+
+function openInfo(obj,id){
+  $("#change-"+id).toggle();
+  $(obj).toggleClass("glyphicon glyphicon-resize-small");
+  $(obj).toggleClass("glyphicon glyphicon-resize-full");     
+}
+
 
 // 更换设备确认按钮
 $("#yesChge").click(function(){
@@ -697,14 +637,20 @@ $("#chgeDev .datetime").datetimepicker({
 
 // 更换设备
 function chgeDev(id){
-  if ($(".state").text()=="更换") {
-    $('#failChg').modal({
+  if (auth==2) {
+      $('#failAuth').modal({
         keyboard: true
-   });
+      });
   }else{
-   $('#chgeDev').modal({
-        keyboard: true
-   });
+    if ($(".state").text()=="更换") {
+      $('#failChg').modal({
+          keyboard: true
+     });
+    }else{
+     $('#chgeDev').modal({
+          keyboard: true
+     });
+    }
   }
 }
 
@@ -770,50 +716,59 @@ function addLiable(id){
       $(window).load(function() {   
         var globalGraphSettings = {animation : Modernizr.canvas};
         var graphInitDelay = 300; 
-        
-       //  <?php
-       //  // 对比图显示
-       //  $chart_price=array();
-       //  $chart_name=array();
-       //  $chart_hourcost=array();
-       //  for ($i=0; $i < count($repair_res); $i++) { 
-       //          $chartPrice=$repair_res[$i]['devPrice'];
-       //          $chartName=$repair_res[$i]['devName'];
-       //          $chartHourCost=round($devService->hourCost($repair_res[$i]['devTime'],$repair_res[$i+1]['devTime'],$repair_res[$i]['devPrice']),1);
-       //          // echo "$chartPrice---$chartName---$chartHourCost&nbsp;&nbsp;";
-       //          $chart_price[$i]=$chartPrice;
-       //          $chart_name[$i]=$chartName;
-       //          $chart_hourcost[$i]=$chartHourCost;
-       //  }
-       //  $string_price=implode(",",$chart_price);
-       //  $string_name.="'";
-       //  $string_name.=implode("','",$chart_name);
-       //  $string_name.="'";
-       //  $string_hourcost.=implode(",",$chart_hourcost);
-       //  // echo "$string_price<br/>";
-       //  // echo "$string_name<br/>";
-       //  // echo "$string_hourcost<br/>";
-       //  // exit();
-       // ?>
 
       var barChartData = {
-      // labels : <?php  $string_name;?>,
-      labels:[7,6,1,2,3,4],
+      labels:<?php 
+                if (!empty($chgInfo)) {
+                  $chgName=array_column($chgInfo,'id');
+                  $chgName=json_encode($chgName,JSON_UNESCAPED_UNICODE);
+                }else{
+                  $chgName='[\'当\',\'前\',\'无\',\'数\',\'据\',\'对\',\'比\']';
+                }
+                echo "$chgName";
+              ?>,
       datasets : [{
         fillColor : 'rgba(8,31,52,0.9)',
         strokeColor : 'rgba(220,220,220,1)',
-        // data : [<?php  $string_price;?>]
-        data:[7,6,1,2,3,4],
+        data:<?php 
+                if (!empty($chgInfo)) {
+                  $price=array_column($chgInfo,'price');
+                  $chgPrc=json_encode($price,JSON_UNESCAPED_UNICODE);
+                }else{
+                  $chgPrc='[7,6,0,2,3,4,5]';
+                }
+                echo "$chgPrc";
+              ?>
       }]};
-
+      
       var lineChartData = {
-        // labels : [<?php  $string_name;?>],
-        labels : [7,6,1,2,3,4],
+        labels :<?php 
+                if (!empty($chgInfo)) {
+                  $chgName=array_column($chgInfo,'id');
+                  $chgName=json_encode($chgName,JSON_UNESCAPED_UNICODE);
+                }else{
+                  $chgName='[\'当\',\'前\',\'无\',\'数\',\'据\',\'对\',\'比\']';
+                }
+                echo "$chgName";
+              ?>,
         datasets : [{
             fillColor : 'rgba(151,187,205,1)',
             strokeColor : 'rgba(151,187,205,1)',
-            // data :  [<?php  $string_hourcost;?>]
-            data:[7,6,1,2,3,4]
+            data:<?php 
+                    $hrCst="";
+                    if(!empty($chgInfo)){
+                      $hrCstArr=array();
+                      $start=array_column($chgInfo,'dateInstall');
+                      $end=array_column($chgInfo,'dateEnd'); 
+                      for ($i=0; $i < count($chgInfo); $i++) {
+                          $hrCstArr[$i]=$devService->hourCost($start[$i],$end[$i],$price[$i]);
+                      }
+                      $hrCst=json_encode($hrCstArr,JSON_UNESCAPED_UNICODE);
+                    }else{
+                      $hrCst='[7,6,0,2,3,4,5]';
+                    }
+                    echo "$hrCst";
+                   ?>
       }]};
 
         // 小时成本显示图表--虽然名字是LineChart,但显示的是目的是显示的柱状图！！！！！！
@@ -868,137 +823,142 @@ function addLiable(id){
       });
 
       $("#updateInfo").click(function(){
-        if($(".form-control").prop("readonly")){
-          $("#updateForm .form-control").not("input[name=nameDepart]").removeAttr("readonly");
-          $(this).text("提交修改");
-          // 时间选择器
-          $(".datetime").datetimepicker({
-            format: 'yyyy-mm-dd', language: "zh-CN", autoclose: true,minView:2
-          });
-
-          // 分厂搜索提示，并根据所选调用部门搜索函数
-    $("input[name=nameFct]").bsSuggest({
-        allowNoKeyword: false,
-        // showBtn: false,
-        indexId:1,
-        // indexKey: 1,
-        data: {
-             'value':<?php 
-              $allFct=$devService->getFctAll();
-              echo "$allFct";
-              ?>,
-        }
-    }).on('onDataRequestSuccess', function (e, result) {
-        console.log('onDataRequestSuccess: ', result);
-    }).on('onSetSelectValue', function (e, keyword, data) {
-       console.log('onSetSelectValue: ', keyword, data);
-       var idFct=$(this).attr("data-id");
-       $(this).parents("form").find("input[name=factory]").val(idFct);
-       var $depart=$(this).parents("form").find("input[name=nameDepart]"); 
-       $.get("controller/devProcess.php",{
-        flag:'getDptAll',
-        idFct:idFct
-       },function(data,success){
-        var departAll=data;
-
-        $depart.removeAttr("readonly");
-         // 部门搜索提示
-        $depart.bsSuggest({
-            allowNoKeyword: false,
-            // showBtn: false,
-            indexId:1,
-            // indexKey: 1,
-            data: {
-                 'value':departAll,
-            }
-        }).on('onDataRequestSuccess', function (e, result) {
-            console.log('onDataRequestSuccess: ', result);
-        }).on('onSetSelectValue', function (e, keyword, data) {
-           console.log('onSetSelectValue: ', keyword, data);
-           var idDepart=$(this).attr("data-id");
-           $(this).parents("form").find("input[name=depart]").val(idDepart);
-        }).on('onUnsetSelectValue', function (e) {
-            console.log("onUnsetSelectValue");
-        });
-       },"json")
-    }).on('onUnsetSelectValue', function (e) {
-        console.log("onUnsetSelectValue");
-    });
-
-
-
-          // 修改父设备，设备类别搜索建议
-          $(".detail input[name=parent]").bsSuggest({
-              allowNoKeyword: false,
-              indexId:3,
-              // indexKey: 1,
-              data: {
-                   'value':
-                   <?php 
-                    $allDev=$devService->getDevAll();
-                    echo "$allDev";
-                   ?>
-              }
-          }).on('onDataRequestSuccess', function (e, result) {
-              console.log('onDataRequestSuccess: ', result);
-          }).on('onSetSelectValue', function (e, keyword, data) {
-              console.log('onSetSelectValue: ', keyword, data);
-               var pid=$(this).attr("data-id");
-              if (pid!="" && typeof(pid)!="undefined") {
-                $("input[name=pid]").val(pid);
-              }
-          }).on('onUnsetSelectValue', function (e) {
-              console.log("onUnsetSelectValue");
-          });
-
-          $(".detail input[name=class]").bsSuggest({
-              allowNoKeyword: false,
-              indexId:1,
-              // indexKey: 1,
-              data: {
-                   'value':<?php 
-                    $allType=$devService->getTypeSon();
-                    echo "$allType";
-                    ?>,
-              }
-          }).on('onDataRequestSuccess', function (e, result) {
-              console.log('onDataRequestSuccess: ', result);
-          }).on('onSetSelectValue', function (e, keyword, data) {
-              console.log('onSetSelectValue: ', keyword, data);
-
-              var idType=$(this).attr("data-id");
-
-              $.get("controller/devProcess.php",{
-                flag:'getPara',
-                id:idType
-              },function(data,success){
-               var addHtml="";
-               for (var i = 0; i < data.length; i++) {
-                  addHtml+="<div class='col-md-4'>"+
-                           "  <div class='input-group'>"+
-                           "    <span class='input-group-addon'>"+data[i].name+"</span>"+
-                           "    <input type='text' class='form-control' name='paraid["+data[i].id+"]'>"+
-                           "  </div> "+
-                           "</div>";
-               }
-               $(".detail-info:last .col-md-4:not(:last)").detach();
-               $(".detail-info:last h4").after(addHtml);
-              },'json');
-              
-          }).on('onUnsetSelectValue', function (e) {
-              console.log("onUnsetSelectValue");
-          });
-
-        }else{
-          $(this).text("修改设备信息");
-           $('#confirm').modal({
-                keyboard: true
+        if (auth==2) {
+            $('#failAuth').modal({
+              keyboard: true
             });
-           $("#confirmYes").click(function(){
-            $("#updateForm").submit();
-           });
+        }else{
+          if($(".form-control").prop("readonly")){
+            $("#updateForm .form-control").not("input[name=nameDepart]").removeAttr("readonly");
+            $(this).text("提交修改");
+            // 时间选择器
+            $(".datetime").datetimepicker({
+              format: 'yyyy-mm-dd', language: "zh-CN", autoclose: true,minView:2
+            });
+
+            // 分厂搜索提示，并根据所选调用部门搜索函数
+            $("input[name=nameFct]").bsSuggest({
+                allowNoKeyword: false,
+                // showBtn: false,
+                indexId:1,
+                // indexKey: 1,
+                data: {
+                     'value':<?php 
+                      $allFct=$devService->getFctAll();
+                      echo "$allFct";
+                      ?>,
+                }
+            }).on('onDataRequestSuccess', function (e, result) {
+                console.log('onDataRequestSuccess: ', result);
+            }).on('onSetSelectValue', function (e, keyword, data) {
+               console.log('onSetSelectValue: ', keyword, data);
+               var idFct=$(this).attr("data-id");
+               $(this).parents("form").find("input[name=factory]").val(idFct);
+               var $depart=$(this).parents("form").find("input[name=nameDepart]"); 
+               $.get("controller/devProcess.php",{
+                flag:'getDptAll',
+                idFct:idFct
+               },function(data,success){
+                var departAll=data;
+
+                $depart.removeAttr("readonly");
+                 // 部门搜索提示
+                $depart.bsSuggest({
+                    allowNoKeyword: false,
+                    // showBtn: false,
+                    indexId:1,
+                    // indexKey: 1,
+                    data: {
+                         'value':departAll,
+                    }
+                }).on('onDataRequestSuccess', function (e, result) {
+                    console.log('onDataRequestSuccess: ', result);
+                }).on('onSetSelectValue', function (e, keyword, data) {
+                   console.log('onSetSelectValue: ', keyword, data);
+                   var idDepart=$(this).attr("data-id");
+                   $(this).parents("form").find("input[name=depart]").val(idDepart);
+                }).on('onUnsetSelectValue', function (e) {
+                    console.log("onUnsetSelectValue");
+                });
+               },"json")
+            }).on('onUnsetSelectValue', function (e) {
+                console.log("onUnsetSelectValue");
+            });
+
+            // 修改父设备，设备类别搜索建议
+            $(".detail input[name=parent]").bsSuggest({
+                allowNoKeyword: false,
+                indexId:3,
+                // indexKey: 1,
+                data: {
+                     'value':
+                     <?php 
+                      $allDev=$devService->getDevAll();
+                      echo "$allDev";
+                     ?>
+                }
+            }).on('onDataRequestSuccess', function (e, result) {
+                console.log('onDataRequestSuccess: ', result);
+            }).on('onSetSelectValue', function (e, keyword, data) {
+                console.log('onSetSelectValue: ', keyword, data);
+                 var pid=$(this).attr("data-id");
+                if (pid!="" && typeof(pid)!="undefined") {
+                  $("input[name=pid]").val(pid);
+                }
+            }).on('onUnsetSelectValue', function (e) {
+                console.log("onUnsetSelectValue");
+            });
+
+            $(".detail input[name=class]").bsSuggest({
+                allowNoKeyword: false,
+                indexId:1,
+                // indexKey: 1,
+                data: {
+                     'value':<?php 
+                      $allType=$devService->getTypeSon();
+                      echo "$allType";
+                      ?>,
+                }
+            }).on('onDataRequestSuccess', function (e, result) {
+                console.log('onDataRequestSuccess: ', result);
+            }).on('onSetSelectValue', function (e, keyword, data) {
+                console.log('onSetSelectValue: ', keyword, data);
+
+                var idType=$(this).attr("data-id");
+
+                $.get("controller/devProcess.php",{
+                  flag:'getPara',
+                  id:idType
+                },function(data,success){
+                 var addHtml="";
+                 for (var i = 0; i < data.length; i++) {
+                    addHtml+="<div class='col-md-4'>"+
+                             "  <div class='input-group'>"+
+                             "    <span class='input-group-addon'>"+data[i].name+"</span>"+
+                             "    <input type='text' class='form-control' name='paraid["+data[i].id+"]'>"+
+                             "  </div> "+
+                             "</div>";
+                 }
+                 $(".detail-info:last .col-md-4:not(:last)").detach();
+                 $(".detail-info:last h4").after(addHtml);
+                },'json');
+                
+            }).on('onUnsetSelectValue', function (e) {
+                console.log("onUnsetSelectValue");
+            });
+
+          }else{
+            $(this).text("修改设备信息");
+             $('#confirm').modal({
+                  keyboard: true
+              });
+             $("#confirmYes").click(function(){
+              $("#updateForm").submit();
+             });
+          }
         }
         return false;
+
     });
 
   
@@ -1055,4 +1015,5 @@ $("#updateLia #yesLia").click(function(){
 
 
 </script>
+</body>
 </html>

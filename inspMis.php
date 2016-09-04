@@ -369,37 +369,49 @@ include "message.php";
   
    // 删除巡检任务
    function delMis(arr){
-      $('#delMis').modal({
-        keyboard: true
-      });
-      $("#del").click(function() {
-        location.href="controller/inspectProcess.php?flag=delMis&misid="+arr;
-      });            
+    if (auth==2) {
+        $('#failAuth').modal({
+          keyboard: true
+        });
+    }else{
+        $('#delMis').modal({
+          keyboard: true
+        });
+        $("#del").click(function() {
+          location.href="controller/inspectProcess.php?flag=delMis&misid="+arr;
+        });            
     }
+  }
 
     function updateMis(time){ 
-      $("#updateMis #forDev").empty();
-      $.get("controller/inspectProcess.php",{
-        start:time,
-        flag:"getMis"
-      },function(data,success){
-        // [{"id":"61","devid":"135","start":"00:00:00",name},
-         var arr=new Array();
-         $("#updateMis input[name=start]").val(time);
-         $("#updateMis input[name=mid]").val(idMis);
-         for(var i=0;i<data.length;i++){
-            var nameDev=data[i].name;
-            var idDev=data[i].devid;
-            var idMis=data[i].id;
-            arr[i]=idMis;
-            var addHtml="<span class='badge'>"+nameDev+" <a href='javascript:void(0);' class='glyphicon glyphicon-remove' style='color: #f5f5f5;text-decoration: none'></a><input type='hidden' name='dev[]' value="+idDev+"></span> "
-            $("#updateMis #forDev").append(addHtml);
-         }
-         $("#updateMis input[name=oid]").val(arr);
-         $('#updateMis').modal({
-              keyboard: true
-         });
-      },"json");
+      if (auth==2) {
+          $('#failAuth').modal({
+            keyboard: true
+          });
+      }else{
+        $("#updateMis #forDev").empty();
+        $.get("controller/inspectProcess.php",{
+          start:time,
+          flag:"getMis"
+        },function(data,success){
+          // [{"id":"61","devid":"135","start":"00:00:00",name},
+           var arr=new Array();
+           $("#updateMis input[name=start]").val(time);
+           $("#updateMis input[name=mid]").val(idMis);
+           for(var i=0;i<data.length;i++){
+              var nameDev=data[i].name;
+              var idDev=data[i].devid;
+              var idMis=data[i].id;
+              arr[i]=idMis;
+              var addHtml="<span class='badge'>"+nameDev+" <a href='javascript:void(0);' class='glyphicon glyphicon-remove' style='color: #f5f5f5;text-decoration: none'></a><input type='hidden' name='dev[]' value="+idDev+"></span> "
+              $("#updateMis #forDev").append(addHtml);
+           }
+           $("#updateMis input[name=oid]").val(arr);
+           $('#updateMis').modal({
+                keyboard: true
+           });
+        },"json");
+      }
     }
 
     $("input[name=devName]").bsSuggest({

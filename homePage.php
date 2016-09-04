@@ -2,6 +2,7 @@
 require_once "model/cookie.php";
 checkValidate();
 $user=$_SESSION['user'];
+
 ?>
 <!DOCTYPE html>
 <html lang="en">

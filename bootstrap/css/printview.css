@@ -71,6 +71,7 @@
 	
 	height: 370px;
 	border-radius: 6px;
+    padding-right: 0px !important;
 	/*border:1px solid #A9A9A9; */
 	/*margin: 0 20px;*/
 

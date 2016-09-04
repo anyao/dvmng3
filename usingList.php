@@ -143,7 +143,10 @@ if (empty($_REQUEST['flag']) && empty($_GET['fct']) && empty($_GET['dpt'])) {
         </li>
       </ul>
        <ul class="nav navbar-nav navbar-right">
-       <li><a href="dptUser.php">用户管理</a></li>
+       <?php if ($_SESSION['permit']<2) {
+               echo "<li><a href='dptUser.php'>用户管理</a></li>";
+             } ?>
+       
         <li class="dropdown">
         <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button"><?php 
               if (empty($user)) {
@@ -173,14 +176,11 @@ if (empty($_REQUEST['flag']) && empty($_GET['fct']) && empty($_GET['dpt'])) {
     <table class="table table-striped table-hover">
         <thead><tr>
             <th>　</th><th>编号</th><th>设备名称</th><th>运行状态</th><th>运行天数</th><th>上次巡检</th><th>上次维修</th>
-            <th><span style='cursor: pointer;' class="glyphicon glyphicon-import" data-toggle="modal" data-target="#prtAdd"></span></th>
+            <th><span style='cursor: pointer;' class="glyphicon glyphicon-import"></span></th>
             <th>&nbsp;&nbsp;&nbsp;&nbsp;</th>
           </tr></thead>
         <tbody class="tablebody">  
             <?php
-            // [id] => 144 [code] => [name] => 2鼓风机 [state] => 正常 [insp] => 2016-06-18 15:45:00 [rep] => 2016-06-10 15:30:00 
-              // print_r($paging->res_array);
-              // exit();
               for ($i=0; $i < count($paging->res_array); $i++) { 
                 $row=$paging->res_array[$i];
                 $son=$devService->IfHasSon($row['id']);
@@ -678,15 +678,46 @@ if (empty($_REQUEST['flag']) && empty($_GET['fct']) && empty($_GET['dpt'])) {
   </div>
 </div> 
 
+<!-- 权限警告 -->
+<div class="modal fade"  id="failAuth">
+  <div class="modal-dialog modal-sm" role="document" >
+    <div class="modal-content">
+         <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
+         </div>
+         <div class="modal-body"><br/>
+            <div class="loginModal">您无权限进行此操作。</div><br/>
+         </div>
+         <div class="modal-footer">  
+          <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+        </div>
+    </div>
+  </div>
+</div> 
 
-    <script src="bootstrap/js/jquery.js"></script>
-    <script src="bootstrap/js/bootstrap.js"></script>
-    <script src="tp/bootstrap-datetimepicker.js"></script>
-    <script src="tp/bootstrap-datetimepicker.zh-CN.js"></script>
-    <script src="bootstrap/js/table-treeview.js"></script>
-    <script src="bootstrap/js/jsonToTree.js"></script>
-    <script src="bootstrap/js/bootstrap-suggest.js"></script>
-    <script type="text/javascript">
+
+<script src="bootstrap/js/jquery.js"></script>
+<script src="bootstrap/js/bootstrap.js"></script>
+<script src="tp/bootstrap-datetimepicker.js"></script>
+<script src="tp/bootstrap-datetimepicker.zh-CN.js"></script>
+<script src="bootstrap/js/table-treeview.js"></script>
+<script src="bootstrap/js/jsonToTree.js"></script>
+<script src="bootstrap/js/bootstrap-suggest.js"></script>
+<script type="text/javascript">
+var auth='<?php echo "{$_SESSION['permit']}"; ?>';
+// 插入根设备弹出框
+$("th > .glyphicon-import").click(function(){
+  if (auth==2) {
+      $('#failAuth').modal({
+        keyboard: true
+      });
+  }else{
+      $('#prtAdd').modal({
+        keyboard: true
+      });
+  }
+})
+
     function getDevByDpt(id){
       location.href="usingList.php?dpt="+id;
     }
@@ -764,26 +795,32 @@ if (empty($_REQUEST['flag']) && empty($_GET['fct']) && empty($_GET['dpt'])) {
     $(document).on("click","span.glyphicon-trash",trash);
     function trash(){
       var id=$(this).attr("id");
-       $('#devDel').modal({
-        keyboard: true
-      });
-        $("#del").click(function() {
-        $.get("controller/devProcess.php",{
-          pid:id,
-          flag:"findSon"
-        },function(data,success){
-          var count=data;
-          if (count!=0) {
-            $('#devDel').modal('hide');
-            $('#failDel').modal({
+      if (auth==2) {
+            $('#failAuth').modal({
               keyboard: true
             });
-          }else{
-            // alert("failure");
-            location.href="controller/devProcess.php?flag=delDev&id="+id;
-          }
-        },"text");   
-      });
+        }else{
+           $('#devDel').modal({
+              keyboard: true
+            });
+            $("#del").click(function() {
+            $.get("controller/devProcess.php",{
+              pid:id,
+              flag:"findSon"
+            },function(data,success){
+              var count=data;
+              if (count!=0) {
+                $('#devDel').modal('hide');
+                $('#failDel').modal({
+                  keyboard: true
+                });
+              }else{
+                // alert("failure");
+                location.href="controller/devProcess.php?flag=delDev&id="+id;
+              }
+            },"text");   
+          });
+        }
     }
 
 
@@ -791,10 +828,16 @@ if (empty($_REQUEST['flag']) && empty($_GET['fct']) && empty($_GET['dpt'])) {
     $(document).on("click",".tablebody .glyphicon-import",addSon);
     function addSon(){
        var $id=$(this).attr("id");
-       $("#cldAdd input[name=pid]").val($id);
-       $('#cldAdd').modal({
-        keyboard: true
-      });
+       if (auth==2) {
+            $('#failAuth').modal({
+              keyboard: true
+            });
+        }else{
+           $("#cldAdd input[name=pid]").val($id);
+           $('#cldAdd').modal({
+              keyboard: true
+           });
+        }
     }
 
 

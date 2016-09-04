@@ -11,7 +11,7 @@ class repairService{
 
 	function __construct(){
 		$sqlHelper=new sqlHelper();
-		$upid=$_SESSION['dptid'];
+		$upid=$_SESSION['dptid'];//用户所在部门id
 		$pmt=$_SESSION['permit'];
 		switch ($pmt) {
 			case '0':
@@ -35,15 +35,20 @@ class repairService{
 
 	// 获取维修任务列表并分页显示
 	function getPagingMis($paging){
+		$uid=$_SESSION['uid'];
 		$sqlHelper=new sqlHelper();
-		$sql1="SELECT repmis.*,device.name,depart.depart
+		$sql1="SELECT repmis.*,device.name,depart.depart,user.name as fxman
 			   FROM	repmis
 			   inner JOIN device
 			   ON repmis.devid=device.id
 			   inner join depart
-			   on depart.id=device.depart".$this->authWhr."
+			   on depart.id=device.depart
+			   inner join user
+			   on user.id=repmis.liable".$this->authWhr." or repmis.liable=$uid
 			   ORDER BY repmis.id desc
 			  limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
+			  // echo "$sql1";
+			  // exit();
 		$sql2="select count(repmis.id) from repmis
 			   inner JOIN device
 			   ON repmis.devid=device.id
@@ -55,6 +60,7 @@ class repairService{
 
 	// 获取维修记录并分页显示
 	function getPagingInfo($paging){
+
 		$sqlHelper=new sqlHelper();
 		$sql1="SELECT replist.*,device.name,depart.depart,factory.depart as factory
 			   FROM	replist
@@ -96,11 +102,11 @@ class repairService{
 
 	// 获得新任务数量
 	function getMisCount(){
-		$sql="select count(repmis.id) from repmis 
+		$uid=$_SESSION['uid'];
+		$sql="select count(repmis.id),repmis.liable from repmis 
 			  left join device
 			  on repmis.devid=device.id
-			  where seen=0".$this->authAnd;
-			  
+			  where seen=0 and liable='{$uid}'";
 		$sqlHelper=new sqlHelper();
 		$res=$sqlHelper->dql($sql);
 		$sqlHelper->close_connect();

@@ -211,7 +211,22 @@
     </div>
   </div>
 </div>
-
+<!-- 权限警告 -->
+<div class="modal fade"  id="failAuth">
+  <div class="modal-dialog modal-sm" role="document" >
+    <div class="modal-content">
+         <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
+         </div>
+         <div class="modal-body"><br/>
+            <div class="loginModal">您无权限进行此操作。</div><br/>
+         </div>
+         <div class="modal-footer">  
+          <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+        </div>
+    </div>
+  </div>
+</div> 
 
 <!-- 搜索记录 -->
 <div class="modal fade" id="findInfo">

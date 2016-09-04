@@ -34,6 +34,11 @@
  * (c) Copyright 2015 lzw.me. All Rights Reserved.
  ********************************************************************************/
 (function ($) {
+    window.console = window.console || (function(){ 
+                        var c = {}; c.log = c.warn = c.debug = c.info = c.error = c.time = c.dir = c.profile 
+                        = c.clear = c.exception = c.trace = c.assert = function(){}; 
+                        return c; 
+                    })();
     /**
      * 错误处理
      */
@@ -486,6 +491,7 @@
                     options.url = null;
                     $(self).trigger("onDataRequestSuccess", result);
                 }).fail(function (o, err) {
+
                     console.error(URL + " : " + err);
                 });
             }

@@ -86,9 +86,15 @@ include "message.php";
         <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">设备档案 <span class="caret"></span></a>
         <ul class="dropdown-menu">
           <li><a href="usingList.php">在用设备</a></li>
+           <?php if ($_SESSION['permit']==2) {
+               echo "<li role='separator' class='divider'></li>";
+            } ?>
           <li><a href="spareList.php">备品备件</a></li>
-          <li role="separator" class="divider"></li>
-          <li><a href="devPara.php">属性参数</a></li>
+          
+          <?php if ($_SESSION['permit']<2) {
+               echo "<li role='separator' class='divider'></li><li><a href='devPara.php'>属性参数</a></li>";
+             } ?>
+          
         </ul>
       </li>
       <li class="dropdown">
@@ -139,7 +145,7 @@ include "message.php";
     <div class="page-header">
       <h4>　设备参数设置
         <span class="badge-button" data-toggle="modal" data-target="#devFind"><span class="glyphicon glyphicon-paperclip"></span> 按条件筛选查找</span>　
-        <span class="badge-button" data-toggle="modal" data-target="#typePaAdd"><span class="glyphicon glyphicon-plus"></span> 添加新的类别</span>
+        <span class="badge-button" id="modalAddType"><span class="glyphicon glyphicon-plus"></span> 添加新的类别</span>
       </h4>
     </div>
   </div>
@@ -454,14 +460,31 @@ include "message.php";
       </div>
     </div>
   </div>
-</div>   
-  </body>
+</div>  
+<!-- 权限警告 -->
+<div class="modal fade"  id="failAuth">
+  <div class="modal-dialog modal-sm" role="document" >
+    <div class="modal-content">
+         <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
+         </div>
+         <div class="modal-body"><br/>
+            <div class="loginModal">您无权限进行此操作。</div><br/>
+         </div>
+         <div class="modal-footer">  
+          <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+        </div>
+    </div>
+  </div>
+</div>  
+
   <script src="bootstrap/js/jquery.js"></script>
     <script src="bootstrap/js/bootstrap.js"></script>
     <script src="tp/bootstrap-datetimepicker.js"></script>
     <script src="tp/bootstrap-datetimepicker.zh-CN.js"></script>
     <script src="bootstrap/js/bootstrap-suggest.js"></script>
     <script type="text/javascript">
+
     // 具体设备类别和属性参数修改按钮
     $("#updateYes").click(function(){
       var allow_submit = true;
@@ -650,4 +673,5 @@ include "message.php";
 
     
     </script>
+    </body>
 </html>

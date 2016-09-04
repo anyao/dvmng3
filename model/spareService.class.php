@@ -77,17 +77,22 @@ class spareService{
 		$sqlHelper=new sqlHelper();
 		$sql="select name from devtype where id=$typeId or path like '{$typeId}-%' or path like '%-{$typeId}-%'";
 		$type=$sqlHelper->dql_arr($sql);
-		$sql1="select id,code,name,no,brand,depart,factory from device where state='备用' and (";
+		$sql1="select device.id,code,name,no,brand,depart.depart,factory.depart as factory from device 
+			   left join depart
+			   on depart.id=device.depart
+			   left join depart as factory
+			   on factory.id=device.factory
+		where state='备用' and (";
 		$where="";
 		for ($i=0; $i < count($type); $i++) { 
 			if ($i!=count($type)-1) {
 				$where.=" class='{$type[$i]['name']}' or ";
 			}else{
-				$where.=" class='{$type[$i]['name']}' )";
+				$where.=" class='{$type[$i]['name']}' ) ";
 			}
 		}
-		$sql1.=$where." limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
-		$sql2="select count(id) from device where state='备用' and (".$where;
+		$sql1.=$where.$this->authAnd." limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
+		$sql2="select count(id) from device where state='备用' and (".$where.$this->authAnd;
 		$sqlHelper->dqlPaging($sql1,$sql2,$paging);
 		$sqlHelper->close_connect();
 	}

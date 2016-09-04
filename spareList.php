@@ -85,7 +85,6 @@ include "message.php";
   }else if ($_REQUEST['flag']=="getByClass") {
     $typeName=$_GET['class'];
     $typeId=$_GET['classId'];
-
     $spareService->getByClass($typeId,$typeName,$paging);
 
   }
@@ -159,7 +158,7 @@ include "message.php";
   <div class="row">
     <div class="col-md-3">
     <ul class="nav nav-stacked nav-pills nav-self">
-        <li class="nav-header" style="cursor: pointer;" id="getByAll">全部：
+        <li class="nav-header" style="cursor: pointer;"><span id="getByAll">全部：</span>
           <span class="glyphicon glyphicon-cog" style="float: right;margin-right: 10px;margin-top:3px" id="setType"></span>
           <span id="setOp" style="width: 50px;display: none;font-size: 15px;float: right;" >
             <a class="glyphicon glyphicon-plus-sign" style="margin-right:5px;cursor: pointer;text-decoration: none" data-toggle="modal" data-target="#typeAdd"></a>
@@ -178,7 +177,7 @@ include "message.php";
             for ($i=0; $i < count($rootPa); $i++) { 
               if ($i!=count($rootPa)-1) {
                 echo "<li id='{$rootPa[$i]['id']}'>
-                        <a id='{$rootPa[$i]['id']}' href=\"javascript:getByClass('{$rootPa[$i]['name']}',$rootPa[$i]['id']);\">{$rootPa[$i]['name']}</a>
+                        <a id='{$rootPa[$i]['id']}' href=\"javascript:getByClass('{$rootPa[$i]['name']}','{$rootPa[$i]['id']}');\">{$rootPa[$i]['name']}</a>
                       </li>";
               }else{
                 // echo "{$rootPa[$i]['id']}";
@@ -199,7 +198,7 @@ include "message.php";
           <div class="page-header">
               <h4>&nbsp;&nbsp;备品备件
               <span class="badge-button" data-toggle="modal" data-target="#spareFind"><span class="glyphicon glyphicon-paperclip"></span> 按条件查找</span>　
-              <span class="badge-button" data-toggle="modal" data-target="#addSpare"><span class="glyphicon glyphicon-plus"></span> 添加备用设备</span>
+              <span class="badge-button" id="modalAdd"><span class="glyphicon glyphicon-plus"></span> 添加备用设备</span>
               </h4>
           </div>
           <table class="table table-striped table-hover">
@@ -244,7 +243,7 @@ include "message.php";
           <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
           <h4 class="modal-title">添加新的备用设备</h4>
         </div>
-        <div class="modal-body" id="addSpare">
+        <div class="modal-body">
         <div class="row">
           <div class="col-md-6 add-left">
               <div class="form-group">
@@ -545,8 +544,25 @@ include "message.php";
     </div>
   </div>
 </div>
+<!-- 权限警告 -->
+<div class="modal fade"  id="failAuth">
+  <div class="modal-dialog modal-sm" role="document" >
+    <div class="modal-content">
+         <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
+         </div>
+         <div class="modal-body"><br/>
+            <div class="loginModal">您无权限进行此操作。</div><br/>
+         </div>
+         <div class="modal-footer">  
+          <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+        </div>
+    </div>
+  </div>
+</div> 
 
-  </body>
+
+
     <script src="bootstrap/js/jquery.js"></script>
     <script src="bootstrap/js/bootstrap.js"></script>
     <script src="tp/bootstrap-datetimepicker.js"></script>
@@ -554,6 +570,19 @@ include "message.php";
     <script src="bootstrap/js/bootstrap-suggest.js"></script>
     <script src="bootstrap/js/bootstrap-suggest.js"></script>
     <script type="text/javascript">
+    var auth='<?php echo "{$_SESSION['permit']}"; ?>';
+    $("#modalAdd").click(function(){
+      if (auth==2) {
+          $('#failAuth').modal({
+            keyboard: true
+          });
+      }else{
+         $('#addSpare').modal({
+            keyboard: true
+         });
+      }
+    });
+
     $("#getByAll").click(function(){
       getByClass("全部",0);
     }
@@ -624,7 +653,13 @@ include "message.php";
 
     // 类别设置按钮
     $("#setType").click(function(){
-      $("#setOp").toggle();
+      if (auth==2) {
+          $('#failAuth').modal({
+            keyboard: true
+          });
+      }else{
+        $("#setOp").toggle();
+      }
     });
 
     // 添加类别为空时，弹出提示框
@@ -703,9 +738,11 @@ include "message.php";
         $.get("controller/spareProcess.php",{
           flag:"getTypeDad"
         },function(data,success){
+          // alert(data);
+          // return false;
           $("li.nav-header").siblings().detach();
           for (var i = 0; i < data.length; i++) {
-            $addHtml+="<li id='"+data[i].id+"'><a href=\"javascript:getByClass('"+data[i].name+"');\">"+data[i].name+"</a></li>";
+            $addHtml+="<li id='"+data[i].id+"'><a href=\"javascript:getByClass('"+data[i].name+","+data[i].id+"');\">"+data[i].name+"</a></li>";
           } 
           $("li.nav-header").after($addHtml);
         },"json");   
@@ -740,38 +777,6 @@ include "message.php";
       },"json"); 
     })
 
-
-    // 点击显示相应子类别
-    // $("ul.nav-pills").on("click","li:not(.nav-header)",pillTree);
-    // function pillTree(){
-    //   var $thisvar=$(this);
-    //   var $addHtml="<ul class='nav nav-stacked nav-pills nav-self'>";
-    //   var id=$(this).attr("id");    
-    //   $.get("controller/spareProcess.php",{
-    //     flag:"getType",
-    //     pid:id
-    //   },function(data,success){
-    //     for (var i = 0; i < data.length; i++) {
-    //        $addHtml+="<li id='"+data[i].id+"'><a href=\"javascript:getByClass('"+data[i].name+"');\">"+data[i].name+"</a></li>";
-    //     }
-    //     $addHtml+="</ul>";
-    //     $thisvar.parent().prev().removeClass('active');
-    //     $thisvar.addClass('active').siblings().not(".nav-header").detach();
-    //     $thisvar.after($addHtml);
-    //   },"json"); 
-    // }
-
-    <?php 
-      // $page_count=count($paging->res_array);
-    ?>
-    // $(function(){
-    //   var count_page=1;
-
-    //   // alert("hello world");
-    //   if (count_page==0) {
-    //     $("#null_info").show();
-    //   }
-    // });
     //弹出框
     $(function() 
       { $("[data-toggle='popover']").popover();
@@ -783,12 +788,18 @@ include "message.php";
      
      function delSpare(id){
       var $id =id;
-      $('#delSpare').modal({
-        keyboard: true
-      });
-      $("#del").click(function() {
-        location.href="controller/spareProcess.php?flag=delSpare&id="+$id;
-      });            
+      if (auth==2) {
+          $('#failAuth').modal({
+            keyboard: true
+          });
+      }else{
+          $('#delSpare').modal({
+            keyboard: true
+          });
+          $("#del").click(function() {
+            location.href="controller/spareProcess.php?flag=delSpare&id="+$id;
+          });            
+      }
     }
 
     $("#addSpareYes").click(function(){
@@ -808,4 +819,5 @@ include "message.php";
 
     
     </script>
+      </body>
 </html>

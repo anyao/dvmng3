@@ -103,7 +103,7 @@ class devService{
 	function getDevById($id){
 		$sql="select a.*,b.name as parent
 			  from 
-			  (select device.`id`, `name`, `code`, `no`, `class`, `state`, `dateManu`, `dateInstall`, `periodVali`, `dateEnd`, `number`, `brand`, device.`pid`, `price`, `supplier`, device.`path`, `dvdinfo`, `divide`, `tgther`,
+			  (select device.`id`, `name`, `code`, `no`, `class`, `state`, `dateManu`, `dateInstall`, `periodVali`, `dateEnd`, `number`, `brand`, device.`pid`, `price`, `supplier`, device.`path`, `dvdinfo`, `divide`, `tgther`,device.depart as did,device.factory as fid,
 			  depart.depart,factory.depart as factory
 			  from device
 			  inner join depart
@@ -124,6 +124,7 @@ class devService{
 			  where a.id=$id;";
 		$sqlHelper=new sqlHelper();
 		$arr[]=$sqlHelper->dql($sql);
+
 		if (empty($arr[0]['path'])){
 			$idRoot=$arr[0]['id'];
 		}else{
@@ -366,6 +367,7 @@ class devService{
 		}
 	}
 
+
 	// 计算小时成本
 	function hourCost($begin_time,$end_time,$price){
 		if (empty($end_time)) {
@@ -380,6 +382,9 @@ class devService{
 		}
 		$timediff = $endtime - $starttime;
 		$hours = intval( $timediff / 3600 );
+		if ($hours==0) {
+			return "";
+		}
 		return round($price/$hours,2);
 	}
 
@@ -710,7 +715,7 @@ class devService{
 			$path=explode(",",$res['opath']);
 			$path[]=$res['nid'];
 			for ($i=1; $i < count($path); $i++) { 
-				$sql="select info,device.id,device.name,device.dateInstall,device.supplier
+				$sql="select info,device.id,device.name,device.dateInstall,device.supplier,device.price,device.dateEnd
 					  from device
 					  left join chgdev
 					  on chgdev.nid=device.id

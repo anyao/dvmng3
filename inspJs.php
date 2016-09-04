@@ -1,4 +1,17 @@
 <script type="text/javascript">
+var auth='<?php echo "{$_SESSION['permit']}"; ?>';
+$("#modalAddMis").click(function(){
+  if (auth==2) {
+      $('#failAuth').modal({
+        keyboard: true
+      });
+  }else{
+    $('#addMis').modal({
+        keyboard: true 
+    });
+  }
+});
+
   // 添加巡检标准的设备名称搜索提示
    $("#addStd input[name=name]").bsSuggest({
         allowNoKeyword:false,

@@ -332,11 +332,12 @@ $arr=$devService->getDevById($id);
                 </div>
                 <center>
                  <div class="input-group">
-                  <input type="hidden" name="depart">
-                  <input type="hidden" name="factory">
+                  <input type="hidden" name="depart" value="<?php echo $arr[0]['did'];?>">
+                  <input type="hidden" name="factory" value="<?php echo $arr[0]['fid'];?>">
                   <input type="hidden" name="id" value="<?php echo $arr[0]['id'];?>">
                   <input type="hidden" name="pid" value="<?php echo $arr[0]['pid'];?>">
                   <input type="hidden" name="flag" value="updateDev">
+                  
                   <a class="btn btn-default using-btn"><span class="glyphicon glyphicon-link"></span> 设备说明书 / 图纸</a>
                   <button class="btn btn-primary using-btn" id="updateInfo">修改设备信息</button>
                  </div>
@@ -818,8 +819,23 @@ $arr=$devService->getDevById($id);
     </div>
   </div>
 </div>
+<!-- 权限警告 -->
+<div class="modal fade"  id="failAuth">
+  <div class="modal-dialog modal-sm" role="document" >
+    <div class="modal-content">
+         <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
+         </div>
+         <div class="modal-body"><br/>
+            <div class="loginModal">您无权限进行此操作。</div><br/>
+         </div>
+         <div class="modal-footer">  
+          <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+        </div>
+    </div>
+  </div>
+</div> 
 
-</body>
 <script src="bootstrap/js/jquery.js"></script>
 <script src="bootstrap/js/bootstrap.js"></script>
 <script src="tp/bootstrap-datetimepicker.js"></script>
@@ -829,9 +845,7 @@ $arr=$devService->getDevById($id);
 <script src="bootstrap/js/chartModernizr.js"></script>
 <script src="bootstrap/js/bootstrap-suggest.js"></script>
 <script type="text/javascript">
-
-
-
+var auth='<?php echo "{$_SESSION['permit']}"; ?>';
 $("#stop").click(function(){
   var id=<?php echo $id;?>;
   location.href="controller/devProcess.php?flag=stopDev&id="+id;
@@ -839,30 +853,49 @@ $("#stop").click(function(){
 
 // 父设备停用按钮
 $(".glyphicon-modal-window").click(function(){
+  if (auth==2) {
+      $('#failAuth').modal({
+        keyboard: true
+      });
+  }else{
    $('#devStop').modal({
         keyboard: true
     });
+  }
 });
 
 // 删除维修记录按钮
 $("#repDel").click(function(){
-  var id=$("#repUpdt input[name=id]").val();
-  var devid=<?php echo "$id";?>;
-  location.href="controller/repairProcess.php?flag=delrepByDev&devid="+devid+"&id="+id;
+  if (auth==2) {
+      $('#failAuth').modal({
+        keyboard: true
+      });
+  }else{
+    var id=$("#repUpdt input[name=id]").val();
+    var devid=<?php echo "$id";?>;
+    location.href="controller/repairProcess.php?flag=delrepByDev&devid="+devid+"&id="+id;
+  }
 })
 
 // 修改维修记录确认按钮
 $("#updtRepYes").click(function(){
- var allow_submit = true;
- $("#repUpdt .form-control").each(function(){
-    if($(this).val()==""){
-      $('#failAdd').modal({
-          keyboard: true
-      });
-      allow_submit = false;
-    }
- });
- return allow_submit;
+  if (auth==2) {
+    $('#failAuth').modal({
+      keyboard: true
+    });
+    return false
+  }else{
+     var allow_submit = true;
+     $("#repUpdt .form-control").each(function(){
+        if($(this).val()==""){
+          $('#failAdd').modal({
+              keyboard: true
+          });
+          allow_submit = false;
+        }
+     });
+     return allow_submit;
+  }
 });
 
 // 修改维修记录
@@ -906,42 +939,55 @@ function repAdd(devid){
 
 // 删除巡检记录按钮
 $("#inspDel").click(function(){
-  var id =$("#inspUpdt input[name=id]").val();
-  var devid=<?php echo "$id";?>;
-  location.href="controller/inspectProcess.php?flag=delInfoByDev&devid="+devid+"&id="+id;
+  if (auth==2) {
+      $('#failAuth').modal({
+        keyboard: true
+      });
+  }else{
+    var id =$("#inspUpdt input[name=id]").val();
+    var devid=<?php echo "$id";?>;
+    location.href="controller/inspectProcess.php?flag=delInfoByDev&devid="+devid+"&id="+id;
+  }
 });
 // 修改巡检记录
 function inspUpdt(id){
-  $.get("controller/inspectProcess.php",{
-    flag:'getInfoByDev',
-    id:id
-  },function(data,success){
-     // {"id":"37","time":"2016-06-25 05:59:00","result":"正常","liable":"admin","info":"无","devid":"45"}
-     $("#inspUpdt input[name=id]").val(data.id);
-     $("#inspUpdt input[name=time]").val(data.time);
-     $("#inspUpdt input[name=result][value="+data.result+"]").attr("checked",true);
-     $("#inspUpdt input[name=liable]").val(data.liable);
-     $("#inspUpdt textarea[name=info]").val(data.info);
-      $('#inspUpdt').modal({
-          keyboard: true
-      });
-  },'json');
+    $.get("controller/inspectProcess.php",{
+      flag:'getInfoByDev',
+      id:id
+    },function(data,success){
+       // {"id":"37","time":"2016-06-25 05:59:00","result":"正常","liable":"admin","info":"无","devid":"45"}
+       $("#inspUpdt input[name=id]").val(data.id);
+       $("#inspUpdt input[name=time]").val(data.time);
+       $("#inspUpdt input[name=result][value="+data.result+"]").attr("checked",true);
+       $("#inspUpdt input[name=liable]").val(data.liable);
+       $("#inspUpdt textarea[name=info]").val(data.info);
+        $('#inspUpdt').modal({
+            keyboard: true
+        });
+    },'json');
 }
 
 // 修改巡检记录确认按钮
 $("#inspUpdtYes").click(function(){
-  var idLia=$("#inspUpdt input[name=liable]").attr("data-id");
-  $("#inspUpdt input[name=idLia]").val(idLia);
-  var allow_submit = true;
-  $("#inspUpdt input[type!=hidden] , #inspUpdt textarea").each(function(){
-    if($(this).val()==""){
-       $('#failAdd').modal({
-          keyboard: true
+  if (auth==2) {
+      $('#failAuth').modal({
+        keyboard: true
       });
-      allow_submit = false;
-    }
-  })
-  return allow_submit;
+      return false;
+  }else{
+    var idLia=$("#inspUpdt input[name=liable]").attr("data-id");
+    $("#inspUpdt input[name=idLia]").val(idLia);
+    var allow_submit = true;
+    $("#inspUpdt input[type!=hidden] , #inspUpdt textarea").each(function(){
+      if($(this).val()==""){
+         $('#failAdd').modal({
+            keyboard: true
+        });
+        allow_submit = false;
+      }
+    })
+    return allow_submit;
+  }
 });
 
 // 确认添加巡检记录按钮
@@ -988,9 +1034,9 @@ $("#inspAdd input[name=time] , #repAdd input[name=time] , #inspUpdt input[name=t
 
 // 添加新的巡检记录
 function inspAdd($devid){
-  $('#inspAdd').modal({
-      keyboard: true
-  });
+    $('#inspAdd').modal({
+        keyboard: true
+    });
 }
 
 // 已确定添加的设备删除
@@ -1001,23 +1047,29 @@ function delDeved(){
 
 // 修改当前设备管理员
 function updateLia(id){
-  $("#updateLia #forLia").empty();
-  $("#updateLia input[name=devid]").val(id);
-      $.get("controller/devProcess.php",{
-        id:id,
-        flag:"getLia"
-      },function(data,success){
-        var idArr=new Array();
-         for(var i=0;i<data.length;i++){
-            idArr[i]=data[i].id
-            var addHtml="<span class='badge'>"+data[i].name+" <a href='javascript:void(0);' class='glyphicon glyphicon-remove' style='color: #f5f5f5;text-decoration: none'></a><input type='hidden' name='rem[]' value="+data[i].id+"></span> "
-            $("#updateLia #forLia").append(addHtml);
-         }
-         $("#updateLia input[name=oid]").val(idArr);
-         $('#updateLia').modal({
-              keyboard: true
-         });
-      },"json");
+  if (auth==2) {
+      $('#failAuth').modal({
+        keyboard: true
+      });
+  }else{
+    $("#updateLia #forLia").empty();
+    $("#updateLia input[name=devid]").val(id);
+        $.get("controller/devProcess.php",{
+          id:id,
+          flag:"getLia"
+        },function(data,success){
+          var idArr=new Array();
+           for(var i=0;i<data.length;i++){
+              idArr[i]=data[i].id
+              var addHtml="<span class='badge'>"+data[i].name+" <a href='javascript:void(0);' class='glyphicon glyphicon-remove' style='color: #f5f5f5;text-decoration: none'></a><input type='hidden' name='rem[]' value="+data[i].id+"></span> "
+              $("#updateLia #forLia").append(addHtml);
+           }
+           $("#updateLia input[name=oid]").val(idArr);
+           $('#updateLia').modal({
+                keyboard: true
+           });
+        },"json");
+  }
 }
 
 // 查看设备负责人变更记录
@@ -1053,6 +1105,11 @@ $(function(){
 });
 
 $("#updateInfo").click(function(){
+  if (auth==2) {
+      $('#failAuth').modal({
+        keyboard: true
+      });
+  }else{
   if($(".form-control").prop("readonly")){
     $("#updateForm .form-control").not("input[name=nameDepart]").removeAttr("readonly");
     $(this).text("提交修改");
@@ -1183,6 +1240,7 @@ $("#updateInfo").click(function(){
       $("#updateForm").submit();
      });
   }
+}
   return false;
 });
 
@@ -1240,4 +1298,5 @@ $("#updateLia #updateYes").click(function(){
 
 
 </script>
+</body>
 </html>

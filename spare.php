@@ -120,7 +120,7 @@ $arr=$spareService->getSprById($id);
             <h5>运行状态</h5>
             <div class="row">
               <div class="col-md-4">
-                <span class="glyphicon glyphicon-modal-window" style="cursor:pointer" href="javascript:void(0)"  data-toggle="modal" data-target="#spareUse"></span>
+                <span class="glyphicon glyphicon-modal-window" style="cursor:pointer" href="javascript:void(0)"></span>
               </div>
               <div class="state col-md-5"><?php echo $arr[0]['state'] ?></div>
             </div>
@@ -477,14 +477,42 @@ $arr=$spareService->getSprById($id);
   </div>
 </div> 
 
+<!-- 权限警告 -->
+<div class="modal fade"  id="failAuth">
+  <div class="modal-dialog modal-sm" role="document" >
+    <div class="modal-content">
+         <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
+         </div>
+         <div class="modal-body"><br/>
+            <div class="loginModal">您无权限进行此操作。</div><br/>
+         </div>
+         <div class="modal-footer">  
+          <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+        </div>
+    </div>
+  </div>
+</div> 
 
-</body>
+
+
 <script src="bootstrap/js/jquery.js"></script>
 <script src="bootstrap/js/bootstrap.js"></script>
 <script src="tp/bootstrap-datetimepicker.js"></script>
 <script src="tp/bootstrap-datetimepicker.zh-CN.js"></script>
 <script src="bootstrap/js/bootstrap-suggest.js"></script>
 <script type="text/javascript">
+var auth='<?php echo "{$_SESSION['permit']}"; ?>';
+$(".glyphicon-modal-window").click(function(){
+  if (auth==2) {
+          $('#failAuth').modal({
+            keyboard: true
+          });
+      }else{
+        $("#spareUse").modal({ keyboard: true});
+      }
+});
+
 // 若拆分拼装过，则不可再拆分拼装
 $(function(){
   var dvd="<?php echo $arr[0]['divide'];?>";
@@ -504,108 +532,115 @@ $(function(){
 
   // 修改信息按钮动画效果设置
   $("#reviseInfo").click(function(){
-    var $en_input=$("input:not(.datetime, input[name=nameDepart])");
-    if($en_input.prop("readonly")){
+    if (auth==2) {
+          $('#failAuth').modal({
+            keyboard: true
+          });
+      }else{
 
-     $en_input.removeAttr("readonly");
-      $(this).attr("value"," 提交修改 ");
-      //时间选择器
-      $(".datetime").datetimepicker({
-        format: 'yyyy-mm-dd', language: "zh-CN", autoclose: true,minView:2
-      });
+        var $en_input=$("input:not(.datetime, input[name=nameDepart])");
+        if($en_input.prop("readonly")){
+
+         $en_input.removeAttr("readonly");
+          $(this).attr("value"," 提交修改 ");
+          //时间选择器
+          $(".datetime").datetimepicker({
+            format: 'yyyy-mm-dd', language: "zh-CN", autoclose: true,minView:2
+          });
 
 
-    // 分厂搜索提示，并根据所选调用部门搜索函数
-    $("input[name=nameFct]").bsSuggest({
-        allowNoKeyword: false,
-        // showBtn: false,
-        indexId:1,
-        // indexKey: 1,
-        data: {
-             'value':<?php 
-              $allFct=$devService->getFctAll();
-              echo "$allFct";
-              ?>,
-        }
-    }).on('onDataRequestSuccess', function (e, result) {
-        console.log('onDataRequestSuccess: ', result);
-    }).on('onSetSelectValue', function (e, keyword, data) {
-       console.log('onSetSelectValue: ', keyword, data);
-       var idFct=$(this).attr("data-id");
-       $(this).parents("form").find("input[name=factory]").val(idFct);
-       var $depart=$(this).parents("form").find("input[name=nameDepart]"); 
-       $.get("controller/devProcess.php",{
-        flag:'getDptAll',
-        idFct:idFct
-       },function(data,success){
-        var departAll=data;
-
-        $depart.removeAttr("readonly");
-         // 部门搜索提示
-        $depart.bsSuggest({
+        // 分厂搜索提示，并根据所选调用部门搜索函数
+        $("input[name=nameFct]").bsSuggest({
             allowNoKeyword: false,
             // showBtn: false,
             indexId:1,
             // indexKey: 1,
             data: {
-                 'value':departAll,
+                 'value':<?php 
+                  $allFct=$devService->getFctAll();
+                  echo "$allFct";
+                  ?>,
             }
         }).on('onDataRequestSuccess', function (e, result) {
             console.log('onDataRequestSuccess: ', result);
         }).on('onSetSelectValue', function (e, keyword, data) {
            console.log('onSetSelectValue: ', keyword, data);
-           var idDepart=$(this).attr("data-id");
-           $(this).parents("form").find("input[name=depart]").val(idDepart);
+           var idFct=$(this).attr("data-id");
+           $(this).parents("form").find("input[name=factory]").val(idFct);
+           var $depart=$(this).parents("form").find("input[name=nameDepart]"); 
+           $.get("controller/devProcess.php",{
+            flag:'getDptAll',
+            idFct:idFct
+           },function(data,success){
+            var departAll=data;
+
+            $depart.removeAttr("readonly");
+             // 部门搜索提示
+            $depart.bsSuggest({
+                allowNoKeyword: false,
+                // showBtn: false,
+                indexId:1,
+                // indexKey: 1,
+                data: {
+                     'value':departAll,
+                }
+            }).on('onDataRequestSuccess', function (e, result) {
+                console.log('onDataRequestSuccess: ', result);
+            }).on('onSetSelectValue', function (e, keyword, data) {
+               console.log('onSetSelectValue: ', keyword, data);
+               var idDepart=$(this).attr("data-id");
+               $(this).parents("form").find("input[name=depart]").val(idDepart);
+            }).on('onUnsetSelectValue', function (e) {
+                console.log("onUnsetSelectValue");
+            });
+           },"json")
         }).on('onUnsetSelectValue', function (e) {
             console.log("onUnsetSelectValue");
         });
-       },"json")
-    }).on('onUnsetSelectValue', function (e) {
-        console.log("onUnsetSelectValue");
-    });
 
 
 
-      $("input[name=class]").bsSuggest({
-          allowNoKeyword: false,
-          indexId:1,
-          // indexKey: 1,
-          // showBtn:false,
-          data: {
-               'value':<?php 
-                $allType=$devService->getTypeSon();
-                echo "$allType";
-                ?>,
-          }
-      }).on('onDataRequestSuccess', function (e, result) {
-          console.log('onDataRequestSuccess: ', result);
-      }).on('onSetSelectValue', function (e, keyword, data) {
-          console.log('onSetSelectValue: ', keyword, data); 
-      }).on('onUnsetSelectValue', function (e) {
-          console.log("onUnsetSelectValue");
-      });
-
-
-    }
-    else{
-      var flag=true;
-      $en_input.attr("readonly","");
-      $(this).attr("value","修改设备信息");
-       $(".notNull").each(function(){
-        if($(this).val()==""){
-          $('#failAdd').modal({
-              keyboard: true
+          $("input[name=class]").bsSuggest({
+              allowNoKeyword: false,
+              indexId:1,
+              // indexKey: 1,
+              // showBtn:false,
+              data: {
+                   'value':<?php 
+                    $allType=$devService->getTypeSon();
+                    echo "$allType";
+                    ?>,
+              }
+          }).on('onDataRequestSuccess', function (e, result) {
+              console.log('onDataRequestSuccess: ', result);
+          }).on('onSetSelectValue', function (e, keyword, data) {
+              console.log('onSetSelectValue: ', keyword, data); 
+          }).on('onUnsetSelectValue', function (e) {
+              console.log("onUnsetSelectValue");
           });
+
+
         }
-      });
-      if (flag) {
-       $('#confirm').modal({
-         keyboard: true
-       });  
-      }else{
-        return false;
+        else{
+          var flag=true;
+          $en_input.attr("readonly","");
+          $(this).attr("value","修改设备信息");
+           $(".notNull").each(function(){
+            if($(this).val()==""){
+              $('#failAdd').modal({
+                  keyboard: true
+              });
+            }
+          });
+          if (flag) {
+           $('#confirm').modal({
+             keyboard: true
+           });  
+          }else{
+            return false;
+          }
       }
-  }
+      }
   });
   
   // 确认修改
@@ -655,4 +690,5 @@ $(function(){
 
   
 </script>
+</body>
 </html>

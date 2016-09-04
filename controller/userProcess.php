@@ -36,6 +36,7 @@ if ($checkUser!=1 && $checkUser!=2) {
 	$_SESSION['user']=$checkUser[0];
 	$_SESSION['dptid']=$checkUser[1];
 	$_SESSION['permit']=$checkUser[2];
+	$_SESSION['uid']=$checkUser[3];
 	// echo $_SESSION['user'];
 	header("location:../homePage.php");
 	exit();

@@ -8,7 +8,7 @@
         <li><a class="badge"  data-toggle="modal" data-target="#findStd"><span class="glyphicon glyphicon-search"></span> 搜索巡检标准 </a></li>
         <li style="height: 10px"></li>
         <li><a class="badge" href="inspMis.php"><span class="glyphicon glyphicon-list-alt"></span> 巡检任务列表 </a></li>
-        <li><a class="badge" data-toggle="modal" data-target="#addMis"><span class="glyphicon glyphicon-plus"></span> 分配新的巡检任务 </a></li>
+        <li><a class="badge" id="modalAddMis"><span class="glyphicon glyphicon-plus"></span> 分配新的巡检任务 </a></li>
         <li><a class="badge"  data-toggle="modal" data-target="#findMis"><span class="glyphicon glyphicon-search"></span> 搜索巡检任务 </a></li>
         <li style="height: 10px"></li>
          <li><a class="badge" href="inspList.php"><span class="glyphicon glyphicon-list-alt"></span> 巡检记录列表 </a></li>
@@ -91,6 +91,23 @@
 
 
 </div>
+
+<!-- 权限警告 -->
+<div class="modal fade"  id="failAuth">
+  <div class="modal-dialog modal-sm" role="document" >
+    <div class="modal-content">
+         <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
+         </div>
+         <div class="modal-body"><br/>
+            <div class="loginModal">您无权限进行此操作。</div><br/>
+         </div>
+         <div class="modal-footer">  
+          <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+        </div>
+    </div>
+  </div>
+</div> 
 
 <!-- 添加新的巡检标准 -->
 <div class="modal fade" id="addStd">

@@ -2,6 +2,7 @@
 require_once "model/cookie.php";
 checkValidate();
 $user=$_SESSION['user'];
+$uid=$_SESSION['uid'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -178,7 +179,7 @@ $user=$_SESSION['user'];
       </div>
     <table class="table table-striped table-hover">
         <thead><tr>
-            <th>　</th><th>编号</th><th>维修设备</th><th>维修人员</th><th>所在部门</th><th>结果</th>
+            <th>　</th><th>　</th><th>编号</th><th>维修设备</th><th>维修人员</th><th>所在部门</th><th>结果</th>
             <th><span class="glyphicon glyphicon-edit"></span></th>
             <th><span class="glyphicon glyphicon-trash"></span></th>
             <th><span class="glyphicon glyphicon-eye-open"></span></th>
@@ -194,18 +195,32 @@ $user=$_SESSION['user'];
                 $seen="<td></td>";
               }
 
+              // 对修改按钮的控制
+              if ($row['seen']==0 && $uid!=$row['liable']) {
+                $uptMis="<td><a href=javascript:updateMis({$row['id']}) class='glyphicon glyphicon-edit'></a></td>";
+              }else{
+                $uptMis="<td></td>";
+              }
+
+              // 该任务是不是当前用户的
+              if ($uid==$row['liable']) {
+                $me="<td><span class='glyphicon glyphicon-hand-right' style='display:inline;cursor:default'></span></td>";
+              }else{
+                $me="<td></td>";
+              }
+
               if($row['result']==0){
                 $result="<td><a href=javascript:addInfo({$row['id']})>未处理</a></td>";
               }else{
                 $result="<td><a href=javascript:getInfo({$row['infoid']})>已处理</td>";
               }
 
-              echo "<tr><td><a class='glyphicon glyphicon-resize-small' href='javascript:void(0)' onclick='openInfo(this,{$row['id']})'></a></td>
+              echo "<tr>{$me}<td><a class='glyphicon glyphicon-resize-small' href='javascript:void(0)' onclick='openInfo(this,{$row['id']})'></a></td>
                          <td>{$row['id']}</td>
                          <td><a href='using.php?id={$row['devid']}'>{$row['name']}</a></td>
-                         <td>{$row['liable']}</td>
+                         <td class='fxman' liable='{$row['liable']}'>{$row['fxman']}</td>
                          <td>{$row['depart']}</td>{$result}
-                         <td><a href=javascript:updateMis({$row['id']}) class='glyphicon glyphicon-edit'></a></td>
+                         {$uptMis}
                          <td><a href=javascript:delMis({$row['devid']}) class='glyphicon glyphicon-trash'></a></td>
                          {$seen}
                     </tr>
@@ -542,13 +557,12 @@ $user=$_SESSION['user'];
 <script src="tp/format.js"></script>
 <?php include "repJs.php" ?>
 <script type="text/javascript">
-window.console = window.console || (function(){ 
-  var c = {}; c.log = c.warn = c.debug = c.info = c.error = c.time = c.dir = c.profile 
-  = c.clear = c.exception = c.trace = c.assert = function(){}; 
-  return c; 
-})();
-
-
+// window.console = window.console || (function(){ 
+//   var c = {}; c.log = c.warn = c.debug = c.info = c.error = c.time = c.dir = c.profile 
+//   = c.clear = c.exception = c.trace = c.assert = function(){}; 
+//   return c; 
+// })();
+var auth='<?php echo "{$_SESSION['permit']}"; ?>';
 // 查看任务对应的记录
 function getInfo(id){
   $.get("controller/repairProcess.php",{
@@ -589,12 +603,18 @@ function addInfo(id){
 
 // 删除维修任务
 function delMis(id){
-  $('#delMis').modal({
-      keyboard: true
-  });
-  $("#delYes").click(function(){
-    location.href="controller/repairProcess.php?flag=delMis&id="+id;
-  });
+  if (auth==2) {
+      $('#failAuth').modal({
+        keyboard: true
+      });
+  }else{
+    $('#delMis').modal({
+        keyboard: true
+    });
+    $("#delYes").click(function(){
+      location.href="controller/repairProcess.php?flag=delMis&id="+id;
+    });
+  }
 }
 
 // 修改维修任务确认按钮
@@ -718,8 +738,10 @@ function updateMis(id){
       $(obj).toggleClass("glyphicon glyphicon-resize-small");
       $(obj).toggleClass("glyphicon glyphicon-resize-full");
       var $ifSee=$(obj).parents("tr").find(".glyphicon-gift");
+      var liable=$(obj).parents("tr").find(".fxman").attr("liable");
       var $tdSee=$ifSee.parents("td");
-      if ($ifSee.length>0) {
+      var uid=<?php echo $uid; ?>;
+      if ($ifSee.length>0 && uid==liable) {
         $.get("controller/repairProcess.php",{
           flag:'seen',
           id:id

@@ -3,7 +3,7 @@ require_once 'sqlHelper.class.php';
 class userService{
 	function checkUser($code,$password){
 		$sqlHelper=new sqlHelper();
-		$sql="select psw,name,departid as dptid,permit from user where code='$code'";	
+		$sql="select psw,name,departid as dptid,permit,id from user where code='$code'";	
 		$info=$sqlHelper->dql($sql);
 		$sqlHelper->close_connect();
 
@@ -18,6 +18,7 @@ class userService{
 				$res['name']=$info['name'];
 				$res['dptid']=$info['dptid'];
 				$res['permit']=$info['permit'];
+				$res['id']=$info['id'];
 				$res=implode(",",$res);
 			}
 		}
