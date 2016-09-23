@@ -150,7 +150,8 @@ if (empty($_REQUEST['flag']) && empty($_GET['fct']) && empty($_GET['dpt'])) {
        <ul class="nav navbar-nav navbar-right">
        <?php if ($_SESSION['permit']<2) {
                echo "<li><a href='dptUser.php'>用户管理</a></li>";
-             } ?>
+             } 
+        ?>
        
         <li class="dropdown">
         <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button"><?php 

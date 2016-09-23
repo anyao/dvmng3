@@ -29,3 +29,69 @@
 
 ?>
 </div>
+
+<!-- 查看当前用户具体信息 -->
+<div class="modal fade" id="getUserInfo" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">我的基本信息</h4>
+        </div>
+        <form class="form-horizontal">
+          <div class="modal-body">
+            <div class="form-group">
+              <label class="col-md-3 control-label">用户ID：</label>
+              <div class="col-md-7">
+                <input type="text" class="form-control" name="id" readonly="readonly">
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label class="col-sm-3 control-label">用户编号：</label>
+              <div class="col-sm-7">
+                  <input type="text" class="form-control" name="code" readonly="readonly">        
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="col-sm-3 control-label">用户姓名：</label>
+              <div class="col-sm-7">
+                  <input type="text" class="form-control" name="name">        
+              </div>
+            </div>
+            
+             <div class="form-group">
+              <label class="col-sm-3 control-label">所在部门：</label>
+              <div class="col-sm-7">
+                  <input type="text" class="form-control" name="depart" readonly="readonly">        
+              </div>
+            </div>
+			
+			<div class="form-group">
+              <label class="col-sm-3 control-label">当前权限：</label>
+              <div class="col-sm-7">
+                  <input type="text" class="form-control" name="depart" readonly="readonly">        
+              </div>
+            </div>
+            <div class="form-group">
+	           <label class="col-sm-3 control-label">管理权限：</label>
+	           <div class="col-sm-7">  
+	             <label class="radio-inline">
+	               <input type="radio" name="permit" value="0"> 高级用户
+	             </label>
+	             <label class="radio-inline">
+	               <input type="radio" name="permit" value="1"> 普通用户
+	             </label>
+	           </div>
+	         </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" id="yesUptMy">确认修改</button>
+              <button class="btn btn-primary" data-dismiss="modal">关闭</button>
+            </div>
+            </div>
+          </form>
+      </div>
+    </div>
+  </div>

@@ -1,5 +1,8 @@
 <?php 
 require_once "model/cookie.php";
+require_once "model/devService.class.php";
+require_once "model/dptService.class.php";
+require_once "model/repairService.class.php";
 checkValidate();
 $user=$_SESSION['user'];
 
@@ -80,7 +83,10 @@ $user=$_SESSION['user'];
             </li>
           </ul>
            <ul class="nav navbar-nav navbar-right">
-            <li><a href="dptUser.php">用户管理</a></li>
+             <?php if ($_SESSION['permit']<2) {
+               echo "<li><a href='dptUser.php'>用户管理</a></li>";
+             } 
+        ?>
             <li class="dropdown">
             <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">
             <?php 
@@ -91,7 +97,7 @@ $user=$_SESSION['user'];
               } 
             ?> <span class="caret"></span></a>
               <ul class="dropdown-menu">
-                <li><a href="#">我的基本信息</a></li>
+                <li><a href="javascript:userInfo(<?php echo $_SESSION['uid']; ?>)">我的基本信息</a></li>
                 <li><a href="#">更改密码</a></li>
                 <li class="divider">&nbsp;</li>
                 <li><a href="login.php">注销</a></li>
@@ -104,8 +110,7 @@ $user=$_SESSION['user'];
     </nav>
 
 <?php
-  require_once "model/devService.class.php";
-  require_once "model/dptService.class.php";
+
   $devService=new devService();
   $dptService=new dptService();
 ?>
@@ -358,7 +363,7 @@ $user=$_SESSION['user'];
 </form>
 
 <?php 
-require_once "model/repairService.class.php";
+
 $repairService=new repairService();
 include "message.php";
  ?>

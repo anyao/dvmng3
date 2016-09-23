@@ -122,7 +122,7 @@ $user=$_SESSION['user'];
       </ul>
        <ul class="nav navbar-nav navbar-right">
 		<li class="dropdown active"  >
-          <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">用户管理</span></a>
+          <a href="dptUser.php" role="button">用户管理</span></a>
         </li>
 
         <li class="dropdown">
