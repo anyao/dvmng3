@@ -10,7 +10,7 @@ function getCookieval($key){
 
 //验证是否登录，若未登录则返回登录页面
 function checkValidate(){
-	session_start();
+	// session_start();
 	if(empty($_SESSION['user'])){
 		header("location:./login.php");
 		exit();

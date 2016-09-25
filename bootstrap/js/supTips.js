@@ -1,17 +1,10 @@
-// $(document).on("click","a[name=open-child]",child_click);
-	// $("a[]").live("click", child_click);
 
-    // function openTips(){
 
 	$("a[name=listInfo]").click(function(){
-	// alert("hello");
 	// 获得被点击设备的id值，用于以后的get查询子节点
 	var $id=$(this).attr("value");
 	// 获取被点击设备的td
 	var $parent=$(this).parents("tr");
-	// alert($(this).parents("tr").attr("class"));
-	// $(this).css("background-color","pink");
-	
 	// 获取被点击设备的下一个设备的class
 	var $parentNext=$(this).parents("tr").next().attr("class");
 	
