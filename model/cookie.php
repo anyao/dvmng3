@@ -16,7 +16,4 @@ function checkValidate(){
 		exit();
 	}
 }
-
-// 返回用户部门、权限用于权限管理
-// function right()
 ?>

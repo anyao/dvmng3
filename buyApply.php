@@ -172,7 +172,7 @@ include "message.php";
       <h3>Functions</h3>
       <ol class="list-unstyled">
         <li><a class="badge" href="buyApply.php"><span class="glyphicon glyphicon-list-alt"></span> 备件申报列表 </a></li>
-        <li><a class="badge" data-toggle="modal" data-target="#addInspect"><span class="glyphicon glyphicon-plus"></span> 添加新的备件申报 </a></li>
+        <li><a class="badge" href="buyAdd.php"><span class="glyphicon glyphicon-plus"></span> 添加新的备件申报 </a></li>
         <li><a class="badge"  data-toggle="modal" data-target="#findInspect"><span class="glyphicon glyphicon-search"></span> 搜索备件申报记录 </a></li>
         <li style="height: 10px"></li>
         <li><a class="badge" href="##"><span class="glyphicon glyphicon-sunglasses"></span> 备件审核列表 </a></li>
