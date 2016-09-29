@@ -24,5 +24,18 @@ class userService{
 		}
 		return $res;
 	}
+
+	// 查询当前用户所在分厂
+	function getFct($departid){
+		$sqlHelper=new sqlHelper();
+		$sql="select depart.pid,factory.depart as factory,depart.id,depart.depart
+			  from depart
+			  LEFT JOIN depart as factory 
+			  on factory.id=depart.pid
+			  where depart.id=$departid";
+		$res=$sqlHelper->dql($sql);
+		$sqlHelper->close_connect();
+		return $res;
+	}
 }
 ?>

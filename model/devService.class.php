@@ -6,10 +6,6 @@ require_once 'classifyBuild.php';
 class devService{
 	public $authWhr="";
 	public $authAnd="";
-	// public $authDpt="";
-	// public $authDptAnd="";
-	// public $authUsr="";
-	// public $authUsrAnd="";
 
 	function __construct(){
 		$sqlHelper=new sqlHelper();

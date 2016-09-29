@@ -2,6 +2,21 @@
 require_once "model/cookie.php";
 checkValidate();
 $user=$_SESSION['user'];
+
+require_once "model/repairService.class.php";
+$repairService=new repairService();
+include "message.php";
+
+require_once "model/userService.class.php";
+$userService=new userService();
+$dptid=$_SESSION['dptid'];
+$basic=$userService->getFct($dptid);
+
+require_once "model/gaugeService.class.php";
+$gaugeService=new gaugeService();
+// 获取测量记录部门编号
+$cljl=$gaugeService->getCLJL($dptid);
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -46,16 +61,7 @@ $user=$_SESSION['user'];
 <![endif]-->
 </head>
 <body role="document">
-
-<?php 
-require_once "model/repairService.class.php";
-$repairService=new repairService();
-include "message.php";
- ?>
-<?php
-  // $id=$_GET['id'];
-?>
- <nav class="navbar navbar-inverse">
+<nav class="navbar navbar-inverse">
   <div class="container">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -138,7 +144,7 @@ include "message.php";
   <div class="page-header">
     <h4>　仪表备件申报明细</h4>
   </div>
-<form class="form-horizontal" action="controller/spareProcess.php" method="post">  
+<form class="form-horizontal" action="controller/gaugeProcess.php" method="post" id="buyAdd">  
   <div class="basic">
     <div class="row">
       <div class="col-md-4">
@@ -148,24 +154,25 @@ include "message.php";
         </div> 
         <div class="input-group">
           <span class="input-group-addon">申报分厂</span>
-          <input type="text" class="form-control" name='factory' readonly>
+          <input type="text" class="form-control" name='factory' value='<?php echo "{$basic['factory']}";?>' readonly>
+          <input type="hidden" name="fid" value='<?php echo "{$basic['pid']}";?>'>
         </div>
       </div>
       <div class="col-md-4">
         <div class="input-group">
-          <span class="input-group-addon">C L J 
-          L</span>
-          <input type="text" class="form-control" name="depart" readonly>
+          <span class="input-group-addon">测量记录</span>
+          <input type="text" class="form-control" name="depart" value='CLJL' readonly>
         </div> 
         <div class="input-group">
-          <span class="input-group-addon">申报人</span>
-          <input type="text" class="form-control" name='factory' readonly>
+          <span class="input-group-addon">申报人员</span>
+          <input type="text" class="form-control" name='user' value='<?php echo "$user";?>' readonly>
         </div>
       </div>
       <div class="col-md-4">
         <div class="input-group">
           <span class="input-group-addon">申报单位</span>
-          <input type="text" class="form-control" name="depart" readonly>
+          <input type="text" class="form-control" name="depart" value='<?php echo "{$basic['depart']}";?>' readonly>
+          <input type="hidden" name="dptid" value='<?php echo "{$basic['id']}";?>'>
         </div> 
         <div class="input-group">
           <span class="input-group-addon">备件总数</span>
@@ -184,37 +191,37 @@ include "message.php";
                " <div class='col-md-4'>".
                "   <div class='input-group'>".
                "     <span class='input-group-addon'>".($i+1).": 存货编码</span>".
-               "     <input type='text' class='form-control' name='dvd[1][0]'>".
+               "     <input type='text' class='form-control' name='gaugeSpr[1][0]'>".
                "   </div> ".
                " </div>".
                " <div class='col-md-4'> ".
                "   <div class='input-group'>".
                "     <span class='input-group-addon'>存货名称</span>".
-               "     <input type='text' class='form-control' name='dvd[1][1]'>".
+               "     <input type='text' class='form-control' name='gaugeSpr[1][1]'>".
                "   </div> ".
                " </div>".
                " <div class='col-md-4'> ".
                "   <div class='input-group'>".
                "     <span class='input-group-addon'>规格型号</span>".
-               "     <input type='text' class='form-control' name='dvd[1][1]'>".
+               "     <input type='text' class='form-control' name='gaugeSpr[1][2]'>".
                "   </div> ".
                " </div>".
                " <div class='col-md-4'>".
                "   <div class='input-group'>".
                "     <span class='input-group-addon'>　单　　位</span>".
-               "     <input type='text' class='form-control' name='dvd[1][2]'>".
+               "     <input type='text' class='form-control' name='gaugeSpr[1][3]'>".
                "   </div>  ".
                " </div>".
                " <div class='col-md-4'>".
                "   <div class='input-group'>".
                "     <span class='input-group-addon'>数　　量</span>".
-               "     <input type='text' class='form-control' name='dvd[1][2]'>".
+               "     <input type='text' class='form-control' name='gaugeSpr[1][4]'>".
                "   </div>  ".
                " </div>".
                " <div class='col-md-4'>".
                "   <div class='input-group'>".
                "     <span class='input-group-addon'>备注描述</span>".
-               "     <input type='text' class='form-control' name='dvd[1][2]'>".
+               "     <input type='text' class='form-control' name='gaugeSpr[1][5]'>".
                "   </div>  ".
                " </div>".
                "</div>";
@@ -224,42 +231,40 @@ include "message.php";
     <div id="addPart"></div>
 
     <div style="text-align: center">
-      <input type="hidden" name="id" value="<?php echo $id;?>">
-      <input type="hidden" name="flag" value="dvdSpare">
-      <button type="submit" class="btn btn-primary" style="width:200px;margin: 20px 0px" id="dvd">确 认 申 报</button>       
+      <input type="hidden" name="flag" value="buyAdd">
+      <button type="submit" class="btn btn-primary" style="width:200px;margin: 20px 0px">确 认 申 报</button>       
     </div>
 </form>
-  <div class="modal fade"  id="failPart" >
-      <div class="modal-dialog modal-sm" role="document" style="margin-top: 105px">
-        <div class="modal-content">
-             <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
-             </div>
-             <div class="modal-body"><br/>
-                <div class="loginModal">拆分总件数应大于2，请重新填写。</div><br/>
-             </div>
-             <div class="modal-footer">  
-              <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
-            </div>
-        </div>
-      </div>
-    </div>
-    <div class="modal fade"  id="notNum" >
-      <div class="modal-dialog modal-sm" role="document" style="margin-top: 105px">
-        <div class="modal-content">
-             <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
-             </div>
-             <div class="modal-body"><br/>
-                <div class="loginModal">所填内容应为数字，请重新填写。</div><br/>
-             </div>
-             <div class="modal-footer">  
-              <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
-            </div>
-        </div>
-      </div>
-    </div>
 
+<div class="modal fade"  id="notNum" >
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+         <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
+         </div>
+         <div class="modal-body"><br/>
+            <div class="loginModal">所填内容应为数字且大于零，请重新填写。</div><br/>
+         </div>
+         <div class="modal-footer">  
+          <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+        </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade"  id="failAdd" >
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+         <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
+         </div>
+         <div class="modal-body"><br/>
+            <div class="loginModal">所填信息不完整，请补充。</div><br/>
+         </div>
+         <div class="modal-footer">  
+          <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+        </div>
+    </div>
+  </div>
 </div>
 </body>
 <script src="bootstrap/js/jquery.js"></script>
@@ -267,6 +272,21 @@ include "message.php";
 <script src="tp/bootstrap-datetimepicker.js"></script>
 <script src="tp/bootstrap-datetimepicker.zh-CN.js"></script>
 <script type="text/javascript">
+// 提交时验证所有input的框不为空
+$(document).on("click","button[type=submit]",yesAdd);
+function yesAdd(){
+  var all_allow=true;
+  $("#buyAdd .form-control").each(function(){
+    if ($(this).val()=="") {
+      $('#failAdd').modal({
+          keyboard: true
+      });
+      all_allow=false;
+    }
+  });
+  return all_allow;
+};
+
  //时间选择器
   $(".datetime").datetimepicker({
     format: 'yyyy-mm-dd', language: "zh-CN", autoclose: true,minView:2
@@ -275,67 +295,65 @@ include "message.php";
 $(document).on("click","#sprNum",addPartByNum);
   function addPartByNum(){
     var num=$("input[name=sprNum]").val();
-    if(isNaN(num)){
+    if(isNaN(num) | num==0 ){
       $('#notNum').modal({
-                keyboard: true
-            });
+          keyboard: true
+      });
+      return 0;
     }
-    var $sprNum=num-2;
     // 所填数字需大于2
-    if($sprNum<0){
-      // 当删去重新填写时，删掉相应添加的input
-      if(num==""){
-       $("#addPart").empty(); 
-       return;
+    var sprNum=num-6;
+    if(sprNum<0){
+      var nextNum=Number(num)+1;
+      for (var i = nextNum; i <= 6; i++) {
+        $("#part-"+i).detach();
+      }
+    }else{
+      var $addHtml="";
+      for (var i = 0; i < sprNum; i++) {
+        $k=i+7;
+      $addHtml+=
+      "<div class='part row' id='part-1'>"+
+      "  <div class='col-md-4'>"+
+      "    <div class='input-group'>"+
+      "      <span class='input-group-addon'>"+$k+": 存货编码</span>"+
+      "      <input type='text' class='form-control' name='gaugeSpr[1][0]'>"+
+      "    </div> "+
+      "  </div>"+
+      "  <div class='col-md-4'> "+
+      "    <div class='input-group'>"+
+      "      <span class='input-group-addon'>存货名称</span>"+
+      "      <input type='text' class='form-control' name='gaugeSpr[1][1]'>"+
+      "    </div> "+
+      "  </div>"+
+      "  <div class='col-md-4'> "+
+      "    <div class='input-group'>"+
+      "      <span class='input-group-addon'>规格型号</span>"+
+      "      <input type='text' class='form-control' name='gaugeSpr[1][1]'>"+
+      "    </div> "+
+      "  </div>"+
+      "  <div class='col-md-4'>"+
+      "    <div class='input-group'>"+
+      "      <span class='input-group-addon'>　单　　位</span>"+
+      "      <input type='text' class='form-control' name='gaugeSpr[1][2]'>"+
+      "    </div>  "+
+      "  </div>"+
+      "  <div class='col-md-4'>"+
+      "    <div class='input-group'>"+
+      "      <span class='input-group-addon'>数　　量</span>"+
+      "      <input type='text' class='form-control' name='gaugeSpr[1][2]'>"+
+      "    </div>  "+
+      "  </div>"+
+      "  <div class='col-md-4'>"+
+      "    <div class='input-group'>"+
+      "      <span class='input-group-addon'>备注描述</span>"+
+      "      <input type='text' class='form-control' name='gaugeSpr[1][2]'>"+
+      "    </div>  "+
+      "  </div>"+
+      "</div>";
+      $("#addPart").empty().append($addHtml);
     }
-      $('#failPart').modal({
-                keyboard: true
-            });
-    }
-    for (var i = 0; i < $sprNum; i++) {
-      $k=i+6;
-    var $addHtml=
-    "<div class='part row' id='part-1'>"+
-    "  <div class='col-md-4'>"+
-    "    <div class='input-group'>"+
-    "      <span class='input-group-addon'>"+$k+": 存货编码</span>"+
-    "      <input type='text' class='form-control' name='dvd[1][0]'>"+
-    "    </div> "+
-    "  </div>"+
-    "  <div class='col-md-4'> "+
-    "    <div class='input-group'>"+
-    "      <span class='input-group-addon'>存货名称</span>"+
-    "      <input type='text' class='form-control' name='dvd[1][1]'>"+
-    "    </div> "+
-    "  </div>"+
-    "  <div class='col-md-4'> "+
-    "    <div class='input-group'>"+
-    "      <span class='input-group-addon'>规格型号</span>"+
-    "      <input type='text' class='form-control' name='dvd[1][1]'>"+
-    "    </div> "+
-    "  </div>"+
-    "  <div class='col-md-4'>"+
-    "    <div class='input-group'>"+
-    "      <span class='input-group-addon'>　单　　位</span>"+
-    "      <input type='text' class='form-control' name='dvd[1][2]'>"+
-    "    </div>  "+
-    "  </div>"+
-    "  <div class='col-md-4'>"+
-    "    <div class='input-group'>"+
-    "      <span class='input-group-addon'>数　　量</span>"+
-    "      <input type='text' class='form-control' name='dvd[1][2]'>"+
-    "    </div>  "+
-    "  </div>"+
-    "  <div class='col-md-4'>"+
-    "    <div class='input-group'>"+
-    "      <span class='input-group-addon'>备注描述</span>"+
-    "      <input type='text' class='form-control' name='dvd[1][2]'>"+
-    "    </div>  "+
-    "  </div>"+
-    "</div>";
-    
-      $("#addPart").append($addHtml);
-    }
+  }
   };
 
 </script>
