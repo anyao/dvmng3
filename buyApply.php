@@ -1,7 +1,24 @@
 <?php 
+require_once "model/repairService.class.php";
 require_once "model/cookie.php";
+require_once 'model/paging.class.php';
+require_once 'model/gaugeService.class.php';
 checkValidate();
 $user=$_SESSION['user'];
+
+$repairService=new repairService();
+
+$paging=new paging();
+$paging->pageNow=1;
+$paging->pageSize=18;
+$paging->gotoUrl="buyApply.php";
+if (!empty($_GET['pageNow'])) {
+  $paging->pageNow=$_GET['pageNow'];
+}
+
+$gaugeService = new gaugeService();
+$gaugeService->buyBsc($paging);
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -18,8 +35,11 @@ $user=$_SESSION['user'];
 #apvSpr li{
     list-style: none;
     margin:10px 0px;
-    /*font-size: 18px */
-  }
+}
+
+.open > th, .open > td{
+  background-color:#F0F0F0;
+}
 </style>
 <link rel="stylesheet" href="tp/datetimepicker.css">
 <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
@@ -31,27 +51,8 @@ $user=$_SESSION['user'];
 <![endif]-->
 </head>
 <body role="document">
-<?php 
-require_once "model/repairService.class.php";
-$repairService=new repairService();
-include "message.php";
-?>
-  <?php
-    require_once 'model/inspectService.class.php';
-    require_once 'model/paging.class.php';
-
-    // $paging=new paging();
-    // $paging->pageNow=1;
-    // $paging->pageSize=18;
-    // $paging->gotoUrl="devInspect.php";
-    // if (!empty($_GET['pageNow'])) {
-    //   $paging->pageNow=$_GET['pageNow'];
-    // }
-
-    // $inspectService=new inspectService();
-    // $inspectService->getPaging($paging);
-  ?>
-   <nav class="navbar navbar-inverse">
+<?php include "message.php";?>
+<nav class="navbar navbar-inverse">
   <div class="container">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -150,17 +151,31 @@ include "message.php";
           </tr>
         </thead>
         <tbody class="tablebody">
-          <tr>
-            <td><a class="glyphicon glyphicon-resize-small" href="javascript:void(0);" onclick="buyList(this,201609242100)"></a></td>
-            <td>2016-09-24 21:00</td>
-            <td>焦化厂</td>
-            <td>电工段</td>
-            <td>张军兵</td>
-            <td>CLJL-XXXX-09</td>
-            <td><span class='glyphicon glyphicon-gift' style="display: inline;cursor: default;"></span></td>
-            <td><a href="javascript:apvSpr(123);" class='glyphicon glyphicon-envelope' style="display: inline"></a></td>
-         </tr>
+        <?php 
+          for ($i=0; $i < count($paging->res_array); $i++) { 
+           // [0] => Array ( [createtime] => 2016-09-30 16:09:00 [factory] => 办公楼 [depart] => 能源部 [name] => yb [cljl] => CLJL-30-09 )  
+            $row = $paging->res_array[$i];
+            if ($row['see'] != 0) {
+              $see= "<td></td>";
+            }else{
+              $see = "<td><span class='glyphicon glyphicon-gift' style='display: inline;cursor: default;'></span></td>";
+            }
+            $addHtml = 
+            "<tr>
+                <td><a class='glyphicon glyphicon-resize-small' href='javascript:void(0);' onclick='buyList(this,{$row['id']})'></a></td>
+                <td>{$row['createtime']}</td>
+                <td>{$row['factory']}</td>
+                <td>{$row['depart']}</td>
+                <td>{$row['name']}</td>
+                <td>{$row['cljl']}</td>
+                ".$see."
+                <td><a class='glyphicon glyphicon-trash' href='javascript:delBuy({$row['id']});'></a></td>
+             </tr>";
+             echo "$addHtml";
+                // <td><a href='javascript:apvSpr({$row['id']});' class='glyphicon glyphicon-envelope' style='display: inline'></a></td>
 
+          }
+        ?>
         </tbody>
         </table>
                 
@@ -249,36 +264,19 @@ include "message.php";
   </div>
 </div>
 
-<!-- 删除弹出框 -->
-<div class="modal fade"  id="delSpr" >
-  <div class="modal-dialog modal-sm" role="document" style="margin-top: 120px">
-    <div class="modal-content">
-         <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
-         </div>
-         <div class="modal-body">
-          <br>确定要删除该备件申报吗？<br/><br/>
-         </div>
-         <div class="modal-footer">  
-          <button type="button" class="btn btn-danger" id="del">删除</button>
-          <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
-        </div>
-    </div>
-  </div>
-</div>
 
 <!-- 删除该条列表下所有的备件申报记录 -->
-<div class="modal fade"  id="delAll" >
-  <div class="modal-dialog modal-sm" role="document" style="margin-top: 120px">
+<div class="modal fade"  id="delBuy" >
+  <div class="modal-dialog modal-sm" role="document">
     <div class="modal-content">
          <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
          </div>
          <div class="modal-body">
-          <br>确定要删除该备件申报表吗？<br/><br/>
+          <br>确定要删除该列表下 <b>所有</b> 备件申报吗？<br/><br/>
          </div>
          <div class="modal-footer">  
-          <button type="button" class="btn btn-danger" id="del">删除</button>
+          <button type="button" class="btn btn-danger" id="delBuyYes">删除</button>
           <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
         </div>
     </div>
@@ -342,7 +340,7 @@ include "message.php";
           <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
          </div>
          <div class="modal-body"><br/>
-            <div class="loginModal">您所填的巡检记录不完整，请补充。</div><br/>
+            <div class="loginModal">您所填的信息不完整，请补充。</div><br/>
          </div>
          <div class="modal-footer">  
           <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
@@ -399,53 +397,77 @@ include "message.php";
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
         <h4 class="modal-title" id="myModalLabel">备件信息</h4>
       </div>
-      <form class="form-horizontal" action="controller/inspectProcess.php" method="post">
+      <form class="form-horizontal" action="controller/gaugeProcess.php" method="post">
         <div class="modal-body">
+        <div class="form-group">
+            <label class="col-sm-3 control-label">记录编号：</label>
+            <div class="col-sm-8">
+              <input type="text" class="form-control" name="id" readonly="readonly">
+            </div>
+          </div>
           <div class="form-group">
             <label class="col-sm-3 control-label">存货编码：</label>
             <div class="col-sm-8">
-              <input type="text" class="form-control" name="inspectTime" readonly="readonly">
+              <input type="text" class="form-control" name="code">
             </div>
           </div>
           <div class="form-group">
             <label class="col-sm-3 control-label">存货名称：</label>
             <div class="col-sm-8">
-                <input type="text" class="form-control" id="findName" name="devName">        
+                <input type="text" class="form-control" id="name" name="name">        
             </div>
           </div>
 
           <div class="form-group">
             <label class="col-sm-3 control-label">规格型号：</label>
             <div class="col-sm-8">
-              <input type="text" class="form-control" name="inspecter">
+              <input type="text" class="form-control" name="no">
             </div>
           </div>
 
           <div class="form-group">
             <label class="col-sm-3 control-label">数量：</label>
             <div class="col-sm-8">
-              <input type="text" class="form-control" name="inspecter">
+              <input type="text" class="form-control" name="num">
             </div>
           </div>
            <div class="form-group">
             <label class="col-sm-3 control-label">单位：</label>
             <div class="col-sm-8">
-              <input type="text" class="form-control" name="inspecter">
+              <input type="text" class="form-control" name="unit">
             </div>
           </div>
           <div class="form-group">
             <label class="col-sm-3 control-label">备注描述：</label>
             <div class="col-sm-8">
-              <textarea class="form-control" rows="3" name="inspectInfo"></textarea>
+              <textarea class="form-control" rows="3" name="info"></textarea>
             </div>
           </div>   
           <div class="modal-footer">
-            <input type="hidden" name="flag" value="addInspectByName">
-            <button type="submit" class="btn btn-primary" id="add">确认修改</button>
-            <button type="button" class="btn btn-danger" data-dismiss="modal">取消</button>
+            <input type="hidden" name="flag" value="uptSprById">
+            <button type="button" class="btn btn-danger">删除</button>
+            <button type="submit" class="btn btn-primary" id="uptYes">修改</button>
           </div>
           </div>
         </form>
+    </div>
+  </div>
+</div>
+
+<!-- 删除弹出框 -->
+<div class="modal fade"  id="delSpr" >
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+         <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
+         </div>
+         <div class="modal-body">
+          <br>确定要删除该备件申报吗？<br/><br/>
+         </div>
+         <div class="modal-footer">  
+          <button type="button" class="btn btn-danger" id="delSprYes">删除</button>
+          <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+        </div>
     </div>
   </div>
 </div>
@@ -464,105 +486,102 @@ function apvSpr(id){
 }
 
 // 删除所有所有申报记录
-function delAll(id){
- $('#delAll').modal({
+function delBuy(id){
+ $('#delBuy').modal({
     keyboard: true
+ });
+
+ $("#delBuyYes").click(function(){
+  location.href="controller/gaugeProcess.php?flag=delBuy&id="+id;
  });
 }
 
-function buyList(obj,info){
-  // $(obj).toggleClass("glyphicon glyphicon-resize-small");
+function buyList(obj,id){
   var flagIcon=$(obj).attr("class");
   var $rootTr=$(obj).parents("tr");
   // 列表是否未展开
   if (flagIcon=="glyphicon glyphicon-resize-small") {
+    // 展开
     $(obj).removeClass(flagIcon).addClass("glyphicon glyphicon-resize-full");
-    var addHtml="<tr class='"+info+"'>"+
-                "<th>编号</th><th>存货编码</th><th>存货名称</th><th>规格型号</th><th>数量</th><th>备注描述</th><th></th>"+
-                "<th><a class='glyphicon glyphicon-trash' href='javascript:delAll(123);'></a></th> "+
-                "</tr>"+
-                "<tr class='"+info+"'>"+
-                "<td>1</td><td>510740110018</td><td>超声波流量计</td><td>TJZ-100B</td><td>3个</td><td>无</td>"+
-                "<td><a href=javascript:getSpr() class='glyphicon glyphicon-edit'></a></td>"+
-                "<td><a href=javascript:delSpr() class='glyphicon glyphicon-trash'></a></td>"+
-                "<tr/>"+
-              "</tr>";
-    $rootTr.after(addHtml);
+    $.get("controller/gaugeProcess.php",{
+      flag:'getBuyDtl',
+      id:id
+    },function(data,success){
+      var addHtml = "<tr class='open open-"+id+"'>"+
+                    "<th>编号</th><th>存货编码</th><th>存货名称</th><th>规格型号</th><th>数量</th><th>备注描述</th><th></th><th></th>"+
+                    "</tr>";
+      for (var i = 0; i < data.length; i++) {
+        var see="";
+        if (data[i].see!=0) {
+          see="<td><span class='glyphicon glyphicon-gift' style='display: inline;cursor: default;'></span></td>";
+        }else{
+          see="<td></td>";
+        }
+        addHtml += "<tr class='open "+data[i].id+" open-"+id+"'>"+
+                   "<td>"+data[i].id+"</td><td>"+data[i].code+"</td>"+
+                   "<td><a href='javascript:apvSpr("+data.id+");'>"+data[i].name+"</a></td>"+
+                   "<td>"+data[i].no+"</td><td>"+data[i].num+" "+data[i].unit+"</td><td>"+data[i].info+"</td>"+see+
+                   "<td><a href=javascript:getSpr("+data[i].id+") class='glyphicon glyphicon-edit'></a></td>"+
+                   "<tr/>";
+      }
+      addHtml += "</tr>";
+      $rootTr.after(addHtml);
+    },'json');
   }else{
     $(obj).removeClass(flagIcon).addClass("glyphicon glyphicon-resize-small");
-    $("."+info).detach();
+    $(".open-"+id).detach();
   }
 }
 
-  
 
-    $(".close-button").click(function(){
-      $(".tree").slideUp();
-      $(".sidebar-module").slideDown();
-      $(this).slideUp();
-    })
+$(".close-button").click(function(){
+  $(".tree").slideUp();
+  $(".sidebar-module").slideDown();
+  $(this).slideUp();
+})
 
-   $("#add").click(function(){
-     var allow_submit = true;
-     $("#addInspect  .form-control").each(function(){
-        if($(this).val()==""){
-          // alert("hello");
-          $('#failAdd').modal({
-              keyboard: true
-          });
-          allow_submit = false;
-        }
-     });
-     return allow_submit;
-   });
-
-   function delSpr(id){
-      // alert("hello world");
-      var $id =id;
-      $('#delSpr').modal({
-        keyboard: true
+$("#uptYes").click(function(){
+ var allow_submit = true;
+ $("#getSpr .form-control").each(function(){
+    if($(this).val()==""){
+      $('#failAdd').modal({
+          keyboard: true
       });
-      $("#del").click(function() {
-        location.href="controller/inspectProcess.php?flag=delInspect&inspectId="+$id;
-      });            
+      allow_submit = false;
     }
+ });
+ return allow_submit;
+});
 
-    function getSpr(id){ 
-      // [inspectId] => 65 [devState] => 备用 [inspecter] => he [inspectInfo] => 测试添加巡检记录 [inspectTime] => 2016-03-21 13:25:00 
-      // [devCode] => 201603122 [devName] => 橘子
-      var id=id;
-      $.get("controller/inspectProcess.php",{
-        inspectId:id,
-        flag:"getInspect"
-      },function(data,success){
-         // [{"inspectId":"65","devState":"\u5907\u7528","inspecter":"he","inspectInfo":"\u6d4b\u8bd5\u6dfb\u52a0\u5de1\u68c0\u8bb0\u5f55\r\n","inspectTime":"2016-03-21 13:25:00","devCode":"201603122","devName":"\u6a58\u5b50"}]
-         alert(data.inspectId);
-        var inspectId=data.inspectId;
-        var devState=data.devState;
-        var inspecter=data.inspecter;
-        var inspectInfo=data.inspectInfo;
-        var inspectTime=data.inspectTime;
-        var devName=data.devName;
-        // alert(inspectTime);
-        $('#revInspect input[name="inspectTime"]').val("inspectTime");
-        // alert(data)
-      },"json");
-       $('#getSpr').modal({
-        keyboard: true
-      });
-      
-    }
+function delSpr(id){
+  $('#delSpr').modal({
+    keyboard: true
+  });
+  $("#delSprYes").click(function() {
+    location.href="controller/gaugeProcess.php?flag=delSprById&id="+id;
+  });            
+}
 
-    function devList(){
-      $('#devList').modal({
-        keyboard: true
-      });
-    }
-
-   
- 
-
-
+// 获取单个备件申报仪器的基本信息，用于修改删除
+function getSpr(id){ 
+  var id=id;
+  $.get("controller/gaugeProcess.php",{
+    id:id,
+    flag:"getSprDtl"
+  },function(data,success){
+    $(".btn-danger").attr("onclick","delSpr("+data.id+")");
+    $("#getSpr input[name=id]").val(data.id);
+    $("#getSpr input[name=code]").val(data.code);
+    $("#getSpr input[name=name]").val(data.name);
+    $("#getSpr input[name=no]").val(data.no);
+    $("#getSpr input[name=unit]").val(data.unit);
+    $("#getSpr input[name=num]").val(data.num);
+    $("#getSpr textarea[name=info]").val(data.info);
+    $('#getSpr').modal({
+      keyboard: true
+    });
+  },"json");  
+}
 
     </script>
   </body>

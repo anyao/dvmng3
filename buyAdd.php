@@ -2,10 +2,11 @@
 require_once "model/cookie.php";
 checkValidate();
 $user=$_SESSION['user'];
+$uid=$_SESSION['uid'];
 
 require_once "model/repairService.class.php";
 $repairService=new repairService();
-include "message.php";
+
 
 require_once "model/userService.class.php";
 $userService=new userService();
@@ -16,7 +17,6 @@ require_once "model/gaugeService.class.php";
 $gaugeService=new gaugeService();
 // 获取测量记录部门编号
 $cljl=$gaugeService->getCLJL($dptid);
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -61,6 +61,9 @@ $cljl=$gaugeService->getCLJL($dptid);
 <![endif]-->
 </head>
 <body role="document">
+<?php  
+include "message.php";
+?>
 <nav class="navbar navbar-inverse">
   <div class="container">
     <div class="navbar-header">
@@ -161,11 +164,12 @@ $cljl=$gaugeService->getCLJL($dptid);
       <div class="col-md-4">
         <div class="input-group">
           <span class="input-group-addon">测量记录</span>
-          <input type="text" class="form-control" name="depart" value='CLJL' readonly>
+          <input type="text" class="form-control" name="CLJL" value='CLJL-<?php echo $cljl;?>-09' readonly>
         </div> 
         <div class="input-group">
           <span class="input-group-addon">申报人员</span>
           <input type="text" class="form-control" name='user' value='<?php echo "$user";?>' readonly>
+          <input type="hidden" name='uid' value='<?php echo "$uid";?>'>
         </div>
       </div>
       <div class="col-md-4">
@@ -191,37 +195,37 @@ $cljl=$gaugeService->getCLJL($dptid);
                " <div class='col-md-4'>".
                "   <div class='input-group'>".
                "     <span class='input-group-addon'>".($i+1).": 存货编码</span>".
-               "     <input type='text' class='form-control' name='gaugeSpr[1][0]'>".
+               "     <input type='text' class='form-control' name='gaugeSpr[".($i+1)."][0]'>".
                "   </div> ".
                " </div>".
                " <div class='col-md-4'> ".
                "   <div class='input-group'>".
                "     <span class='input-group-addon'>存货名称</span>".
-               "     <input type='text' class='form-control' name='gaugeSpr[1][1]'>".
+               "     <input type='text' class='form-control' name='gaugeSpr[".($i+1)."][1]'>".
                "   </div> ".
                " </div>".
                " <div class='col-md-4'> ".
                "   <div class='input-group'>".
                "     <span class='input-group-addon'>规格型号</span>".
-               "     <input type='text' class='form-control' name='gaugeSpr[1][2]'>".
+               "     <input type='text' class='form-control' name='gaugeSpr[".($i+1)."][2]'>".
                "   </div> ".
                " </div>".
                " <div class='col-md-4'>".
                "   <div class='input-group'>".
                "     <span class='input-group-addon'>　单　　位</span>".
-               "     <input type='text' class='form-control' name='gaugeSpr[1][3]'>".
+               "     <input type='text' class='form-control' name='gaugeSpr[".($i+1)."][3]'>".
                "   </div>  ".
                " </div>".
                " <div class='col-md-4'>".
                "   <div class='input-group'>".
                "     <span class='input-group-addon'>数　　量</span>".
-               "     <input type='text' class='form-control' name='gaugeSpr[1][4]'>".
+               "     <input type='text' class='form-control' name='gaugeSpr[".($i+1)."][4]'>".
                "   </div>  ".
                " </div>".
                " <div class='col-md-4'>".
                "   <div class='input-group'>".
                "     <span class='input-group-addon'>备注描述</span>".
-               "     <input type='text' class='form-control' name='gaugeSpr[1][5]'>".
+               "     <input type='text' class='form-control' name='gaugeSpr[".($i+1)."][5]'>".
                "   </div>  ".
                " </div>".
                "</div>";
@@ -317,37 +321,37 @@ $(document).on("click","#sprNum",addPartByNum);
       "  <div class='col-md-4'>"+
       "    <div class='input-group'>"+
       "      <span class='input-group-addon'>"+$k+": 存货编码</span>"+
-      "      <input type='text' class='form-control' name='gaugeSpr[1][0]'>"+
+      "      <input type='text' class='form-control' name='gaugeSpr["+$k+"][0]'>"+
       "    </div> "+
       "  </div>"+
       "  <div class='col-md-4'> "+
       "    <div class='input-group'>"+
       "      <span class='input-group-addon'>存货名称</span>"+
-      "      <input type='text' class='form-control' name='gaugeSpr[1][1]'>"+
+      "      <input type='text' class='form-control' name='gaugeSpr["+$k+"][1]'>"+
       "    </div> "+
       "  </div>"+
       "  <div class='col-md-4'> "+
       "    <div class='input-group'>"+
       "      <span class='input-group-addon'>规格型号</span>"+
-      "      <input type='text' class='form-control' name='gaugeSpr[1][1]'>"+
+      "      <input type='text' class='form-control' name='gaugeSpr["+$k+"][1]'>"+
       "    </div> "+
       "  </div>"+
       "  <div class='col-md-4'>"+
       "    <div class='input-group'>"+
       "      <span class='input-group-addon'>　单　　位</span>"+
-      "      <input type='text' class='form-control' name='gaugeSpr[1][2]'>"+
+      "      <input type='text' class='form-control' name='gaugeSpr["+$k+"][2]'>"+
       "    </div>  "+
       "  </div>"+
       "  <div class='col-md-4'>"+
       "    <div class='input-group'>"+
       "      <span class='input-group-addon'>数　　量</span>"+
-      "      <input type='text' class='form-control' name='gaugeSpr[1][2]'>"+
+      "      <input type='text' class='form-control' name='gaugeSpr["+$k+"][2]'>"+
       "    </div>  "+
       "  </div>"+
       "  <div class='col-md-4'>"+
       "    <div class='input-group'>"+
       "      <span class='input-group-addon'>备注描述</span>"+
-      "      <input type='text' class='form-control' name='gaugeSpr[1][2]'>"+
+      "      <input type='text' class='form-control' name='gaugeSpr["+$k+"][2]'>"+
       "    </div>  "+
       "  </div>"+
       "</div>";
