@@ -6,6 +6,7 @@ require_once 'model/gaugeService.class.php';
 checkValidate();
 $user=$_SESSION['user'];
 
+
 $repairService=new repairService();
 
 $paging=new paging();
@@ -40,6 +41,15 @@ $gaugeService->buyBsc($paging);
 .open > th, .open > td{
   background-color:#F0F0F0;
 }
+
+th > .glyphicon-trash{
+  display:none;
+} 
+
+tr:hover > th > .glyphicon-trash {
+  display: inline;
+}
+
 </style>
 <link rel="stylesheet" href="tp/datetimepicker.css">
 <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
@@ -169,10 +179,9 @@ $gaugeService->buyBsc($paging);
                 <td>{$row['name']}</td>
                 <td>{$row['cljl']}</td>
                 ".$see."
-                <td><a class='glyphicon glyphicon-trash' href='javascript:delBuy({$row['id']});'></a></td>
+                <td><a href='./xlsx/buyApply.php?id={$row['id']}&dpt={$row['depart']}&user={$row['name']}&date={$row['createtime']}' class='glyphicon glyphicon-save'></a></td>
              </tr>";
              echo "$addHtml";
-                // <td><a href='javascript:apvSpr({$row['id']});' class='glyphicon glyphicon-envelope' style='display: inline'></a></td>
 
           }
         ?>
@@ -182,33 +191,10 @@ $gaugeService->buyBsc($paging);
                  
     </div>
     <div class="col-md-2">
-       <div class="col-md-3">
-    <div class="sidebar-module">
-      <h3>Functions</h3>
-      <ol class="list-unstyled">
-        <li><a class="badge" href="buyApply.php"><span class="glyphicon glyphicon-list-alt"></span> 备件申报列表 </a></li>
-        <li><a class="badge" href="buyAdd.php"><span class="glyphicon glyphicon-plus"></span> 添加新的备件申报 </a></li>
-        <li><a class="badge"  data-toggle="modal" data-target="#findInspect"><span class="glyphicon glyphicon-search"></span> 搜索备件申报记录 </a></li>
-        <li style="height: 10px"></li>
-        <li><a class="badge" href="##"><span class="glyphicon glyphicon-sunglasses"></span> 备件审核列表 </a></li>
-        <li><a class="badge"  data-toggle="modal" data-target="#addTypeInfo"><span class="glyphicon glyphicon-search"></span> 搜索备件审核记录 </a></li>
-        <li style="height: 10px"></li>
-        <li><a class="badge" href="##"><span class="glyphicon glyphicon-glass"></span> 备件入厂检定登记列表 </a></li>
-        <li><a class="badge"  data-toggle="modal" data-target="#addTypeInfo"><span class="glyphicon glyphicon-search"></span> 搜索入厂登记记录 </a></li>
-
-        <li style="height: 10px"></li>
-        <li><a class="badge" href="##"><span class="glyphicon glyphicon-briefcase"></span> 备件入账存库列表 </a></li>
-        <li><a class="badge"  data-toggle="modal" data-target="#addTypeInfo"><span class="glyphicon glyphicon-search"></span> 搜索入账存库记录 </a></li>
-
-        <li style="height: 10px"></li>
-        <li><a class="badge" href="##"><span class="glyphicon glyphicon-cog"></span> 备件安装验收列表 </a></li>
-        <li><a class="badge"  data-toggle="modal" data-target="#addTypeInfo"><span class="glyphicon glyphicon-search"></span> 搜索安装验收记录 </a></li>
-      </ol>
+    <div class="col-md-3">
+    <?php  include "buyNavi.php";?>
     </div>
     </div>
-
-
-</div>
 </div>
 </div>
 <!-- 审批状态 -->
@@ -283,55 +269,7 @@ $gaugeService->buyBsc($paging);
   </div>
 </div>
 
-<!-- 添加新的供应商 -->
-<div class="modal fade" id="addSupplier" style="top: 80px">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="myModalLabel">添加新的供应商</h4>
-      </div>
-      <form class="form-horizontal" action="controller/inspectProcess.php" method="post">
-        <div class="modal-body">
-          <div class="form-group">
-            <label class="col-sm-3 control-label">供应商名称：</label>
-            <div class="col-sm-6">
-              <input type="text" class="form-control" name="inspectTime" readonly="readonly">
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="col-sm-3 control-label">联系方式：</label>
-            <div class="col-sm-6">
-              <div class="input-group">
-                <input type="text" class="form-control" id="findName" name="devCode">
-              </div>
-            </div>
-          </div>
-           
-            <div class="form-group">
-              <label class="col-sm-3 control-label">供货渠道：</label>
-              <div class="col-sm-6">
-                <input type="text" class="form-control" name="inspecter">
-              </div>
-            </div>
 
-            <div class="form-group">
-              <label class="col-sm-3 control-label">售后服务情况：</label>
-              <div class="col-sm-6">
-                <textarea class="form-control" rows="3" name="inspectInfo" placeholder="请输入售后服务基本情况..."></textarea>
-              </div>
-            </div>   
-            <div class="modal-footer">
-              <input type="hidden" name="flag" value="addInspect">
-              <input type="hidden" name="return" value="list"></input>
-              <button type="submit" class="btn btn-primary" id="add">确认添加</button>
-              <button type="button" class="btn btn-danger" data-dismiss="modal">取消</button>
-            </div>
-          </form>
-      </div>
-    </div>
-  </div>
-</div>
 <!-- 添加记录不完整提示框 -->
 <div class="modal fade"  id="failAdd" >
   <div class="modal-dialog modal-sm" role="document" style="margin-top: 105px">
@@ -508,7 +446,8 @@ function buyList(obj,id){
       id:id
     },function(data,success){
       var addHtml = "<tr class='open open-"+id+"'>"+
-                    "<th>编号</th><th>存货编码</th><th>存货名称</th><th>规格型号</th><th>数量</th><th>备注描述</th><th></th><th></th>"+
+                    "<th>编号</th><th>存货编码</th><th>存货名称</th><th>规格型号</th><th>数量</th><th>备注描述</th>"+
+                    "<th></th><th><a class='glyphicon glyphicon-trash' href='javascript:delBuy("+id+");'></a></th>"+
                     "</tr>";
       for (var i = 0; i < data.length; i++) {
         var see="";
