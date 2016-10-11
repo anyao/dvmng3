@@ -1,24 +1,23 @@
 <?php 
-require_once "model/repairService.class.php";
 require_once "model/cookie.php";
+require_once "model/repairService.class.php";
 require_once 'model/paging.class.php';
 require_once 'model/gaugeService.class.php';
 checkValidate();
 $user=$_SESSION['user'];
 
-
-$repairService=new repairService();
-
 $paging=new paging();
 $paging->pageNow=1;
 $paging->pageSize=18;
-$paging->gotoUrl="buyApply.php";
+$paging->gotoUrl="buyApv.php";
 if (!empty($_GET['pageNow'])) {
   $paging->pageNow=$_GET['pageNow'];
 }
 
 $gaugeService = new gaugeService();
-$gaugeService->buyBsc($paging);
+$gaugeService->buyApvHis($paging);
+
+
 
 ?>
 <!DOCTYPE html>
@@ -31,7 +30,7 @@ $gaugeService->buyBsc($paging);
 <meta name="description" content="普阳钢铁设备管理系统">
 <meta name="author" content="安瑶">
 <link rel="icon" href="img/favicon.ico">
-<title>备件申报-仪表管理</title>
+<title>备件审核历史-仪表管理</title>
 <style type="text/css">
 #apvSpr li{
     list-style: none;
@@ -61,7 +60,10 @@ tr:hover > th > .glyphicon-trash {
 <![endif]-->
 </head>
 <body role="document">
-<?php include "message.php";?>
+<?php 
+  $repairService=new repairService();
+  include "message.php";
+?>
 <nav class="navbar navbar-inverse">
   <div class="container">
     <div class="navbar-header">
@@ -145,7 +147,7 @@ tr:hover > th > .glyphicon-trash {
   <div class="row">
   <div class="col-md-10">
     <div class="page-header">
-        <h4>　仪表备件申报</h4>
+        <h4>　仪表备件审核历史</h4>
     </div>
     <table class="table table-striped table-hover">
         <thead>
@@ -162,14 +164,12 @@ tr:hover > th > .glyphicon-trash {
         </thead>
         <tbody class="tablebody">
         <?php 
+          if (count($paging->res_array) == 0) {
+            echo "<tr><td colspan=12>当前无备件审核历史</td></tr>";
+          }
           for ($i=0; $i < count($paging->res_array); $i++) { 
            // [0] => Array ( [createtime] => 2016-09-30 16:09:00 [factory] => 办公楼 [depart] => 能源部 [name] => yb [cljl] => CLJL-30-09 )  
             $row = $paging->res_array[$i];
-            if ($row['see'] != 0) {
-              $see= "<td></td>";
-            }else{
-              $see = "<td><span class='glyphicon glyphicon-gift' style='display: inline;cursor: default;'></span></td>";
-            }
             $addHtml = 
             "<tr>
                 <td><a class='glyphicon glyphicon-resize-small' href='javascript:void(0);' onclick='buyList(this,{$row['id']})'></a></td>
@@ -178,7 +178,6 @@ tr:hover > th > .glyphicon-trash {
                 <td>{$row['depart']}</td>
                 <td>{$row['name']}</td>
                 <td>{$row['cljl']}</td>
-                ".$see."
                 <td><a href='./xlsx/buyApply.php?id={$row['id']}&dpt={$row['depart']}&user={$row['name']}&date={$row['createtime']}' class='glyphicon glyphicon-save'></a></td>
              </tr>";
              echo "$addHtml";
@@ -187,8 +186,7 @@ tr:hover > th > .glyphicon-trash {
         ?>
         </tbody>
         </table>
-        <div class='page-count'><?php echo $paging->navi?></div>       
-                 
+        <div class='page-count'><?php echo $paging->navi?></div>                    
     </div>
     <div class="col-md-2">
     <div class="col-md-3">
@@ -197,58 +195,48 @@ tr:hover > th > .glyphicon-trash {
     </div>
 </div>
 </div>
-<!-- 审批状态 -->
-<div class="modal fade" id="apvSpr">
+
+
+<!-- 审核弹出框 -->
+<div class="modal fade" id="apvBuy">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">当前状态</h4>
+        <h4 class="modal-title">备件申报审核</h4>
       </div>
-      <form class="form-horizontal" action="controller/inspectProcess.php" method="post">
+      <form class="form-horizontal" action="controller/gaugeProcess.php" method="post">
         <div class="modal-body">
-          <div>
-            <ul style="padding-left: 8%;margin: 20px;border-bottom: 1px solid #c0c0c0">
-              <li><span class="glyphicon glyphicon-map-marker"></span> 2016-9-25 21:00： XXX 创建</li>
-              <li><span class="glyphicon glyphicon-ok"></span> 2016-9-27 21:00： XXX 同意</li>
-              <li><span class="glyphicon glyphicon-sort-by-attributes-alt"></span> XXX 审批中...</li>
-              <li><span class="glyphicon glyphicon-shopping-cart"></span> 2016-9-27 21:00： XXX 入库。</li>
-              <li><span class=" glyphicon glyphicon-cog"></span> 2016-9-27 21:00： XXX 安装。<a href="javascript:void(0);">查看设备详细信息</a></li>
-            </ul>
-          </div>
           <div class="form-group">
             <label class="col-sm-3 control-label">审批意见：</label>
             <div class="col-sm-8">
               <label class="radio-inline">
-                <input type="radio" name="result" value="正常" checked> 同意
+                <input type="radio" name="apvRes" value="同意"> 同意
               </label>
               <label class="radio-inline">
-                <input type="radio" name="result" value="正常"> 需修改
-              </label>
-              <label class="radio-inline">
-                <input type="radio" name="result" value="正常"> 不合格·返厂
-              </label><label class="radio-inline">
-                <input type="radio" name="result" value="正常"> 合格
+                <input type="radio" name="apvRes" value="需修改" checked> 需修改
               </label>
             </div>
           </div>
         
-          <div class="form-group">
+          <div class="form-group" id="apvInfo">
             <label class="col-sm-3 control-label">修改意见：</label>
             <div class="col-sm-8">
-              <textarea class="form-control" rows="2" name="inspectInfo"></textarea>
+              <textarea class="form-control" rows="3" name="apvInfo"></textarea>
             </div>
           </div>   
           <div class="modal-footer">
-            <input type="hidden" name="flag" value="addInspectByName">
-            <button type="submit" class="btn btn-danger" id="add">确认</button>
-            <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+            <input type="hidden" name="flag" value="apvBuy">
+            <input type="hidden" name="id">
+            <button type="submit" class="btn btn-primary" id="yesApvBuy">确认</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
           </div>
           </div>
         </form>
     </div>
   </div>
 </div>
+
 
 
 <!-- 删除该条列表下所有的备件申报记录 -->
@@ -272,7 +260,7 @@ tr:hover > th > .glyphicon-trash {
 
 <!-- 添加记录不完整提示框 -->
 <div class="modal fade"  id="failAdd" >
-  <div class="modal-dialog modal-sm" role="document" style="margin-top: 105px">
+  <div class="modal-dialog modal-sm" role="document">
     <div class="modal-content">
          <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
@@ -417,6 +405,43 @@ tr:hover > th > .glyphicon-trash {
 <script src="bootstrap/js/bootstrap-suggest.js"></script>
 <?php  include "./buyJs.php";?>
 <script type="text/javascript">
+// 审核提交按钮
+$("#yesApvBuy").click(function(){
+ var allow_submit = true;
+ var apvRes = $("#apvBuy input[name=apvRes]:checked").val();
+ if (apvRes == "需修改") {
+  var apvInfo = $("#apvInfo textarea").val();
+  if (apvInfo == "") {
+     $('#failAdd').modal({
+          keyboard: true
+      });
+      allow_submit = false;
+  }
+ }
+ return allow_submit;
+});
+
+// 审核弹出框审核意见按钮
+$(function(){ apvRes();});
+$("#apvBuy").on("click","input[name=apvRes]",apvRes);
+function apvRes(){
+  var apvRes = $("#apvBuy input[name=apvRes]:checked").val();
+  if (apvRes == "同意") {
+    $("#apvInfo").hide();
+  }else{
+    $("#apvInfo").show();
+  }
+}
+
+
+// 审核弹出框
+function apv(id){
+  $("#apvBuy input[name=id]").val(id);
+  $("#apvBuy").modal({
+    keyboard:true
+  });
+}
+
 // 审批
 function apvSpr(id){
   $("#apvSpr").modal({
@@ -436,18 +461,7 @@ function delBuy(id){
 }
 
 
-$("#uptYes").click(function(){
- var allow_submit = true;
- $("#getSpr .form-control").each(function(){
-    if($(this).val()==""){
-      $('#failAdd').modal({
-          keyboard: true
-      });
-      allow_submit = false;
-    }
- });
- return allow_submit;
-});
+
 
 function delSpr(id){
   $('#delSpr').modal({

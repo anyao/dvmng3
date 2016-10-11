@@ -314,7 +314,6 @@ include "message.php";
     <script src="tp/bootstrap-datetimepicker.js"></script>
     <script src="tp/bootstrap-datetimepicker.zh-CN.js"></script>
     <script src="bootstrap/js/bootstrap-suggest.js"></script>
-    
     <script type="text/javascript">
     window.console = window.console || (function(){ 
       var c = {}; c.log = c.warn = c.debug = c.info = c.error = c.time = c.dir = c.profile 

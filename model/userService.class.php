@@ -37,5 +37,7 @@ class userService{
 		$sqlHelper->close_connect();
 		return $res;
 	}
+	
+	
 }
 ?>

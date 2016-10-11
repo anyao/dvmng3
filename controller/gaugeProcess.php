@@ -87,5 +87,25 @@ if (!empty($_REQUEST['flag'])) {
 		}
 	}
 
+	else if ($flag == "check") {
+		$pro = $_POST['pro'];
+		$phase = $_POST['phase'];
+		$res = $gaugeService->checkAuth($pro, $phase);
+		echo "$res";
+		exit();
+	}
+
+	// 审核备件申报
+	else if ($flag == "apvBuy") {
+		$apvInfo = $_POST['apvInfo'];	
+		$apvRes = $_POST['apvRes'];	
+		$id = $_POST['id'];
+		$res = $gaugeService->apvBuy($apvInfo,$apvRes,$id);
+		if ($res != 1) {
+			header("location: ./../buyApvHis.php");
+		}
+
+	}
+
 }
 ?>
