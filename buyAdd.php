@@ -153,7 +153,7 @@ include "message.php";
       <div class="col-md-4">
         <div class="input-group">
           <span class="input-group-addon">申报时间</span>
-          <input type="text" class="form-control" name="applytime" value='<?php echo date("Y-m-d H:i");?>' readonly>
+          <input type="text" class="form-control" name="applytime" value='<?php echo date("Y-m-d H:i:s");?>' readonly>
         </div> 
         <div class="input-group">
           <span class="input-group-addon">申报分厂</span>
@@ -176,7 +176,7 @@ include "message.php";
         <div class="input-group">
           <span class="input-group-addon">申报单位</span>
           <input type="text" class="form-control" name="depart" value='<?php echo "{$basic['depart']}";?>' readonly>
-          <input type="hidden" name="dptid" value='<?php echo "{$basic['id']}";?>'>
+          <input type="hidden" name="dptid" value='<?php echo "{$basic['did']}";?>'>
         </div> 
         <div class="input-group">
           <span class="input-group-addon">备件总数</span>

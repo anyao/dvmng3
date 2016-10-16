@@ -269,11 +269,9 @@ class devService{
 
 	// 删除选中的设备信息记录
 	function delDevById($id){
-		$sql1="delete from device where id=$id";
-		$sql2="delete from devdetail where devid=$id";
+		$sql="delete from device where id=$id";
 		$sqlHelper=new sqlHelper();
-		$res[]=$sqlHelper->dml($sql1);
-		$res[]=$sqlHelper->dml($sql2);
+		$res=$sqlHelper->dml($sql1);
 		$sqlHelper->close_connect();
 		return $res;
 	}
@@ -322,17 +320,6 @@ class devService{
 		$sqlHelper->close_connect($pageSize);
 		return $pageCount;
 	}
-
-	//获取当页数据
-	// function getDevListByPage($pageNow,$pageSize){
-	// 	$sql="select * from device limit ".($pageNow-1)*$pageSize.",$pageSize";
-	// 	$sqlHelper=new sqlHelper();
-	// 	$res=$sqlHelper->dql_arr($sql);
-	// 	$sqlHelper->close_connect();
-	// 	return $res;
-	// }
-
-
 
 	//计算维修次数
 	function frequency($id){
@@ -799,6 +786,27 @@ class devService{
 		$sql2="select count(*) from device where device.pid=0 and state in ('正常','停用') and device.depart=$id".$this->authAnd;
 		$sqlHelper->dqlPaging($sql1,$sql2,$paging);
 		$sqlHelper->close_connect();
+	}
+
+	// 设备类型、属性、参数删除时，其下是否有子关系牵连
+	function checkCon($con, $id, $ext){
+		$sqlHelper = new sqlHelper();
+		// devPara中删除信息，涉及devDetail
+		if ($con == 'para') {
+			$sql = "select count(id) as c from devdetail where paraid = $id";
+		}else if ($con == 'typeNode') {
+			$sql = "SELECT c1+c2 as c from
+				    (select count(*) as c1 from devpara where typeid=$id) A,
+				    (select count(*) as c2 from device where class='{$ext}') B";
+		}else if ($con == 'typeRoot') {
+			$sql = "SELECT c1+c2 as c from
+				    (select count(*) as c1 from devtype where pid=$id) A,
+				    (select count(*) as c2 from device where class='{$ext}') B";
+
+		}
+		$res = $sqlHelper->dql($sql);
+		$sqlHelper->close_connect();
+		return $res['c'];
 	}
 }
 ?>

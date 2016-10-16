@@ -123,17 +123,12 @@ if (!empty($_REQUEST['flag'])) {
 	else if($flag=="delDev"){
 		$id=$_GET['id'];
 		$res=$devService->delDevById($id);
-		if ($res[0]!=0) {
-			if ($res[1]!=0) {
-					header("location:../usingList.php");
-					exit();
-			}else{
-					echo "删除具体属性参数失败，请联系管理员。<br/>联系电话：0310-5178939。";
-					exit();
-			}
+		if ($res!=0) {
+				header("location:../usingList.php");
+				exit();
 		}else{
-			echo "删除基本信息失败，请联系管理员。<br/>联系电话：0310-5178939。";
-			exit();
+				echo "删除失败，请联系管理员。<br/>联系电话：0310-5178939。";
+				exit();
 		}
 	}
 
@@ -281,12 +276,6 @@ if (!empty($_REQUEST['flag'])) {
 	}
 
 	else if($flag=="updateTypePara"){
-
-// paraNew[]	
-// para[51]	
-// 额定电流
-// para[52]	
-// P
 		$id=$_POST['id'];
 		$para=$_POST['para'];
 		$paraNew=$_POST['paraNew'];
@@ -438,6 +427,18 @@ if (!empty($_REQUEST['flag'])) {
 		$res=$devService->getDptAll($idFct);
 		echo "$res";
 		exit();
+	}
+
+	else if ($flag == "checkCon") {
+		$id = $_POST['id'];
+		$con = $_POST['con'];
+		if (empty($_POST['ext'])) {
+			$ext ="";
+		}else{
+			$ext = $_POST['ext'];
+		}
+		$res = $devService->checkCon($con,$id,$ext);
+		echo "$res";
 	}
 
 }

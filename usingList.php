@@ -314,12 +314,6 @@ if (empty($_REQUEST['flag']) && empty($_GET['fct']) && empty($_GET['dpt'])) {
                   <input type="text" class="form-control" name="price" placeholder="请输入新设备所购价格">
                 </div>
               </div>
-              <!-- <div class="form-group">
-                <label class="col-sm-4 control-label">所在分厂：</label>
-                <div class="col-sm-8">
-                  <input type="text" class="form-control notNull" name="factory" placeholder="请输入新设备所在分厂(不可为空)">
-                </div>
-              </div> -->
 
               <div class="form-group">
                 <label class="col-sm-4 control-label">所在分厂：</label>
@@ -387,7 +381,7 @@ if (empty($_REQUEST['flag']) && empty($_GET['fct']) && empty($_GET['dpt'])) {
                 <label class='col-sm-4 control-label'>责任人员：</label>
                   <div class='col-sm-7'>
                 <div class='input-group'>
-                  <input type="text" class="form-control notNul" name="theLiable" placeholder="负责人员(不可为空)">
+                  <input type="text" class="form-control" name="theLiable" placeholder="负责人员(不可为空)">
                   <div class='input-group-btn'>
                     <button type='button' class='btn btn-default dropdown-toggle' data-toggle='dropdown'>
                       <span class='caret'></span>
@@ -856,6 +850,7 @@ $("th > .glyphicon-import").click(function(){
               keyboard: true
           });
           allow_submit = false;
+          return allow_submit;
         }
      });
 
@@ -866,6 +861,7 @@ $("th > .glyphicon-import").click(function(){
               keyboard: true
         });
         allow_submit = false;
+        return allow_submit;
      }
 
      // 重新选择设备类别

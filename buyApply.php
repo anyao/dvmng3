@@ -33,11 +33,6 @@ $gaugeService->buyBsc($paging);
 <link rel="icon" href="img/favicon.ico">
 <title>备件申报-仪表管理</title>
 <style type="text/css">
-#apvSpr li{
-    list-style: none;
-    margin:10px 0px;
-}
-
 .open > th, .open > td{
   background-color:#F0F0F0;
 }
@@ -198,7 +193,7 @@ tr:hover > th > .glyphicon-trash {
 </div>
 </div>
 <!-- 审批状态 -->
-<div class="modal fade" id="apvSpr">
+<div class="modal fade" id="flowInfo">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -418,8 +413,8 @@ tr:hover > th > .glyphicon-trash {
 <?php  include "./buyJs.php";?>
 <script type="text/javascript">
 // 审批
-function apvSpr(id){
-  $("#apvSpr").modal({
+function flowInfo(id){
+  $("#flowInfo").modal({
     keyboard:true
   });
 }
@@ -456,6 +451,40 @@ function delSpr(id){
   $("#delSprYes").click(function() {
     location.href="controller/gaugeProcess.php?flag=delSprById&id="+id;
   });            
+}
+
+function buyList(obj,id){
+  var flagIcon=$(obj).attr("class");
+  var $rootTr=$(obj).parents("tr");
+  // 列表是否未展开
+  if (flagIcon=="glyphicon glyphicon-resize-small") {
+    // 展开
+    $(obj).removeClass(flagIcon).addClass("glyphicon glyphicon-resize-full");
+    $.get("controller/gaugeProcess.php",{
+      flag:'getBuyDtl',
+      id:id
+    },function(data,success){
+      var addHtml = "<tr class='open open-"+id+"'>"+
+                    "<th>编号</th><th>存货编码</th><th>存货名称</th><th>规格型号</th><th>数量</th><th>备注描述</th>"+
+                    "<th></th>"+
+                    "<th><a class='glyphicon glyphicon-trash' href='javascript:delBuy("+id+");'></a></th>"+
+                    "</tr>";
+      for (var i = 0; i < data.length; i++){
+        addHtml += "<tr class='open "+data[i].id+" open-"+id+"'>"+
+                   "<td>"+data[i].id+"</td><td>"+data[i].code+"</td>"+
+                   "<td><a href='javascript:flowInfo("+data.id+");'>"+data[i].name+"</a></td>"+
+                   "<td>"+data[i].no+"</td><td>"+data[i].num+" "+data[i].unit+"</td><td>"+data[i].info+"</td>"+
+                   "<td><span class='glyphicon glyphicon-gift' style='display: inline;cursor: default;'></span></td>"+
+                   "<td><a class='glyphicon glyphicon-edit' href='javascript:getSpr("+id+");'></a></td>"
+                   "</tr>";
+      }
+      addHtml += "</tr>";
+      $rootTr.after(addHtml);
+    },'json');
+  }else{
+    $(obj).removeClass(flagIcon).addClass("glyphicon glyphicon-resize-small");
+    $(".open-"+id).detach();
+  }
 }
 
 // 获取单个备件申报仪器的基本信息，用于修改删除

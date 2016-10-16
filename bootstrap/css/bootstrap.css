@@ -7033,4 +7033,10 @@ button.close {
 a.glyphicon{
   text-decoration: none;
 }
+
+#flowInfo li{
+    list-style: none;
+    margin:10px 0px;
+}
+
 /*# sourceMappingURL=bootstrap.css.map */

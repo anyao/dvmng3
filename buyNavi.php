@@ -5,19 +5,22 @@
     <li><a class="badge" href="buyAdd.php"><span class="glyphicon glyphicon-plus"></span> 添加新的备件申报 </a></li>
     <li><a class="badge"  data-toggle="modal" data-target="#findSpr"><span class="glyphicon glyphicon-search"></span> 搜索备件申报记录 </a></li>
     <li style="height: 10px"></li>
-    <li><a class="badge" href="javascript:gotoBuy('gaugeBuy','1')"><span class="glyphicon glyphicon-sunglasses"></span> 备件审核列表 </a></li>
-    <li><a class="badge" href="buyApvHis.php"><span class="glyphicon glyphicon-ok"></span> 历史审核 </a></li>
+    <li><a class="badge" href="javascript:gotoBuy('gaugeBuy','2','Apv')"><span class="glyphicon glyphicon-sunglasses"></span> 备件审核列表 </a></li>
+    <li><a class="badge" href="javascript:gotoBuy('gaugeBuy','2','ApvHis')"><span class="glyphicon glyphicon-ok"></span> 历史审核 </a></li>
     <li><a class="badge"  data-toggle="modal" data-target="#addTypeInfo"><span class="glyphicon glyphicon-search"></span> 搜索备件审核记录 </a></li>
     <li style="height: 10px"></li>
-    <li><a class="badge" href="##"><span class="glyphicon glyphicon-glass"></span> 备件入厂检定登记列表 </a></li>
+    <li><a class="badge" href="javascript:gotoBuy('gaugeBuy','3','Check')"><span class="glyphicon glyphicon-glass"></span> 备件入厂检定登记列表 </a></li>
+    <li><a class="badge" href="javascript:gotoBuy('gaugeBuy','3','CheckHis')"><span class="glyphicon glyphicon-ok"></span> 历史入厂检定 </a></li>
     <li><a class="badge"  data-toggle="modal" data-target="#addTypeInfo"><span class="glyphicon glyphicon-search"></span> 搜索入厂登记记录 </a></li>
 
     <li style="height: 10px"></li>
-    <li><a class="badge" href="##"><span class="glyphicon glyphicon-briefcase"></span> 备件入账存库列表 </a></li>
+    <li><a class="badge" href="javascript:gotoBuy('gaugeBuy','4','Store')"><span class="glyphicon glyphicon-tags"></span> 备件入账列表 </a></li>
+    <li><a class="badge" href="javascript:gotoBuy('gaugeBuy','4','StoreHis')"><span class="glyphicon glyphicon-ok"></span> 历史入账 </a></li>
+    <li><a class="badge" href="javascript:gotoBuy('gaugeBuy','4','StoreHouse')"><span class="glyphicon glyphicon-briefcase"></span> 备件库存列表 </a></li>
     <li><a class="badge"  data-toggle="modal" data-target="#addTypeInfo"><span class="glyphicon glyphicon-search"></span> 搜索入账存库记录 </a></li>
 
     <li style="height: 10px"></li>
-    <li><a class="badge" href="##"><span class="glyphicon glyphicon-cog"></span> 备件安装验收列表 </a></li>
+    <li><a class="badge" href="javascript:gotoBuy('gaugeBuy','5','Install')"><span class="glyphicon glyphicon-cog"></span> 备件安装验收列表 </a></li>
     <li><a class="badge"  data-toggle="modal" data-target="#addTypeInfo"><span class="glyphicon glyphicon-search"></span> 搜索安装验收记录 </a></li>
   </ol>
 </div>
@@ -98,7 +101,7 @@
 </div>
 
 <!-- 当前审核转台状态 -->
-<div class="modal fade" id="apvSpr">
+<div class="modal fade" id="flowInfo">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -122,6 +125,23 @@
             <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
           </div>
         </form>
+    </div>
+  </div>
+</div>
+
+<!-- 添加记录不完整提示框 -->
+<div class="modal fade"  id="failAdd" >
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+         <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
+         </div>
+         <div class="modal-body"><br/>
+            <div class="loginModal">您所填的信息不完整，请补充。</div><br/>
+         </div>
+         <div class="modal-footer">  
+          <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+        </div>
     </div>
   </div>
 </div>

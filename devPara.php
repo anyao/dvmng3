@@ -1,7 +1,11 @@
 <?php 
 require_once "model/cookie.php";
+require_once 'model/devService.class.php';
 checkValidate();
 $user=$_SESSION['user'];
+
+$devService=new devService();
+$res=$devService->getType();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -60,13 +64,7 @@ $user=$_SESSION['user'];
 require_once "model/repairService.class.php";
 $repairService=new repairService();
 include "message.php";
- ?>
-  <?php
-  require_once 'model/devService.class.php';
-  $devService=new devService();
-  $res=$devService->getType();
 ?>
-
 <nav class="navbar navbar-inverse">
 <div class="container">
   <div class="navbar-header">
@@ -161,8 +159,8 @@ include "message.php";
       echo "<div class='row'>
             <div class='type-header'>
               <h4>　<span class='glyphicon glyphicon-briefcase'></span> {$res[$i]['name']}
-                    <a href=javascript:delPa({$res[$i]['id']},{$flag}) class='glyphicon glyphicon-trash'></a>
-                    <a href=javascript:addSon({$res[$i]['id']}) class='glyphicon glyphicon-plus'></a>
+                    <a href=\"javascript:delPa({$res[$i]['id']},{$flag},'{$res[$i]['name']}');\" class='glyphicon glyphicon-trash'></a>
+                    <a href=\"javascript:addSon({$res[$i]['id']});\" class='glyphicon glyphicon-plus'></a>
               </h4>
             </div>";
       for ($k=0; $k < count($res[$i]['childrens']); $k++) { 
@@ -345,8 +343,7 @@ include "message.php";
         </button>
       </div>
       <div class='modal-body'>
-        <br/>确定要删除该属性吗？<br/>
-             若删除，所有设备的相关内容都将删除！<br/><br/>
+        <br/>确定要删除该属性吗？<br/><br/>
       </div>
       <div class='modal-footer'>  
           <button class='btn btn-danger' id="yesDelPara">删除</button>
@@ -364,7 +361,7 @@ include "message.php";
           <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
          </div>
          <div class="modal-body"><br/>
-            <div class="loginModal">删除失败，该类别下存在子类别。</div><br/>
+            <div class="loginModal">删除失败，其下存在相关数据。</div><br/>
          </div>
          <div class="modal-footer">  
           <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
@@ -558,11 +555,24 @@ include "message.php";
     // 已确定添加的类别删除
     $("#paraInfo").on("click","#delPara",delDeved)
     function delDeved(){
-      $("#yesDelPara").val($(this).val());
-       // $(this).parents(".input-group").detach();
-       $('#delParaCfr').modal({
-          keyboard: true
-        });
+      var id = $(this).val();
+      $.post("./controller/devProcess.php",{
+        flag: 'checkCon',
+        id:id,
+        con: 'para'
+      },function(data,success){
+        // 若该属性下有相关数据，删除失败
+        if (data != 0) {
+           $("#failDel").modal({
+                keyboard: true
+            });
+        }else{
+          $("#yesDelPara").val(id);
+           $('#delParaCfr').modal({
+              keyboard: true
+            });  
+        }
+      },'text');
     }
 
     $("#yesDelPara").click(function(){
@@ -576,7 +586,7 @@ include "message.php";
         }else{
           alert(data);
         }
-      },'text')
+      },'text');
     })
 
     // 修改类型参数和属性
@@ -604,12 +614,6 @@ include "message.php";
                       "    <button class='btn btn-default' type='button' id='delPara' value='"+data[i].id+"'><span class='glyphicon glyphicon-trash'></span></button>"+
                       "  </span>"+
                       "</div>";
-          // var addHtml="<input type="text" class="form-control" name="typeName">"
-          // var addHtml="<span class='badge'>"+data[i].name+
-          //             "  <a href=javascript:void(0) class='glyphicon glyphicon-pencil' style='color: #f5f5f5;text-decoration: none'></a>"+
-          //             "  <a href=javascript:void(0) class='glyphicon glyphicon-remove' style='color: #f5f5f5;text-decoration: none'></a>"+
-          //             "  <input type='hidden' name='para["+data[i].id  +"]' value="+data[i].name+">"+
-          //             "</span> ";
           $paraInfo.append(addHtml);
         }
       },'json');
@@ -650,13 +654,26 @@ include "message.php";
 
 
     // 删除父类别
-    function delPa(id,flag){
+    function delPa(id,flag,ext){
       if(flag==0){
-        location.href="controller/devProcess.php?flag=delTypePa&id="+id;
+        $.post("./controller/devProcess.php",{
+          flag: 'checkCon',
+          id: id,
+          con: 'typeRoot',
+          ext: ext
+        },function(data,success){
+          if (data == 0) {
+            location.href="controller/devProcess.php?flag=delTypePa&id="+id;
+          }else{
+            $('#failDel').modal({
+              keyboard: true
+            });
+          }
+        },'text')
       }else{
          $('#failDel').modal({
               keyboard: true
-          });
+         });
       }
     }
 

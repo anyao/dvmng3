@@ -1,5 +1,6 @@
 <?php  
 require_once '../model/gaugeService.class.php';
+require_once '../model/userService.class.php';
 header("content-type:text/html;charset=utf-8");
 $gaugeService=new gaugeService();
 if (!empty($_REQUEST['flag'])) {
@@ -35,6 +36,17 @@ if (!empty($_REQUEST['flag'])) {
 	else if ($flag=="getSprDtl") {
 		$id = $_GET['id'];
 		$res = $gaugeService->getSprDtl($id);
+		echo "$res";
+		exit();
+	}
+
+	else if ($flag == "getSprDtlForInstal") {
+		$id = $_GET['id'];
+		$res = $gaugeService->getSprDtl($id);
+		$res = json_decode($res,true);
+		$userService = new userService();
+		$fct = $userService->getFct($_SESSION['dptid']);
+		$res = json_encode(array_merge($res, $fct), JSON_UNESCAPED_UNICODE);
 		echo "$res";
 		exit();
 	}
@@ -101,11 +113,42 @@ if (!empty($_REQUEST['flag'])) {
 		$apvRes = $_POST['apvRes'];	
 		$id = $_POST['id'];
 		$res = $gaugeService->apvBuy($apvInfo,$apvRes,$id);
-		if ($res != 1) {
+		if ($res != 0) {
 			header("location: ./../buyApvHis.php");
+		}else{
+			echo "操作失败,请联系管理员";
 		}
-
 	}
+
+	// 入厂检定
+	else if ($flag == "checkSpr") {
+		$checkRes = $_POST['checkRes'];
+		$checkTime = date("Y-m-d H:i:s");
+		$id = $_POST['id'];
+		$res = $gaugeService->checkSpr($id,$checkRes,$checkTime);
+		if ($res != 0) {
+			header("location: ./../buyCheck.php");
+		}else{
+			echo "操作失败,请联系管理员";
+		}
+	}
+
+	// 存库入账
+	else if($flag == "storeSpr"){
+		$id = $_POST['id']; 
+		$storeRes = $_POST['storeRes']; 
+		$storeTime = date("Y-m-d H:i:s");
+		$res = $gaugeService->storeSpr($id, $storeRes, $storeTime);
+		if ($res != 0) {
+			header("location: ./../buyStore.php");
+		}else{
+			echo "操作失败，请联系管理员";
+		}
+	}
+
+
+
+
 
 }
 ?>

@@ -17,8 +17,6 @@ if (!empty($_GET['pageNow'])) {
 $gaugeService = new gaugeService();
 $gaugeService->buyApvHis($paging);
 
-
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -32,11 +30,6 @@ $gaugeService->buyApvHis($paging);
 <link rel="icon" href="img/favicon.ico">
 <title>备件审核历史-仪表管理</title>
 <style type="text/css">
-#apvSpr li{
-    list-style: none;
-    margin:10px 0px;
-}
-
 .open > th, .open > td{
   background-color:#F0F0F0;
 }
@@ -153,7 +146,7 @@ tr:hover > th > .glyphicon-trash {
         <thead>
           <tr>
            <th style="width: 8%"></th>
-           <th style="width: 24%">申报时间</th>
+           <th style="width: 24%">审核时间</th>
            <th style="width: 18%">申报分厂</th>
            <th style="width: 15%">申报单位</th>
            <th style="width: 10%">申报人</th>
@@ -170,14 +163,21 @@ tr:hover > th > .glyphicon-trash {
           for ($i=0; $i < count($paging->res_array); $i++) { 
            // [0] => Array ( [createtime] => 2016-09-30 16:09:00 [factory] => 办公楼 [depart] => 能源部 [name] => yb [cljl] => CLJL-30-09 )  
             $row = $paging->res_array[$i];
+            $apvInfo = "<td><a href='javascript:getApvInfo(\"{$row['apvtime']}\",\"{$row['apvinfo']}\");' class='glyphicon glyphicon-";
+            if (!empty($row['apvinfo'])) {
+              $apvInfo .= "remove";
+            }else{
+              $apvInfo .= "ok";
+            }
+            $apvInfo .= "' style='display:inline'></a></td>";
             $addHtml = 
             "<tr>
                 <td><a class='glyphicon glyphicon-resize-small' href='javascript:void(0);' onclick='buyList(this,{$row['id']})'></a></td>
-                <td>{$row['createtime']}</td>
+                <td>{$row['apvtime']}</td>
                 <td>{$row['factory']}</td>
                 <td>{$row['depart']}</td>
                 <td>{$row['name']}</td>
-                <td>{$row['cljl']}</td>
+                <td>{$row['cljl']}</td>".$apvInfo."
                 <td><a href='./xlsx/buyApply.php?id={$row['id']}&dpt={$row['depart']}&user={$row['name']}&date={$row['createtime']}' class='glyphicon glyphicon-save'></a></td>
              </tr>";
              echo "$addHtml";
@@ -198,23 +198,29 @@ tr:hover > th > .glyphicon-trash {
 
 
 <!-- 审核弹出框 -->
-<div class="modal fade" id="apvBuy">
+<div class="modal fade" id="apvInfo">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">备件申报审核</h4>
+        <h4 class="modal-title">审核记录</h4>
       </div>
-      <form class="form-horizontal" action="controller/gaugeProcess.php" method="post">
+      <form class="form-horizontal">
         <div class="modal-body">
+        <div class="form-group">
+            <label class="col-sm-3 control-label">审核时间：</label>
+            <div class="col-sm-8">
+              <input type="text" class="form-control" name="apvTime" readonly="readonly">
+            </div>
+          </div>
           <div class="form-group">
-            <label class="col-sm-3 control-label">审批意见：</label>
+            <label class="col-sm-3 control-label">审核结果：</label>
             <div class="col-sm-8">
               <label class="radio-inline">
-                <input type="radio" name="apvRes" value="同意"> 同意
+                <input type="radio" name="apvRes" value="同意" disabled> 同意
               </label>
               <label class="radio-inline">
-                <input type="radio" name="apvRes" value="需修改" checked> 需修改
+                <input type="radio" name="apvRes" value="需修改" disabled> 需修改
               </label>
             </div>
           </div>
@@ -222,13 +228,10 @@ tr:hover > th > .glyphicon-trash {
           <div class="form-group" id="apvInfo">
             <label class="col-sm-3 control-label">修改意见：</label>
             <div class="col-sm-8">
-              <textarea class="form-control" rows="3" name="apvInfo"></textarea>
+              <textarea class="form-control" rows="3" readonly></textarea>
             </div>
           </div>   
           <div class="modal-footer">
-            <input type="hidden" name="flag" value="apvBuy">
-            <input type="hidden" name="id">
-            <button type="submit" class="btn btn-primary" id="yesApvBuy">确认</button>
             <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
           </div>
           </div>
@@ -274,45 +277,7 @@ tr:hover > th > .glyphicon-trash {
     </div>
   </div>
 </div>
-<!-- 搜索符合条件的供应商 -->
-<div class="modal fade" id="findSupplier">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="myModalLabel">搜索符合条件的供应商</h4>
-      </div>
-      <div class="modal-body">
-         <form class="form-horizontal"> 
-            <div class="form-group">
-              <label class="col-sm-3 control-label">供应商名称：</label>
-              <div class="col-sm-6">
-               <input type="text" class="form-control datetime" readonly="readonly">
-             </div>
-           </div>
 
-           <div class="form-group">
-            <label class="col-sm-3 control-label">其下品牌：</label>
-            <div class="col-sm-6">
-              <input type="text" class="form-control" placeholder="通过设备品牌来搜索供应商">
-            </div>
-           </div>
-
-           <div class="form-group">
-            <label class="col-sm-3 control-label">设备型号：</label>
-            <div class="col-sm-6">
-              <input type="text" class="form-control" placeholder="通过设备型号来搜索供应商">
-            </div>
-           </div>
-
-         </form>
-      <div class="modal-footer" style="padding-right:40px;">
-          <button type="button" class="btn btn-primary">搜索</button>
-      </div>
-    </div>
-  </div>
-  </div>
-</div>
 
 
 <!--修改备件申报基本信息-->
@@ -405,63 +370,19 @@ tr:hover > th > .glyphicon-trash {
 <script src="bootstrap/js/bootstrap-suggest.js"></script>
 <?php  include "./buyJs.php";?>
 <script type="text/javascript">
-// 审核提交按钮
-$("#yesApvBuy").click(function(){
- var allow_submit = true;
- var apvRes = $("#apvBuy input[name=apvRes]:checked").val();
- if (apvRes == "需修改") {
-  var apvInfo = $("#apvInfo textarea").val();
-  if (apvInfo == "") {
-     $('#failAdd').modal({
-          keyboard: true
-      });
-      allow_submit = false;
-  }
- }
- return allow_submit;
-});
-
-// 审核弹出框审核意见按钮
-$(function(){ apvRes();});
-$("#apvBuy").on("click","input[name=apvRes]",apvRes);
-function apvRes(){
-  var apvRes = $("#apvBuy input[name=apvRes]:checked").val();
-  if (apvRes == "同意") {
-    $("#apvInfo").hide();
+// // 获得审核具体信息
+function getApvInfo(time,info){
+  $("#apvInfo input[name=apvTime]").val(time);
+  if (info == "") {
+    $("#apvInfo input[name=apvRes][value=同意]").attr("checked","checked");
   }else{
-    $("#apvInfo").show();
+    $("#apvInfo input[name=apvRes][value=需修改]").attr("checked","checked");
   }
-}
-
-
-// 审核弹出框
-function apv(id){
-  $("#apvBuy input[name=id]").val(id);
-  $("#apvBuy").modal({
-    keyboard:true
-  });
-}
-
-// 审批
-function apvSpr(id){
-  $("#apvSpr").modal({
-    keyboard:true
-  });
-}
-
-// 删除所有所有申报记录
-function delBuy(id){
- $('#delBuy').modal({
+  $("#apvInfo textarea").val(info);
+  $('#apvInfo').modal({
     keyboard: true
- });
-
- $("#delBuyYes").click(function(){
-  location.href="controller/gaugeProcess.php?flag=delBuy&id="+id;
- });
+  });
 }
-
-
-
 
 function delSpr(id){
   $('#delSpr').modal({
@@ -472,25 +393,35 @@ function delSpr(id){
   });            
 }
 
-// 获取单个备件申报仪器的基本信息，用于修改删除
-function getSpr(id){ 
-  var id=id;
-  $.get("controller/gaugeProcess.php",{
-    id:id,
-    flag:"getSprDtl"
-  },function(data,success){
-    $(".btn-danger").attr("onclick","delSpr("+data.id+")");
-    $("#getSpr input[name=id]").val(data.id);
-    $("#getSpr input[name=code]").val(data.code);
-    $("#getSpr input[name=name]").val(data.name);
-    $("#getSpr input[name=no]").val(data.no);
-    $("#getSpr input[name=unit]").val(data.unit);
-    $("#getSpr input[name=num]").val(data.num);
-    $("#getSpr textarea[name=info]").val(data.info);
-    $('#getSpr').modal({
-      keyboard: true
-    });
-  },"json");  
+function buyList(obj,id){
+  var flagIcon=$(obj).attr("class");
+  var $rootTr=$(obj).parents("tr");
+  // 列表是否未展开
+  if (flagIcon=="glyphicon glyphicon-resize-small") {
+    // 展开
+    $(obj).removeClass(flagIcon).addClass("glyphicon glyphicon-resize-full");
+    $.get("controller/gaugeProcess.php",{
+      flag:'getBuyDtl',
+      id:id
+    },function(data,success){
+      var addHtml = "<tr class='open open-"+id+"'>"+
+                    "<th>编号</th><th>存货编码</th><th>存货名称</th><th>规格型号</th><th>数量</th><th>备注描述</th>"+
+                    "<th></th><th></th>"+
+                    "</tr>";
+      for (var i = 0; i < data.length; i++){
+        addHtml += "<tr class='open "+data[i].id+" open-"+id+"'>"+
+                   "<td>"+data[i].id+"</td><td>"+data[i].code+"</td>"+
+                   "<td><a href='javascript:flowInfo("+data.id+");'>"+data[i].name+"</a></td>"+
+                   "<td>"+data[i].no+"</td><td>"+data[i].num+" "+data[i].unit+"</td><td colspan='3'>"+data[i].info+"</td>"+
+                   "</tr>";
+      }
+      addHtml += "</tr>";
+      $rootTr.after(addHtml);
+    },'json');
+  }else{
+    $(obj).removeClass(flagIcon).addClass("glyphicon glyphicon-resize-small");
+    $(".open-"+id).detach();
+  }
 }
 
     </script>
