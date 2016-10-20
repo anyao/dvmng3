@@ -271,7 +271,7 @@ class devService{
 	function delDevById($id){
 		$sql="delete from device where id=$id";
 		$sqlHelper=new sqlHelper();
-		$res=$sqlHelper->dml($sql1);
+		$res=$sqlHelper->dml($sql);
 		$sqlHelper->close_connect();
 		return $res;
 	}

@@ -2,6 +2,18 @@
 require_once "sqlHelper.class.php";
 // SUBSTRING_INDEX(path,'-',-1) 
 class dptService{
+	// 获取部门及其分厂	后期具体添加他们的部门结构限制
+	function getDpt(){
+		$sqlHelper = new sqlHelper();
+		$sql = "select depart.depart,factory.depart as factory,depart.id from depart 
+				left join depart as factory
+				on depart.fid = factory.id";
+		$res = $sqlHelper->dql_arr($sql);
+		$sqlHelper->close_connect();
+		$res = json_encode($res, JSON_UNESCAPED_UNICODE);
+		return $res;
+	}
+
 	function getFctAll($comp){
 		$sqlHelper=new sqlHelper();
 		$sql="select * from depart where path is null and comp=$comp";

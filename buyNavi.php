@@ -1,6 +1,7 @@
 <div class="sidebar-module">
-  <h3>Functions</h3>
-  <ol class="list-unstyled">
+  <!-- <h3>导航</h3> -->
+
+  <ol class="list-unstyled" style="margin-top: 30px">
     <li><a class="badge" href="buyApply.php"><span class="glyphicon glyphicon-list-alt"></span> 备件申报列表 </a></li>
     <li><a class="badge" href="buyAdd.php"><span class="glyphicon glyphicon-plus"></span> 添加新的备件申报 </a></li>
     <li><a class="badge"  data-toggle="modal" data-target="#findSpr"><span class="glyphicon glyphicon-search"></span> 搜索备件申报记录 </a></li>
@@ -20,7 +21,8 @@
     <li><a class="badge"  data-toggle="modal" data-target="#addTypeInfo"><span class="glyphicon glyphicon-search"></span> 搜索入账存库记录 </a></li>
 
     <li style="height: 10px"></li>
-    <li><a class="badge" href="javascript:gotoBuy('gaugeBuy','5','Install')"><span class="glyphicon glyphicon-cog"></span> 备件安装验收列表 </a></li>
+    <li><a class="badge" href="buyInstall.php"><span class="glyphicon glyphicon-cog"></span> 备件安装验收列表 </a></li>
+    <li><a class="badge" href="buyInstallHis.php"><span class="glyphicon glyphicon-ok"></span> 历史安装记录 </a></li>
     <li><a class="badge"  data-toggle="modal" data-target="#addTypeInfo"><span class="glyphicon glyphicon-search"></span> 搜索安装验收记录 </a></li>
   </ol>
 </div>

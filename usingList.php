@@ -363,7 +363,7 @@ if (empty($_REQUEST['flag']) && empty($_GET['fct']) && empty($_GET['dpt'])) {
                 <label class="col-sm-4 control-label">所在部门：</label>
                 <div class="col-sm-8">
                   <div class="input-group">
-                  <input type="text" name="nameDepart" class="form-control notNull" placeholder="请选择所在部门" readonly="readonly">
+                  <input type="text" name="nameDepart" class="form-control notNull" placeholder="请搜索所在部门" readonly="readonly">
                   <div class="input-group-btn">
                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                     <span class="caret"></span>
@@ -379,7 +379,7 @@ if (empty($_REQUEST['flag']) && empty($_GET['fct']) && empty($_GET['dpt'])) {
 
               <div class='form-group' >
                 <label class='col-sm-4 control-label'>责任人员：</label>
-                  <div class='col-sm-7'>
+                  <div class='col-sm-8'>
                 <div class='input-group'>
                   <input type="text" class="form-control" name="theLiable" placeholder="负责人员(不可为空)">
                   <div class='input-group-btn'>
@@ -391,9 +391,6 @@ if (empty($_REQUEST['flag']) && empty($_GET['fct']) && empty($_GET['dpt'])) {
                   </div>
                 </div>
               </div>
-                <div class="btn-set">
-                 <a href="javascript:void(0);" id="yesLiable" class='glyphicon glyphicon-ok'></a>
-                </div>
               </div>
 
               <div class="form-group">
@@ -846,34 +843,28 @@ $("th > .glyphicon-import").click(function(){
      var allow_submit = true;
      $("#prtAdd .notNull").each(function(){
         if($(this).val()==""){
-          $('#failAdd').modal({
-              keyboard: true
-          });
           allow_submit = false;
-          return allow_submit;
         }
      });
 
      // 负责人列表为空时，也不可提交
-     var forLiable=$("#prtAdd #forLiable input").length;
-     if (forLiable==0) {
-       $('#failAdd').modal({
-              keyboard: true
-        });
+     var forLiable = $("#prtAdd #forLiable input").length;
+     if (forLiable == 0) {
         allow_submit = false;
-        return allow_submit;
      }
 
      // 重新选择设备类别
      var idType=$("#prtAdd input[name=class]").attr("data-id");
       if(typeof(idType)=="undefined"||idType==""){
-          $('#failParaInfo').modal({
-                keyboard: true
-          });
           allow_submit=false;
       }
 
-     return allow_submit;
+      if (allow_submit == false) {
+        $('#failAdd').modal({
+              keyboard: true
+          });
+      }
+      return allow_submit;
     });
     
     // 添加子设备确认添加按钮
@@ -1071,22 +1062,13 @@ $("th > .glyphicon-import").click(function(){
         console.log('onDataRequestSuccess: ', result);
     }).on('onSetSelectValue', function (e, keyword, data) {
        console.log('onSetSelectValue: ', keyword, data);
+       var nameLiable = $(this).val();
+       var idLiable = $(this).attr("data-id");
+       var addHtml="<span class='badge'>"+nameLiable+" <a href='javascript:void(0);' class='glyphicon glyphicon-remove' style='color: #f5f5f5;text-decoration: none'></a><input type='hidden' name='liable[]' value="+idLiable+"></span> "
+        $("#prtAdd #forLiable").append(addHtml);
+        $(this).val("");
     }).on('onUnsetSelectValue', function (e) {
         console.log("onUnsetSelectValue");
-    });
-
-    $("#prtAdd #yesLiable").click(function(){
-      if($("#prtAdd input[name=theLiable]").val().length>0){
-        var nameLiable=$("#prtAdd input[name=theLiable]").val();
-        var idLiable=$("#prtAdd input[name=theLiable]").attr("data-id");
-        var addHtml="<span class='badge'>"+nameLiable+" <a href='javascript:void(0);' class='glyphicon glyphicon-remove' style='color: #f5f5f5;text-decoration: none'></a><input type='hidden' name='liable[]' value="+idLiable+"></span> "
-        $("#prtAdd #forLiable").append(addHtml);
-        $("#prtAdd input[name=theLiable]").val("");
-      }else{
-        $('#failAdd').modal({
-          keyboard: true
-        });
-      }  
     });
 
      $(document).on("click",".glyphicon-remove",delDeved)

@@ -149,7 +149,7 @@ tr:hover > th > .glyphicon-trash {
   </div>
 </nav>
 <!-- 添加新设备弹出框 -->
-<form class="form-horizontal" action="controller/devProcess.php" method="post" id="formCld">
+<form class="form-horizontal" method="post" id="formCld">
   <div class="modal fade" id="installSpr" role="dialog" >
     <div class="modal-dialog modal-lg" role="document">
       <div class="modal-content">
@@ -301,8 +301,9 @@ tr:hover > th > .glyphicon-trash {
         <input type="hidden" name="depart">
         <input type="hidden" name="factory">
           <input type="hidden" name="pid">
+          <input type="hidden" name="ext">
           <input type="hidden" name="flag" value="addCld">
-          <button class="btn btn-primary" id="yesInstall">确定添加</button>
+          <button type="button" class="btn btn-primary" id="yesInstall">确定添加</button>
           <button class="btn btn-default" data-dismiss="modal">取消</button>
         </div>
       </div>
@@ -320,6 +321,7 @@ tr:hover > th > .glyphicon-trash {
           <tr>
             <th>存货编码</th><th>存货名称</th><th>规格型号</th><th>数量</th><th>申报部门</th><th>申报人</th><th>备注描述</th><th style="width:4%"></th>
           </tr>
+
         </thead>
         <tbody class="tablebody">
         <?php 
@@ -442,6 +444,7 @@ $("#yesInstall").click(function(){
           keyboard: true
       });
       allow_submit = false;
+      return allow_submit;
     }
   }); 
   var idType=$("#installSpr input[name=class]").attr("data-id");
@@ -450,8 +453,18 @@ $("#yesInstall").click(function(){
             keyboard: true
       });
       allow_submit=false;
+      return allow_submit;
   }
-  return allow_submit;
+  
+  if (allow_submit == true) {
+    $.post("./controller/devProcess.php",$("#formCld").serialize(),function(data,success){
+      // 在用设备添加成功，返回新添加的在用设备的id
+      var sprId = $("#installSpr input[name=ext]").val();
+      var devId = data;
+      location.href="./controller/gaugeProcess.php?flag=installSpr&sprId="+sprId+"&devId="+devId;
+    },'text');
+  }
+
 });
 
 //时间选择器
@@ -475,8 +488,7 @@ function sprIntall(id){
     $("#installSpr input[name=nameDepart]").val(data.depart);
     $("#installSpr input[name=depart]").val(data.did);
     $("#installSpr input[name=factory]").val(data.fid);
-    // $("#installSpr input[name=]").val();
-
+    $("#installSpr input[name=ext]").val(sprId);
     $("#installSpr").modal({
       keyboard:true
     });

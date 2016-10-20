@@ -32,6 +32,10 @@ $gaugeService->buyCheckHis($paging);
 <link rel="icon" href="img/favicon.ico">
 <title>入厂检定历史记录-仪表管理</title>
 <style type="text/css">
+.open > th, .open > td{
+  background-color:#F0F0F0;
+}
+
 th > .glyphicon-trash{
   display:none;
 } 
@@ -134,6 +138,8 @@ tr:hover > th > .glyphicon-trash {
     </div><!--/.nav-collapse -->
   </div>
 </nav>
+
+
 <div class="container">
   <div class="row">
   <div class="col-md-10">
@@ -143,7 +149,8 @@ tr:hover > th > .glyphicon-trash {
     <table class="table table-striped table-hover">
         <thead>
           <tr>
-            <th>检定时间</th><th>存货编码</th><th>存货名称</th><th>规格型号</th><th>数量</th><th>申报部门</th><th>CLJL</th><th style="width:4%"></th>
+            <th style="width:4%"></th><th>检定时间</th><th>存货编码</th><th>存货名称</th><th>规格型号</th><th>数量</th><th>申报部门</th>
+            <th style="width:4%"></th><th style="width:4%"></th>
           </tr>
         </thead>
         <tbody class="tablebody">
@@ -158,19 +165,24 @@ tr:hover > th > .glyphicon-trash {
             $checkInfo = "<td><a href='javascript:void(0);' class='glyphicon glyphicon-";
             if ($row['res'] == 3) {
               $checkInfo .= "transfer";
+              $fold = "<td></td>";
             }else{
               $checkInfo .= "ok";
+              $fold = "<td><a class='glyphicon glyphicon-resize-small' href='javascript:void(0)' onclick='ckInfo(this,{$row['id']});'></a></td>";
             }
             $checkInfo .= "' style='display:inline;cursor:default'></a></td>";
+
+
             $addHtml = 
             "<tr>
+                ".$fold."
                 <td>{$row['checktime']}</td>
                 <td>{$row['code']}</td>
-                <td><a href='javascript:flowInfo({$row['id']})'>{$row['name']}</td>
+                <td><a href='javascript:flowInfo({$row['id']});'>{$row['name']}</td>
                 <td>{$row['no']}</td>
                 <td>{$row['num']} {$row['unit']}</td>
                 <td>{$row['factory']}{$row['depart']}</td>
-                <td>{$row['cljl']}</td>
+                <td><a class='glyphicon glyphicon-shopping-cart' href='javascript:flowInfo({$row['id']});'></a></td>
                 ".$checkInfo."
              </tr>";
              echo "$addHtml";
@@ -190,40 +202,6 @@ tr:hover > th > .glyphicon-trash {
 </div>
 
 
-<!-- 审核弹出框 -->
-<div class="modal fade" id="checkSpr">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">备件入厂检定</h4>
-      </div>
-      <form class="form-horizontal" action="controller/gaugeProcess.php" method="post">
-        <div class="modal-body">
-          <div class="form-group">
-            <label class="col-sm-4 control-label">检定结果：</label>
-            <div class="col-sm-8">
-              <label class="radio-inline">
-                <input type="radio" name="checkRes" value="2" checked> 合格
-              </label>
-              <label class="radio-inline">
-                <input type="radio" name="checkRes" value="1"> 不合格 · 返厂
-              </label>
-            </div>
-          </div>
-           
-          <div class="modal-footer">
-            <input type="hidden" name="flag" value="checkSpr">
-            <input type="hidden" name="id">
-            <button type="submit" class="btn btn-primary" id="yesCheckSpr">确认</button>
-            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-          </div>
-          </div>
-        </form>
-    </div>
-  </div>
-</div>
-
 
 <script src="bootstrap/js/jquery.js"></script>
 <script src="bootstrap/js/bootstrap.js"></script>
@@ -232,19 +210,44 @@ tr:hover > th > .glyphicon-trash {
 <script src="bootstrap/js/bootstrap-suggest.js"></script>
 <?php  include "./buyJs.php";?>
 <script type="text/javascript">
-// 检定弹出框
-function sprCheck(id){
-  $("#checkSpr input[name=id]").val(id);
-  $("#checkSpr").modal({
-    keyboard:true
-  });
-}
-
-// 检定
-function apvSpr(id){
-  $("#apvSpr").modal({
-    keyboard:true
-  });
+function ckInfo(obj,id){
+  var flagIcon=$(obj).attr("class");
+  var $rootTr=$(obj).parents("tr");
+  // 列表是否未展开
+  if (flagIcon=="glyphicon glyphicon-resize-small") {
+    // 展开
+    $(obj).removeClass(flagIcon).addClass("glyphicon glyphicon-resize-full");
+    $.get("controller/gaugeProcess.php",{
+      flag:'getCkInfo',
+      sprId:id
+    },function(data,success){
+      var addHtml = "<tr class='open-"+id+"'>"+
+                    "   <td colspan='12'>"+
+                    "     <div class='row'>"+
+                    "       <div class='col-md-4'>"+
+                    "         <p><b>制造厂：</b>"+data.supplier+"</p>"+
+                    "         <p><b>精度等级：</b>"+data.accuracy+"</p>"+
+                    "         <p><b>量程：</b>"+data.scale+"</p>"+
+                    "       </div>"+
+                    "       <div class='col-md-4'>"+
+                    "         <p><b>出厂编号：</b>"+data.codeManu+"</p>"+
+                    "         <p><b>检定周期(月)：</b>"+data.circle+"</p>"+
+                    "         <p><b>检定部门：</b>"+data.depart+"</p>"+
+                    "       </div>"+
+                    "       <div class='col-md-4'>"+
+                    "         <p><b>检定日期：</b>"+data.checkNxt+"</p>"+
+                    "         <p><b>溯源方式：</b>"+data.track+"</p>"+
+                    "         <p><b>证书结论：</b>"+data.certi+"</p>"+    
+                    "       </div>"+
+                    "     </div>"+
+                    "   </td>"+
+                    " </tr>";
+      $rootTr.after(addHtml);
+    },'json');
+  }else{
+    $(obj).removeClass(flagIcon).addClass("glyphicon glyphicon-resize-small");
+    $(".open-"+id).detach();
+  }
 }
 
     </script>

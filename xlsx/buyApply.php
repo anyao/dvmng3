@@ -16,19 +16,18 @@
 <?php
 header("content-type:text/html;charset=utf-8");
 require_once '../model/gaugeService.class.php';	
-$dpt = $_GET['dpt'];	
+$cljl = $_GET['cljl'];
 $id = $_GET['id'];	
 $user = $_GET['user'];	
-$date = $_GET['date'];
 $gaugeService = new gaugeService();
 $res = $gaugeService->getBuyDtl($id);
 $res = json_decode($res,true);
-$filename=$date."_".$dpt;
-
 
 $addHtml= "<table>
+      <caption align='center'>备件申报明细</caption>
+      <tr><td colspan=\"8\" style='text-align:right'>$cljl</td></tr>
 			<tr>
-      		  <th>存货编码</th><th>存货名称</th><th>规格型号</th><th>单位</th><th>数量</th><th>申报单位</th><th>申报人</th><th>备注描述</th>
+      	<th>存货编码</th><th>存货名称</th><th>规格型号</th><th>单位</th><th>数量</th><th>申报单位</th><th>申报人</th><th>备注描述</th>
 			</tr>";
       
        for ($i=0; $i < count($res); $i++) { 
@@ -47,7 +46,7 @@ $addHtml= "<table>
 
 header("Content-type:application/vnd.ms-excel");
 Header("Accept-Ranges:bytes");
-Header("Content-Disposition:attachment;filename=".$filename); //$filename导出的文件名
+Header('Content-Disposition:attachment;filename="'.$cljl.'.xls"'); //$filename导出的文件名
 header("Pragma: no-cache");
 header("Expires: 0");
 echo "$addHtml";

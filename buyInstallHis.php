@@ -15,7 +15,7 @@ if (!empty($_GET['pageNow'])) {
 }
 
 $gaugeService = new gaugeService();
-$gaugeService->buyStore($paging);
+$gaugeService->buyInstallHis($paging);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -149,26 +149,36 @@ tr:hover > th > .glyphicon-trash {
     <table class="table table-striped table-hover">
         <thead>
           <tr>
-            <th>存货编码</th><th>存货名称</th><th>规格型号</th><th>数量</th><th>申报部门</th><th>CLJL</th><th>备注描述</th><th style="width:4%"></th>
+            <th>入账时间</th><th>存货编码</th><th>存货名称</th><th>规格型号</th><th>数量</th><th>申报部门</th><th>备注描述</th><th style="width:4%"></th><th style="width:4%"></th>
           </tr>
         </thead>
         <tbody class="tablebody">
         <?php 
           if (count($paging->res_array) == 0) {
-            echo "<tr><td colspan=12>当前无新的入账存库的备件</td></tr>";
+            echo "<tr><td colspan=12>当前无历史安装验收记录</td></tr>";
           }
           for ($i=0; $i < count($paging->res_array); $i++) { 
             $row = $paging->res_array[$i];
+            $res = "<td><a class='glyphicon glyphicon-";
+            if ($row['res'] == 6) {
+              $res .= "play-circle' href='usingSon.php?id={$row['devid']}'";
+            }else{
+              $res .= "briefcase'   href='spare.php?id={$row['devid']}'" ;
+            }
+            $res .= " style='display:inline;'></a></td>";
+
             $addHtml = 
             "<tr>
+                <td>{$row['installtime']}</td>
                 <td>{$row['code']}</td>
                 <td><a href='javascript:flowInfo({$row['id']})'>{$row['name']}</td>
                 <td>{$row['no']}</td>
                 <td>{$row['num']} {$row['unit']}</td>
                 <td>{$row['factory']}{$row['depart']}</td>
-                <td>{$row['cljl']}</td>
                 <td>{$row['info']}</td>
-                <td><a class='glyphicon glyphicon-tags' href='javascript:sprStore({$row['id']},{$row['num']})'></a></td>
+                <td><a class='glyphicon glyphicon-save' href='./xlsx/sprInstall.php?id={$row['id']}' style='display:inline;'></a></td>
+                ".$res."
+
              </tr>";
              echo "$addHtml";
 
@@ -187,57 +197,6 @@ tr:hover > th > .glyphicon-trash {
 </div>
 
 
-<!-- 审核弹出框 -->
-<div class="modal fade" id="storeSpr">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">备件入账存库</h4>
-      </div>
-      <form class="form-horizontal" action="controller/gaugeProcess.php" method="post">
-        <div class="modal-body">
-          <div class="form-group">
-            <label class="col-sm-4 control-label">处理结果：</label>
-            <div class="col-sm-8">
-              <label class="radio-inline">
-                <input type="radio" name="storeRes" value="4" checked> 入账·存库
-              </label>
-              <label class="radio-inline">
-                <input type="radio" name="storeRes" value="5"> 入账·安装验收
-              </label>
-            </div>
-          </div>
-           <div class="form-group">
-            <label class="col-sm-4 control-label">分配数量：</label>
-            <div class="col-sm-8">
-              <div class="col-sm-5" style="padding-left: 0px;">
-                <div class="input-group input-group-sm" style="width:80%">
-                  <span class="input-group-btn">
-                    <button class="btn btn-default" type="button" id="minus"><span class="glyphicon glyphicon-minus"></span></button>
-                  </span>
-                  <input type="text" class="form-control" name='num' readonly="readonly" >
-                  <span class="input-group-btn">
-                    <button class="btn btn-default" type="button" id="plus"><span class="glyphicon glyphicon-plus"></span></button>
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-          </div>
-          <div class="modal-footer">
-            <input type="hidden" name="flag" value="storeSpr">
-            <input type="hidden" name="id">
-            <input type="hidden" name="total">
-            <button type="submit" class="btn btn-primary" id="yesStoreSpr">确认</button>
-            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-          </div>
-        </form>
-    </div>
-  </div>
-</div>
-
-
 <script src="bootstrap/js/jquery.js"></script>
 <script src="bootstrap/js/bootstrap.js"></script>
 <script src="tp/bootstrap-datetimepicker.js"></script>
@@ -245,29 +204,9 @@ tr:hover > th > .glyphicon-trash {
 <script src="bootstrap/js/bootstrap-suggest.js"></script>
 <?php  include "./buyJs.php";?>
 <script type="text/javascript">
-// 入账的备件数目加
-$("#storeSpr #plus").click(function(){
-  var num = parseInt($("#storeSpr input[name=num]").val());
-  if (num != $(this).attr("max")) {
-    num++;
-    $("#storeSpr input[name=num]").val(num);
-  }
-});
-
-// 入账的备件数目减
-$("#storeSpr #minus").click(function(){
-  var num = parseInt($("#storeSpr input[name=num]").val());
-  if (num != 0) {
-    num--;
-    $("#storeSpr input[name=num]").val(num);
-  }
-});
-
 // 检定弹出框
-function sprStore(id,num){
+function sprStore(id){
   $("#storeSpr input[name=id]").val(id);
-  $("#storeSpr input[name=num], #storeSpr input[name=total]").val(num);
-  $("#plus").attr("max",num);
   $("#storeSpr").modal({
     keyboard:true
   });

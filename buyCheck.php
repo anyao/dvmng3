@@ -3,6 +3,7 @@ require_once "model/cookie.php";
 require_once "model/repairService.class.php";
 require_once 'model/paging.class.php';
 require_once 'model/gaugeService.class.php';
+require_once './model/dptService.class.php';
 checkValidate();
 $user=$_SESSION['user'];
 
@@ -17,6 +18,8 @@ if (!empty($_GET['pageNow'])) {
 $gaugeService = new gaugeService();
 $gaugeService->buyCheck($paging);
 
+$dptService = new dptService();
+$dptAll = $dptService->getDpt();
 
 
 ?>
@@ -143,6 +146,173 @@ tr:hover > th > .glyphicon-trash {
     </div><!--/.nav-collapse -->
   </div>
 </nav>
+
+<!-- 审核弹出框 -->
+<div class="modal fade" id="checkSpr">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">备件入厂检定</h4>
+      </div>
+      <form class="form-horizontal" action="controller/gaugeProcess.php" method="post">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="col-sm-4 control-label">检定结果：</label>
+            <div class="col-sm-8">
+              <label class="radio-inline">
+                <input type="radio" name="checkRes" value="2" checked> 合格
+              </label>
+              <label class="radio-inline">
+                <input type="radio" name="checkRes" value="3"> 不合格 · 返厂
+              </label>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <input type="hidden" name="flag" value="checkSpr">
+            <input type="hidden" name="id">
+            <button class="btn btn-primary" id="yesCheckSpr">确认</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+          </div>
+          </div>
+        </form>
+    </div>
+  </div>
+</div>
+
+<!-- 若入厂检定结果为合格则添加部分台账内容 -->
+<div class="modal fade" id="addSprInfo">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">备件入厂检定信息</h4>
+        </div>
+        <form class="form-horizontal" id="addSprForm">
+          <div class="modal-body">
+          <div class="row">
+            <div class="col-md-6" style="padding-right: 0px;">
+              <div class="form-group">
+                <label class="col-sm-3 control-label">名称型号：</label>
+                <div class="col-sm-9">
+                  <input type="text" class="form-control" name="name" readonly>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-3 control-label">制造厂：</label>
+                <div class="col-sm-9">
+                  <input type="text" class="form-control" name="supplier">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-3 control-label">精度等级：</label>
+                <div class="col-sm-9">
+                  <input type="text" class="form-control" name="accuracy">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-3 control-label">量程：</label>
+                <div class="col-sm-9">
+                  <input type="text" class="form-control" name="scale">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-3 control-label">出厂编号：</label>
+                <div class="col-sm-9">
+                  <input type="text" class="form-control" name="codeManu">
+                </div>
+              </div>
+              
+            </div>
+            <div class="col-md-6" style="padding-left: 0px">
+              <div class="form-group">
+                <label class="col-sm-3 control-label">检定部门：</label>
+                <div class="col-sm-9">
+                  <div class="input-group">
+                  <input type="text" name="nDptCk" class="form-control">
+                  <div class="input-group-btn">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                    <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                    </ul>
+                  </div>
+                  <!-- /btn-group -->
+                </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-3 control-label">证书结论：</label>
+                <div class="col-sm-9">
+                  <input type="text" class="form-control" name="certi">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-3 control-label">检定日期：</label>
+                <div class="col-sm-9">
+                  <input type="text" class="form-control datetime" name="checkNxt" readonly>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-3 control-label">检定周期：</label>
+                <div class="col-sm-9">
+                  <div class="input-group">
+                    <span class="input-group-btn">
+                      <button class="btn btn-default" type="button" id="minus"><span class="glyphicon glyphicon-minus"></span></button>
+                      <button class="btn btn-default" type="button" id="plus"><span class="glyphicon glyphicon-plus"></span></button>
+                    </span>
+                    <input type="text" class="form-control" name='circle' value="6" readonly="readonly" style="text-align: right">
+                    <span class="input-group-addon">月</span>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-3 control-label">溯源方式：</label>
+                <div class="col-sm-9">
+                  <label class="radio-inline">
+                    <input type="radio" name="track" value="检定" checked> 检定
+                  </label>
+                  <label class="radio-inline">
+                    <input type="radio" name="track" value="校准"> 校准
+                  </label>
+                  <label class="radio-inline">
+                    <input type="radio" name="track" value="测试"> 测试
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+            </div> 
+            <div class="modal-footer">
+              <input type="hidden" name="flag" value="addSprInCk">
+              <input type="hidden" name="sprId">
+              <input type="hidden" name="dptCk">
+              <button type='button' class="btn btn-primary" id="yesAddInfo">确认</button>
+              <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+            </div>
+          </form>
+      </div>
+    </div>
+</div>
+
+<!-- 精度必须是数字 -->
+<div class="modal fade"  id="failAccuracy" >
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+         <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
+         </div>
+         <div class="modal-body"><br/>
+            <div class="loginModal">精度等级必须数字。</div><br/>
+         </div>
+         <div class="modal-footer">  
+          <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+        </div>
+    </div>
+  </div>
+</div>
+
+
 <div class="container">
   <div class="row">
   <div class="col-md-10">
@@ -172,7 +342,7 @@ tr:hover > th > .glyphicon-trash {
                 <td>{$row['factory']}{$row['depart']}</td>
                 <td>{$row['cljl']}</td>
                 <td>{$row['info']}</td>
-                <td><a class='glyphicon glyphicon-check' href='javascript:sprCheck({$row['id']})'></a></td>
+                <td><a class='glyphicon glyphicon-check' href='javascript:sprCheck({$row['id']},\"{$row['name']}\",\"{$row['no']}\");'></a></td>
              </tr>";
              echo "$addHtml";
 
@@ -191,39 +361,10 @@ tr:hover > th > .glyphicon-trash {
 </div>
 
 
-<!-- 审核弹出框 -->
-<div class="modal fade" id="checkSpr">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">备件入厂检定</h4>
-      </div>
-      <form class="form-horizontal" action="controller/gaugeProcess.php" method="post">
-        <div class="modal-body">
-          <div class="form-group">
-            <label class="col-sm-4 control-label">检定结果：</label>
-            <div class="col-sm-8">
-              <label class="radio-inline">
-                <input type="radio" name="checkRes" value="2" checked> 合格
-              </label>
-              <label class="radio-inline">
-                <input type="radio" name="checkRes" value="3"> 不合格 · 返厂
-              </label>
-            </div>
-          </div>
-           
-          <div class="modal-footer">
-            <input type="hidden" name="flag" value="checkSpr">
-            <input type="hidden" name="id">
-            <button type="submit" class="btn btn-primary" id="yesCheckSpr">确认</button>
-            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-          </div>
-          </div>
-        </form>
-    </div>
-  </div>
-</div>
+
+
+
+
 
 
 <script src="bootstrap/js/jquery.js"></script>
@@ -233,20 +374,107 @@ tr:hover > th > .glyphicon-trash {
 <script src="bootstrap/js/bootstrap-suggest.js"></script>
 <?php  include "./buyJs.php";?>
 <script type="text/javascript">
+// 部门搜索提示
+ $("#addSprInfo input[name=nDptCk]").bsSuggest({
+    allowNoKeyword: false,
+    showBtn: false,
+    indexId:2,
+    // indexKey: 1,
+    data: {
+         'value':<?php  echo "$dptAll"; ?>,
+    }
+}).on('onDataRequestSuccess', function (e, result) {
+    console.log('onDataRequestSuccess: ', result);
+}).on('onSetSelectValue', function (e, keyword, data) {
+   console.log('onSetSelectValue: ', keyword, data);
+   var idDepart=$(this).attr("data-id");
+   $(this).parents("form").find("input[name=dptCk]").val(idDepart);
+}).on('onUnsetSelectValue', function (e) {
+    console.log("onUnsetSelectValue");
+});
+
+
+// 确定添加检定信息到mysql中
+$("#yesAddInfo").click(function(){
+  var allow_submit = true;
+
+  // 精度必须是个数字
+  var accuracy = $("#addSprInfo input[name=accuracy]").val();
+  if(isNaN(parseFloat(accuracy)) && accuracy.length !=0){
+    $("#failAccuracy").modal({
+      keyboard:true
+    });
+    return false;
+  }
+
+  // 所有input不得为空
+  $("#addSprInfo input[type=text]").each(function(){
+    if ($(this).val() == "") {
+      $("#failAdd").modal({
+        keyboard:true
+      });
+      var allow_submit = false;
+    }
+  });
+
+  if (allow_submit == true) {
+    $.get("./controller/gaugeProcess.php",$("#addSprForm").serialize(),function(data,success){
+      // 添加成功，关闭两个框
+      if (data !=0 ) {
+        // $('#addSprInfo, #checkSpr').modal('hide');
+        location.href="./buyCheck.php";
+      }
+    },'text');
+  }
+
+  
+});
+// 检定周期加
+$("#addSprInfo #plus").click(function(){
+  var num = parseInt($("#addSprInfo input[name=circle]").val());
+  if (num != 12) {
+    num++;
+    $("#addSprInfo input[name=circle]").val(num);
+  }
+});
+
+// 检定周期减
+$("#addSprInfo #minus").click(function(){
+  var num = parseInt($("#addSprInfo input[name=circle]").val());
+  if (num != 1) {
+    num--;
+    $("#addSprInfo input[name=circle]").val(num);
+  }
+});
+
+
+//时间选择器
+$(".datetime").datetimepicker({
+  format: 'yyyy-mm-dd', language: "zh-CN", autoclose: true,minView:2,
+});
+
+$("#yesCheckSpr").click(function(){
+  var allow_submit = true;
+  var checkRes = $("#checkSpr input[name=checkRes]:checked").val();
+  if (checkRes == 2) {
+    $("#addSprInfo").modal({
+      keyboard:true
+    });
+    allow_submit = false;
+  }
+  return allow_submit;
+});
+
 // 检定弹出框
-function sprCheck(id){
+function sprCheck(id,name,no){
+  $("#addSprInfo input[name=name]").val(name+" "+no);
+  $("#addSprInfo input[name=sprId]").val(id);
   $("#checkSpr input[name=id]").val(id);
   $("#checkSpr").modal({
     keyboard:true
   });
 }
 
-// 检定
-function apvSpr(id){
-  $("#apvSpr").modal({
-    keyboard:true
-  });
-}
 
     </script>
   </body>

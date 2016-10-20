@@ -138,12 +138,58 @@ if (!empty($_REQUEST['flag'])) {
 		$id = $_POST['id']; 
 		$storeRes = $_POST['storeRes']; 
 		$storeTime = date("Y-m-d H:i:s");
-		$res = $gaugeService->storeSpr($id, $storeRes, $storeTime);
-		if ($res != 0) {
+		$num = $_POST['num'];
+		$total = $_POST['total'];
+		$res = $gaugeService->storeSpr($id, $storeRes, $storeTime, $num,$total);
+		if (!in_array(0,$res)) {
 			header("location: ./../buyStore.php");
+			exit();
 		}else{
 			echo "操作失败，请联系管理员";
+			exit();
 		}
+	}
+
+	// 安装验收备件，在dtl表中添加devid和installtime
+	else if($flag == "installSpr"){
+		$devId = $_GET['devId'];
+		$sprId = $_GET['sprId'];
+		$installTime = date("Y-m-d H:i:s");
+		$res = $gaugeService->installSpr($sprId,$devId,$installTime);
+		if ($res != 0) {
+			header("location: ./../buyInstallHis.php");
+			exit();
+		}else{
+			echo "操作失败,请联系管理员";
+			exit();
+		}
+	}
+
+	else if ($flag == "addSprInCk") {
+    	$supplier = $_GET['supplier'];
+    	$accuracy = $_GET['accuracy'];
+    	$scale = $_GET['scale'];
+    	$codeManu = $_GET['codeManu'];
+    	$certi = $_GET['certi'];
+    	$checkNxt = $_GET['checkNxt'];
+    	$circle = $_GET['circle'];
+    	$track = $_GET['track'];
+    	$sprId = $_GET['sprId'];
+    	$dptCk = $_GET['dptCk'];
+    	$res[] = $gaugeService->addSprInCk($supplier,$accuracy,$scale,$codeManu,$certi,$checkNxt,$circle,$track,$sprId,$dptCk); 
+    	$time = date("Y-m-d H:i:s"); 
+		$res[] = $gaugeService->checkSpr($sprId,2,$time);
+		$res = !in_array(0,$res);
+    	echo $res;
+		exit();
+	}
+
+	// 获取单个备件的入场检定信息
+	else if ($flag == "getCkInfo") {
+		$sprId = $_GET['sprId'];
+		$res = $gaugeService->getCkInfo($sprId);
+		echo "$res";
+		exit();
 	}
 
 

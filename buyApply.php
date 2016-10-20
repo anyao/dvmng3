@@ -160,6 +160,13 @@ tr:hover > th > .glyphicon-trash {
           for ($i=0; $i < count($paging->res_array); $i++) { 
            // [0] => Array ( [createtime] => 2016-09-30 16:09:00 [factory] => 办公楼 [depart] => 能源部 [name] => yb [cljl] => CLJL-30-09 )  
             $row = $paging->res_array[$i];
+            if ($row['apvtime'] != "" && $row['apvinfo'] == "") {
+              // 审核同意
+              $phase = "yesApv";
+            }else{
+              $phase = "";
+            }
+
             if ($row['see'] != 0) {
               $see= "<td></td>";
             }else{
@@ -167,14 +174,14 @@ tr:hover > th > .glyphicon-trash {
             }
             $addHtml = 
             "<tr>
-                <td><a class='glyphicon glyphicon-resize-small' href='javascript:void(0);' onclick='buyList(this,{$row['id']})'></a></td>
+                <td><a class='glyphicon glyphicon-resize-small' href='javascript:void(0);' onclick=\"buyList(this,{$row['id']},'{$phase}');\"></a></td>
                 <td>{$row['createtime']}</td>
                 <td>{$row['factory']}</td>
                 <td>{$row['depart']}</td>
                 <td>{$row['name']}</td>
                 <td>{$row['cljl']}</td>
                 ".$see."
-                <td><a href='./xlsx/buyApply.php?id={$row['id']}&dpt={$row['depart']}&user={$row['name']}&date={$row['createtime']}' class='glyphicon glyphicon-save'></a></td>
+                <td><a href='./xlsx/buyApply.php?id={$row['id']}&dpt={$row['depart']}&user={$row['name']}&cljl={$row['cljl']}' class='glyphicon glyphicon-save'></a></td>
              </tr>";
              echo "$addHtml";
 
@@ -453,7 +460,7 @@ function delSpr(id){
   });            
 }
 
-function buyList(obj,id){
+function buyList(obj,id,phase){
   var flagIcon=$(obj).attr("class");
   var $rootTr=$(obj).parents("tr");
   // 列表是否未展开
@@ -464,19 +471,30 @@ function buyList(obj,id){
       flag:'getBuyDtl',
       id:id
     },function(data,success){
+      var trash = "";
+      if (phase != "yesApv") {
+        trash = "<th><a class='glyphicon glyphicon-trash' href='javascript:delBuy("+id+");'></a></th>";
+      }else{
+        trash = "<th></th>";
+      }
       var addHtml = "<tr class='open open-"+id+"'>"+
                     "<th>编号</th><th>存货编码</th><th>存货名称</th><th>规格型号</th><th>数量</th><th>备注描述</th>"+
-                    "<th></th>"+
-                    "<th><a class='glyphicon glyphicon-trash' href='javascript:delBuy("+id+");'></a></th>"+
+                    "<th></th>"+trash+
                     "</tr>";
+
+      var edit = "";
       for (var i = 0; i < data.length; i++){
-        addHtml += "<tr class='open "+data[i].id+" open-"+id+"'>"+
-                   "<td>"+data[i].id+"</td><td>"+data[i].code+"</td>"+
-                   "<td><a href='javascript:flowInfo("+data.id+");'>"+data[i].name+"</a></td>"+
-                   "<td>"+data[i].no+"</td><td>"+data[i].num+" "+data[i].unit+"</td><td>"+data[i].info+"</td>"+
-                   "<td><span class='glyphicon glyphicon-gift' style='display: inline;cursor: default;'></span></td>"+
-                   "<td><a class='glyphicon glyphicon-edit' href='javascript:getSpr("+id+");'></a></td>"
-                   "</tr>";
+        if (phase != "yesApv") {
+          edit = "<td><a class='glyphicon glyphicon-edit' href='javascript:getSpr("+data[i].id+");'></a></td>";
+        }else{
+          edit = "<td></td>"
+        }
+          addHtml += "<tr class='open "+data[i].id+" open-"+id+"'>"+
+                     "<td>"+data[i].id+"</td><td>"+data[i].code+"</td>"+
+                     "<td><a href='javascript:flowInfo("+data.id+");'>"+data[i].name+"</a></td>"+
+                     "<td>"+data[i].no+"</td><td>"+data[i].num+" "+data[i].unit+"</td><td>"+data[i].info+"</td>"+
+                     "<td><span class='glyphicon glyphicon-gift' style='display: inline;cursor: default;'></span></td>"+edit+
+                     "</tr>";
       }
       addHtml += "</tr>";
       $rootTr.after(addHtml);

@@ -178,7 +178,7 @@ tr:hover > th > .glyphicon-trash {
                 <td>{$row['depart']}</td>
                 <td>{$row['name']}</td>
                 <td>{$row['cljl']}</td>".$apvInfo."
-                <td><a href='./xlsx/buyApply.php?id={$row['id']}&dpt={$row['depart']}&user={$row['name']}&date={$row['createtime']}' class='glyphicon glyphicon-save'></a></td>
+                <td><a href='./xlsx/buyApply.php?id={$row['id']}&dpt={$row['depart']}&user={$row['name']}&cljl={$row['cljl']}' class='glyphicon glyphicon-save'></a></td>
              </tr>";
              echo "$addHtml";
 
