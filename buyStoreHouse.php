@@ -3,6 +3,7 @@ require_once "model/cookie.php";
 require_once "model/repairService.class.php";
 require_once 'model/paging.class.php';
 require_once 'model/gaugeService.class.php';
+require_once 'model/dptService.class.php';
 checkValidate();
 $user=$_SESSION['user'];
 
@@ -16,6 +17,10 @@ if (!empty($_GET['pageNow'])) {
 
 $gaugeService = new gaugeService();
 $gaugeService->buyStoreHouse($paging);
+
+$dptService = new dptService();
+$dptAll = $dptService->getDpt();
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -29,6 +34,10 @@ $gaugeService->buyStoreHouse($paging);
 <link rel="icon" href="img/favicon.ico">
 <title>备件入账存库-仪表管理</title>
 <style type="text/css">
+.open > th, .open > td{
+  background-color:#F0F0F0;
+}
+
 #apvSpr li{
     list-style: none;
     margin:10px 0px;
@@ -140,34 +149,96 @@ tr:hover > th > .glyphicon-trash {
     </div><!--/.nav-collapse -->
   </div>
 </nav>
+<!-- 领取安装弹出框 -->
+<div class="modal fade" id="takeSpr">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">备件领取安装</h4>
+      </div>
+      <form class="form-horizontal" action="controller/gaugeProcess.php" method="post">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="col-sm-4 control-label">申领部门：</label>
+            <div class="col-sm-6">
+              <div class="input-group">
+              <input type="text" name="nDptTk" class="form-control">
+              <div class="input-group-btn">
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                </ul>
+              </div>
+              <!-- /btn-group -->
+            </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-4 control-label">领取数量：</label>
+            <div class="col-sm-6">
+              <div class="input-group">
+                  <span class="input-group-btn">
+                    <button class="btn btn-default" type="button" id="minus"><span class="glyphicon glyphicon-minus"></span></button>
+                  </span>
+                  <input type="text" class="form-control" name='num' readonly="readonly" >
+                  <span class="input-group-btn">
+                    <button class="btn btn-default" type="button" id="plus"><span class="glyphicon glyphicon-plus"></span></button>
+                  </span>
+                </div>
+            </div>
+          </div>
+          </div>
+          <div class="modal-footer">
+            <input type="hidden" name="flag" value="takeSpr">
+            <input type="hidden" name="code">
+            <input type="hidden" name="dptTk">
+            <button class="btn btn-primary" id="yesTakeSpr">确认</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+          </div>
+        </form>
+    </div>
+  </div>
+</div>
+
 <div class="container">
   <div class="row">
   <div class="col-md-10">
     <div class="page-header">
-        <h4>　仪表备件入账存库</h4>
+        <h4>　仪表备件当前存库</h4>
     </div>
     <table class="table table-striped table-hover">
         <thead>
           <tr>
-            <th>存库时间</th><th>存货编码</th><th>存货名称</th><th>规格型号</th><th>数量</th><th>申报部门</th><th>备注描述</th>
+            <th style="width:4%"></th>
+            <th>存货编码</th><th>存货名称</th><th>规格型号</th><th>申报总数</th><th>领取数量</th><th>库存数量</th>
+            <th style="width:4%"></th>
           </tr>
         </thead>
         <tbody class="tablebody">
         <?php 
           if (count($paging->res_array) == 0) {
-            echo "<tr><td colspan=12>当前无新的入账存库的备件</td></tr>";
+            echo "<tr><td colspan=12>当前无仪表备件库存</td></tr>";
           }
           for ($i=0; $i < count($paging->res_array); $i++) { 
             $row = $paging->res_array[$i];
+             // [code] => 510740110011 [name] => 超声波流量计 [no] => TJZ-100B [num] => 2 [unit] => 个  [res] => 5 [total] => 2 [take] => 0
+            // 库存数量计算
+            $storeNum = $row['total'] - $row['take'];
+            if ($storeNum != 0) {
+              $take = "<td><a class='glyphicon glyphicon-log-out' href='javascript:takeSpr({$row['code']},$storeNum);'></a></td>";
+            }
             $addHtml = 
             "<tr>
-                <td>{$row['storetime']}</td>
+                <td><a class='glyphicon glyphicon-resize-small' href='javascript:void(0)' onclick='ckInfo(this,{$row['code']});'></a></td>
                 <td>{$row['code']}</td>
-                <td><a href='javascript:flowInfo({$row['id']})'>{$row['name']}</td>
+                <td><a href='javascript:flowInfo({$row['code']})'>{$row['name']}</td>
                 <td>{$row['no']}</td>
-                <td>{$row['num']} {$row['unit']}</td>
-                <td>{$row['factory']}{$row['depart']}</td>
-                <td>{$row['info']}</td>
+                <td>{$row['total']} {$row['unit']}</td>
+                <td>{$row['take']} {$row['unit']}</td>
+                <td>$storeNum {$row['unit']}</td>
+                ".$take."
              </tr>";
              echo "$addHtml";
 
@@ -193,19 +264,89 @@ tr:hover > th > .glyphicon-trash {
 <script src="bootstrap/js/bootstrap-suggest.js"></script>
 <?php  include "./buyJs.php";?>
 <script type="text/javascript">
-// 检定弹出框
-function sprStore(id){
-  $("#storeSpr input[name=id]").val(id);
-  $("#storeSpr").modal({
+// 入账的备件数目加
+$("#takeSpr #plus").click(function(){
+  var num = parseInt($("#takeSpr input[name=num]").val());
+  if (num != $(this).attr("max")) {
+    num++;
+    $("#takeSpr input[name=num]").val(num);
+  }
+});
+
+// 入账的备件数目减
+$("#takeSpr #minus").click(function(){
+  var num = parseInt($("#takeSpr input[name=num]").val());
+  if (num != 1) {
+    num--;
+    $("#takeSpr input[name=num]").val(num);
+  }
+});
+
+// 确认领取备件按钮
+$("#yesTakeSpr").click(function(){
+  var notNull = $("#takeSpr input[name=nDptTk]").val();
+  if (notNull.length == 0) {
+    $("#failAdd").modal({
+      keyboard:true
+    });
+    return false;
+  }
+});
+
+// 部门搜索提示
+ $("#takeSpr input[name=nDptTk]").bsSuggest({
+    allowNoKeyword: false,
+    showBtn: false,
+    indexId:2,
+    // indexKey: 1,
+    data: {
+         'value':<?php  echo "$dptAll"; ?>,
+    }
+}).on('onDataRequestSuccess', function (e, result) {
+    console.log('onDataRequestSuccess: ', result);
+}).on('onSetSelectValue', function (e, keyword, data) {
+   console.log('onSetSelectValue: ', keyword, data);
+   var idDepart=$(this).attr("data-id");
+   $(this).parents("form").find("input[name=dptTk]").val(idDepart);
+}).on('onUnsetSelectValue', function (e) {
+    console.log("onUnsetSelectValue");
+});
+
+function takeSpr(code,num){
+  $("#takeSpr input[name=code]").val(code);
+  $("#takeSpr input[name=num]").val(num);
+  $("#takeSpr #plus").attr("max",num);
+  $("#takeSpr").modal({
     keyboard:true
   });
 }
 
-// 检定
-function apvSpr(id){
-  $("#apvSpr").modal({
-    keyboard:true
-  });
+function ckInfo(obj,code){
+  var flagIcon=$(obj).attr("class");
+  var $rootTr=$(obj).parents("tr");
+  // 列表是否未展开
+  if (flagIcon=="glyphicon glyphicon-resize-small") {
+    // 展开
+    $(obj).removeClass(flagIcon).addClass("glyphicon glyphicon-resize-full");
+    $.get("controller/gaugeProcess.php",{
+      flag:'getStoreTime',
+      code:code
+    },function(data,success){
+      // [{"storetime":"2016-10-21 14:10:40","num":"2"},{"storetime":null,"num":"1"}]
+      var addHtml = "";
+      for (var i = 0; i < data.length; i++) {  
+        addHtml += "<tr class='open-"+code+"'>"+
+                  "   <td colspan='12'>"+
+                  "     <p><b>"+data[i].storetime+"　</b> <b>"+data[i].num+"</b> "+data[i].unit+" 入账存库</p>"
+                  "   </td>"+
+                  " </tr>";
+      }
+      $rootTr.after(addHtml);
+    },'json');
+  }else{
+    $(obj).removeClass(flagIcon).addClass("glyphicon glyphicon-resize-small");
+    $(".open-"+code).detach();
+  }
 }
 
     </script>

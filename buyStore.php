@@ -193,18 +193,18 @@ tr:hover > th > .glyphicon-trash {
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">备件入账存库</h4>
+        <h4 class="modal-title">备件入账·申领</h4>
       </div>
       <form class="form-horizontal" action="controller/gaugeProcess.php" method="post">
         <div class="modal-body">
           <div class="form-group">
             <label class="col-sm-4 control-label">处理结果：</label>
             <div class="col-sm-8">
-              <label class="radio-inline">
+              <!-- <label class="radio-inline">
                 <input type="radio" name="storeRes" value="4" checked> 入账·存库
-              </label>
+              </label> -->
               <label class="radio-inline">
-                <input type="radio" name="storeRes" value="5"> 入账·安装验收
+                <input type="radio" name="storeRes" value="5" checked> 入账·领取安装
               </label>
             </div>
           </div>
@@ -228,7 +228,6 @@ tr:hover > th > .glyphicon-trash {
           <div class="modal-footer">
             <input type="hidden" name="flag" value="storeSpr">
             <input type="hidden" name="id">
-            <input type="hidden" name="total">
             <button type="submit" class="btn btn-primary" id="yesStoreSpr">确认</button>
             <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
           </div>
@@ -266,7 +265,7 @@ $("#storeSpr #minus").click(function(){
 // 检定弹出框
 function sprStore(id,num){
   $("#storeSpr input[name=id]").val(id);
-  $("#storeSpr input[name=num], #storeSpr input[name=total]").val(num);
+  $("#storeSpr input[name=num]").val(num);
   $("#plus").attr("max",num);
   $("#storeSpr").modal({
     keyboard:true

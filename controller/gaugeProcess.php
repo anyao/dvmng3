@@ -139,9 +139,8 @@ if (!empty($_REQUEST['flag'])) {
 		$storeRes = $_POST['storeRes']; 
 		$storeTime = date("Y-m-d H:i:s");
 		$num = $_POST['num'];
-		$total = $_POST['total'];
-		$res = $gaugeService->storeSpr($id, $storeRes, $storeTime, $num,$total);
-		if (!in_array(0,$res)) {
+		$res = $gaugeService->storeSpr($id, $storeRes, $storeTime, $num);
+		if ($res != 0) {
 			header("location: ./../buyStore.php");
 			exit();
 		}else{
@@ -185,11 +184,30 @@ if (!empty($_REQUEST['flag'])) {
 	}
 
 	// 获取单个备件的入场检定信息
-	else if ($flag == "getCkInfo") {
-		$sprId = $_GET['sprId'];
-		$res = $gaugeService->getCkInfo($sprId);
+	else if ($flag == "getStoreTime") {
+		$code = $_GET['code'];
+		$res = $gaugeService->getStoreTime($code);
 		echo "$res";
 		exit();
+	}
+
+	// 库存在领取
+	else if ($flag == "takeSpr") {
+		$dptTk = $_POST['dptTk'];
+		$code = $_POST['code'];
+		$num = $_POST['num'];
+		$storeTime = date("Y-m-d");
+		$res = $gaugeService->storeToTk($code, $storeTime, $num,$dptTk);
+		
+		// $res = $gaugeService->takeSpr($dptTk,$takeId,$num);
+
+		if (!in_array(0,$res)) {
+			header("location: ./../buyStoreHouse.php");
+			exit();
+		}else{
+			echo "操作失败。";
+			exit();
+		}
 	}
 
 

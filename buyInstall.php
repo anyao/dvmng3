@@ -32,6 +32,21 @@ $gaugeService->buyInstall($paging);
 <link rel="icon" href="img/favicon.ico">
 <title>安装验收-仪表管理</title>
 <style type="text/css">
+#ifStore .form-group{
+  margin-bottom: 20px !important;
+}
+
+#ifStore .input-group{
+  position: relative;
+  left: -25px
+}
+
+.ifStore{
+  position: relative; 
+  left: 19%;
+  margin: 20px auto; 
+}
+
 .open > th, .open > td{
   background-color:#F0F0F0;
 }
@@ -148,6 +163,50 @@ tr:hover > th > .glyphicon-trash {
     </div><!--/.nav-collapse -->
   </div>
 </nav>
+
+<!-- 备件是否存入小仓库 -->
+<div class="modal fade" id="ifStore">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">备件安装验收</h4>
+      </div>
+      <form class="form-horizontal">
+        <div class="modal-body">
+          <div class="row">
+            <div class="ifStore">
+              <b>是否需要存入备用仓库？</b>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-4 control-label">存库数量：</label>
+              <div class="col-sm-6">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-btn">
+                      <button class="btn btn-default" type="button" id="minus"><span class="glyphicon glyphicon-minus"></span></button>
+                    </span>
+                    <input type="text" class="form-control" name='num' readonly="readonly" >
+                    <span class="input-group-btn">
+                      <button class="btn btn-default" type="button" id="plus"><span class="glyphicon glyphicon-plus"></span></button>
+                    </span>
+                  </div>
+              </div>
+            </div>
+            
+          </div>
+          </div>
+          <div class="modal-footer">
+            <input type="hidden" name="flag" value="takeSpr">
+            <input type="hidden" name="code">
+            <input type="hidden" name="dptTk">
+            <button class="btn btn-default" id="yesTakeSpr">备用</button>
+            <button type="button" class="btn btn-primary">不需要，全部使用</button>
+          </div>
+        </form>
+    </div>
+  </div>
+</div>
+
 <!-- 添加新设备弹出框 -->
 <form class="form-horizontal" method="post" id="formCld">
   <div class="modal fade" id="installSpr" role="dialog" >
@@ -161,7 +220,20 @@ tr:hover > th > .glyphicon-trash {
           <div class="row">
             <div class="col-md-6">
               <div class="form-group">
-                <label class="col-sm-3 control-label">父设备：</label>
+                <label class="col-sm-3 control-label">使用状态：</label>
+                <div class="col-sm-8">
+                  <label class="radio-inline">
+                    <input type="radio" name='state' value='正常' checked="checked"> 投入使用
+                  </label>
+                  <label class="radio-inline">
+                    <input type="radio" name='state' value='备用'> 备用
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="col-sm-3 control-label">安装地点：</label>
                 <div class="col-sm-8">
                   <div class="input-group">
                     <input type="text" name="pname" class="form-control  notNull">
@@ -174,14 +246,6 @@ tr:hover > th > .glyphicon-trash {
                     </div>
                     <!-- /btn-group -->
                   </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label class="col-sm-3 control-label">设备编号：</label>
-                <div class="col-sm-8">
-                  <input type="text" class="form-control" name="code" readonly>
                 </div>
               </div>
             </div>
@@ -475,24 +539,27 @@ $(".datetime").datetimepicker({
 // 安装验收新设备
 function sprIntall(id){
   var sprId = id;
-  $.get("./controller/gaugeProcess.php",{
-    flag:"getSprDtlForInstal",
-    id:sprId
-  },function(data,success){
-    // {"id":"2","code":"510740110018","name":"超声波流量计","no":"TJZ-100B","unit":"个","num":"3","info":"无","basic":"2","checktime":"2016-10-13 16:26:16","storetime":"2016-10-13 16:34:33","installtime":null,"devid":null,"res":"5","see":"1","fid":"1","factory":"新区竖炉","did":"2","depart":"竖炉车间"}
-    $("#installSpr input[name=code]").val(data.code);
-    $("#installSpr input[name=name]").val(data.name);
-    $("#installSpr input[name=no]").val(data.no);
-    $("#installSpr input[name=number]").val(data.num);
-    $("#installSpr input[name=nameFct]").val(data.factory);
-    $("#installSpr input[name=nameDepart]").val(data.depart);
-    $("#installSpr input[name=depart]").val(data.did);
-    $("#installSpr input[name=factory]").val(data.fid);
-    $("#installSpr input[name=ext]").val(sprId);
-    $("#installSpr").modal({
+    $("#ifStore").modal({
       keyboard:true
     });
-  },"json");
+  // $.get("./controller/gaugeProcess.php",{
+  //   flag:"getSprDtlForInstal",
+  //   id:sprId
+  // },function(data,success){
+  //   // {"id":"2","code":"510740110018","name":"超声波流量计","no":"TJZ-100B","unit":"个","num":"3","info":"无","basic":"2","checktime":"2016-10-13 16:26:16","storetime":"2016-10-13 16:34:33","installtime":null,"devid":null,"res":"5","see":"1","fid":"1","factory":"新区竖炉","did":"2","depart":"竖炉车间"}
+  //   $("#installSpr input[name=code]").val(data.code);
+  //   $("#installSpr input[name=name]").val(data.name);
+  //   $("#installSpr input[name=no]").val(data.no);
+  //   $("#installSpr input[name=number]").val(data.num);
+  //   $("#installSpr input[name=nameFct]").val(data.factory);
+  //   $("#installSpr input[name=nameDepart]").val(data.depart);
+  //   $("#installSpr input[name=depart]").val(data.did);
+  //   $("#installSpr input[name=factory]").val(data.fid);
+  //   $("#installSpr input[name=ext]").val(sprId);
+  //   $("#installSpr").modal({
+  //     keyboard:true
+  //   });
+  // },"json");
 }
 
 

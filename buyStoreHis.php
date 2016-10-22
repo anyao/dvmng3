@@ -149,7 +149,8 @@ tr:hover > th > .glyphicon-trash {
     <table class="table table-striped table-hover">
         <thead>
           <tr>
-            <th>入账时间</th><th>存货编码</th><th>存货名称</th><th>规格型号</th><th>数量</th><th>申报部门</th><th>备注描述</th><th style="width:4%"></th>
+            <th>入账时间</th><th>存货编码</th><th>存货名称</th><th>规格型号</th><th>申报部门</th>
+            <th>申报总数</th><th>库存数量</th><th>领取数量</th>
           </tr>
         </thead>
         <tbody class="tablebody">
@@ -159,24 +160,18 @@ tr:hover > th > .glyphicon-trash {
           }
           for ($i=0; $i < count($paging->res_array); $i++) { 
             $row = $paging->res_array[$i];
-            $res = "<td><a  href='javascript:void(0);' class='glyphicon glyphicon-";
-            if ($row['res'] == 4) {
-              $res .= "briefcase";
-            }else if($row['res'] == 5){
-              $res .= "log-out" ;
-            }
-            $res .= "' style='display:inline;cursor:default'></a></td>";
-
+            $storeNum = $row['num'] - $row['resnum'];
+            $takeNum = $row['resnum'];
             $addHtml = 
             "<tr>
                 <td>{$row['storetime']}</td>
                 <td>{$row['code']}</td>
                 <td><a href='javascript:flowInfo({$row['id']})'>{$row['name']}</td>
                 <td>{$row['no']}</td>
-                <td>{$row['num']} {$row['unit']}</td>
                 <td>{$row['factory']}{$row['depart']}</td>
-                <td>{$row['info']}</td>
-                ".$res."
+                <td>{$row['num']} {$row['unit']}</td>
+                <td>$storeNum {$row['unit']}</td>
+                <td>$takeNum {$row['unit']}</td>
              </tr>";
              echo "$addHtml";
 
@@ -195,6 +190,7 @@ tr:hover > th > .glyphicon-trash {
 </div>
 
 
+
 <script src="bootstrap/js/jquery.js"></script>
 <script src="bootstrap/js/bootstrap.js"></script>
 <script src="tp/bootstrap-datetimepicker.js"></script>
@@ -202,20 +198,6 @@ tr:hover > th > .glyphicon-trash {
 <script src="bootstrap/js/bootstrap-suggest.js"></script>
 <?php  include "./buyJs.php";?>
 <script type="text/javascript">
-// 检定弹出框
-function sprStore(id){
-  $("#storeSpr input[name=id]").val(id);
-  $("#storeSpr").modal({
-    keyboard:true
-  });
-}
-
-// 检定
-function apvSpr(id){
-  $("#apvSpr").modal({
-    keyboard:true
-  });
-}
 
     </script>
   </body>
