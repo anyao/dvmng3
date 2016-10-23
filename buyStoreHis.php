@@ -150,7 +150,7 @@ tr:hover > th > .glyphicon-trash {
         <thead>
           <tr>
             <th>入账时间</th><th>存货编码</th><th>存货名称</th><th>规格型号</th><th>申报部门</th>
-            <th>申报总数</th><th>库存数量</th><th>领取数量</th>
+            <th>申报总数</th>
           </tr>
         </thead>
         <tbody class="tablebody">
@@ -160,8 +160,6 @@ tr:hover > th > .glyphicon-trash {
           }
           for ($i=0; $i < count($paging->res_array); $i++) { 
             $row = $paging->res_array[$i];
-            $storeNum = $row['num'] - $row['resnum'];
-            $takeNum = $row['resnum'];
             $addHtml = 
             "<tr>
                 <td>{$row['storetime']}</td>
@@ -170,8 +168,6 @@ tr:hover > th > .glyphicon-trash {
                 <td>{$row['no']}</td>
                 <td>{$row['factory']}{$row['depart']}</td>
                 <td>{$row['num']} {$row['unit']}</td>
-                <td>$storeNum {$row['unit']}</td>
-                <td>$takeNum {$row['unit']}</td>
              </tr>";
              echo "$addHtml";
 

@@ -192,7 +192,7 @@ tr:hover > th > .glyphicon-trash {
           </div>
           <div class="modal-footer">
             <input type="hidden" name="flag" value="takeSpr">
-            <input type="hidden" name="code">
+            <input type="hidden" name="id">
             <input type="hidden" name="dptTk">
             <button class="btn btn-primary" id="yesTakeSpr">确认</button>
             <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
@@ -212,7 +212,7 @@ tr:hover > th > .glyphicon-trash {
         <thead>
           <tr>
             <th style="width:4%"></th>
-            <th>存货编码</th><th>存货名称</th><th>规格型号</th><th>申报总数</th><th>领取数量</th><th>库存数量</th>
+            <th>入库时间</th><th>存货编码</th><th>存货名称</th><th>规格型号</th><th>申报总数</th><th>领取数量</th><th>库存数量</th>
             <th style="width:4%"></th>
           </tr>
         </thead>
@@ -223,22 +223,22 @@ tr:hover > th > .glyphicon-trash {
           }
           for ($i=0; $i < count($paging->res_array); $i++) { 
             $row = $paging->res_array[$i];
-             // [code] => 510740110011 [name] => 超声波流量计 [no] => TJZ-100B [num] => 2 [unit] => 个  [res] => 5 [total] => 2 [take] => 0
-            // 库存数量计算
-            $storeNum = $row['total'] - $row['take'];
-            if ($storeNum != 0) {
-              $take = "<td><a class='glyphicon glyphicon-log-out' href='javascript:takeSpr({$row['code']},$storeNum);'></a></td>";
-            }
+             // [id] => 1 [code] => 510740110018 [name] => 超声波流量计 [no] => TJZ-100B [num] => 3 [unit] => 个 
+             // [storetime] => 2016-10-23 14:43:32 [resnum] => 1 [takenum] => 1
+            $storeNum = $row['num'] - $row['resnum'] - $row['takenum'];
+            $takeNum = $row['resnum'] + $row['takenum'];
+            $remain = "<td><a class='glyphicon glyphicon-log-out' href='javascript:takeSpr({$row['id']},$storeNum);'></a></td>";
+
             $addHtml = 
             "<tr>
-                <td><a class='glyphicon glyphicon-resize-small' href='javascript:void(0)' onclick='ckInfo(this,{$row['code']});'></a></td>
-                <td>{$row['code']}</td>
-                <td><a href='javascript:flowInfo({$row['code']})'>{$row['name']}</td>
+                <td><a class='glyphicon glyphicon-resize-small' href='javascript:void(0)' onclick='ckInfo(this,{$row['id']});'></a></td>
+                <td>{$row['storetime']}</td><td>{$row['code']}</td>
+                <td><a href='javascript:flowInfo({$row['id']})'>{$row['name']}</td>
                 <td>{$row['no']}</td>
-                <td>{$row['total']} {$row['unit']}</td>
-                <td>{$row['take']} {$row['unit']}</td>
+                <td>{$row['num']} {$row['unit']}</td>
+                <td>$takeNum {$row['unit']}</td>
                 <td>$storeNum {$row['unit']}</td>
-                ".$take."
+                ".$remain."
              </tr>";
              echo "$addHtml";
 
@@ -312,16 +312,16 @@ $("#yesTakeSpr").click(function(){
     console.log("onUnsetSelectValue");
 });
 
-function takeSpr(code,num){
-  $("#takeSpr input[name=code]").val(code);
-  $("#takeSpr input[name=num]").val(num);
-  $("#takeSpr #plus").attr("max",num);
+function takeSpr(id,storeNum){
+  $("#takeSpr input[name=id]").val(id);
+  $("#takeSpr input[name=num]").val(storeNum);
+  $("#takeSpr #plus").attr("max",storeNum);
   $("#takeSpr").modal({
     keyboard:true
   });
 }
 
-function ckInfo(obj,code){
+function ckInfo(obj,id){
   var flagIcon=$(obj).attr("class");
   var $rootTr=$(obj).parents("tr");
   // 列表是否未展开
@@ -329,23 +329,35 @@ function ckInfo(obj,code){
     // 展开
     $(obj).removeClass(flagIcon).addClass("glyphicon glyphicon-resize-full");
     $.get("controller/gaugeProcess.php",{
-      flag:'getStoreTime',
-      code:code
+      flag:'getCkInfo',
+      sprId:id
     },function(data,success){
-      // [{"storetime":"2016-10-21 14:10:40","num":"2"},{"storetime":null,"num":"1"}]
-      var addHtml = "";
-      for (var i = 0; i < data.length; i++) {  
-        addHtml += "<tr class='open-"+code+"'>"+
-                  "   <td colspan='12'>"+
-                  "     <p><b>"+data[i].storetime+"　</b> <b>"+data[i].num+"</b> "+data[i].unit+" 入账存库</p>"
-                  "   </td>"+
-                  " </tr>";
-      }
+      var addHtml = "<tr class='open-"+id+"'>"+
+                    "   <td colspan='12'>"+
+                    "     <div class='row'>"+
+                    "       <div class='col-md-4'>"+
+                    "         <p><b>制造厂：</b>"+data.supplier+"</p>"+
+                    "         <p><b>精度等级：</b>"+data.accuracy+"</p>"+
+                    "         <p><b>量程：</b>"+data.scale+"</p>"+
+                    "       </div>"+
+                    "       <div class='col-md-4'>"+
+                    "         <p><b>出厂编号：</b>"+data.codeManu+"</p>"+
+                    "         <p><b>检定周期(月)：</b>"+data.circle+"</p>"+
+                    "         <p><b>检定部门：</b>"+data.depart+"</p>"+
+                    "       </div>"+
+                    "       <div class='col-md-4'>"+
+                    "         <p><b>检定日期：</b>"+data.checkNxt+"</p>"+
+                    "         <p><b>溯源方式：</b>"+data.track+"</p>"+
+                    "         <p><b>证书结论：</b>"+data.certi+"</p>"+    
+                    "       </div>"+
+                    "     </div>"+
+                    "   </td>"+
+                    " </tr>";
       $rootTr.after(addHtml);
     },'json');
   }else{
     $(obj).removeClass(flagIcon).addClass("glyphicon glyphicon-resize-small");
-    $(".open-"+code).detach();
+    $(".open-"+id).detach();
   }
 }
 

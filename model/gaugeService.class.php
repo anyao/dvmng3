@@ -308,7 +308,7 @@ class gaugeService{
 	// 备件入账存库历史
 	function buyStoreHis($paging){
 		$sqlHelper = new sqlHelper();
-		$sql1 = "SELECT gauge_spr_dtl.id,code,name,no,num,unit,depart.depart,factory.depart as factory,storetime,resnum,res
+		$sql1 = "SELECT gauge_spr_dtl.id,code,name,no,num,unit,depart.depart,factory.depart as factory,storetime,res
 				 FROM gauge_spr_dtl
 				 left join gauge_spr_bsc
 				 on gauge_spr_bsc.id=gauge_spr_dtl.basic
@@ -329,15 +329,19 @@ class gaugeService{
 	// 备件入账存库历史
 	function buyStoreHouse($paging){
 		$sqlHelper = new sqlHelper();
-		$sql1 = "SELECT code,name,no,num,unit,storetime,SUM(num) as total,sum(resnum) as take 
+		$sql1 = "SELECT gauge_spr_dtl.id,code,name,no,num,unit,storetime,resnum,takenum
 				 from gauge_spr_dtl 
-				 where res=5 
-				 group by code 
-				 having total!=take 
-				  limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
-		$sql2 = "SELECT count(*) from(
-				 select SUM(num) as num,SUM(resnum) as resnum from gauge_spr_dtl group by code  having num!=resnum
-				 ) as forNum";
+				 left join 
+				 (select sum(takenum) as takenum,sprid from gauge_spr_take group by sprid) as take
+				 on take.sprid=gauge_spr_dtl.id
+				 where res=5 and takenum+resnum != num
+				 limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
+		$sql2 = "SELECT count(*)
+				 from gauge_spr_dtl 
+				 left join 
+				 (select sum(takenum) as takenum,sprid from gauge_spr_take group by sprid) as take
+				 on take.sprid=gauge_spr_dtl.id
+				 where res=5 and takenum+resnum != num";
 		$res = $sqlHelper->dqlPaging($sql1,$sql2,$paging);
 		$sqlHelper->close_connect();
 	}
@@ -408,42 +412,46 @@ class gaugeService{
 		return $res;
 	}
 
-	function getStoreTime($code){
+	function getCkInfo($sprId){
 		$sqlHelper = new sqlHelper();
-		$sql = "SELECT storetime,num,unit from gauge_spr_dtl where code=$code and storetime is not null";
-		$res = $sqlHelper->dql_arr($sql);
+		$sql = "select supplier,accuracy,scale,codeManu,circle,depart.depart,checkNxt,track,certi from gauge_spr_check
+				left join depart
+				on checkDpt=depart.id
+				where sprid=$sprId";
+		$res = $sqlHelper->dql($sql);
 		$res = json_encode($res, JSON_UNESCAPED_UNICODE);
 		$sqlHelper->close_connect();
 		return $res;
 	}
 
-	function takeSpr($depart,$id,$num){
+
+	function takeSpr($id, $takeTime, $num,$depart){
 		$sqlHelper = new sqlHelper();
-		$sql = "INSERT INTO gauge_spr_take (sprid, depart, takenum) values ($id, $depart, $num)";
-		$res[] = $sqlHelper->dml($sql);
+		$sql = "INSERT INTO gauge_spr_take (sprid, depart, takenum, taketime) values ($id, $depart, $num,'{$takeTime}')";
+		$res = $sqlHelper->dml($sql);
 		$sqlHelper->close_connect();
 		return $res;
 	}
 
-	function storeToTk($code, $storeTime, $num){
-		$sqlHelper = new sqlHelper();
-		while ($num != 0) {
-			$sql = "SELECT id,resnum,num from gauge_spr_dtl where code=$code and resnum!=num order by id asc limit 0,1";
-			$res = $sqlHelper->dql($sql);
-			$dif = $res['num'] - $res['resnum'];
+	// function storeToTk($code, $storeTime, $num){
+	// 	$sqlHelper = new sqlHelper();
+	// 	while ($num != 0) {
+	// 		$sql = "SELECT id,resnum,num from gauge_spr_dtl where code=$code and resnum!=num order by id asc limit 0,1";
+	// 		$res = $sqlHelper->dql($sql);
+	// 		$dif = $res['num'] - $res['resnum'];
 
-			if ($dif < $num) {
-				$num = $num - $dif;
-				$sql = "UPDATE gauge_spr_dtl set resnum=num where id={$res['id']}";
-			}else{
-				$sql = "UPDATE gauge_spr_dtl set resnum=resnum+$num where id={$res['id']}";
-				$num = 0;
-			}
-			$res = $sqlHelper->dml($sql);
-		}
-		$sqlHelper->close_connect();
-		return $res['id'];
-	}
+	// 		if ($dif < $num) {
+	// 			$num = $num - $dif;
+	// 			$sql = "UPDATE gauge_spr_dtl set resnum=num where id={$res['id']}";
+	// 		}else{
+	// 			$sql = "UPDATE gauge_spr_dtl set resnum=resnum+$num where id={$res['id']}";
+	// 			$num = 0;
+	// 		}
+	// 		$res = $sqlHelper->dml($sql);
+	// 	}
+	// 	$sqlHelper->close_connect();
+	// 	return $res['id'];
+	// }
 
 }
 ?>

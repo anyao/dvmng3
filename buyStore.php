@@ -200,9 +200,6 @@ tr:hover > th > .glyphicon-trash {
           <div class="form-group">
             <label class="col-sm-4 control-label">处理结果：</label>
             <div class="col-sm-8">
-              <!-- <label class="radio-inline">
-                <input type="radio" name="storeRes" value="4" checked> 入账·存库
-              </label> -->
               <label class="radio-inline">
                 <input type="radio" name="storeRes" value="5" checked> 入账·领取安装
               </label>
@@ -256,7 +253,7 @@ $("#storeSpr #plus").click(function(){
 // 入账的备件数目减
 $("#storeSpr #minus").click(function(){
   var num = parseInt($("#storeSpr input[name=num]").val());
-  if (num != 0) {
+  if (num != 1) {
     num--;
     $("#storeSpr input[name=num]").val(num);
   }

@@ -184,9 +184,9 @@ if (!empty($_REQUEST['flag'])) {
 	}
 
 	// 获取单个备件的入场检定信息
-	else if ($flag == "getStoreTime") {
-		$code = $_GET['code'];
-		$res = $gaugeService->getStoreTime($code);
+	else if ($flag == "getCkInfo") {
+		$sprId = $_GET['sprId'];
+		$res = $gaugeService->getCkInfo($sprId);
 		echo "$res";
 		exit();
 	}
@@ -194,14 +194,11 @@ if (!empty($_REQUEST['flag'])) {
 	// 库存在领取
 	else if ($flag == "takeSpr") {
 		$dptTk = $_POST['dptTk'];
-		$code = $_POST['code'];
+		$sprId = $_POST['id'];
 		$num = $_POST['num'];
-		$storeTime = date("Y-m-d");
-		$res = $gaugeService->storeToTk($code, $storeTime, $num,$dptTk);
-		
-		// $res = $gaugeService->takeSpr($dptTk,$takeId,$num);
-
-		if (!in_array(0,$res)) {
+		$takeTime = date("Y-m-d H:i:s");
+		$res = $gaugeService->takeSpr($sprId, $takeTime, $num,$dptTk);
+		if ($res != 0) {
 			header("location: ./../buyStoreHouse.php");
 			exit();
 		}else{
