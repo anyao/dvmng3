@@ -207,6 +207,14 @@ if (!empty($_REQUEST['flag'])) {
 		}
 	}
 
+	// 查看库存入库、领取、再领取的时间
+	else if ($flag == "getStoreInfo") {
+		$sprId = $_GET['sprId'];
+		$res = $gaugeService->getStoreInfo($sprId);
+		echo "$res";
+		exit();
+	}
+
 
 
 

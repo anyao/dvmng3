@@ -231,7 +231,7 @@ tr:hover > th > .glyphicon-trash {
 
             $addHtml = 
             "<tr>
-                <td><a class='glyphicon glyphicon-resize-small' href='javascript:void(0)' onclick='ckInfo(this,{$row['id']});'></a></td>
+                <td><a class='glyphicon glyphicon-resize-small' href='javascript:void(0)' onclick='storeInfo(this,{$row['id']});'></a></td>
                 <td>{$row['storetime']}</td><td>{$row['code']}</td>
                 <td><a href='javascript:flowInfo({$row['id']})'>{$row['name']}</td>
                 <td>{$row['no']}</td>
@@ -321,7 +321,7 @@ function takeSpr(id,storeNum){
   });
 }
 
-function ckInfo(obj,id){
+function storeInfo(obj,id){
   var flagIcon=$(obj).attr("class");
   var $rootTr=$(obj).parents("tr");
   // 列表是否未展开
@@ -329,30 +329,24 @@ function ckInfo(obj,id){
     // 展开
     $(obj).removeClass(flagIcon).addClass("glyphicon glyphicon-resize-full");
     $.get("controller/gaugeProcess.php",{
-      flag:'getCkInfo',
+      flag:'getStoreInfo',
       sprId:id
     },function(data,success){
+      // {"storetime":"2016-10-23 14:43:32","num":"3","resnum":"1",
+      // "0":[{"taketime":"2016-10-23 15:13:33","takenum":"1","depart":"能源部","factory":"办公楼"}]}
       var addHtml = "<tr class='open-"+id+"'>"+
                     "   <td colspan='12'>"+
                     "     <div class='row'>"+
-                    "       <div class='col-md-4'>"+
-                    "         <p><b>制造厂：</b>"+data.supplier+"</p>"+
-                    "         <p><b>精度等级：</b>"+data.accuracy+"</p>"+
-                    "         <p><b>量程：</b>"+data.scale+"</p>"+
-                    "       </div>"+
-                    "       <div class='col-md-4'>"+
-                    "         <p><b>出厂编号：</b>"+data.codeManu+"</p>"+
-                    "         <p><b>检定周期(月)：</b>"+data.circle+"</p>"+
-                    "         <p><b>检定部门：</b>"+data.depart+"</p>"+
-                    "       </div>"+
-                    "       <div class='col-md-4'>"+
-                    "         <p><b>检定日期：</b>"+data.checkNxt+"</p>"+
-                    "         <p><b>溯源方式：</b>"+data.track+"</p>"+
-                    "         <p><b>证书结论：</b>"+data.certi+"</p>"+    
-                    "       </div>"+
-                    "     </div>"+
-                    "   </td>"+
-                    " </tr>";
+                    "       <div class='col-md-12'>"+
+                    "         <p><b>"+data.storetime+"：</b> 入账总数 "+data.num+data.unit+" ，由原申报部门领取 "+data.resnum+data.unit+"</p>";
+      for (var i = 0; i < data.take.length; i++) {
+        // data.take[i]
+        addHtml += "<p><b>"+data.take[i].taketime+"：</b>"+data.take[i].factory+data.take[i].depart+" 领取 "+data.take[i].takenum+data.unit+"</p>";
+      }
+      addHtml +=   "       </div>"+
+                   "     </div>"+
+                   "   </td>"+
+                   " </tr>";
       $rootTr.after(addHtml);
     },'json');
   }else{

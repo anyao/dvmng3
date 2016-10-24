@@ -196,11 +196,10 @@ tr:hover > th > .glyphicon-trash {
           </div>
           </div>
           <div class="modal-footer">
-            <input type="hidden" name="flag" value="takeSpr">
-            <input type="hidden" name="code">
-            <input type="hidden" name="dptTk">
-            <button class="btn btn-default" id="yesTakeSpr">备用</button>
-            <button type="button" class="btn btn-primary">不需要，全部使用</button>
+            <input type="hidden" name="flag" value="spareSpr">
+            <input type="hidden" name="total">
+            <button class="btn btn-default" id="yesSpareSpr">备用</button>
+            <button class="btn btn-primary" type="button">不需要，全部使用</button>
           </div>
         </form>
     </div>
@@ -374,6 +373,7 @@ tr:hover > th > .glyphicon-trash {
     </div>
   </div>  
 </form> 
+
 <div class="container">
   <div class="row">
   <div class="col-md-10">
@@ -383,7 +383,8 @@ tr:hover > th > .glyphicon-trash {
     <table class="table table-striped table-hover">
         <thead>
           <tr>
-            <th>存货编码</th><th>存货名称</th><th>规格型号</th><th>数量</th><th>申报部门</th><th>申报人</th><th>备注描述</th><th style="width:4%"></th>
+            <th style="width:4%"></th>
+            <th>领取时间</th><th>存货编码</th><th>存货名称</th><th>规格型号</th><th>数量</th><th style="width:4%"></th>
           </tr>
 
         </thead>
@@ -394,16 +395,17 @@ tr:hover > th > .glyphicon-trash {
           }
           for ($i=0; $i < count($paging->res_array); $i++) { 
             $row = $paging->res_array[$i];
+             // [id] => 1 [code] => 510740110018 [name] => 超声波流量计 [no] => TJZ-100B [resnum] => 1 
+             // [unit] => 个 [storetime] => 2016-10-23 14:43:32 
             $addHtml = 
             "<tr>
+                <td><a class='glyphicon glyphicon-resize-small' href='javascript:void(0)' onclick='ckInfo(this,{$row['id']});'></a></td>
+                <td>{$row['storetime']}</td>
                 <td>{$row['code']}</td>
                 <td><a href='javascript:flowInfo({$row['id']})'>{$row['name']}</td>
                 <td>{$row['no']}</td>
-                <td>{$row['num']} {$row['unit']}</td>
-                <td>{$row['factory']}{$row['depart']}</td>
-                <td>{$row['user']}</td>
-                <td>{$row['info']}</td>
-                <td><a class='glyphicon glyphicon-cog' href='javascript:sprIntall({$row['id']});'></a></td>
+                <td>{$row['resnum']} {$row['unit']}</td>
+                <td><a class='glyphicon glyphicon-cog' href='javascript:sprIntall({$row['id']},{$row['resnum']});'></a></td>
              </tr>";
              echo "$addHtml";
 
@@ -432,6 +434,47 @@ tr:hover > th > .glyphicon-trash {
 <script src="bootstrap/js/bootstrap-suggest.js"></script>
 <?php  include "./buyJs.php";?>
 <script type="text/javascript">
+// 展开备件的检定信息 
+function ckInfo(obj,id){
+  var flagIcon=$(obj).attr("class");
+  var $rootTr=$(obj).parents("tr");
+  // 列表是否未展开
+  if (flagIcon=="glyphicon glyphicon-resize-small") {
+    // 展开
+    $(obj).removeClass(flagIcon).addClass("glyphicon glyphicon-resize-full");
+    $.get("controller/gaugeProcess.php",{
+      flag:'getCkInfo',
+      sprId:id
+    },function(data,success){
+      var addHtml = "<tr class='open-"+id+"'>"+
+                    "   <td colspan='12'>"+
+                    "     <div class='row'>"+
+                    "       <div class='col-md-4'>"+
+                    "         <p><b>制造厂：</b>"+data.supplier+"</p>"+
+                    "         <p><b>精度等级：</b>"+data.accuracy+"</p>"+
+                    "         <p><b>量程：</b>"+data.scale+"</p>"+
+                    "       </div>"+
+                    "       <div class='col-md-4'>"+
+                    "         <p><b>出厂编号：</b>"+data.codeManu+"</p>"+
+                    "         <p><b>检定周期(月)：</b>"+data.circle+"</p>"+
+                    "         <p><b>检定部门：</b>"+data.depart+"</p>"+
+                    "       </div>"+
+                    "       <div class='col-md-4'>"+
+                    "         <p><b>检定日期：</b>"+data.checkNxt+"</p>"+
+                    "         <p><b>溯源方式：</b>"+data.track+"</p>"+
+                    "         <p><b>证书结论：</b>"+data.certi+"</p>"+    
+                    "       </div>"+
+                    "     </div>"+
+                    "   </td>"+
+                    " </tr>";
+      $rootTr.after(addHtml);
+    },'json');
+  }else{
+    $(obj).removeClass(flagIcon).addClass("glyphicon glyphicon-resize-small");
+    $(".open-"+id).detach();
+  }
+}
+
 // 父设备搜索建议
 $("#installSpr input[name=pname]").bsSuggest({
     allowNoKeyword: false,
@@ -537,11 +580,12 @@ $(".datetime").datetimepicker({
 });
 
 // 安装验收新设备
-function sprIntall(id){
+function sprIntall(id,resnum){
   var sprId = id;
-    $("#ifStore").modal({
-      keyboard:true
-    });
+  $("#ifStore input[name=num],#ifStore input[name=total]").val(resnum);
+  $("#ifStore").modal({
+    keyboard:true
+  });
   // $.get("./controller/gaugeProcess.php",{
   //   flag:"getSprDtlForInstal",
   //   id:sprId
