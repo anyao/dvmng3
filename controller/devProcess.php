@@ -29,15 +29,15 @@ if (!empty($_REQUEST['flag'])) {
 				$res=$devService->addDetail($devid,$paraId);
 
 				if(!in_array(0,$res)){
-					if (!empty($_POST['ext'])) {
-						// 如果是从备件表那边转过来的，需要在gauge_spr_dtl添加在用设备id
-						echo $devid;
-						exit();
-					}else{
+					// if (!empty($_POST['ext'])) {
+					// 	// 如果是从备件表那边转过来的，需要在gauge_spr_dtl添加在用设备id
+					// 	echo $devid;
+					// 	exit();
+					// }else{
 						// 如果属性参数表添加成功，但不是从仪表备件申报转过来的，直接跳到设备列表
 						header("location:../usingList.php");
 						exit();	
-					}
+					// }
 				}else{
 					echo "添加属性参数失败，请联系管理员。<br/>联系电话：0310-5178939。";
 					exit();

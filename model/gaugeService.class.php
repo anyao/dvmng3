@@ -6,7 +6,7 @@ require_once 'classifyBuild.php';
 class gaugeService{
 	public $authWhr = "";
 	public $authAnd = "";
-	public $instal = "";
+	public $install = "";
 	function __construct(){
 		$sqlHelper=new sqlHelper();
 		$upid=$_SESSION['dptid'];
@@ -284,7 +284,7 @@ class gaugeService{
 				 on gauge_spr_bsc.depart=depart.id
 				 left join depart as factory
 				 on depart.fid=factory.id
-				 where res=2
+				 where res=2 
 				 ".$this->authAnd." limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
 		$sql2 = "SELECT count(*)
 				 FROM gauge_spr_dtl
@@ -361,7 +361,7 @@ class gaugeService{
 				 from gauge_spr_take
 				 LEFT JOIN gauge_spr_dtl
 				 on gauge_spr_take.sprid=gauge_spr_dtl.id
-				where gauge_spr_take.res is null ".$this->intall."
+				where gauge_spr_take.res is null ".$this->install."
 			    limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
 		$sql2 = "SELECT sum(tem) from
 				 (
@@ -466,25 +466,75 @@ class gaugeService{
 		return $res;
 	}
 
-	// function storeToTk($code, $storeTime, $num){
-	// 	$sqlHelper = new sqlHelper();
-	// 	while ($num != 0) {
-	// 		$sql = "SELECT id,resnum,num from gauge_spr_dtl where code=$code and resnum!=num order by id asc limit 0,1";
-	// 		$res = $sqlHelper->dql($sql);
-	// 		$dif = $res['num'] - $res['resnum'];
+	function transSpr($id,$num,$state,$pid,$installTime){
+		$sqlHelper = new sqlHelper();
 
-	// 		if ($dif < $num) {
-	// 			$num = $num - $dif;
-	// 			$sql = "UPDATE gauge_spr_dtl set resnum=num where id={$res['id']}";
-	// 		}else{
-	// 			$sql = "UPDATE gauge_spr_dtl set resnum=resnum+$num where id={$res['id']}";
-	// 			$num = 0;
-	// 		}
-	// 		$res = $sqlHelper->dml($sql);
-	// 	}
-	// 	$sqlHelper->close_connect();
-	// 	return $res['id'];
-	// }
+		$depart = $_SESSION['dptid'];
+		$sql = "select fid from depart where id=$depart";
+		$fct = $sqlHelper->dql($sql);
+
+		if ($state == "正常") {
+			$sql="select path from device where id=$pid";
+			$pathPrt=$sqlHelper->dql($sql);
+			$path=$pathPrt['path']."-".$pid;
+			$sql = "INSERT INTO device 
+					(name,code,no,class,factory,depart,state,`number`,supplier,`path`,dateInstall,pid)
+					select name,code,no,'仪表',{$fct['fid']},$depart,'{$state}',$num,supplier,'{$path}','{$installTime}',$pid
+					from gauge_spr_dtl
+					left join gauge_spr_check
+					on gauge_spr_check.sprid=gauge_spr_dtl.id
+					where gauge_spr_dtl.id=$id";
+		}else{
+			// 获取备件所在分厂 device基本信息表
+			// ,accuracy,scale,codeManu,`circle`,checkDpt,checkNxt,track,certi
+			$sql = "INSERT INTO device 
+					(name,code,no,class,factory,depart,state,`number`,supplier)
+					select name,code,no,'仪表',{$fct['fid']},$depart,'{$state}',$num,supplier
+					from gauge_spr_dtl
+					left join gauge_spr_check
+					on gauge_spr_check.sprid=gauge_spr_dtl.id
+					where gauge_spr_dtl.id=$id";
+			
+		}
+		$res = $sqlHelper->dml($sql);
+		$devid = mysql_insert_id();
+
+		$sql = "select * from gauge_spr_check where sprid=$id";
+		$r = $sqlHelper->dql($sql);
+		// 属性参数表
+		$sql = "INSERT INTO devdetail (devid,paraid,paraval) values 
+				($devid, 79, '{$r['accuracy']}'),
+				($devid, 80, '{$r['scale']}'),
+				($devid, 81, '{$r['codeManu']}'),
+				($devid, 82, '{$r['circle']}'),
+				($devid, 83, '{$r['checkDpt']}'),
+				($devid, 84, '{$r['checkNxt']}'),
+				($devid, 86, '{$r['track']}'),
+				($devid, 87, '{$r['certi']}')";
+		$res = $sqlHelper->dml($sql);
+
+		// 添加到原备件dtl表中
+		$sql = "INSERT INTO gauge_spr_trsf (sprid,devid) values ($id,$devid)";
+		$res = $sqlHelper->dml($sql);
+
+		$sqlHelper->close_connect();
+		return $devid;
+	}
+
+	function useDtl($devId,$para){
+		$sqlHelper = new sqlHelper();
+		$sql = "INSERT INTO devdetail (devid,paraid,paraval) values ";
+		foreach ($para as $k => $v) {
+			if ($v == end($para)) {
+				$sql .= " ($devId,$k,'{$v}') ";
+			}else{
+				$sql .= "($devId,$k,'{$v}'),";
+			}
+		}
+		$res = $sqlHelper->dml($sql);
+		$sqlHelper->close_connect();
+		return $res;
+	}
 
 }
 ?>

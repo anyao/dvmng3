@@ -40,17 +40,6 @@ if (!empty($_REQUEST['flag'])) {
 		exit();
 	}
 
-	else if ($flag == "getSprDtlForInstal") {
-		$id = $_GET['id'];
-		$res = $gaugeService->getSprDtl($id);
-		$res = json_decode($res,true);
-		$userService = new userService();
-		$fct = $userService->getFct($_SESSION['dptid']);
-		$res = json_encode(array_merge($res, $fct), JSON_UNESCAPED_UNICODE);
-		echo "$res";
-		exit();
-	}
-
 	// 修改单个备件申报信息
 	else if ($flag=="uptSprById") {
 		$code = $_POST['code'];
@@ -150,10 +139,18 @@ if (!empty($_REQUEST['flag'])) {
 	}
 
 	// 安装验收备件，在dtl表中添加devid和installtime
-	else if($flag == "installSpr"){
-		$devId = $_GET['devId'];
-		$sprId = $_GET['sprId'];
-		$installTime = date("Y-m-d H:i:s");
+	else if($flag == "useSpr"){
+		$dateInstall = $_POST['dateInstall'];
+		$pid = $_POST['pid'];
+		$number = $_POST['number'];
+		$para = $_POST['para'];
+		$sprId = $_POST['sprId'];
+
+		// 先添加备件基本信息
+		$devId = $gaugeService->transSpr($sprId,$number,'正常',$pid,$dateInstall);
+
+		$res = $gaugeService->useDtl($devId,$para);
+
 		$res = $gaugeService->installSpr($sprId,$devId,$installTime);
 		if ($res != 0) {
 			header("location: ./../buyInstallHis.php");
@@ -163,6 +160,17 @@ if (!empty($_REQUEST['flag'])) {
 			exit();
 		}
 	}
+
+	// else if ($flag == "installSpr") {
+	// 	$id = $_GET['id'];
+	// 	$res = $gaugeService->getSprDtl($id);
+	// 	$res = json_decode($res,true);
+	// 	$userService = new userService();
+	// 	$fct = $userService->getFct($_SESSION['dptid']);
+	// 	$res = json_encode(array_merge($res, $fct), JSON_UNESCAPED_UNICODE);
+	// 	echo "$res";
+	// 	exit();
+	// }
 
 	else if ($flag == "addSprInCk") {
     	$supplier = $_GET['supplier'];
@@ -211,6 +219,14 @@ if (!empty($_REQUEST['flag'])) {
 	else if ($flag == "getStoreInfo") {
 		$sprId = $_GET['sprId'];
 		$res = $gaugeService->getStoreInfo($sprId);
+		echo "$res";
+		exit();
+	}
+
+	else if ($flag == "spareSpr") {
+		$num = $_GET['num'];
+		$id = $_GET['id'];
+		$res = $gaugeService->transSpr($id,$num,'备用',0,0);
 		echo "$res";
 		exit();
 	}
