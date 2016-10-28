@@ -382,19 +382,11 @@ class gaugeService{
 		$sqlHelper->close_connect();
 	}
 
-	// 备件安装
-	function installSpr($sprId,$devId,$installTime){
-		$sqlHelper = new sqlHelper();
-		$sql = "UPDATE gauge_spr_dtl set devid=$devId, installtime='{$installTime}',see=1,res=6 where id=$sprId";
-		$res = $sqlHelper->dml($sql);
-		$sqlHelper->close_connect();
-		return $res;
-	}
-
 	// 备件安装验收历史记录
 	function buyInstallHis($paging){
 		$sqlHelper = new sqlHelper();
-		$sql1 = "SELECT gauge_spr_dtl.id,code,name,no,num,unit,info,depart.depart,factory.depart as factory,installtime,res,devid
+		$sql1 = "SELECT gauge_spr_dtl.id,gauge_spr_dtl.unit,device.code,device.name,device.no,device.number,
+				 factory.depart as factory,depart.depart,installtime,devid
 				 FROM gauge_spr_dtl
 				 left join gauge_spr_bsc
 				 on gauge_spr_bsc.id=gauge_spr_dtl.basic
@@ -402,17 +394,19 @@ class gaugeService{
 				 on gauge_spr_bsc.depart=depart.id
 				 left join depart as factory
 				 on depart.fid=factory.id
-				 where installtime is not null
+				 inner join gauge_spr_trsf 
+				 on gauge_spr_trsf.sprid=gauge_spr_dtl.id
+				 inner join device
+				 on device.id=gauge_spr_trsf.devid
+				 where state='正常' and res =6
 				 ".$this->authAnd." limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
 		$sql2 = "SELECT count(*)
 				 FROM gauge_spr_dtl
-				 left join gauge_spr_bsc
-				 on gauge_spr_bsc.id=gauge_spr_dtl.basic
-				 left join depart
-				 on gauge_spr_bsc.depart=depart.id
-				 left join depart as factory
-				 on depart.fid=factory.id
-				 where installtime is not null".$this->authAnd;
+				 inner join gauge_spr_trsf 
+				 on gauge_spr_trsf.sprid=gauge_spr_dtl.id
+				 inner join device
+				 on device.id=gauge_spr_trsf.devid
+				 where state='正常' and res=6 ".$this->authAnd;
 		$res = $sqlHelper->dqlPaging($sql1,$sql2,$paging);
 		$sqlHelper->close_connect();
 	}
@@ -501,6 +495,7 @@ class gaugeService{
 
 		$sql = "select * from gauge_spr_check where sprid=$id";
 		$r = $sqlHelper->dql($sql);
+
 		// 属性参数表
 		$sql = "INSERT INTO devdetail (devid,paraid,paraval) values 
 				($devid, 79, '{$r['accuracy']}'),
@@ -536,5 +531,74 @@ class gaugeService{
 		return $res;
 	}
 
+	function endSpr($id, $installtime){
+		$sqlHelper = new sqlHelper();
+		$sql = "UPDATE gauge_spr_dtl set installtime='{$installtime}',res=6 where id=$id";
+		$res = $sqlHelper->dml($sql);
+		$sqlHelper->close_connect();
+		return $res;
+	}
+
+	function installXls($devId){
+		$sqlHelper = new sqlHelper();
+		$sql = "SELECT count(*) from gauge_spr_install where devid=$devId";
+		$res = $sqlHelper->dql($sql);
+		$sqlHelper->close_connect();
+		return $res['count(*)'];
+	}
+
+	function installInfo($conclude,$installInfo,$location,$paraInfo,$devId,$runInfo){
+		$sqlHelper = new sqlHelper();
+		$sql = "INSERT INTO gauge_spr_install (devid,conclude,installInfo,location,paraInfo,runInfo) values
+			  	($devId,'{$conclude}','{$installInfo}','{$location}','{$paraInfo}','{$runInfo}')";
+		$res = $sqlHelper->dml($sql);
+		$sqlHelper->close_connect();
+		return $res;
+	}
+
+	function installDown($devId){
+		$sqlHelper = new sqlHelper();
+		$sql = "SELECT if(a.num is null,b.num,a.num) as cljl,name,no,location,parainfo,installinfo,runinfo,conclude,
+				c.paraval as scale,d.paraval as codeManu,
+				depart.depart,factory.depart as factory
+				from gauge_spr_install
+				left join device
+				on gauge_spr_install.devid=device.id
+				left join gauge_dpt_num as a
+				on a.depart=device.depart
+				left join gauge_dpt_num as b
+				on b.depart=device.factory
+				left join devdetail as c
+				on c.devid=device.id
+				left join depart
+				on device.depart=depart.id
+				left join devdetail as d
+				on d.devid=device.id
+				left join depart as factory
+				on factory.id=device.factory
+				where c.paraid=80 and d.paraid=81 and device.id=$devId
+				";
+		$res = $sqlHelper->dql($sql);
+		$sqlHelper->close_connect();
+		return $res;
+	}
+
+	function flowLog($time,$res,$id){
+		$user = $_SESSION['user'];
+		$sqlHelper = new sqlHelper();
+		if ($res == 0 || $res == 9) {
+			$sql = "INSERT INTO gauge_spr_log (`time`,user,res,sprid) 
+					select '{$time}' as time,'{$user}' as user, $res as res, id from (
+					select id from gauge_spr_dtl where basic =$id
+					) as a";
+		}else{
+			$sql = "INSERT into gauge_spr_log (`time`,user,res,sprid) values ('{$time}','{$user}',$res,$id)";
+		}
+		echo "$sql";
+		exit();
+		$res = $sqlHelper-> dml($sql);
+		$sqlHelper->close_connect();
+		return $res;
+	}
 }
 ?>

@@ -148,29 +148,9 @@ if (!empty($_REQUEST['flag'])) {
 
 		// 先添加备件基本信息
 		$devId = $gaugeService->transSpr($sprId,$number,'正常',$pid,$dateInstall);
-
 		$res = $gaugeService->useDtl($devId,$para);
 
-		$res = $gaugeService->installSpr($sprId,$devId,$installTime);
-		if ($res != 0) {
-			header("location: ./../buyInstallHis.php");
-			exit();
-		}else{
-			echo "操作失败,请联系管理员";
-			exit();
-		}
 	}
-
-	// else if ($flag == "installSpr") {
-	// 	$id = $_GET['id'];
-	// 	$res = $gaugeService->getSprDtl($id);
-	// 	$res = json_decode($res,true);
-	// 	$userService = new userService();
-	// 	$fct = $userService->getFct($_SESSION['dptid']);
-	// 	$res = json_encode(array_merge($res, $fct), JSON_UNESCAPED_UNICODE);
-	// 	echo "$res";
-	// 	exit();
-	// }
 
 	else if ($flag == "addSprInCk") {
     	$supplier = $_GET['supplier'];
@@ -231,6 +211,43 @@ if (!empty($_REQUEST['flag'])) {
 		exit();
 	}
 
+	else if ($flag == "endSpr") {
+		$id = $_GET['id'];
+		$installtime = date("Y-m-d");
+		$res = $gaugeService->endSpr($id,$installtime);
+		if ($res != 0) {
+			header("location: ./../buyInstall.php");
+			exit();
+		}else{
+			echo "操作失败。";
+			exit();
+		}
+	}
+
+	else if ($flag == "installXls") {
+		$devId = $_GET['devid'];
+		$res = $gaugeService->installXls($devId);
+		echo "$res";
+		exit();
+	}
+
+	else if ($flag == "installInfo") {
+		$conclude = $_POST['conclude'];
+		$installInfo = $_POST['installInfo'];
+		$location = $_POST['location'];
+		$paraInfo = $_POST['paraInfo'];
+		$runInfo = $_POST['runInfo'];
+		$devId = $_POST['devId'];
+
+		$res = $gaugeService->installInfo($conclude,$installInfo,$location,$paraInfo,$devId,$runInfo);
+		if ($res != 0) {
+			header("location: ./../buyInstallHis.php");
+			exit();
+		}else{
+			echo "操作失败。";
+			exit();
+		}
+	}
 
 
 

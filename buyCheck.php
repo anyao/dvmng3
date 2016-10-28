@@ -10,7 +10,7 @@ $user=$_SESSION['user'];
 $paging=new paging();
 $paging->pageNow=1;
 $paging->pageSize=18;
-$paging->gotoUrl="buyApv.php";
+$paging->gotoUrl="buyCheck.php";
 if (!empty($_GET['pageNow'])) {
   $paging->pageNow=$_GET['pageNow'];
 }

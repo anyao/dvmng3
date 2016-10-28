@@ -9,7 +9,7 @@ $user=$_SESSION['user'];
 $paging=new paging();
 $paging->pageNow=1;
 $paging->pageSize=18;
-$paging->gotoUrl="buyApv.php";
+$paging->gotoUrl="buyInstallHis.php";
 if (!empty($_GET['pageNow'])) {
   $paging->pageNow=$_GET['pageNow'];
 }
@@ -140,6 +140,86 @@ tr:hover > th > .glyphicon-trash {
     </div><!--/.nav-collapse -->
   </div>
 </nav>
+
+
+<div class="modal fade"  id="noInfo" >
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+         <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
+         </div>
+         <div class="modal-body"><br/>
+            <div class="loginModal">您尚未完善安装验收单，填写后可下载。</div><br/>
+         </div>
+         <div class="modal-footer">  
+          <button type="button" class="btn btn-primary" id="addInfo">添加</button>
+        </div>
+    </div>
+  </div>
+</div>
+
+<!-- 添加新设备弹出框 -->
+<form class="form-horizontal" method="post" id="formInfo" action="./controller/gaugeProcess.php">
+  <div class="modal fade" id="installInfo" role="dialog" >
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="myModalLabel">安装验收新仪表</h4>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="col-sm-3 control-label">安装地点：</label>
+                <div class="col-sm-9">
+                  <input type="text" class="form-control" name="location">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="col-sm-3 control-label">技术参数：</label>
+                <div class="col-sm-9">
+                  <textarea type="text" class="form-control" name="paraInfo"></textarea>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-3 control-label">运行情况：</label>
+                <div class="col-sm-9">
+                  <textarea type="text" class="form-control" name="runInfo"></textarea>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                  <label class="col-sm-3 control-label">安装情况：</label>
+                  <div class="col-sm-9">
+                    <textarea type="text" class="form-control" name="installInfo"></textarea>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-3 control-label">结论：</label>
+                  <div class="col-sm-9">
+                    <textarea type="text" class="form-control" name="conclude"></textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        <div class="modal-footer">
+          <input type="hidden" name="devId">
+          <input type="hidden" name="flag" value="installInfo">
+          <button class="btn btn-primary" id="yesInstall">确定添加</button>
+          <button class="btn btn-default" data-dismiss="modal">取消</button>
+        </div>
+      </div>
+    </div>
+  </div>  
+</form>
+
 <div class="container">
   <div class="row">
   <div class="col-md-10">
@@ -149,7 +229,8 @@ tr:hover > th > .glyphicon-trash {
     <table class="table table-striped table-hover">
         <thead>
           <tr>
-            <th>入账时间</th><th>存货编码</th><th>存货名称</th><th>规格型号</th><th>数量</th><th>申报部门</th><th>备注描述</th><th style="width:4%"></th><th style="width:4%"></th>
+            <th>入账时间</th><th>存货编码</th><th>存货名称</th><th>规格型号</th><th>数量</th><th>申报部门</th>
+            <th style="width:4%"></th><th style="width:4%"></th>
           </tr>
         </thead>
         <tbody class="tablebody">
@@ -159,13 +240,8 @@ tr:hover > th > .glyphicon-trash {
           }
           for ($i=0; $i < count($paging->res_array); $i++) { 
             $row = $paging->res_array[$i];
-            $res = "<td><a class='glyphicon glyphicon-";
-            if ($row['res'] == 6) {
-              $res .= "play-circle' href='usingSon.php?id={$row['devid']}'";
-            }else{
-              $res .= "briefcase'   href='spare.php?id={$row['devid']}'" ;
-            }
-            $res .= " style='display:inline;'></a></td>";
+            // [id] => 2 [unit] => 个 [code] => 510740110011 [name] => 超声波流量计 [no] => TJZ-100B [number] => 1 
+            // [depart] => 能源部 [installtime] => [devid] => 198 
 
             $addHtml = 
             "<tr>
@@ -173,15 +249,13 @@ tr:hover > th > .glyphicon-trash {
                 <td>{$row['code']}</td>
                 <td><a href='javascript:flowInfo({$row['id']})'>{$row['name']}</td>
                 <td>{$row['no']}</td>
-                <td>{$row['num']} {$row['unit']}</td>
+                <td>{$row['number']} {$row['unit']}</td>
                 <td>{$row['factory']}{$row['depart']}</td>
-                <td>{$row['info']}</td>
-                <td><a class='glyphicon glyphicon-save' href='./xlsx/sprInstall.php?id={$row['id']}' style='display:inline;'></a></td>
-                ".$res."
-
+                <td><a class='glyphicon glyphicon-play-circle' href='./usingSon.php?id={$row['devid']}'></a></td>
+                <td><a class='glyphicon glyphicon-save' href='javascript:downXls({$row['devid']})' style='display:inline;'></a></td>
              </tr>";
              echo "$addHtml";
-
+            // <td><a class='glyphicon glyphicon-save' href='./xlsx/sprInstall.php?id={$row['id']}' style='display:inline;'></a></td>
           }
         ?>
         </tbody>
@@ -204,21 +278,43 @@ tr:hover > th > .glyphicon-trash {
 <script src="bootstrap/js/bootstrap-suggest.js"></script>
 <?php  include "./buyJs.php";?>
 <script type="text/javascript">
-// 检定弹出框
-function sprStore(id){
-  $("#storeSpr input[name=id]").val(id);
-  $("#storeSpr").modal({
+$("#yesInstall").click(function(){
+  var allow_submit = true;
+  $("#installInfo input,#installInfo textarea").each(function() {
+    // alert($(this))
+    if ($(this).val() == "") {
+      allow_submit = false;
+      $("#failAdd").modal({
+        keyboard:true
+      });
+    }
+  });
+  return allow_submit;
+});
+
+$("#addInfo").click(function(){
+  $("#noInfo").modal('hide');
+  $("#installInfo").modal({
     keyboard:true
   });
-}
+});
 
-// 检定
-function apvSpr(id){
-  $("#apvSpr").modal({
-    keyboard:true
-  });
+function downXls(id){
+  $.get("./controller/gaugeProcess.php",{
+    flag:'installXls',
+    devid:id
+  },function(data,success){
+    if (data == 0) {
+      $("#installInfo input[name=sprId]").val(id);
+      $("#noInfo").modal({
+        keyboard:true
+      });
+    }else{
+      // 已经有安装验收单啦
+      location.href="./xlsx/buyInstall.php?devid="+id;
+    }
+  },"text");
 }
-
     </script>
   </body>
 </html>

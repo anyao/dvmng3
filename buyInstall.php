@@ -12,7 +12,7 @@ $devService = new devService();
 $paging=new paging();
 $paging->pageNow=1;
 $paging->pageSize=18;
-$paging->gotoUrl="buyApv.php";
+$paging->gotoUrl="buyInstall.php";
 if (!empty($_GET['pageNow'])) {
   $paging->pageNow=$_GET['pageNow'];
 }
@@ -396,27 +396,25 @@ $("#yesSpareSpr").click(function(){
   var total = $("#ifStore #plus").attr("max");
   var num = $("#ifStore input[name=num]").val();
   var sprId = $("#ifStore input[name=id]").val();
-  if (num != 0) {
-    $.get("./controller/gaugeProcess.php",$("#spareForm").serialize(),function(data,success){
-      // 还有备件需要使用  
-      if (total != num) {
-        var dif = total - num;
-        $("#installSpr input[name=number]").val(dif);
-        $("#installSpr input[name=sprId]").val(sprId);
-        $('#ifStore').modal('hide');
-        $("#installSpr").modal({
-          keyboard:true
-        });
-      }
-
-        // else{
-        //   location.href="./buyI";
-        // }
-    },"text");
-    
+  $('#ifStore').modal('hide');
+  if (total != num) {
+    var dif = total - num;
+    $("#installSpr input[name=number]").val(dif);
+    $("#installSpr input[name=sprId]").val(sprId);
+    $("#installSpr").modal({
+      keyboard:true
+    });
+  }else{
+     $.get("./controller/gaugeProcess.php",$("#spareForm").serialize(),function(data,success){
+      // alert(data);
+        location.href="./controller/gaugeProcess.php?flag=endSpr&id="+sprId;
+     },"text");     
   }
 
+
 });
+    
+    
 
 // 入账的备件数目加
 $("#ifStore #plus").click(function(){
@@ -518,11 +516,16 @@ $("#yesInstall").click(function(){
     }
   }); 
   if (allow_submit == true) {
+    var num = $("#ifStore input[name=num]").val();
+    var sprId= $("#installSpr input[name=sprId]").val();
     $.post("./controller/gaugeProcess.php",$("#formSpr").serialize(),function(data,success){
-      // 在用设备添加成功，返回新添加的在用设备的id
-      // var devId = data;
-      alert(data);
-      // location.href="./controller/gaugeProcess.php?flag=installSpr&sprId="+sprId+"&devId="+devId;
+      if (num !=0 ) {
+        $.get("./controller/gaugeProcess.php",$("#spareForm").serialize(),function(data,success){
+          location.href="./controller/gaugeProcess.php?flag=endSpr&id="+sprId;
+        },"text");        
+      }else{
+        location.href="./controller/gaugeProcess.php?flag=endSpr&id="+sprId;
+      }
     },'text');
   }
 
