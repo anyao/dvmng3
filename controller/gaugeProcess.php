@@ -263,14 +263,6 @@ if (!empty($_REQUEST['flag'])) {
 		exit();
 	}
 
-	else if ($flag == "chgSee") {
-		$bscId = $_GET['bscId'];
-		$res = $gaugeService->chgSee($bscId);
-		echo "$res";
-		exit();
-	}
-
-
 
 
 }

@@ -132,7 +132,7 @@ function buyList(obj,id){
                     "<th></th><th></th>"+
                     "</tr>";
       for (var i = 0; i < data.length; i++){
-        addHtml += "<tr class='open "+data[i].id+" open-"+id+"'>"+
+        addHtml += "<tr class='open open-"+id+"'>"+
                    "<td>"+data[i].id+"</td><td>"+data[i].code+"</td>"+
                    "<td><a href='javascript:flowInfo("+data[i].id+");'>"+data[i].name+"</a></td>"+
                    "<td>"+data[i].no+"</td><td>"+data[i].num+" "+data[i].unit+"</td><td colspan='3'>"+data[i].info+"</td>"+

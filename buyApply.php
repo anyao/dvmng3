@@ -422,16 +422,20 @@ tr:hover > th > .glyphicon-trash {
 // 申报单新消息查看标志，如果其下没有see=1则不提醒
 //备件新消息提示
 function seeSpr(id){
-  $.get("./controller/gaugeProcess.php",{
-    flag:'seeSpr',
-    sprId:id
-  },function(data,success){
-    if (data != 0) {
-      var $see = $("td[spr="+id+"]").empty();
-    }else{
-      alert("操作失败");
-    }
-  },'text');
+  // 新消息提醒标志
+  var $see = $("td[spr="+id+"]");
+  if ($see.length >0) {
+    $.get("./controller/gaugeProcess.php",{
+      flag:'seeSpr',
+      sprId:id
+    },function(data,success){
+        $see.empty();
+        // {"flag":"0","bscid":"5"}
+        if (data.flag == 1) {
+          $("td[see="+data.bscid+"]").empty();
+        }
+    },'json');
+  }
 }
 
 // 删除所有所有申报记录
@@ -497,7 +501,7 @@ function applyList(obj,id,phase){
         }
 
         if (data[i].see == 1) {
-          var see = "<td  spr='"+data[i].id+"'><span class='glyphicon glyphicon-gift' style='display: inline;cursor: default;'></span></td>";
+          var see = "<td spr='"+data[i].id+"'><span class='glyphicon glyphicon-gift' style='display: inline;cursor: default;'></span></td>";
         }else{
           var see = "<td></td>";
         }

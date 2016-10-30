@@ -636,16 +636,21 @@ class gaugeService{
 		$sqlHelper = new sqlHelper();
 		$sql = "UPDATE gauge_spr_dtl set see = 0 where id=$sprId";
 		$res = $sqlHelper->dml($sql);
+
+		// 判断同意申报单下是否还有未读，若没有则更改bscid的see值
+		$sql = "CALL seeAll($sprId)";
+		$res = $sqlHelper->dql($sql);
 		$sqlHelper->close_connect();
+		$res = json_encode($res,JSON_UNESCAPED_UNICODE);
 		return $res;
 	}
 
-	function chgSee($bscId){
-		$sqlHelper = new sqlHelper();
-		$sql = "UPDATE gauge_spr_bsc set see = 0 where id = $bscId";
-		$res = $sqlHelper->dml($sql);
-		$sqlHelper->close_connect();
-		return $res;
-	}
+	// function chgSee($bscId){
+	// 	$sqlHelper = new sqlHelper();
+	// 	$sql = "UPDATE gauge_spr_bsc set see = 0 where id = $bscId";
+	// 	$res = $sqlHelper->dml($sql);
+	// 	$sqlHelper->close_connect();
+	// 	return $res;
+	// }
 }
 ?>
