@@ -167,14 +167,14 @@ tr:hover > th > .glyphicon-trash {
               $phase = "";
             }
 
-            if ($row['see'] != 0) {
+            if ($row['see'] == 0) {
               $see= "<td></td>";
             }else{
-              $see = "<td><span class='glyphicon glyphicon-gift' style='display: inline;cursor: default;'></span></td>";
+              $see = "<td see=\"{$row['id']}\"><span class='glyphicon glyphicon-gift' style='display: inline;cursor: default;'></span></td>";
             }
             $addHtml = 
             "<tr>
-                <td><a class='glyphicon glyphicon-resize-small' href='javascript:void(0);' onclick=\"buyList(this,{$row['id']},'{$phase}');\"></a></td>
+                <td><a class='glyphicon glyphicon-resize-small' href='javascript:void(0);' onclick=\"applyList(this,{$row['id']},'{$phase}');\"></a></td>
                 <td>{$row['createtime']}</td>
                 <td>{$row['factory']}</td>
                 <td>{$row['depart']}</td>
@@ -419,11 +419,19 @@ tr:hover > th > .glyphicon-trash {
 <script src="bootstrap/js/bootstrap-suggest.js"></script>
 <?php  include "./buyJs.php";?>
 <script type="text/javascript">
-// 审批
-function flowInfo(id){
-  $("#flowInfo").modal({
-    keyboard:true
-  });
+// 申报单新消息查看标志，如果其下没有see=1则不提醒
+//备件新消息提示
+function seeSpr(id){
+  $.get("./controller/gaugeProcess.php",{
+    flag:'seeSpr',
+    sprId:id
+  },function(data,success){
+    if (data != 0) {
+      var $see = $("td[spr="+id+"]").empty();
+    }else{
+      alert("操作失败");
+    }
+  },'text');
 }
 
 // 删除所有所有申报记录
@@ -460,7 +468,7 @@ function delSpr(id){
   });            
 }
 
-function buyList(obj,id,phase){
+function applyList(obj,id,phase){
   var flagIcon=$(obj).attr("class");
   var $rootTr=$(obj).parents("tr");
   // 列表是否未展开
@@ -481,20 +489,25 @@ function buyList(obj,id,phase){
                     "<th>编号</th><th>存货编码</th><th>存货名称</th><th>规格型号</th><th>数量</th><th>备注描述</th>"+
                     "<th></th>"+trash+
                     "</tr>";
-
-      var edit = "";
       for (var i = 0; i < data.length; i++){
         if (phase != "yesApv") {
-          edit = "<td><a class='glyphicon glyphicon-edit' href='javascript:getSpr("+data[i].id+");'></a></td>";
+          var edit = "<td><a class='glyphicon glyphicon-edit' href='javascript:getSpr("+data[i].id+");'></a></td>";
         }else{
-          edit = "<td></td>"
+          var edit = "<td></td>"
         }
-          addHtml += "<tr class='open "+data[i].id+" open-"+id+"'>"+
-                     "<td>"+data[i].id+"</td><td>"+data[i].code+"</td>"+
-                     "<td><a href='javascript:flowInfo("+data.id+");'>"+data[i].name+"</a></td>"+
-                     "<td>"+data[i].no+"</td><td>"+data[i].num+" "+data[i].unit+"</td><td>"+data[i].info+"</td>"+
-                     "<td><span class='glyphicon glyphicon-gift' style='display: inline;cursor: default;'></span></td>"+edit+
-                     "</tr>";
+
+        if (data[i].see == 1) {
+          var see = "<td  spr='"+data[i].id+"'><span class='glyphicon glyphicon-gift' style='display: inline;cursor: default;'></span></td>";
+        }else{
+          var see = "<td></td>";
+        }
+
+        addHtml += "<tr class='open "+data[i].id+" open-"+id+"'>"+
+                   "<td>"+data[i].id+"</td><td>"+data[i].code+"</td>"+
+                   "<td><a href='javascript:flowInfo("+data[i].id+");'>"+data[i].name+"</a></td>"+
+                   "<td>"+data[i].no+"</td><td>"+data[i].num+" "+data[i].unit+"</td><td>"+data[i].info+"</td>"+
+                   see+edit+
+                   "</tr>";
       }
       addHtml += "</tr>";
       $rootTr.after(addHtml);

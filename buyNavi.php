@@ -114,11 +114,7 @@
         <div class="modal-body">
           <div>
             <ul style="padding-left: 8%;margin: 20px;">
-              <li><span class="glyphicon glyphicon-map-marker"></span> 2016-9-25 21:00： XXX 创建</li>
-              <li><span class="glyphicon glyphicon-ok"></span> 2016-9-27 21:00： XXX 同意</li>
-              <li><span class="glyphicon glyphicon-sort-by-attributes-alt"></span> XXX 审批中...</li>
-              <li><span class="glyphicon glyphicon-shopping-cart"></span> 2016-9-27 21:00： XXX 入库。</li>
-              <li><span class=" glyphicon glyphicon-cog"></span> 2016-9-27 21:00： XXX 安装。<a href="javascript:void(0);">查看设备详细信息</a></li>
+              
             </ul>
           </div>
         </div>

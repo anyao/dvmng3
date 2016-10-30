@@ -102,8 +102,8 @@ if (!empty($_REQUEST['flag'])) {
 		$apvRes = $_POST['apvRes'];	
 		$id = $_POST['id'];
 		$res = $gaugeService->apvBuy($apvInfo,$apvRes,$id);
-		if ($res != 0) {
-			header("location: ./../buyApvHis.php");
+		if ($res == 0) {
+			header("location: ./../buyApv.php");
 		}else{
 			echo "操作失败,请联系管理员";
 		}
@@ -247,6 +247,27 @@ if (!empty($_REQUEST['flag'])) {
 			echo "操作失败。";
 			exit();
 		}
+	}
+
+	else if ($flag == "flowInfo") {
+		$id =$_GET['id'];
+		$res = $gaugeService->getFlowInfo($id);
+		echo "$res";
+		exit();
+	}
+
+	else if($flag == "seeSpr"){
+		$sprId = $_GET['sprId'];
+		$res = $gaugeService->seeSpr($sprId);
+		echo "$res";
+		exit();
+	}
+
+	else if ($flag == "chgSee") {
+		$bscId = $_GET['bscId'];
+		$res = $gaugeService->chgSee($bscId);
+		echo "$res";
+		exit();
 	}
 
 
