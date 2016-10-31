@@ -23,8 +23,13 @@ $gaugeService = new gaugeService();
 if (empty($_POST['flag'])) {
   $gaugeService->buyBsc($paging);
 }else if ($_POST['flag'] == 'findApply') {
-  print_r($_POST);
-  exit();
+  $createTime = $_POST['applyTime'];
+  $depart = $_POST['dptId'];
+  $code = $_POST['sprCode'];
+  $name = $_POST['sprName'];
+  $no = $_POST['sprNo'];
+
+  $gaugeService->buyBscFind($createTime,$depart,$code,$name,$no,$paging);
 }
 
 ?>

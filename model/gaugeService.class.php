@@ -46,7 +46,7 @@ class gaugeService{
 				 on depart.fid=factory.id
 				 left join user
 				 on user.id=gauge_spr_bsc.user ".$this->authWhr." order by gauge_spr_bsc.see desc,id desc limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
-		$sql2 = "select count(*)
+		$sql2 = "SELECT count(*)
 				 from gauge_spr_bsc
 				 left join depart
 				 on gauge_spr_bsc.depart=depart.id
@@ -56,6 +56,69 @@ class gaugeService{
 				 on user.id=gauge_spr_bsc.user ".$this->authWhr;
 		$res = $sqlHelper->dqlPaging($sql1,$sql2,$paging);
 		$sqlHelper->close_connect();
+	}
+
+	function buyBscFind($createTime,$depart,$code,$name,$no,$paging){
+		$dtl = $this->findWhere($code,$name,$no);
+		$where = "";
+		if (isset($createTime)) {
+			$where .= " createtime='{$createTime}%' ";
+		}
+		if (isset($depart)) {
+			if ($where != "") {
+				$where .= " and gauge_spr_bsc.depart=$depart ";
+			}else{
+				$where .= " gauge_spr_bsc.depart=$depart ";
+			}
+		}
+		$sql1 = "SELECT createtime, factory.depart as factory, depart.depart, user.name,cljl,see,gauge_spr_bsc.id,apvtime,apvinfo
+				 from gauge_spr_bsc
+				 left join depart
+				 on gauge_spr_bsc.depart=depart.id
+				 left join depart as factory
+				 on depart.fid=factory.id
+				 left join user
+				 on user.id=gauge_spr_bsc.user 
+				 WHERE ( gauge_spr_bsc.id in 
+				 (
+				 SELECT basic from gauge_spr_dtl where $dtl 
+				 ) or (".$where."))".$this->authAnd." order by gauge_spr_bsc.see desc,id desc limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";;
+		$sql2 = "SELECT count(*)
+				 from gauge_spr_bsc
+				 left join depart
+				 on gauge_spr_bsc.depart=depart.id
+				 left join depart as factory
+				 on depart.fid=factory.id
+				 left join user
+				 on user.id=gauge_spr_bsc.user WHERE ( gauge_spr_bsc.id in 
+				 (
+				 SELECT basic from gauge_spr_dtl where $dtl 
+				 ) or (".$where."))".$this->authAnd;
+		
+		$res = $sqlHelper->dqlPaging($sql1,$sql2,$paging);
+		$sqlHelper->close_connect();
+	}
+
+	public function findWhere($code,$name,$no){
+		$where = "";
+		if (isset($code)) {
+			$where .= " code=$code ";
+		}
+		if (isset($name)) {
+			if ($where != "") {
+				$where .= " and name='{$name}' ";
+			}else{
+				$where .= " name='{$name}' ";
+			}
+		}
+		if (isset($no)) {
+			if ($where != "") {
+				$where .= " and no='{$no}' ";
+			}else{
+				$where .= " no='{$no}' ";
+			}
+		}
+		return $where;
 	}
 
 
