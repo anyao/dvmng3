@@ -224,12 +224,12 @@ tr:hover > th > .glyphicon-trash {
   <div class="row">
   <div class="col-md-10">
     <div class="page-header">
-        <h4>　仪表备件入账存库</h4>
+        <h4>　仪表备件验收记录</h4>
     </div>
     <table class="table table-striped table-hover">
         <thead>
           <tr>
-            <th>入账时间</th><th>存货编码</th><th>存货名称</th><th>规格型号</th><th>数量</th><th>申报部门</th>
+            <th>验收时间</th><th>存货编码</th><th>存货名称</th><th>规格型号</th><th>数量</th><th>申报部门</th>
             <th style="width:4%"></th><th style="width:4%"></th>
           </tr>
         </thead>
@@ -240,18 +240,24 @@ tr:hover > th > .glyphicon-trash {
           }
           for ($i=0; $i < count($paging->res_array); $i++) { 
             $row = $paging->res_array[$i];
-            // [id] => 2 [unit] => 个 [code] => 510740110011 [name] => 超声波流量计 [no] => TJZ-100B [number] => 1 
-            // [depart] => 能源部 [installtime] => [devid] => 198 
-
+             // [sprid] => 2 [devid] => 198 [trsftime] => [name] => 超声波流量计 [code] => 510740110011 [number] => 2 
+             // [state] => 正常 [depart] => 竖炉车间 [factory] => 新区竖炉
+            if ($row['state'] == "正常") {
+              $url = "usingSon";
+              $icon = "glyphicon glyphicon-play-circle";
+            }else{
+              $url = "spare";
+              $icon = "glyphicon glyphicon-briefcase";
+            }
             $addHtml = 
             "<tr>
-                <td>{$row['installtime']}</td>
+                <td>{$row['trsftime']}</td>
                 <td>{$row['code']}</td>
-                <td><a href='javascript:flowInfo({$row['id']})'>{$row['name']}</td>
+                <td><a href='javascript:flowInfo({$row['sprid']})'>{$row['name']}</td>
                 <td>{$row['no']}</td>
-                <td>{$row['number']} {$row['unit']}</td>
+                <td>{$row['number']}</td>
                 <td>{$row['factory']}{$row['depart']}</td>
-                <td><a class='glyphicon glyphicon-play-circle' href='./usingSon.php?id={$row['devid']}'></a></td>
+                <td><a class='{$icon}' href='./{$url}.php?id={$row['devid']}' style='display:inline;'></a></td>
                 <td><a class='glyphicon glyphicon-save' href='javascript:downXls({$row['devid']})' style='display:inline;'></a></td>
              </tr>";
              echo "$addHtml";

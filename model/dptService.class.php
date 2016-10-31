@@ -5,7 +5,7 @@ class dptService{
 	// 获取部门及其分厂	后期具体添加他们的部门结构限制
 	function getDpt(){
 		$sqlHelper = new sqlHelper();
-		$sql = "select depart.depart,factory.depart as factory,depart.id from depart 
+		$sql = "select depart.depart,IFNULL(factory.depart,'分厂') as factory,depart.id from depart 
 				left join depart as factory
 				on depart.fid = factory.id";
 		$res = $sqlHelper->dql_arr($sql);

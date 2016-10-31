@@ -1,4 +1,66 @@
 <script type="text/javascript">
+<?php 
+include "./model/dptService.class.php";
+$dptService = new dptService();
+$dptAll = $dptService->getDpt();
+?>
+// 搜索表单提交时为空限制
+$(".yesFind").click(function(){
+	var allow_submit = false;
+	var $notNull = $(this).parents("form").find(".form-control");
+	var nDpt = $(this).parents("form").find("input[name=nDpt]").val();
+	var dptId = $(this).parents("form").find("input[name=dptId]").val();
+	// input至少有一个不为空
+	$notNull.each(function() {
+		if ($(this).val().length > 0) {
+			allow_submit = true;
+			return false;
+		}
+	});
+
+	// 部门id不可为空，为空就重新选择
+	if (nDpt != "" && dptId == "") {
+		// allow_submit = false;
+		$('#failDpt').modal({
+	        keyboard: true
+	    });
+	    return false;
+	}
+
+	if (allow_submit == false) {
+		$('#failAdd').modal({
+	        keyboard: true
+	    });
+	}
+
+	return allow_submit;
+});
+
+// 部门搜索提示
+ $("input[name=nDpt]").bsSuggest({
+    allowNoKeyword: false,
+    showBtn: false,
+    indexId:2,
+    // indexKey: 1,
+    data: {
+         'value':<?php  echo "$dptAll"; ?>,
+    }
+}).on('onDataRequestSuccess', function (e, result) {
+    console.log('onDataRequestSuccess: ', result);
+}).on('onSetSelectValue', function (e, keyword, data) {
+   console.log('onSetSelectValue: ', keyword, data);
+   var idDepart=$(this).attr("data-id");
+   $(this).parents("form").find("input[name=dptId]").val(idDepart);
+}).on('onUnsetSelectValue', function (e) {
+    console.log("onUnsetSelectValue");
+});
+
+//时间选择器
+$(".date").datetimepicker({
+	format: 'yyyy-mm-dd', language: "zh-CN", autoclose: true,minView:2,
+});
+
+
 function gotoBuy(pro, phase,website){
 	$.post("./controller/gaugeProcess.php",{
 		flag:'check',
@@ -13,6 +75,24 @@ function gotoBuy(pro, phase,website){
 	      });
 		}
 	},'text');
+}
+
+function find(pro,phase,modal){
+	$.post("./controller/gaugeProcess.php",{
+		flag:'check',
+		pro:pro,
+		phase:phase
+	},function(data,success){
+		if (data != 0) {
+		  $("#find"+modal).modal({
+	          keyboard: true
+	      });
+		}else{
+		  $('#failCheck').modal({
+	          keyboard: true
+	      });
+		}
+	},'text')
 }
 
 

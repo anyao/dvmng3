@@ -23,12 +23,12 @@ class gaugeService{
 				$upid=implode(",",array_column($upid,'id'));
 				$this->authWhr=" where gauge_spr_bsc.depart in(".$upid.") ";
 				$this->authAnd=" and gauge_spr_bsc.depart in(".$upid.") ";
-				$this->install=" and depart in(".$upid.") ";
+				$this->install=" where device.depart in(".$upid.") ";
 				break;
 			case '2':
 				$this->authWhr=" where gauge_spr_bsc.depart=$upid ";
 				$this->authAnd=" and gauge_spr_bsc.depart=$upid ";
-				$this->instal = " and depart=$upid ";
+				$this->instal = " where device.depart=$upid ";
 				break;
 		}
 		$sqlHelper->close_connect();	
@@ -38,14 +38,14 @@ class gaugeService{
 	// 获取所在部门所有备件申报
 	function buyBsc($paging){
 		$sqlHelper = new sqlHelper();
-		$sql1 = "select createtime, factory.depart as factory, depart.depart, user.name,cljl,see,gauge_spr_bsc.id,apvtime,apvinfo
+		$sql1 = "SELECT createtime, factory.depart as factory, depart.depart, user.name,cljl,see,gauge_spr_bsc.id,apvtime,apvinfo
 				 from gauge_spr_bsc
 				 left join depart
 				 on gauge_spr_bsc.depart=depart.id
 				 left join depart as factory
 				 on depart.fid=factory.id
 				 left join user
-				 on user.id=gauge_spr_bsc.user ".$this->authWhr." order by id desc limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
+				 on user.id=gauge_spr_bsc.user ".$this->authWhr." order by gauge_spr_bsc.see desc,id desc limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
 		$sql2 = "select count(*)
 				 from gauge_spr_bsc
 				 left join depart
@@ -184,13 +184,13 @@ class gaugeService{
 			$logRes = 3;
 		}
 		$sql = "update gauge_spr_bsc set apvtime='$time',$apvInfo,see=1 where id=$id";
-		$res[] = $sqlHelper->dml($sql);
-		$sql = "update gauge_spr_dtl set res=1,see=1 where basic=$id";
-		$res[] = $sqlHelper->dml($sql);
-		$result = in_array(0,$res);
+		$res = $sqlHelper->dml($sql);
+		// $sql = "update gauge_spr_dtl set res=1,see=1 where basic=$id";
+		// $res[] = $sqlHelper->dml($sql);
+		// $result = in_array(0,$res);
 		$sqlHelper->close_connect();
-		$this->flowLog($time,$logRes,$id);	
-		return $result; 
+		$this->flowLog($time,$logRes,$id);
+		return $res; 
 	}
 
 	function buyApvHis($paging){
@@ -250,6 +250,7 @@ class gaugeService{
 		$logRes = $checkRes + 2;
 		$sqlHelper->close_connect();
 		$this->flowLog($checkTime,$logRes,$id);
+		$this->bscSee($id);
 		return $res;
 	}
 
@@ -311,6 +312,7 @@ class gaugeService{
 		$res = $sqlHelper->dml($sql);
 		$this->flowLog($storeTime,6,$id);
 		$sqlHelper->close_connect();
+		$this->bscSee($id);
 		return $res;
 	}
 
@@ -368,13 +370,13 @@ class gaugeService{
 				 FROM gauge_spr_dtl
 				 left join gauge_spr_bsc
 				 on gauge_spr_bsc.id=gauge_spr_dtl.basic
-				 where res=5 and resnum!=0 ".$this->install."
+				 where res=5 and resnum!=0 ".$this->authAnd."
 				 UNION all
 				 select sprid,gauge_spr_dtl.code,gauge_spr_dtl.name,no,takenum,unit,taketime
 				 from gauge_spr_take
 				 LEFT JOIN gauge_spr_dtl
 				 on gauge_spr_take.sprid=gauge_spr_dtl.id
-				where gauge_spr_take.res is null ".$this->install."
+				where gauge_spr_take.res is null ".$this->authAnd."
 			    limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
 		$sql2 = "SELECT sum(tem) from
 				 (
@@ -382,13 +384,13 @@ class gaugeService{
 				 FROM gauge_spr_dtl
 				 left join gauge_spr_bsc
 				 on gauge_spr_bsc.id=gauge_spr_dtl.basic
-				 where res=5 and resnum!=0 ".$this->install."
+				 where res=5 and resnum!=0 ".$this->authAnd."
 				 UNION all
 				 select count(*) as tem
 				 from gauge_spr_take
 				 LEFT JOIN gauge_spr_dtl
 				 on gauge_spr_take.sprid=gauge_spr_dtl.id
-				 where gauge_spr_take.res is null ".$this->install."
+				 where gauge_spr_take.res is null ".$this->authAnd."
 				 )
 				 as total";
 		$res = $sqlHelper->dqlPaging($sql1,$sql2,$paging);
@@ -398,28 +400,24 @@ class gaugeService{
 	// 备件安装验收历史记录
 	function buyInstallHis($paging){
 		$sqlHelper = new sqlHelper();
-		$sql1 = "SELECT gauge_spr_dtl.id,gauge_spr_dtl.unit,device.code,device.name,device.no,device.number,
-				 factory.depart as factory,depart.depart,installtime,devid
-				 FROM gauge_spr_dtl
-				 left join gauge_spr_bsc
-				 on gauge_spr_bsc.id=gauge_spr_dtl.basic
+		$sql1 = "SELECT sprid,devid,no,trsftime,name,code,`number`,state,depart.depart,factory.depart as factory
+				 from gauge_spr_trsf
+				 left join device
+				 on gauge_spr_trsf.devid = device.id
 				 left join depart
-				 on gauge_spr_bsc.depart=depart.id
+				 on depart.id=device.depart
 				 left join depart as factory
-				 on depart.fid=factory.id
-				 inner join gauge_spr_trsf 
-				 on gauge_spr_trsf.sprid=gauge_spr_dtl.id
-				 inner join device
-				 on device.id=gauge_spr_trsf.devid
-				 where state='正常' and res =6
-				 ".$this->authAnd." limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
+				 on factory.id = device.factory
+				 ".$this->install." limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
 		$sql2 = "SELECT count(*)
-				 FROM gauge_spr_dtl
-				 inner join gauge_spr_trsf 
-				 on gauge_spr_trsf.sprid=gauge_spr_dtl.id
-				 inner join device
-				 on device.id=gauge_spr_trsf.devid
-				 where state='正常' and res=6 ".$this->authAnd;
+				 from gauge_spr_trsf
+				 left join device
+				 on gauge_spr_trsf.devid = device.id
+				 left join depart
+				 on depart.id=device.depart
+				 left join depart as factory
+				 on factory.id = device.factory
+				 ".$this->install;
 		$res = $sqlHelper->dqlPaging($sql1,$sql2,$paging);
 		$sqlHelper->close_connect();
 	}
@@ -645,12 +643,13 @@ class gaugeService{
 		return $res;
 	}
 
-	// function chgSee($bscId){
-	// 	$sqlHelper = new sqlHelper();
-	// 	$sql = "UPDATE gauge_spr_bsc set see = 0 where id = $bscId";
-	// 	$res = $sqlHelper->dml($sql);
-	// 	$sqlHelper->close_connect();
-	// 	return $res;
-	// }
+	function bscSee($sprId){
+		$sqlHelper = new sqlHelper();
+		$sql = "UPDATE gauge_spr_bsc set see=1 where id 
+				= (SELECT basic from gauge_spr_dtl where id=$sprId)";
+		$res = $sqlHelper->dml($sql);
+		$sqlHelper->close_connect();
+	}
+
 }
 ?>

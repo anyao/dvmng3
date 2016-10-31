@@ -3,7 +3,7 @@ require_once "model/cookie.php";
 require_once "model/repairService.class.php";
 require_once 'model/paging.class.php';
 require_once 'model/gaugeService.class.php';
-require_once './model/dptService.class.php';
+// require_once './model/dptService.class.php';
 checkValidate();
 $user=$_SESSION['user'];
 
@@ -18,8 +18,8 @@ if (!empty($_GET['pageNow'])) {
 $gaugeService = new gaugeService();
 $gaugeService->buyCheck($paging);
 
-$dptService = new dptService();
-$dptAll = $dptService->getDpt();
+// $dptService = new dptService();
+// $dptAll = $dptService->getDpt();
 
 
 ?>

@@ -3,7 +3,7 @@ require_once "model/cookie.php";
 require_once "model/repairService.class.php";
 require_once 'model/paging.class.php';
 require_once 'model/gaugeService.class.php';
-require_once 'model/dptService.class.php';
+// require_once 'model/dptService.class.php';
 checkValidate();
 $user=$_SESSION['user'];
 
@@ -17,10 +17,6 @@ if (!empty($_GET['pageNow'])) {
 
 $gaugeService = new gaugeService();
 $gaugeService->buyStoreHouse($paging);
-
-$dptService = new dptService();
-$dptAll = $dptService->getDpt();
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -163,7 +159,7 @@ tr:hover > th > .glyphicon-trash {
             <label class="col-sm-4 control-label">申领部门：</label>
             <div class="col-sm-6">
               <div class="input-group">
-              <input type="text" name="nDptTk" class="form-control">
+              <input type="text" name="nDpt" class="form-control">
               <div class="input-group-btn">
                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                 <span class="caret"></span>
@@ -284,7 +280,7 @@ $("#takeSpr #minus").click(function(){
 
 // 确认领取备件按钮
 $("#yesTakeSpr").click(function(){
-  var notNull = $("#takeSpr input[name=nDptTk]").val();
+  var notNull = $("#takeSpr input[name=nDpt]").val();
   if (notNull.length == 0) {
     $("#failAdd").modal({
       keyboard:true
@@ -293,24 +289,25 @@ $("#yesTakeSpr").click(function(){
   }
 });
 
-// 部门搜索提示
- $("#takeSpr input[name=nDptTk]").bsSuggest({
-    allowNoKeyword: false,
-    showBtn: false,
-    indexId:2,
-    // indexKey: 1,
-    data: {
-         'value':<?php  echo "$dptAll"; ?>,
-    }
-}).on('onDataRequestSuccess', function (e, result) {
-    console.log('onDataRequestSuccess: ', result);
-}).on('onSetSelectValue', function (e, keyword, data) {
-   console.log('onSetSelectValue: ', keyword, data);
-   var idDepart=$(this).attr("data-id");
-   $(this).parents("form").find("input[name=dptTk]").val(idDepart);
-}).on('onUnsetSelectValue', function (e) {
-    console.log("onUnsetSelectValue");
-});
+// // 部门搜索提示
+//  $("#takeSpr input[name=nDpt]").bsSuggest({
+//     allowNoKeyword: false,
+//     showBtn: false,
+//     indexId:2,
+//     // indexKey: 1,
+//     data: {
+//          'value':<?php  ; ?>,
+//          echo "$dptAll"
+//     }
+// }).on('onDataRequestSuccess', function (e, result) {
+//     console.log('onDataRequestSuccess: ', result);
+// }).on('onSetSelectValue', function (e, keyword, data) {
+//    console.log('onSetSelectValue: ', keyword, data);
+//    var idDepart=$(this).attr("data-id");
+//    $(this).parents("form").find("input[name=dptTk]").val(idDepart);
+// }).on('onUnsetSelectValue', function (e) {
+//     console.log("onUnsetSelectValue");
+// });
 
 function takeSpr(id,storeNum){
   $("#takeSpr input[name=id]").val(id);

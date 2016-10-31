@@ -18,7 +18,14 @@ if (!empty($_GET['pageNow'])) {
 }
 
 $gaugeService = new gaugeService();
-$gaugeService->buyBsc($paging);
+
+// 是否为搜索结果
+if (empty($_POST['flag'])) {
+  $gaugeService->buyBsc($paging);
+}else if ($_POST['flag'] == 'findApply') {
+  print_r($_POST);
+  exit();
+}
 
 ?>
 <!DOCTYPE html>
