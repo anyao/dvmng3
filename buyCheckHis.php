@@ -15,8 +15,18 @@ if (!empty($_GET['pageNow'])) {
 }
 
 $gaugeService = new gaugeService();
-$gaugeService->buyCheckHis($paging);
+// 是否为搜索结果
+if (empty($_POST['flag'])) {
+  $gaugeService->buyCheckHis($paging);
+}else if ($_POST['flag'] == 'findCheck') {
+  $checkTime = $_POST['checkTime'];
+  $depart = $_POST['dptId'];
+  $code = $_POST['sprCode'];
+  $name = $_POST['sprName'];
+  $no = $_POST['sprNo'];
 
+  $gaugeService->buyCheckFind($checkTime,$depart,$code,$name,$no,$paging);
+}
 
 
 ?>
@@ -156,7 +166,11 @@ tr:hover > th > .glyphicon-trash {
         <tbody class="tablebody">
         <?php 
           if (count($paging->res_array) == 0) {
-            echo "<tr><td colspan=12>当前没有已经检定的备件</td></tr>";
+            if (empty($_POST['flag'])) {
+              echo "<tr><td colspan=12>当前没有已经检定的备件</td></tr>";
+            }else{
+              echo "<tr><td colspan=12>没有符合当前搜索条件的记录，请重新核实。</td></tr>";
+            }
           }
           for ($i=0; $i < count($paging->res_array); $i++) { 
             $row = $paging->res_array[$i];

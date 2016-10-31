@@ -15,7 +15,20 @@ if (!empty($_GET['pageNow'])) {
 }
 
 $gaugeService = new gaugeService();
-$gaugeService->buyApvHis($paging);
+
+// 是否为搜索结果
+if (empty($_POST['flag'])) {
+  $gaugeService->buyApvHis($paging);
+}else if ($_POST['flag'] == 'findApv') {
+  $apvTime = $_POST['apvTime'];
+  $depart = $_POST['dptId'];
+  $code = $_POST['sprCode'];
+  $name = $_POST['sprName'];
+  $no = $_POST['sprNo'];
+
+  $gaugeService->buyApvFind($apvTime,$depart,$code,$name,$no,$paging);
+}
+
 
 ?>
 <!DOCTYPE html>
@@ -158,10 +171,13 @@ tr:hover > th > .glyphicon-trash {
         <tbody class="tablebody">
         <?php 
           if (count($paging->res_array) == 0) {
-            echo "<tr><td colspan=12>当前无备件审核历史</td></tr>";
+            if (empty($_POST['flag'])) {
+              echo "<tr><td colspan=12>当前无备件审核历史/</td></tr>";
+            }else{
+              echo "<tr><td colspan=12>没有符合当前搜索条件的记录，请重新核实。</td></tr>";
+            }
           }
           for ($i=0; $i < count($paging->res_array); $i++) { 
-           // [0] => Array ( [createtime] => 2016-09-30 16:09:00 [factory] => 办公楼 [depart] => 能源部 [name] => yb [cljl] => CLJL-30-09 )  
             $row = $paging->res_array[$i];
             $apvInfo = "<td><a href='javascript:getApvInfo(\"{$row['apvtime']}\",\"{$row['apvinfo']}\");' class='glyphicon glyphicon-";
             if (!empty($row['apvinfo'])) {

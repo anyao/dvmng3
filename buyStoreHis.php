@@ -16,6 +16,9 @@ if (!empty($_GET['pageNow'])) {
 
 $gaugeService = new gaugeService();
 $gaugeService->buyStoreHis($paging);
+
+
+
 ?>
 <!DOCTYPE html>
 <html lang="en">

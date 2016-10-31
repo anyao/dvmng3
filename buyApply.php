@@ -169,6 +169,9 @@ tr:hover > th > .glyphicon-trash {
         </thead>
         <tbody class="tablebody">
         <?php 
+          if (count($paging->res_array)==0) {
+            echo "<tr><td colspan=12>没有符合当前搜索条件的记录，请重新核实。</td></tr>";
+          }
           for ($i=0; $i < count($paging->res_array); $i++) { 
            // [0] => Array ( [createtime] => 2016-09-30 16:09:00 [factory] => 办公楼 [depart] => 能源部 [name] => yb [cljl] => CLJL-30-09 )  
             $row = $paging->res_array[$i];

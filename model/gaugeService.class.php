@@ -60,17 +60,30 @@ class gaugeService{
 
 	function buyBscFind($createTime,$depart,$code,$name,$no,$paging){
 		$dtl = $this->findWhere($code,$name,$no);
-		$where = "";
-		if (isset($createTime)) {
-			$where .= " createtime='{$createTime}%' ";
+		$bsc = "";
+		if (!empty($createTime)) {
+			$bsc .= " createtime='{$createTime}%' ";
 		}
-		if (isset($depart)) {
-			if ($where != "") {
-				$where .= " and gauge_spr_bsc.depart=$depart ";
+		if (!empty($depart)) {
+			if ($bsc != "") {
+				$bsc .= " and gauge_spr_bsc.depart=$depart ";
 			}else{
-				$where .= " gauge_spr_bsc.depart=$depart ";
+				$bsc .= " gauge_spr_bsc.depart=$depart ";
 			}
 		}
+
+		// dtl为空
+		if ($dtl == "") {
+			$where = $bsc;
+		}else{
+			if ($bsc == "") {
+				$where = " gauge_spr_bsc.id in (SELECT basic from gauge_spr_dtl where $dtl) "; 
+			}else{
+				$where = " ( gauge_spr_bsc.id in (SELECT basic from gauge_spr_dtl where $dtl ) or (".$bsc.")) ";
+			}
+		}
+
+		$sqlHelper = new sqlHelper();
 		$sql1 = "SELECT createtime, factory.depart as factory, depart.depart, user.name,cljl,see,gauge_spr_bsc.id,apvtime,apvinfo
 				 from gauge_spr_bsc
 				 left join depart
@@ -79,10 +92,7 @@ class gaugeService{
 				 on depart.fid=factory.id
 				 left join user
 				 on user.id=gauge_spr_bsc.user 
-				 WHERE ( gauge_spr_bsc.id in 
-				 (
-				 SELECT basic from gauge_spr_dtl where $dtl 
-				 ) or (".$where."))".$this->authAnd." order by gauge_spr_bsc.see desc,id desc limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";;
+				 WHERE ".$where.$this->authAnd." order by gauge_spr_bsc.see desc,id desc limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
 		$sql2 = "SELECT count(*)
 				 from gauge_spr_bsc
 				 left join depart
@@ -90,10 +100,7 @@ class gaugeService{
 				 left join depart as factory
 				 on depart.fid=factory.id
 				 left join user
-				 on user.id=gauge_spr_bsc.user WHERE ( gauge_spr_bsc.id in 
-				 (
-				 SELECT basic from gauge_spr_dtl where $dtl 
-				 ) or (".$where."))".$this->authAnd;
+				 on user.id=gauge_spr_bsc.user WHERE ".$where.$this->authAnd;
 		
 		$res = $sqlHelper->dqlPaging($sql1,$sql2,$paging);
 		$sqlHelper->close_connect();
@@ -101,17 +108,17 @@ class gaugeService{
 
 	public function findWhere($code,$name,$no){
 		$where = "";
-		if (isset($code)) {
+		if (!empty($code)) {
 			$where .= " code=$code ";
 		}
-		if (isset($name)) {
+		if (!empty($name)) {
 			if ($where != "") {
 				$where .= " and name='{$name}' ";
 			}else{
 				$where .= " name='{$name}' ";
 			}
 		}
-		if (isset($no)) {
+		if (!empty($no)) {
 			if ($where != "") {
 				$where .= " and no='{$no}' ";
 			}else{
@@ -258,7 +265,7 @@ class gaugeService{
 
 	function buyApvHis($paging){
 		$sqlHelper = new sqlHelper();
-		$sql1 = "select factory.depart as factory, depart.depart, user.name,cljl,see,gauge_spr_bsc.id,apvinfo,apvtime
+		$sql1 = "SELECT factory.depart as factory, depart.depart, user.name,cljl,see,gauge_spr_bsc.id,apvinfo,apvtime
 				 from gauge_spr_bsc
 				 left join depart
 				 on gauge_spr_bsc.depart=depart.id
@@ -266,7 +273,7 @@ class gaugeService{
 				 on depart.fid=factory.id
 				 left join user
 				 on user.id=gauge_spr_bsc.user where apvtime is not null ".$this->authAnd." order by apvtime desc limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
-		$sql2 = "select count(*)
+		$sql2 = "SELECT count(*)
 				 from gauge_spr_bsc
 				 left join depart
 				 on gauge_spr_bsc.depart=depart.id
@@ -274,6 +281,53 @@ class gaugeService{
 				 on depart.fid=factory.id
 				 left join user
 				 on user.id=gauge_spr_bsc.user where apvtime is not null ".$this->authAnd;
+		$res = $sqlHelper->dqlPaging($sql1,$sql2,$paging);
+		$sqlHelper->close_connect();
+	}
+
+	function buyApvFind($apvTime,$depart,$code,$name,$no,$paging){
+		$dtl = $this->findWhere($code,$name,$no);
+		$bsc = "";
+		if (!empty($apvTime)) {
+			$bsc .= " apvtime='{$apvTime}%' ";
+		}
+		if (!empty($depart)) {
+			if ($bsc != "") {
+				$bsc .= " and gauge_spr_bsc.depart=$depart ";
+			}else{
+				$bsc .= " gauge_spr_bsc.depart=$depart ";
+			}
+		}
+
+		// dtl为空
+		if ($dtl == "") {
+			$where = $bsc;
+		}else{
+			if ($bsc == "") {
+				$where = " gauge_spr_bsc.id in (SELECT basic from gauge_spr_dtl where $dtl) "; 
+			}else{
+				$where = " ( gauge_spr_bsc.id in (SELECT basic from gauge_spr_dtl where $dtl ) or (".$bsc.")) ";
+			}
+		}
+
+		$sqlHelper = new sqlHelper();
+		$sql1 = "SELECT factory.depart as factory, depart.depart, user.name,cljl,see,gauge_spr_bsc.id,apvinfo,apvtime
+				 from gauge_spr_bsc
+				 left join depart
+				 on gauge_spr_bsc.depart=depart.id
+				 left join depart as factory
+				 on depart.fid=factory.id
+				 left join user
+				 on user.id=gauge_spr_bsc.user where ".$where.$this->authAnd." order by apvtime desc limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
+		$sql2 = "SELECT count(*)
+				 from gauge_spr_bsc
+				 left join depart
+				 on gauge_spr_bsc.depart=depart.id
+				 left join depart as factory
+				 on depart.fid=factory.id
+				 left join user
+				 on user.id=gauge_spr_bsc.user where ".$where.$this->authAnd;
+		
 		$res = $sqlHelper->dqlPaging($sql1,$sql2,$paging);
 		$sqlHelper->close_connect();
 	}
@@ -343,6 +397,48 @@ class gaugeService{
 		$sqlHelper->close_connect();
 	}
 
+	function buyCheckFind($checkTime,$depart,$code,$name,$no,$paging){
+		$dtl = $this->findWhere($code,$name,$no);
+		$where = "";
+		if (!empty($checkTime)) {
+			if ($dtl != "") {
+				$where .= " and checktime='{$checkTime}%' ";
+			}else{
+				$where .= " checktime='{$checkTime}%' ";
+			}
+		}
+		if (!empty($depart)) {
+			if ($where != "") {
+				$where .= " and gauge_spr_bsc.depart=$depart ";
+			}else{
+				$where .= " gauge_spr_bsc.depart=$depart ";
+			}
+		}
+
+		$sqlHelper = new sqlHelper();
+		$sql1 = "SELECT gauge_spr_dtl.id,code,name,no,num,unit,depart.depart,cljl,factory.depart as factory,checktime,res
+				 FROM gauge_spr_dtl
+				 left join gauge_spr_bsc
+				 on gauge_spr_bsc.id=gauge_spr_dtl.basic
+				 left join depart
+				 on gauge_spr_bsc.depart=depart.id
+				 left join depart as factory
+				 on depart.fid=factory.id
+				 where 
+				 ".$where." order by checktime desc limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
+		$sql2 = "SELECT count(*)
+				 FROM gauge_spr_dtl
+				 left join gauge_spr_bsc
+				 on gauge_spr_bsc.id=gauge_spr_dtl.basic
+				 left join depart
+				 on gauge_spr_bsc.depart=depart.id
+				 left join depart as factory
+				 on depart.fid=factory.id
+				 where".$where;
+		$res = $sqlHelper->dqlPaging($sql1,$sql2,$paging);
+		$sqlHelper->close_connect();
+	}
+
 	function buyStore($paging){
 		$sqlHelper = new sqlHelper();
 		$sql1 = "SELECT gauge_spr_dtl.id,code,name,no,num,unit,info,depart.depart,cljl,factory.depart as factory
@@ -395,6 +491,47 @@ class gaugeService{
 		$sql2 = "SELECT count(*)
 				 FROM gauge_spr_dtl
 				 where storetime is not null".$this->authAnd;
+		$res = $sqlHelper->dqlPaging($sql1,$sql2,$paging);
+		$sqlHelper->close_connect();
+	}
+
+	function buyStoreFind($storeTime,$depart,$code,$name,$no,$paging){
+		$dtl = $this->findWhere($code,$name,$no);
+		$where = "";
+		if (!empty($storeTime)) {
+			if ($dtl != "") {
+				$where .= " and storetime='{$storeTime}%' ";
+			}else{
+				$where .= " storetime='{$storeTime}%' ";
+			}
+		}
+		if (!empty($depart)) {
+			if ($where != "") {
+				$where .= " and gauge_spr_bsc.depart=$depart ";
+			}else{
+				$where .= " gauge_spr_bsc.depart=$depart ";
+			}
+		}
+
+		$sqlHelper = new sqlHelper();
+		$sql1 = "SELECT gauge_spr_dtl.id,code,name,no,num,unit,storetime,IFNULL(resnum,0) as resnum,IFNULL(takenum,0)  as takenum
+				 from gauge_spr_dtl 
+				 left join (
+				 select sum(takenum) as takenum,sprid from gauge_spr_take group by sprid
+				 ) as take 
+				 on take.sprid=gauge_spr_dtl.id 
+				 where".$where."
+				 limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
+		$sql2 = "SELECT count(*) FROM
+				(
+				SELECT gauge_spr_dtl.id,code,name,no,num,unit,storetime,IFNULL(resnum,0) as resnum,IFNULL(takenum,0)  as takenum
+				from gauge_spr_dtl 
+				left join (
+				select sum(takenum) as takenum,sprid from gauge_spr_take group by sprid
+				) as take 
+				on take.sprid=gauge_spr_dtl.id 
+				where ".$where."
+				) as a";
 		$res = $sqlHelper->dqlPaging($sql1,$sql2,$paging);
 		$sqlHelper->close_connect();
 	}
@@ -481,6 +618,47 @@ class gaugeService{
 				 left join depart as factory
 				 on factory.id = device.factory
 				 ".$this->install;
+		$res = $sqlHelper->dqlPaging($sql1,$sql2,$paging);
+		$sqlHelper->close_connect();
+	}
+
+	function buyInstallFind($installTime,$depart,$code,$name,$no,$paging){
+		$dtl = $this->findWhere($code,$name,$no);
+		$where = "";
+		if (!empty($installTime)) {
+			if ($dtl != "") {
+				$where .= " and installtime='{$installTime}%' ";
+			}else{
+				$where .= " installtime='{$installTime}%' ";
+			}
+		}
+		if (!empty($depart)) {
+			if ($where != "") {
+				$where .= " and gauge_spr_bsc.depart=$depart ";
+			}else{
+				$where .= " gauge_spr_bsc.depart=$depart ";
+			}
+		}
+
+		$sqlHelper = new sqlHelper();
+		$sql1 = "SELECT sprid,devid,no,trsftime,name,code,`number`,state,depart.depart,factory.depart as factory
+				 from gauge_spr_trsf
+				 left join device
+				 on gauge_spr_trsf.devid = device.id
+				 left join depart
+				 on depart.id=device.depart
+				 left join depart as factory
+				 on factory.id = device.factory
+				 ".$this->install.$where." limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
+		$sql2 = "SELECT count(*)
+				 from gauge_spr_trsf
+				 left join device
+				 on gauge_spr_trsf.devid = device.id
+				 left join depart
+				 on depart.id=device.depart
+				 left join depart as factory
+				 on factory.id = device.factory
+				 ".$where.$this->install;
 		$res = $sqlHelper->dqlPaging($sql1,$sql2,$paging);
 		$sqlHelper->close_connect();
 	}

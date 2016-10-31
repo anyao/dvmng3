@@ -15,7 +15,18 @@ if (!empty($_GET['pageNow'])) {
 }
 
 $gaugeService = new gaugeService();
-$gaugeService->buyInstallHis($paging);
+// 是否为搜索结果
+if (empty($_POST['flag'])) {
+  $gaugeService->buyInstallHis($paging);
+}else if ($_POST['flag'] == 'findInstall') {
+  $storeTime = $_POST['installTime'];
+  $depart = $_POST['dptId'];
+  $code = $_POST['sprCode'];
+  $name = $_POST['sprName'];
+  $no = $_POST['sprNo'];
+
+  $gaugeService->buyInstallFind($installTime,$depart,$code,$name,$no,$paging);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -236,7 +247,11 @@ tr:hover > th > .glyphicon-trash {
         <tbody class="tablebody">
         <?php 
           if (count($paging->res_array) == 0) {
-            echo "<tr><td colspan=12>当前无历史安装验收记录</td></tr>";
+            if (empty($_POST['flag'])) {
+              echo "<tr><td colspan=12>当前无历史安装验收记录</td></tr>";
+            }else{
+              echo "<tr><td colspan=12>没有符合当前搜索条件的记录，请重新核实。</td></tr>";
+            }
           }
           for ($i=0; $i < count($paging->res_array); $i++) { 
             $row = $paging->res_array[$i];
