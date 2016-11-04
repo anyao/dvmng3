@@ -188,6 +188,7 @@ include "message.php";
       </div>
     </div>
   </div>
+  <div id="addPart">
   <?php 
     $addHtml="";
     for ($i=0; $i < 6; $i++) { 
@@ -232,7 +233,7 @@ include "message.php";
     }
     echo "$addHtml";
   ?>
-    <div id="addPart"></div>
+    </div>
 
     <div style="text-align: center">
       <input type="hidden" name="flag" value="buyAdd">
@@ -299,66 +300,58 @@ function yesAdd(){
 $(document).on("click","#sprNum",addPartByNum);
   function addPartByNum(){
     var num=$("input[name=sprNum]").val();
-    if(isNaN(num) | num==0 ){
+    if(isNaN(num) | num<=0 ){
       $('#notNum').modal({
           keyboard: true
       });
       return 0;
     }
-    // 所填数字需大于2
-    var sprNum=num-6;
-    if(sprNum<0){
-      var nextNum=Number(num)+1;
-      for (var i = nextNum; i <= 6; i++) {
-        $("#part-"+i).detach();
-      }
-    }else{
+
       var $addHtml="";
-      for (var i = 0; i < sprNum; i++) {
-        $k=i+7;
-      $addHtml+=
-      "<div class='part row' id='part-1'>"+
-      "  <div class='col-md-4'>"+
-      "    <div class='input-group'>"+
-      "      <span class='input-group-addon'>"+$k+": 存货编码</span>"+
-      "      <input type='text' class='form-control' name='gaugeSpr["+$k+"][0]'>"+
-      "    </div> "+
-      "  </div>"+
-      "  <div class='col-md-4'> "+
-      "    <div class='input-group'>"+
-      "      <span class='input-group-addon'>存货名称</span>"+
-      "      <input type='text' class='form-control' name='gaugeSpr["+$k+"][1]'>"+
-      "    </div> "+
-      "  </div>"+
-      "  <div class='col-md-4'> "+
-      "    <div class='input-group'>"+
-      "      <span class='input-group-addon'>规格型号</span>"+
-      "      <input type='text' class='form-control' name='gaugeSpr["+$k+"][1]'>"+
-      "    </div> "+
-      "  </div>"+
-      "  <div class='col-md-4'>"+
-      "    <div class='input-group'>"+
-      "      <span class='input-group-addon'>　单　　位</span>"+
-      "      <input type='text' class='form-control' name='gaugeSpr["+$k+"][2]'>"+
-      "    </div>  "+
-      "  </div>"+
-      "  <div class='col-md-4'>"+
-      "    <div class='input-group'>"+
-      "      <span class='input-group-addon'>数　　量</span>"+
-      "      <input type='text' class='form-control' name='gaugeSpr["+$k+"][2]'>"+
-      "    </div>  "+
-      "  </div>"+
-      "  <div class='col-md-4'>"+
-      "    <div class='input-group'>"+
-      "      <span class='input-group-addon'>备注描述</span>"+
-      "      <input type='text' class='form-control' name='gaugeSpr["+$k+"][2]'>"+
-      "    </div>  "+
-      "  </div>"+
-      "</div>";
-      $("#addPart").empty().append($addHtml);
+      for (var i = 0; i < num; i++) {
+        $k = i + 1;
+        $addHtml+=
+        "<div class='part row' id='part-1'>"+
+        "  <div class='col-md-4'>"+
+        "    <div class='input-group'>"+
+        "      <span class='input-group-addon'>"+$k+": 存货编码</span>"+
+        "      <input type='text' class='form-control' name='gaugeSpr["+$k+"][0]'>"+
+        "    </div> "+
+        "  </div>"+
+        "  <div class='col-md-4'> "+
+        "    <div class='input-group'>"+
+        "      <span class='input-group-addon'>存货名称</span>"+
+        "      <input type='text' class='form-control' name='gaugeSpr["+$k+"][1]'>"+
+        "    </div> "+
+        "  </div>"+
+        "  <div class='col-md-4'> "+
+        "    <div class='input-group'>"+
+        "      <span class='input-group-addon'>规格型号</span>"+
+        "      <input type='text' class='form-control' name='gaugeSpr["+$k+"][1]'>"+
+        "    </div> "+
+        "  </div>"+
+        "  <div class='col-md-4'>"+
+        "    <div class='input-group'>"+
+        "      <span class='input-group-addon'>　单　　位</span>"+
+        "      <input type='text' class='form-control' name='gaugeSpr["+$k+"][2]'>"+
+        "    </div>  "+
+        "  </div>"+
+        "  <div class='col-md-4'>"+
+        "    <div class='input-group'>"+
+        "      <span class='input-group-addon'>数　　量</span>"+
+        "      <input type='text' class='form-control' name='gaugeSpr["+$k+"][2]'>"+
+        "    </div>  "+
+        "  </div>"+
+        "  <div class='col-md-4'>"+
+        "    <div class='input-group'>"+
+        "      <span class='input-group-addon'>备注描述</span>"+
+        "      <input type='text' class='form-control' name='gaugeSpr["+$k+"][2]'>"+
+        "    </div>  "+
+        "  </div>"+
+        "</div>";
     }
+    $("#addPart").empty().append($addHtml);
   }
-  };
 
 </script>
 </html>
