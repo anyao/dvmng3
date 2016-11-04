@@ -181,11 +181,11 @@ if (!empty($_REQUEST['flag'])) {
 
 	// 库存在领取
 	else if ($flag == "takeSpr") {
-		$dptTk = $_POST['dptTk'];
+		$dptId = $_POST['dptId'];
 		$sprId = $_POST['id'];
 		$num = $_POST['num'];
 		$takeTime = date("Y-m-d H:i:s");
-		$res = $gaugeService->takeSpr($sprId, $takeTime, $num,$dptTk);
+		$res = $gaugeService->takeSpr($sprId, $takeTime, $num,$dptId);
 		if ($res != 0) {
 			header("location: ./../buyStoreHouse.php");
 			exit();

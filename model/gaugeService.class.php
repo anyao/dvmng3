@@ -133,6 +133,7 @@ class gaugeService{
 	function getCLJL($dptid){
 		$sqlHelper = new sqlHelper();
 		$sql="select num from gauge_dpt_num where depart = $dptid";
+
 		$res=$sqlHelper->dql($sql);
 		$sqlHelper->close_connect();
 		return $res['num'];
@@ -254,10 +255,12 @@ class gaugeService{
 			$logRes = 3;
 		}
 		$sql = "update gauge_spr_bsc set apvtime='$time',$apvInfo,see=1 where id=$id";
+		// echo "$sql";
+		// exit();
 		$res = $sqlHelper->dml($sql);
-		// $sql = "update gauge_spr_dtl set res=1,see=1 where basic=$id";
-		// $res[] = $sqlHelper->dml($sql);
-		// $result = in_array(0,$res);
+		$sql = "update gauge_spr_dtl set res=1,see=1 where basic=$id";
+		$res[] = $sqlHelper->dml($sql);
+		$result = in_array(0,$res);
 		$sqlHelper->close_connect();
 		$this->flowLog($time,$logRes,$id);
 		return $res; 

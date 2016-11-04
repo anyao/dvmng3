@@ -200,7 +200,7 @@ tr:hover > th > .glyphicon-trash {
           <div class="modal-footer">
             <input type="hidden" name="flag" value="takeSpr">
             <input type="hidden" name="id">
-            <input type="hidden" name="dptTk">
+            <input type="hidden" name="dptId">
             <button class="btn btn-primary" id="yesTakeSpr">确认</button>
             <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
           </div>
