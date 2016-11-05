@@ -9,11 +9,10 @@ if (!empty($_REQUEST['flag'])) {
 		$CLJL=$_POST['CLJL'];
 		$applytime=$_POST['applytime'];
 		$dptid=$_POST['dptid'];
-		$fid=$_POST['fid'];
 		$gaugeSpr=$_POST['gaugeSpr'];
 		$uid=$_POST['uid'];
 
-		$res=$gaugeService->buyAdd($CLJL,$applytime,$dptid,$fid,$gaugeSpr,$uid);
+		$res=$gaugeService->buyAdd($CLJL,$applytime,$dptid,$gaugeSpr,$uid);
 
 		if ($res!=0) {
 			header("location: ../buyApply.php");

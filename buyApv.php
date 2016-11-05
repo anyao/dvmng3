@@ -179,7 +179,7 @@ tr:hover > th > .glyphicon-trash {
                 <td>{$row['name']}</td>
                 <td>{$row['cljl']}</td>
                 <td><a class='glyphicon glyphicon-pencil' href='javascript:apv({$row['id']})'></a></td>
-                <td><a href='./xlsx/buyApply.php?id={$row['id']}&dpt={$row['depart']}&user={$row['name']}&date={$row['createtime']}' class='glyphicon glyphicon-save'></a></td>
+                <td><a href='./xlsx/buyApply.php?id={$row['id']}&dpt={$row['depart']}&user={$row['name']}&cljl={$row['cljl']}' class='glyphicon glyphicon-save'></a></td>
              </tr>";
              echo "$addHtml";
 

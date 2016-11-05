@@ -139,20 +139,19 @@ class gaugeService{
 		return $res['num'];
 	}
 
-	function buyAdd($CLJL,$applytime,$dptid,$fid,$gaugeSpr,$uid){
+	function buyAdd($CLJL,$applytime,$dptid,$gaugeSpr,$uid){
+		//  [code] => 123456 [name] => test1 [no] => 125kkk [unit] => 个 [num] => 4 [info] => 无
 		$sqlHelper=new sqlHelper();
-		// basic depart--dptid user--user cljl--CLJL createtime----applytime
 		// 将申报表基本信息加到basic表中
 		$sql="insert into gauge_spr_bsc (depart, user, cljl, createtime) values ($dptid, $uid, '{$CLJL}', '{$applytime}')";
 		$res=$sqlHelper->dml($sql);
 		$bscid=mysql_insert_id();
 		$sql="insert into gauge_spr_dtl (code,name,no,unit,num,info,basic,res) values ";
 		for ($i=1; $i <= count($gaugeSpr); $i++) { 
-			// [存货编号 code] => 510740110018 [ name 名称] => 超声波流量计 [规格型号 no ] => TJZ-100B [unit 单位] => 个 [数量 num ] => 3 [备注描述 info] => 无
 			if ($i != count($gaugeSpr)) {
-				$sql .= "('{$gaugeSpr[$i][0]}', '{$gaugeSpr[$i][1]}', '{$gaugeSpr[$i][2]}', '{$gaugeSpr[$i][3]}', {$gaugeSpr[$i][4]}, '{$gaugeSpr[$i][5]}', $bscid, 0), ";
+				$sql .= "('{$gaugeSpr[$i]['code']}', '{$gaugeSpr[$i]['name']}', '{$gaugeSpr[$i]['no']}', '{$gaugeSpr[$i]['unit']}', {$gaugeSpr[$i]['num']}, '{$gaugeSpr[$i]['info']}', $bscid, 0), ";
 			}else{
-				$sql .= "('{$gaugeSpr[$i][0]}', '{$gaugeSpr[$i][1]}', '{$gaugeSpr[$i][2]}', '{$gaugeSpr[$i][3]}', {$gaugeSpr[$i][4]}, '{$gaugeSpr[$i][5]}', $bscid, 0) ";
+				$sql .= "('{$gaugeSpr[$i]['code']}', '{$gaugeSpr[$i]['name']}', '{$gaugeSpr[$i]['no']}', '{$gaugeSpr[$i]['unit']}', {$gaugeSpr[$i]['num']}, '{$gaugeSpr[$i]['info']}', $bscid, 0) ";
 			}
 		}
 		$res=$sqlHelper->dml($sql);
@@ -255,15 +254,13 @@ class gaugeService{
 			$logRes = 3;
 		}
 		$sql = "update gauge_spr_bsc set apvtime='$time',$apvInfo,see=1 where id=$id";
-		// echo "$sql";
-		// exit();
-		$res = $sqlHelper->dml($sql);
+		$res[] = $sqlHelper->dml($sql);
 		$sql = "update gauge_spr_dtl set res=1,see=1 where basic=$id";
 		$res[] = $sqlHelper->dml($sql);
 		$result = in_array(0,$res);
 		$sqlHelper->close_connect();
 		$this->flowLog($time,$logRes,$id);
-		return $res; 
+		return $result; 
 	}
 
 	function buyApvHis($paging){
