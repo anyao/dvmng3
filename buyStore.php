@@ -269,13 +269,6 @@ function sprStore(id,num){
   });
 }
 
-// 检定
-function apvSpr(id){
-  $("#apvSpr").modal({
-    keyboard:true
-  });
-}
-
     </script>
   </body>
 </html>

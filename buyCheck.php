@@ -158,19 +158,24 @@ tr:hover > th > .glyphicon-trash {
       <form class="form-horizontal" action="controller/gaugeProcess.php" method="post">
         <div class="modal-body">
           <div class="form-group">
-            <label class="col-sm-4 control-label">检定结果：</label>
-            <div class="col-sm-8">
-              <label class="radio-inline">
-                <input type="radio" name="checkRes" value="2" checked> 合格
-              </label>
-              <label class="radio-inline">
-                <input type="radio" name="checkRes" value="3"> 不合格 · 返厂
-              </label>
+            <label class="col-sm-4 control-label">合格数量：</label>
+            <div class="col-sm-7">
+                <div class="input-group input-group-sm" style="width:80%">
+                  <span class="input-group-btn">
+                    <button class="btn btn-default" type="button" id="numMinus"><span class="glyphicon glyphicon-minus"></span></button>
+                  </span>
+                  <input type="text" class="form-control" name='num' readonly="readonly" style="text-align: right;">
+                  <span class="input-group-btn">
+                    <button class="btn btn-default" type="button" id="numPlus"><span class="glyphicon glyphicon-plus"></span></button>
+                  </span>
+                </div>
             </div>
           </div>
           <div class="modal-footer">
             <input type="hidden" name="flag" value="checkSpr">
             <input type="hidden" name="id">
+            <!-- 2为合格，3为不合格 -->
+            <input type="hidden" name="checkRes" value='2'>
             <button class="btn btn-primary" id="yesCheckSpr">确认</button>
             <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
           </div>
@@ -342,7 +347,7 @@ tr:hover > th > .glyphicon-trash {
                 <td>{$row['factory']}{$row['depart']}</td>
                 <td>{$row['cljl']}</td>
                 <td>{$row['info']}</td>
-                <td><a class='glyphicon glyphicon-check' href='javascript:sprCheck({$row['id']},\"{$row['name']}\",\"{$row['no']}\");'></a></td>
+                <td><a class='glyphicon glyphicon-check' href='javascript:sprCheck({$row['id']},\"{$row['name']}\",\"{$row['no']}\",\"{$row['num']}\");'></a></td>
              </tr>";
              echo "$addHtml";
 
@@ -374,6 +379,25 @@ tr:hover > th > .glyphicon-trash {
 <script src="bootstrap/js/bootstrap-suggest.js"></script>
 <?php  include "./buyJs.php";?>
 <script type="text/javascript">
+// 入账的备件数目加
+$("#checkSpr #numPlus").click(function(){
+  var num = parseInt($("#checkSpr input[name=num]").val());
+  if (num != $(this).attr("max")) {
+    num++;
+    $("#checkSpr input[name=num]").val(num);
+  }
+});
+
+// 入账的备件数目减
+$("#checkSpr #numMinus").click(function(){
+  var num = parseInt($("#checkSpr input[name=num]").val());
+  if (num != 0) {
+    num--;
+    $("#checkSpr input[name=num]").val(num);
+  }
+});
+
+
 // 部门搜索提示
  $("#addSprInfo input[name=nDptCk]").bsSuggest({
     allowNoKeyword: false,
@@ -455,7 +479,10 @@ $(".datetime").datetimepicker({
 
 $("#yesCheckSpr").click(function(){
   var allow_submit = true;
-  var checkRes = $("#checkSpr input[name=checkRes]:checked").val();
+  var num = $("#checkSpr input[name=num]").val();
+  if (num == 0) {
+    $("#checkSpr input[name=checkRes]").val(3)
+  }
   if (checkRes == 2) {
     $("#addSprInfo").modal({
       keyboard:true
@@ -466,10 +493,12 @@ $("#yesCheckSpr").click(function(){
 });
 
 // 检定弹出框
-function sprCheck(id,name,no){
+function sprCheck(id,name,no,num){
   $("#addSprInfo input[name=name]").val(name+" "+no);
   $("#addSprInfo input[name=sprId]").val(id);
+  $("#checkSpr input[name=num]").val(num);
   $("#checkSpr input[name=id]").val(id);
+  $("#numPlus").attr('max',num);
   $("#checkSpr").modal({
     keyboard:true
   });
