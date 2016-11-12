@@ -335,7 +335,7 @@ class gaugeService{
 	// 备件申报入厂检定列表
 	function buyCheck($paging){
 		$sqlHelper = new sqlHelper();
-		$sql1 = "SELECT gauge_spr_dtl.id,code,name,no,num,unit,info,depart.depart,cljl,factory.depart as factory
+		$sql1 = "SELECT gauge_spr_dtl.id as id,code,name,no,num,unit,info,depart.depart,factory.depart as factory,0 as checknum
 				 FROM gauge_spr_dtl
 				 left join gauge_spr_bsc
 				 on gauge_spr_bsc.id=gauge_spr_dtl.basic
@@ -343,28 +343,63 @@ class gaugeService{
 				 on gauge_spr_bsc.depart=depart.id
 				 left join depart as factory
 				 on depart.fid=factory.id
-				 where res in(1,3)
-				 ".$this->authAnd." order by gauge_spr_dtl.id desc limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
-		$sql2 = "SELECT count(*)
-				 FROM gauge_spr_dtl
-				 left join gauge_spr_bsc
-				 on gauge_spr_bsc.id=gauge_spr_dtl.basic
-				 left join depart
-				 on gauge_spr_bsc.depart=depart.id
-				 left join depart as factory
-				 on depart.fid=factory.id
-				 where res in(1,3)".$this->authAnd;
+				 where res in(1,3) 
+				 union
+				 SELECT gauge_spr_dtl.id as id,code,name,no,num,unit,info,depart.depart,factory.depart as factory,count(gauge_spr_check.id) as checknum
+			     FROM gauge_spr_dtl
+			     left join gauge_spr_bsc
+			     on gauge_spr_bsc.id=gauge_spr_dtl.basic
+			     left join depart
+			     on gauge_spr_bsc.depart=depart.id
+			     left join depart as factory
+			     on depart.fid=factory.id
+			     right join gauge_spr_check
+			     on gauge_spr_dtl.id=gauge_spr_check.sprid  where res=2
+			     GROUP BY sprid
+			     HAVING count(gauge_spr_check.id)!=num
+				 order by id desc limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
+		$sql2 = "SELECT count(*) FROM
+				(
+				SELECT gauge_spr_dtl.id,num
+				FROM gauge_spr_dtl
+				left join gauge_spr_bsc
+				on gauge_spr_bsc.id=gauge_spr_dtl.basic
+				left join depart
+				on gauge_spr_bsc.depart=depart.id
+				left join depart as factory
+				on depart.fid=factory.id
+				where res in(1,3) 
+				union
+				SELECT gauge_spr_dtl.id,num
+				FROM gauge_spr_dtl
+				left join gauge_spr_bsc
+				on gauge_spr_bsc.id=gauge_spr_dtl.basic
+				left join depart
+				on gauge_spr_bsc.depart=depart.id
+				left join depart as factory
+				on depart.fid=factory.id
+				right join gauge_spr_check
+				on gauge_spr_dtl.id=gauge_spr_check.sprid  where res=2
+				GROUP BY sprid
+				HAVING count(gauge_spr_check.id)!=num
+				) as a";
 		$res = $sqlHelper->dqlPaging($sql1,$sql2,$paging);
 		$sqlHelper->close_connect();
 	}
 
 	// 入厂检定
 	function checkSpr($id,$checkRes,$checkTime){
+		if ($checkRes == 3) {
+			// 所有检定不合格
+			$logRes = 5;
+			$sql = "update gauge_spr_dtl set checktime='{$checkTime}',res=$checkRes,see=1 where id=$id";
+		}else{
+			// 有检定合格的
+			$logRes = 4;
+			$sql = "update gauge_spr_dtl set res=$checkRes,see=1 where id=$id";
+		}
 		$sqlHelper = new sqlHelper();
-		// 入厂检定不合格
-		$sql = "update gauge_spr_dtl set checktime='{$checkTime}', res=$checkRes, see=1 where id=$id";
 		$res = $sqlHelper->dml($sql);
-		$logRes = $checkRes + 2;
 		$sqlHelper->close_connect();
 		$this->flowLog($checkTime,$logRes,$id);
 		$this->bscSee($id);
@@ -374,25 +409,20 @@ class gaugeService{
 	// 备件申报入厂检定列表
 	function buyCheckHis($paging){
 		$sqlHelper = new sqlHelper();
-		$sql1 = "SELECT gauge_spr_dtl.id,code,name,no,num,unit,depart.depart,cljl,factory.depart as factory,checktime,res
-				 FROM gauge_spr_dtl
+		$sql1 = "SELECT gauge_spr_dtl.id as id,code,name,no,num,unit,depart.depart,factory.depart as factory,gauge_spr_check.checktime,count(gauge_spr_check.id) as total
+				 FROM gauge_spr_check
+				 left join gauge_spr_dtl
+				 on gauge_spr_check.sprid=gauge_spr_dtl.id
 				 left join gauge_spr_bsc
 				 on gauge_spr_bsc.id=gauge_spr_dtl.basic
 				 left join depart
 				 on gauge_spr_bsc.depart=depart.id
 				 left join depart as factory
 				 on depart.fid=factory.id
-				 where checktime is not null 
+				 group by sprid,checktime
 				 "." order by checktime desc limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
 		$sql2 = "SELECT count(*)
-				 FROM gauge_spr_dtl
-				 left join gauge_spr_bsc
-				 on gauge_spr_bsc.id=gauge_spr_dtl.basic
-				 left join depart
-				 on gauge_spr_bsc.depart=depart.id
-				 left join depart as factory
-				 on depart.fid=factory.id
-				 where checktime is not null ";
+				 FROM gauge_spr_check";
 		$res = $sqlHelper->dqlPaging($sql1,$sql2,$paging);
 		$sqlHelper->close_connect();
 	}
@@ -401,65 +431,85 @@ class gaugeService{
 		$dtl = $this->findWhere($code,$name,$no);
 		$where = "";
 		if (!empty($checkTime)) {
-			if ($dtl != "") {
-				$where .= " and checktime='{$checkTime}%' ";
-			}else{
+			// if ($dtl != "") {
+			// 	$where .= "$dtl and checktime='{$checkTime}%' ";
+			// }else{
 				$where .= " checktime='{$checkTime}%' ";
-			}
+			// }
 		}
+
 		if (!empty($depart)) {
 			if ($where != "") {
-				$where .= " and gauge_spr_bsc.depart=$depart ";
+				$where .= " and dptid=$depart ";
 			}else{
-				$where .= " gauge_spr_bsc.depart=$depart ";
+				$where .= " dptid=$depart ";
+			}
+		}
+
+		if ($dtl != "") {
+			if ($where != "") {
+				$where .= " and $dtl ";
+			}else{
+				$where .= $dtl;
 			}
 		}
 
 		$sqlHelper = new sqlHelper();
-		$sql1 = "SELECT gauge_spr_dtl.id,code,name,no,num,unit,depart.depart,cljl,factory.depart as factory,checktime,res
-				 FROM gauge_spr_dtl
+		$sql1 = "SELECT * FROM (
+				 SELECT gauge_spr_dtl.id as id,code,name,no,num,unit,depart.depart,factory.depart as factory,
+				 gauge_spr_check.checktime,count(gauge_spr_check.id) as total,gauge_spr_bsc.depart as dptid
+				 FROM gauge_spr_check
+				 left join gauge_spr_dtl
+				 on gauge_spr_check.sprid=gauge_spr_dtl.id
 				 left join gauge_spr_bsc
 				 on gauge_spr_bsc.id=gauge_spr_dtl.basic
 				 left join depart
 				 on gauge_spr_bsc.depart=depart.id
 				 left join depart as factory
 				 on depart.fid=factory.id
+				 group by sprid,checktime
+				 ) a
 				 where 
 				 ".$where." order by checktime desc limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
-		$sql2 = "SELECT count(*)
-				 FROM gauge_spr_dtl
+
+		$sql2 = "SELECT count(*) FROM (
+				 SELECT gauge_spr_dtl.id as id,code,name,no,num,unit,depart.depart,factory.depart as factory,
+				 gauge_spr_check.checktime,count(gauge_spr_check.id) as total,gauge_spr_bsc.depart as dptid
+				 FROM gauge_spr_check
+				 left join gauge_spr_dtl
+				 on gauge_spr_check.sprid=gauge_spr_dtl.id
 				 left join gauge_spr_bsc
 				 on gauge_spr_bsc.id=gauge_spr_dtl.basic
 				 left join depart
 				 on gauge_spr_bsc.depart=depart.id
 				 left join depart as factory
 				 on depart.fid=factory.id
-				 where".$where;
+				 group by sprid,checktime
+				 ) a
+				 where ".$where;
 		$res = $sqlHelper->dqlPaging($sql1,$sql2,$paging);
 		$sqlHelper->close_connect();
 	}
 
 	function buyStore($paging){
 		$sqlHelper = new sqlHelper();
-		$sql1 = "SELECT gauge_spr_dtl.id,code,name,no,num,unit,info,depart.depart,cljl,factory.depart as factory
-				 FROM gauge_spr_dtl
+		$sql1 = "SELECT gauge_spr_dtl.id as id,code,name,no,unit,depart.depart,factory.depart as factory,
+				 count(gauge_spr_check.id) as total,strflag
+				 FROM gauge_spr_check
+				 left join gauge_spr_dtl
+				 on gauge_spr_check.sprid=gauge_spr_dtl.id
 				 left join gauge_spr_bsc
 				 on gauge_spr_bsc.id=gauge_spr_dtl.basic
 				 left join depart
 				 on gauge_spr_bsc.depart=depart.id
 				 left join depart as factory
 				 on depart.fid=factory.id
-				 where res=2 
+				 group by sprid,gauge_spr_check.checktime
+				 having strflag is null
 				 ".$this->authAnd." limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
 		$sql2 = "SELECT count(*)
-				 FROM gauge_spr_dtl
-				 left join gauge_spr_bsc
-				 on gauge_spr_bsc.id=gauge_spr_dtl.basic
-				 left join depart
-				 on gauge_spr_bsc.depart=depart.id
-				 left join depart as factory
-				 on depart.fid=factory.id
-				 where res=2".$this->authAnd;
+				 from gauge_spr_check
+				 where strflag is null";
 		$res = $sqlHelper->dqlPaging($sql1,$sql2,$paging);
 		$sqlHelper->close_connect();
 	}
@@ -499,17 +549,25 @@ class gaugeService{
 		$dtl = $this->findWhere($code,$name,$no);
 		$where = "";
 		if (!empty($storeTime)) {
-			if ($dtl != "") {
-				$where .= " and storetime='{$storeTime}%' ";
-			}else{
+			// if ($dtl != "") {
+			// 	$where .= " and storetime='{$storeTime}%' ";
+			// }else{
 				$where .= " storetime='{$storeTime}%' ";
-			}
+			// }
 		}
 		if (!empty($depart)) {
 			if ($where != "") {
 				$where .= " and gauge_spr_bsc.depart=$depart ";
 			}else{
 				$where .= " gauge_spr_bsc.depart=$depart ";
+			}
+		}
+
+		if ($dtl != "") {
+			if ($where != "") {
+				$where .= " and $dtl ";
+			}else{
+				$where .= $dtl;
 			}
 		}
 
@@ -626,17 +684,25 @@ class gaugeService{
 		$dtl = $this->findWhere($code,$name,$no);
 		$where = "";
 		if (!empty($installTime)) {
-			if ($dtl != "") {
-				$where .= " and installtime='{$installTime}%' ";
-			}else{
+			// if ($dtl != "") {
+			// 	$where .= " and installtime='{$installTime}%' ";
+			// }else{
 				$where .= " installtime='{$installTime}%' ";
-			}
+			// }
 		}
 		if (!empty($depart)) {
 			if ($where != "") {
 				$where .= " and gauge_spr_bsc.depart=$depart ";
 			}else{
 				$where .= " gauge_spr_bsc.depart=$depart ";
+			}
+		}
+
+		if ($dtl != "") {
+			if ($where != "") {
+				$where .= " and $dtl ";
+			}else{
+				$where .= $dtl;
 			}
 		}
 
@@ -663,22 +729,29 @@ class gaugeService{
 		$sqlHelper->close_connect();
 	}
 
-	function addSprInCk($supplier,$accuracy,$scale,$codeManu,$certi,$checkNxt,$circle,$track,$sprId,$dptCk){
+	function addSprInCk($sprId,$check,$time){
 		$sqlHelper = new sqlHelper();
-		$sql = "insert into gauge_spr_check (sprid,supplier,accuracy,scale,codeManu,circle,checkDpt,checkNxt,track,certi) 
-				values($sprId,'{$supplier}',$accuracy,'{$scale}','{$codeManu}',$circle,'{$dptCk}','{$checkNxt}','{$track}','{$certi}')";
-		$res[] = $sqlHelper->dml($sql);
+		$sql = "insert into gauge_spr_check (sprid,supplier,accuracy,scale,codeManu,circle,checkDpt,checkNxt,track,certi,checktime) 
+				values ";
+		for ($i=1; $i <= count($check); $i++) { 
+			if ($i != count($check)) {
+				$sql .= "($sprId,'{$check[$i]['supplier']}',{$check[$i]['accuracy']},'{$check[$i]['scale']}','{$check[$i]['codeManu']}',{$check[$i]['circle']},{$check[$i]['dptCk']},'{$check[$i]['checkNxt']}','{$check[$i]['track']}','{$check[$i]['certi']}','{$time}'), ";
+			}else{
+				$sql .= "($sprId,'{$check[$i]['supplier']}',{$check[$i]['accuracy']},'{$check[$i]['scale']}','{$check[$i]['codeManu']}',{$check[$i]['circle']},{$check[$i]['dptCk']},'{$check[$i]['checkNxt']}','{$check[$i]['track']}','{$check[$i]['certi']}','{$time}') ";
+			}
+		}
+		$res = $sqlHelper->dml($sql);
 		$sqlHelper->close_connect();
 		return $res;
 	}
 
-	function getCkInfo($sprId){
+	function getCkInfo($checkTime,$sprId){
 		$sqlHelper = new sqlHelper();
 		$sql = "select supplier,accuracy,scale,codeManu,circle,depart.depart,checkNxt,track,certi from gauge_spr_check
 				left join depart
 				on checkDpt=depart.id
-				where sprid=$sprId";
-		$res = $sqlHelper->dql($sql);
+				where sprid=$sprId and checktime = '{$checkTime}'";
+		$res = $sqlHelper->dql_arr($sql);
 		$res = json_encode($res, JSON_UNESCAPED_UNICODE);
 		$sqlHelper->close_connect();
 		return $res;

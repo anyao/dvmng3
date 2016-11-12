@@ -164,7 +164,7 @@ tr:hover > th > .glyphicon-trash {
                   <span class="input-group-btn">
                     <button class="btn btn-default" type="button" id="numMinus"><span class="glyphicon glyphicon-minus"></span></button>
                   </span>
-                  <input type="text" class="form-control" name='num' readonly="readonly" style="text-align: right;">
+                  <input type="text" class="form-control" name='num' readonly="readonly" value='0' style="text-align: right;">
                   <span class="input-group-btn">
                     <button class="btn btn-default" type="button" id="numPlus"><span class="glyphicon glyphicon-plus"></span></button>
                   </span>
@@ -175,7 +175,7 @@ tr:hover > th > .glyphicon-trash {
             <input type="hidden" name="flag" value="checkSpr">
             <input type="hidden" name="id">
             <!-- 2为合格，3为不合格 -->
-            <input type="hidden" name="checkRes" value='2'>
+            <input type="hidden" name="checkRes" value='3'>
             <button class="btn btn-primary" id="yesCheckSpr">确认</button>
             <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
           </div>
@@ -327,7 +327,8 @@ tr:hover > th > .glyphicon-trash {
     <table class="table table-striped table-hover">
         <thead>
           <tr>
-            <th>存货编码</th><th>存货名称</th><th>规格型号</th><th>数量</th><th>申报部门</th><th>CLJL</th><th>备注描述</th><th style="width:4%"></th>
+            <th>存货编码</th><th>存货名称</th><th>规格型号</th><th>申报部门</th>
+            <th>申报总数</th><th>已检定</th><th>未检定</th><th style="width:4%"></th>
           </tr>
         </thead>
         <tbody class="tablebody">
@@ -337,16 +338,16 @@ tr:hover > th > .glyphicon-trash {
           }
           for ($i=0; $i < count($paging->res_array); $i++) { 
             $row = $paging->res_array[$i];
-            //  [id] => 1 [code] => 510740110018 [name] => 超声波流量计 [no] => TJZ-100B [num] => 3 [unit] => 个 [info] => test upt spr info [depart] => 能源部 [cljl] => CLJL-30-09 [factory] => 办公楼
+            $renum = $row['num'] - $row['checknum'];
             $addHtml = 
             "<tr>
                 <td>{$row['code']}</td>
                 <td><a href='javascript:flowInfo({$row['id']})'>{$row['name']}</td>
                 <td>{$row['no']}</td>
-                <td>{$row['num']} {$row['unit']}</td>
                 <td>{$row['factory']}{$row['depart']}</td>
-                <td>{$row['cljl']}</td>
-                <td>{$row['info']}</td>
+                <td>{$row['num']} {$row['unit']}</td>
+                <td>{$row['checknum']} {$row['unit']}</td>
+                <td>$renum {$row['unit']}</td>
                 <td><a class='glyphicon glyphicon-check' href='javascript:sprCheck({$row['id']},\"{$row['name']}\",\"{$row['no']}\",\"{$row['num']}\");'></a></td>
              </tr>";
              echo "$addHtml";
@@ -382,7 +383,8 @@ tr:hover > th > .glyphicon-trash {
 // 入账的备件数目加
 $("#checkSpr #numPlus").click(function(){
   var num = parseInt($("#checkSpr input[name=num]").val());
-  if (num != $(this).attr("max")) {
+  var max = $(this).attr("max");
+  if (num != max) {
     num++;
     $("#checkSpr input[name=num]").val(num);
   }
@@ -453,24 +455,6 @@ $("#yesAddInfo").click(function(){
 
   
 });
-// 检定周期加
-$("#addSprInfo #plus").click(function(){
-  var num = parseInt($("#addSprInfo input[name=circle]").val());
-  if (num != 12) {
-    num++;
-    $("#addSprInfo input[name=circle]").val(num);
-  }
-});
-
-// 检定周期减
-$("#addSprInfo #minus").click(function(){
-  var num = parseInt($("#addSprInfo input[name=circle]").val());
-  if (num != 1) {
-    num--;
-    $("#addSprInfo input[name=circle]").val(num);
-  }
-});
-
 
 //时间选择器
 $(".datetime").datetimepicker({
@@ -478,25 +462,21 @@ $(".datetime").datetimepicker({
 });
 
 $("#yesCheckSpr").click(function(){
-  var allow_submit = true;
+  var max = $("#numPlus").attr('max');
   var num = $("#checkSpr input[name=num]").val();
-  if (num == 0) {
-    $("#checkSpr input[name=checkRes]").val(3)
-  }
-  if (checkRes == 2) {
-    $("#addSprInfo").modal({
-      keyboard:true
-    });
-    allow_submit = false;
+  var sprId = $("#checkSpr input[name=id]").val();
+  var allow_submit = false;
+  if(num == 0){
+    // 全都不合格
+    allow_submit = true;
+  }else{
+    location.href="./buyCheckAdd.php?id="+sprId+"&num="+num;
   }
   return allow_submit;
 });
 
 // 检定弹出框
 function sprCheck(id,name,no,num){
-  $("#addSprInfo input[name=name]").val(name+" "+no);
-  $("#addSprInfo input[name=sprId]").val(id);
-  $("#checkSpr input[name=num]").val(num);
   $("#checkSpr input[name=id]").val(id);
   $("#numPlus").attr('max',num);
   $("#checkSpr").modal({

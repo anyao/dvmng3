@@ -110,6 +110,7 @@ if (!empty($_REQUEST['flag'])) {
 
 	// 入厂检定
 	else if ($flag == "checkSpr") {
+		// 入厂检定全部为不合格
 		$checkRes = $_POST['checkRes'];
 		$checkTime = date("Y-m-d H:i:s");
 		$id = $_POST['id'];
@@ -152,31 +153,27 @@ if (!empty($_REQUEST['flag'])) {
 	}
 
 	else if ($flag == "addSprInCk") {
-    	$supplier = $_GET['supplier'];
-    	$accuracy = $_GET['accuracy'];
-    	$scale = $_GET['scale'];
-    	$codeManu = $_GET['codeManu'];
-    	$certi = $_GET['certi'];
-    	$checkNxt = $_GET['checkNxt'];
-    	$circle = $_GET['circle'];
-    	$track = $_GET['track'];
-    	$sprId = $_GET['sprId'];
-    	$dptCk = $_GET['dptCk'];
-    	$res[] = $gaugeService->addSprInCk($supplier,$accuracy,$scale,$codeManu,$certi,$checkNxt,$circle,$track,$sprId,$dptCk); 
+		$sprId = $_POST['sprId'];
+		$check = $_POST['check'];
     	$time = date("Y-m-d H:i:s"); 
+		// 将合格数量的信息添加到check表当中去
+    	$res[] = $gaugeService->addSprInCk($sprId,$check,$time); 
+		// 将dtl表的sprid修改check信息
 		$res[] = $gaugeService->checkSpr($sprId,2,$time);
-		$res = !in_array(0,$res);
-    	echo $res;
-		exit();
+		if (!in_array(0,$res)) {
+			header("location: ./../buyCheckHis.php");
+		}else{
+			echo "操作失败。";
+		}
 	}
 
-	// 获取单个备件的入场检定信息
-	else if ($flag == "getCkInfo") {
-		$sprId = $_GET['sprId'];
-		$res = $gaugeService->getCkInfo($sprId);
-		echo "$res";
-		exit();
-	}
+	// // 获取单个备件的入场检定信息
+	// else if ($flag == "getCkInfo") {
+	// 	$sprId = $_GET['sprId'];
+	// 	$res = $gaugeService->getCkInfo($sprId);
+	// 	echo "$res";
+	// 	exit();
+	// }
 
 	// 库存在领取
 	else if ($flag == "takeSpr") {
@@ -262,6 +259,13 @@ if (!empty($_REQUEST['flag'])) {
 		exit();
 	}
 
+	else if ($flag == "getCkInfo") {
+		$checkTime = $_GET['checktime'];
+		$sprid = $_GET['sprid'];
+		$res = $gaugeService->getCkInfo($checkTime,$sprid);
+		echo "$res";
+		exit();
+	}
 
 
 }

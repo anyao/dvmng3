@@ -149,7 +149,7 @@ tr:hover > th > .glyphicon-trash {
     <table class="table table-striped table-hover">
         <thead>
           <tr>
-            <th>存货编码</th><th>存货名称</th><th>规格型号</th><th>数量</th><th>申报部门</th><th>CLJL</th><th>备注描述</th><th style="width:4%"></th>
+            <th>存货编码</th><th>存货名称</th><th>规格型号</th><th>申报部门</th><th>到货数量</th><th style="width:4%"></th>
           </tr>
         </thead>
         <tbody class="tablebody">
@@ -159,16 +159,16 @@ tr:hover > th > .glyphicon-trash {
           }
           for ($i=0; $i < count($paging->res_array); $i++) { 
             $row = $paging->res_array[$i];
+            // [id] => 1 [code] => 510740110018 [name] => 超声波流量计 [no] => TJZ-100B  [unit] => 个 [depart] => 能源部 
+            // [factory] => 办公楼 [total] => 1 [strflag] =>
             $addHtml = 
             "<tr>
                 <td>{$row['code']}</td>
                 <td><a href='javascript:flowInfo({$row['id']})'>{$row['name']}</td>
                 <td>{$row['no']}</td>
-                <td>{$row['num']} {$row['unit']}</td>
                 <td>{$row['factory']}{$row['depart']}</td>
-                <td>{$row['cljl']}</td>
-                <td>{$row['info']}</td>
-                <td><a class='glyphicon glyphicon-tags' href='javascript:sprStore({$row['id']},{$row['num']})'></a></td>
+                <td>{$row['total']} {$row['unit']}</td>
+                <td><a class='glyphicon glyphicon-tags' href='javascript:sprStore({$row['id']},{$row['total']})'></a></td>
              </tr>";
              echo "$addHtml";
 
@@ -176,7 +176,7 @@ tr:hover > th > .glyphicon-trash {
         ?>
         </tbody>
         </table>
-        <div class='page-count'><?php echo $paging->navi?></div>                    
+        <div class='page-count'><?php echo $paging->navi;?></div>                    
     </div>
     <div class="col-md-2">
     <div class="col-md-3">

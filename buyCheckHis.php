@@ -149,6 +149,33 @@ tr:hover > th > .glyphicon-trash {
   </div>
 </nav>
 
+<div class="modal fade" id='ckInfo'>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title">检定登记信息</h4>
+      </div>
+      <div class="modal-body">
+        <table class="table table-striped table-hover">
+          <thead>
+            <tr>
+              <th>出厂编号</th><th>制造厂</th><th>精度等级</th><th>量程</th><th>检定周期(月)</th><th>检定部门</th>
+              <th>检定日期</th><th>溯源方式</th><th>证书结论</th>
+            </tr>
+          </thead>
+          <tbody class="tablebody">
+            
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+        <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
 
 <div class="container">
   <div class="row">
@@ -158,8 +185,8 @@ tr:hover > th > .glyphicon-trash {
     </div>
     <table class="table table-striped table-hover">
         <thead>
-          <tr>
-            <th style="width:4%"></th><th>检定时间</th><th>存货编码</th><th>存货名称</th><th>规格型号</th><th>数量</th><th>申报部门</th>
+          <tr><th>检定时间</th><th>检定数量</th>
+            <th>存货编码</th><th>存货名称</th><th>规格型号</th><th>申报部门</th>
             <th style="width:4%"></th><th style="width:4%"></th>
           </tr>
         </thead>
@@ -176,28 +203,16 @@ tr:hover > th > .glyphicon-trash {
             $row = $paging->res_array[$i];
             //  [id] => 1 [code] => 510740110018 [name] => 超声波流量计 [no] => TJZ-100B [num] => 3 [unit] => 个 [info] => test upt spr info [depart] => 能源部 [cljl] => CLJL-30-09 [factory] => 办公楼
             // glyphicon glyphicon-transfer
-            $checkInfo = "<td><a href='javascript:void(0);' class='glyphicon glyphicon-";
-            if ($row['res'] == 3) {
-              $checkInfo .= "transfer";
-              $fold = "<td></td>";
-            }else{
-              $checkInfo .= "ok";
-              $fold = "<td><a class='glyphicon glyphicon-resize-small' href='javascript:void(0)' onclick='ckInfo(this,{$row['id']});'></a></td>";
-            }
-            $checkInfo .= "' style='display:inline;cursor:default'></a></td>";
-
-
             $addHtml = 
             "<tr>
-                ".$fold."
                 <td>{$row['checktime']}</td>
+                <td>{$row['total']} {$row['unit']}</td>
                 <td>{$row['code']}</td>
                 <td><a href='javascript:flowInfo({$row['id']});'>{$row['name']}</td>
                 <td>{$row['no']}</td>
-                <td>{$row['num']} {$row['unit']}</td>
                 <td>{$row['factory']}{$row['depart']}</td>
                 <td><a class='glyphicon glyphicon-shopping-cart' href='javascript:flowInfo({$row['id']});'></a></td>
-                ".$checkInfo."
+                <td><a class='glyphicon glyphicon-folder-open' href='javascript:getCkInfo({$row['id']},\"{$row['checktime']}\");'></a></td>
              </tr>";
              echo "$addHtml";
 
@@ -224,46 +239,38 @@ tr:hover > th > .glyphicon-trash {
 <script src="bootstrap/js/bootstrap-suggest.js"></script>
 <?php  include "./buyJs.php";?>
 <script type="text/javascript">
-function ckInfo(obj,id){
-  var flagIcon=$(obj).attr("class");
-  var $rootTr=$(obj).parents("tr");
-  // 列表是否未展开
-  if (flagIcon=="glyphicon glyphicon-resize-small") {
-    // 展开
-    $(obj).removeClass(flagIcon).addClass("glyphicon glyphicon-resize-full");
-    $.get("controller/gaugeProcess.php",{
-      flag:'getCkInfo',
-      sprId:id
-    },function(data,success){
-      var addHtml = "<tr class='open-"+id+"'>"+
-                    "   <td colspan='12'>"+
-                    "     <div class='row'>"+
-                    "       <div class='col-md-4'>"+
-                    "         <p><b>制造厂：</b>"+data.supplier+"</p>"+
-                    "         <p><b>精度等级：</b>"+data.accuracy+"</p>"+
-                    "         <p><b>量程：</b>"+data.scale+"</p>"+
-                    "       </div>"+
-                    "       <div class='col-md-4'>"+
-                    "         <p><b>出厂编号：</b>"+data.codeManu+"</p>"+
-                    "         <p><b>检定周期(月)：</b>"+data.circle+"</p>"+
-                    "         <p><b>检定部门：</b>"+data.depart+"</p>"+
-                    "       </div>"+
-                    "       <div class='col-md-4'>"+
-                    "         <p><b>检定日期：</b>"+data.checkNxt+"</p>"+
-                    "         <p><b>溯源方式：</b>"+data.track+"</p>"+
-                    "         <p><b>证书结论：</b>"+data.certi+"</p>"+    
-                    "       </div>"+
-                    "     </div>"+
-                    "   </td>"+
-                    " </tr>";
-      $rootTr.after(addHtml);
-    },'json');
-  }else{
-    $(obj).removeClass(flagIcon).addClass("glyphicon glyphicon-resize-small");
-    $(".open-"+id).detach();
-  }
+function getCkInfo(sprid,checktime){
+  $.get("./controller/gaugeProcess.php",{
+    flag:'getCkInfo',
+    checktime:checktime,
+    sprid:sprid
+  },function(data,success){
+    // [{"supplier":"qwe","accuracy":"1.200","scale":"1-12","codeManu":"123456","circle":"6","depart":"能源部",
+    // "checkNxt":"2016-11-10","track":"检定","certi":"aqikn"}]
+    var addHtml = "";
+    for (var i = 0; i < data.length; i++) {
+      // <th>制造厂</th><th>精度等级</th><th>量程</th><th>出厂编号</th><th>检定周期(月)</th><th>检定部门</th>
+      // <th>检定日期</th><th>溯源方式</th><th>证书结论</th>
+      addHtml += "<tr>"+
+                 "   <td>"+data[i].codeManu+"</td>"+
+                 "   <td>"+data[i].supplier+"</td>"+
+                 "   <td>"+data[i].accuracy+"</td>"+
+                 "   <td>"+data[i].scale+"</td>"+
+                 "   <td>"+data[i].circle+"</td>"+
+                 "   <td>"+data[i].depart+"</td>"+
+                 "   <td>"+data[i].checkNxt+"</td>"+
+                 "   <td>"+data[i].track+"</td>"+
+                 "   <td>"+data[i].certi+"</td>"+
+                 " </tr>";
+    }
+    $("#ckInfo tbody").empty().append(addHtml);
+    $("#ckInfo").modal({
+      keyboard:false,
+    });
+
+  },'json');
 }
 
-    </script>
-  </body>
+</script>
+</body>
 </html>

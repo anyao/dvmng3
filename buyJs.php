@@ -167,7 +167,7 @@ function flowNow(i,len,res){
 				$addHtml += $icon+"请修改后再重新提交...</li>";
 				break;
 			case 4:
-				$addHtml += $icon+"等待入厂...</li>";
+				$addHtml += $icon+"等待存库入账...</li>";
 				break;
 			case 5:
 				$addHtml += $icon+"等待重新入厂...</li>";
