@@ -494,7 +494,7 @@ class gaugeService{
 	function buyStore($paging){
 		$sqlHelper = new sqlHelper();
 		$sql1 = "SELECT gauge_spr_dtl.id as id,code,name,no,unit,depart.depart,factory.depart as factory,
-				 count(gauge_spr_check.id) as total,strflag
+				 count(gauge_spr_check.id) as total,resStore
 				 FROM gauge_spr_check
 				 left join gauge_spr_dtl
 				 on gauge_spr_check.sprid=gauge_spr_dtl.id
@@ -505,11 +505,11 @@ class gaugeService{
 				 left join depart as factory
 				 on depart.fid=factory.id
 				 group by sprid,gauge_spr_check.checktime
-				 having strflag is null
+				 having resStore is null
 				 ".$this->authAnd." limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
 		$sql2 = "SELECT count(*)
 				 from gauge_spr_check
-				 where strflag is null";
+				 where resStore is null";
 		$res = $sqlHelper->dqlPaging($sql1,$sql2,$paging);
 		$sqlHelper->close_connect();
 	}

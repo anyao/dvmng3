@@ -124,6 +124,7 @@ if (!empty($_REQUEST['flag'])) {
 
 	// 存库入账
 	else if($flag == "storeSpr"){
+		// 两件事
 		$id = $_POST['id']; 
 		$storeRes = $_POST['storeRes']; 
 		$storeTime = date("Y-m-d H:i:s");
