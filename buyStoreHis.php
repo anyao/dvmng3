@@ -152,8 +152,7 @@ tr:hover > th > .glyphicon-trash {
     <table class="table table-striped table-hover">
         <thead>
           <tr>
-            <th>入账时间</th><th>存货编码</th><th>存货名称</th><th>规格型号</th><th>申报部门</th>
-            <th>申报总数</th>
+            <th>入账时间</th><th>存货名称</th><th>存货编码</th><th>出厂编号</th><th>规格型号</th><th>入库人员</th>
           </tr>
         </thead>
         <tbody class="tablebody">
@@ -163,14 +162,16 @@ tr:hover > th > .glyphicon-trash {
           }
           for ($i=0; $i < count($paging->res_array); $i++) { 
             $row = $paging->res_array[$i];
+             // [id] => 14 [sprid] => 14 [code] => 510740110017 [name] => 流量计B [no] => TJZ-100B [codeManu] => 123456 
+             // [storeTime] => 2016-11-15 14:44:59 [storeUser] => admin
             $addHtml = 
             "<tr>
-                <td>{$row['storetime']}</td>
+                <td>{$row['storeTime']}</td>
+                <td><a href='javascript:flowInfo({$row['sprid']})'>{$row['name']}</td>
                 <td>{$row['code']}</td>
-                <td><a href='javascript:flowInfo({$row['id']})'>{$row['name']}</td>
+                <td>{$row['codeManu']}</td>
                 <td>{$row['no']}</td>
-                <td>{$row['factory']}{$row['depart']}</td>
-                <td>{$row['num']} {$row['unit']}</td>
+                <td>{$row['storeUser']}</td>
              </tr>";
              echo "$addHtml";
 
@@ -196,8 +197,5 @@ tr:hover > th > .glyphicon-trash {
 <script src="tp/bootstrap-datetimepicker.zh-CN.js"></script>
 <script src="bootstrap/js/bootstrap-suggest.js"></script>
 <?php  include "./buyJs.php";?>
-<script type="text/javascript">
-
-    </script>
-  </body>
+</body>
 </html>

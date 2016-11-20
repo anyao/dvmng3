@@ -124,34 +124,17 @@ if (!empty($_REQUEST['flag'])) {
 
 	// 存库入账
 	else if($flag == "storeSpr"){
-		// 两件事
-		$id = $_POST['id']; 
-		$storeRes = $_POST['storeRes']; 
+		$storeId = json_decode($_GET['idArr']);
+		$storeUser = $_SESSION['user'];
 		$storeTime = date("Y-m-d H:i:s");
-		$num = $_POST['num'];
-		$res = $gaugeService->storeSpr($id, $storeRes, $storeTime, $num);
+		$res = $gaugeService->storeSpr($storeId,$storeUser,$storeTime);
 		if ($res != 0) {
-			header("location: ./../buyStore.php");
-			exit();
-		}else{
-			echo "操作失败，请联系管理员";
+			echo "success";
 			exit();
 		}
 	}
 
-	// 安装验收备件，在dtl表中添加devid和installtime
-	else if($flag == "useSpr"){
-		$dateInstall = $_POST['dateInstall'];
-		$pid = $_POST['pid'];
-		$number = $_POST['number'];
-		$para = $_POST['para'];
-		$sprId = $_POST['sprId'];
 
-		// 先添加备件基本信息
-		$devId = $gaugeService->transSpr($sprId,$number,'正常',$pid,$dateInstall);
-		$res = $gaugeService->useDtl($devId,$para);
-
-	}
 
 	else if ($flag == "addSprInCk") {
 		$sprId = $_POST['sprId'];
@@ -178,33 +161,49 @@ if (!empty($_REQUEST['flag'])) {
 
 	// 库存在领取
 	else if ($flag == "takeSpr") {
+		$takeUser = $_POST['takeUser'];
+		$id = implode(",",json_decode($_POST['id']));
 		$dptId = $_POST['dptId'];
-		$sprId = $_POST['id'];
-		$num = $_POST['num'];
+		$takeAdmin = $_SESSION['user'];
 		$takeTime = date("Y-m-d H:i:s");
-		$res = $gaugeService->takeSpr($sprId, $takeTime, $num,$dptId);
+		$res = $gaugeService->takeSpr($takeUser,$id,$dptId,$takeUser,$takeTime);
 		if ($res != 0) {
-			header("location: ./../buyStoreHouse.php");
-			exit();
-		}else{
-			echo "操作失败。";
+			echo "success";
 			exit();
 		}
+
 	}
 
 	// 查看库存入库、领取、再领取的时间
 	else if ($flag == "getStoreInfo") {
-		$sprId = $_GET['sprId'];
-		$res = $gaugeService->getStoreInfo($sprId);
+		$id = $_GET['id'];
+		$res = $gaugeService->getStoreInfo($id);
 		echo "$res";
 		exit();
 	}
 
+
 	else if ($flag == "spareSpr") {
-		$num = $_GET['num'];
-		$id = $_GET['id'];
-		$res = $gaugeService->transSpr($id,$num,'备用',0,0);
+		$num = 1;
+		$id = $_POST['id'];
+		$logTime = date("Y-m-d H:i:s");
+		$res = $gaugeService->transSpr($id,$num,'备用',0,$logTime);
 		echo "$res";
+		exit();
+	}
+
+		// 安装验收备件，在dtl表中添加devid和installtime
+	else if($flag == "useSpr"){
+		$dateInstall = $_POST['dateInstall'];
+		$pid = $_POST['pid'];
+		$number = 1;
+		$para = $_POST['para'];
+		$id = $_POST['id'];
+
+		// 先添加备件基本信息
+		$devId = $gaugeService->transSpr($id,$number,'正常',$pid,$dateInstall);
+		$res = $gaugeService->useDtl($devId,$para);
+		echo $devId;
 		exit();
 	}
 

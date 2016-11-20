@@ -3,7 +3,6 @@ require_once "model/cookie.php";
 require_once "model/repairService.class.php";
 require_once 'model/paging.class.php';
 require_once 'model/gaugeService.class.php';
-// require_once 'model/dptService.class.php';
 checkValidate();
 $user=$_SESSION['user'];
 
@@ -41,6 +40,10 @@ if (empty($_POST['flag'])) {
 <link rel="icon" href="img/favicon.ico">
 <title>备件入账存库-仪表管理</title>
 <style type="text/css">
+.tablebody > tr > td:nth-child(2) > a {
+    display: inline !important;
+}
+
 .open > th, .open > td{
   background-color:#F0F0F0;
 }
@@ -162,9 +165,9 @@ tr:hover > th > .glyphicon-trash {
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">备件领取安装</h4>
+        <h4 class="modal-title">备件出库·领取</h4>
       </div>
-      <form class="form-horizontal" action="controller/gaugeProcess.php" method="post">
+      <form class="form-horizontal" id="formTake">
         <div class="modal-body">
           <div class="form-group">
             <label class="col-sm-4 control-label">申领部门：</label>
@@ -183,17 +186,9 @@ tr:hover > th > .glyphicon-trash {
             </div>
           </div>
           <div class="form-group">
-            <label class="col-sm-4 control-label">领取数量：</label>
+            <label class="col-sm-4 control-label">领取人：</label>
             <div class="col-sm-6">
-              <div class="input-group">
-                  <span class="input-group-btn">
-                    <button class="btn btn-default" type="button" id="minus"><span class="glyphicon glyphicon-minus"></span></button>
-                  </span>
-                  <input type="text" class="form-control" name='num' readonly="readonly" >
-                  <span class="input-group-btn">
-                    <button class="btn btn-default" type="button" id="plus"><span class="glyphicon glyphicon-plus"></span></button>
-                  </span>
-                </div>
+              <input type="text" class="form-control" name='takeUser'>
             </div>
           </div>
           </div>
@@ -201,13 +196,14 @@ tr:hover > th > .glyphicon-trash {
             <input type="hidden" name="flag" value="takeSpr">
             <input type="hidden" name="id">
             <input type="hidden" name="dptId">
-            <button class="btn btn-primary" id="yesTakeSpr">确认</button>
+            <button class="btn btn-primary" id="yesTake" type="button">确认</button>
             <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
           </div>
         </form>
     </div>
   </div>
 </div>
+
 
 <div class="container">
   <div class="row">
@@ -218,9 +214,9 @@ tr:hover > th > .glyphicon-trash {
     <table class="table table-striped table-hover">
         <thead>
           <tr>
-            <th style="width:4%"></th>
-            <th>入库时间</th><th>存货编码</th><th>存货名称</th><th>规格型号</th><th>申报总数</th><th>领取数量</th><th>库存数量</th>
-            <th style="width:4%"></th>
+            <th style="width:4%"></th><th style="width:4%"></th>
+            <th>存货编码</th><th>出厂编号</th><th>存货名称</th><th>规格型号</th><th>入库时间</th>
+            <th style="width:4%"><span class="glyphicon glyphicon-th-list" style='cursor:pointer;display:none'></span></th>
           </tr>
         </thead>
         <tbody class="tablebody">
@@ -234,22 +230,15 @@ tr:hover > th > .glyphicon-trash {
           }
           for ($i=0; $i < count($paging->res_array); $i++) { 
             $row = $paging->res_array[$i];
-             // [id] => 1 [code] => 510740110018 [name] => 超声波流量计 [no] => TJZ-100B [num] => 3 [unit] => 个 
-             // [storetime] => 2016-10-23 14:43:32 [resnum] => 1 [takenum] => 1
-            $storeNum = $row['num'] - $row['resnum'] - $row['takenum'];
-            $takeNum = $row['resnum'] + $row['takenum'];
-            $remain = "<td><a class='glyphicon glyphicon-log-out' href='javascript:takeSpr({$row['id']},$storeNum);'></a></td>";
-
             $addHtml = 
             "<tr>
-                <td><a class='glyphicon glyphicon-resize-small' href='javascript:void(0)' onclick='storeInfo(this,{$row['id']});'></a></td>
-                <td>{$row['storetime']}</td><td>{$row['code']}</td>
-                <td><a href='javascript:flowInfo({$row['id']})'>{$row['name']}</td>
-                <td>{$row['no']}</td>
-                <td>{$row['num']} {$row['unit']}</td>
-                <td>$takeNum {$row['unit']}</td>
-                <td>$storeNum {$row['unit']}</td>
-                ".$remain."
+              <td><a class='glyphicon glyphicon-unchecked' href='javascript:void(0);' chosen='{$row['id']}'></a></td>
+              <td><a class='glyphicon glyphicon-resize-small' href='javascript:void(0)' onclick='storeInfo(this,{$row['id']});'></a></td>
+              <td>{$row['code']}</td><td>{$row['codeManu']}</td>
+              <td><a href='javascript:flowInfo({$row['sprid']})'>{$row['name']}</td>
+              <td>{$row['no']}</td>
+              <td>{$row['storeTime']}</td>
+              <td><a class='glyphicon glyphicon-log-out' href='javascript:takeSpr({$row['id']});'></a></td>
              </tr>";
              echo "$addHtml";
 
@@ -275,6 +264,67 @@ tr:hover > th > .glyphicon-trash {
 <script src="bootstrap/js/bootstrap-suggest.js"></script>
 <?php  include "./buyJs.php";?>
 <script type="text/javascript">
+// 确认领取按钮
+$("#yesTake").click(function(){
+  var dptid = $("#takeSpr input[name=nDpt]").val();
+  var takeUser =$("#takeSpr input[name=takeUser]").val();
+  if (dptid.length == 0) {
+     $("#failDpt").modal({
+      keyboard:true
+     });
+     return false;
+  }
+
+  if (takeUser.length == 0) {
+    $("#failAdd").modal({
+      keyboard:true
+     });
+     return false;
+  }
+   $.post("./controller/gaugeProcess.php",$("#formTake").serialize(),function(data,success){
+    if (data == 'success') {
+      location.href="./buyStoreHouse.php";
+    }
+  },'text');
+});
+
+
+function takeSpr(str){
+  if (!isNaN(str)) {
+    str = '["'+str+'"]';
+  }
+  $("#takeSpr input[name=id]").val(str);
+  $("#takeSpr").modal({
+    keyboard:true
+  });
+}
+
+
+// 多选出库
+$(".glyphicon-th-list").click(function(){
+  var arr = new Array();
+  var i = 0;
+  $(".glyphicon-check").each(function(){
+    arr[i] = $(this).attr('chosen');
+    i++;
+  });
+  ajaxArr = JSON.stringify(arr);
+  takeSpr(ajaxArr);
+});
+
+
+// 多选按钮
+$(".tablebody").on("click","tr>td:first-child>a",function checked(){
+    $(this).toggleClass("glyphicon glyphicon-unchecked");
+    $(this).toggleClass("glyphicon glyphicon-check");
+    var isChosen = $(".glyphicon-check").length;
+    if (isChosen != 0) {
+      $(".glyphicon-th-list").show();
+    }else{
+      $(".glyphicon-th-list").hide();
+    }
+});
+
 // 入账的备件数目加
 $("#takeSpr #plus").click(function(){
   var num = parseInt($("#takeSpr input[name=num]").val());
@@ -293,16 +343,6 @@ $("#takeSpr #minus").click(function(){
   }
 });
 
-// 确认领取备件按钮
-$("#yesTakeSpr").click(function(){
-  var notNull = $("#takeSpr input[name=nDpt]").val();
-  if (notNull.length == 0) {
-    $("#failAdd").modal({
-      keyboard:true
-    });
-    return false;
-  }
-});
 
 // // 部门搜索提示
 //  $("#takeSpr input[name=nDpt]").bsSuggest({
@@ -324,14 +364,7 @@ $("#yesTakeSpr").click(function(){
 //     console.log("onUnsetSelectValue");
 // });
 
-function takeSpr(id,storeNum){
-  $("#takeSpr input[name=id]").val(id);
-  $("#takeSpr input[name=num]").val(storeNum);
-  $("#takeSpr #plus").attr("max",storeNum);
-  $("#takeSpr").modal({
-    keyboard:true
-  });
-}
+
 
 function storeInfo(obj,id){
   var flagIcon=$(obj).attr("class");
@@ -342,23 +375,28 @@ function storeInfo(obj,id){
     $(obj).removeClass(flagIcon).addClass("glyphicon glyphicon-resize-full");
     $.get("controller/gaugeProcess.php",{
       flag:'getStoreInfo',
-      sprId:id
+      id:id
     },function(data,success){
-      // {"storetime":"2016-10-23 14:43:32","num":"3","resnum":"1",
-      // "0":[{"taketime":"2016-10-23 15:13:33","takenum":"1","depart":"能源部","factory":"办公楼"}]}
       var addHtml = "<tr class='open-"+id+"'>"+
                     "   <td colspan='12'>"+
                     "     <div class='row'>"+
-                    "       <div class='col-md-12'>"+
-                    "         <p><b>"+data.storetime+"：</b> 入账总数 "+data.num+data.unit+" ，由原申报部门领取 "+data.resnum+data.unit+"</p>";
-      for (var i = 0; i < data.take.length; i++) {
-        // data.take[i]
-        addHtml += "<p><b>"+data.take[i].taketime+"：</b>"+data.take[i].factory+data.take[i].depart+" 领取 "+data.take[i].takenum+data.unit+"</p>";
-      }
-      addHtml +=   "       </div>"+
-                   "     </div>"+
-                   "   </td>"+
-                   " </tr>";
+                    "       <div class='col-md-4'>"+
+                    "         <p><b>制造厂：</b> "+data.supplier+" </p>"+
+                    "         <p><b>精度等级：</b> "+data.accuracy+" </p>"+
+                    "         <p><b>量程：</b> "+data.scale+" </p>"+
+                    "       </div>"+
+                    "       <div class='col-md-4'>"+
+                    "         <p><b>检定周期：</b> "+data.circle+" </p>"+
+                    "         <p><b>溯源方式：</b> "+data.track+" </p>"+
+                    "         <p><b>证书结论：</b> "+data.certi+" </p>"+
+                    "       </div>"+
+                    "       <div class='col-md-4'>"+
+                    "         <p><b>检定部门：</b> "+data.factory+data.depart+" </p>"+
+                    "         <p><b>入库人：</b> "+data.storeUser+" </p>"+
+                    "       </div>"+
+                    "     </div>"+
+                    "   </td>"+
+                    " </tr>";
       $rootTr.after(addHtml);
     },'json');
   }else{

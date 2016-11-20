@@ -64,7 +64,7 @@ tr:hover > th > .glyphicon-trash {
     margin-top: 7px !important;
 }*/
 
-#installSpr .modal-body{
+#useSpr .modal-body{
   padding-top: 8px !important;
   padding-bottom: 8px !important;
 }
@@ -165,12 +165,12 @@ tr:hover > th > .glyphicon-trash {
 </nav>
 
 <!-- 备件是否存入小仓库 -->
-<div class="modal fade" id="ifStore">
-  <div class="modal-dialog" role="document">
+<div class="modal fade" id="spareSpr">
+  <div class="modal-dialog modal-sm" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">备件安装验收</h4>
+        <h4 class="modal-title">备件备用</h4>
       </div>
       <form class="form-horizontal" id="spareForm">
         <div class="modal-body">
@@ -178,27 +178,12 @@ tr:hover > th > .glyphicon-trash {
             <div class="ifStore">
               <b>是否需要存入备用仓库？</b>
             </div>
-            <div class="form-group">
-              <label class="col-sm-4 control-label">存库数量：</label>
-              <div class="col-sm-6">
-                <div class="input-group input-group-sm">
-                    <span class="input-group-btn">
-                      <button class="btn btn-default" type="button" id="minus"><span class="glyphicon glyphicon-minus"></span></button>
-                    </span>
-                    <input type="text" class="form-control" name='num' readonly="readonly" >
-                    <span class="input-group-btn">
-                      <button class="btn btn-default" type="button" id="plus"><span class="glyphicon glyphicon-plus"></span></button>
-                    </span>
-                  </div>
-              </div>
-            </div>
-            
           </div>
           </div>
           <div class="modal-footer">
             <input type="hidden" name="flag" value="spareSpr">
             <input type="hidden" name="id">
-            <button class="btn btn-primary" id="yesSpareSpr" type="button">备用</button>
+            <button class="btn btn-primary" id="yesSpare" type="button">备用</button>
             <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
           </div>
         </form>
@@ -207,8 +192,8 @@ tr:hover > th > .glyphicon-trash {
 </div>
 
 <!-- 添加新设备弹出框 -->
-<form class="form-horizontal" method="post" id="formSpr">
-  <div class="modal fade" id="installSpr" role="dialog" >
+<form class="form-horizontal" method="post" id="useForm">
+  <div class="modal fade" id="useSpr" role="dialog" >
     <div class="modal-dialog modal-lg" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -242,10 +227,12 @@ tr:hover > th > .glyphicon-trash {
                 </div>
               </div>
 
-              <div class="form-group">
-                <label class="col-sm-3 control-label">使用数量：</label>
+              
+              
+               <div class="form-group">
+                <label class="col-sm-3 control-label">确认日期：</label>
                 <div class="col-sm-8">
-                  <input type="text" class="form-control" name="number" readonly>
+                  <input type="text" class="form-control datetime" name="para[92]" readonly>
                 </div>
               </div>
 
@@ -303,10 +290,10 @@ tr:hover > th > .glyphicon-trash {
                 </div>
               </div>
 
-              <div class="form-group">
-                <label class="col-sm-3 control-label">确认日期：</label>
+             <div class="form-group">
+                <label class="col-sm-3 control-label">使用数量：</label>
                 <div class="col-sm-8">
-                  <input type="text" class="form-control datetime" name="para[92]" readonly>
+                  <input type="text" class="form-control" name="number" value="1" readonly>
                 </div>
               </div>
 
@@ -322,9 +309,9 @@ tr:hover > th > .glyphicon-trash {
         </div>
         <div class="modal-footer">
           <input type="hidden" name="pid">
-          <input type="hidden" name="sprId">
+          <input type="hidden" name="id">
           <input type="hidden" name="flag" value="useSpr">
-          <button type="button" class="btn btn-primary" id="yesInstall">确定添加</button>
+          <button type="button" class="btn btn-primary" id="yesUse">确定添加</button>
           <button class="btn btn-default" data-dismiss="modal">取消</button>
         </div>
       </div>
@@ -342,9 +329,9 @@ tr:hover > th > .glyphicon-trash {
         <thead>
           <tr>
             <th style="width:4%"></th>
-            <th>领取时间</th><th>存货编码</th><th>存货名称</th><th>规格型号</th><th>数量</th><th style="width:4%"></th>
+            <th>领取时间</th><th>出厂编号</th><th>存货名称</th><th>存货编码</th><th>规格型号</th>
+            <th>领取人</th><th>领取部门</th><th style="width:4%"></th><th style="width:4%"></th>
           </tr>
-
         </thead>
         <tbody class="tablebody">
         <?php 
@@ -353,17 +340,18 @@ tr:hover > th > .glyphicon-trash {
           }
           for ($i=0; $i < count($paging->res_array); $i++) { 
             $row = $paging->res_array[$i];
-             // [id] => 1 [code] => 510740110018 [name] => 超声波流量计 [no] => TJZ-100B [resnum] => 1 
-             // [unit] => 个 [storetime] => 2016-10-23 14:43:32 
             $addHtml = 
             "<tr>
-                <td><a class='glyphicon glyphicon-resize-small' href='javascript:void(0)' onclick='ckInfo(this,{$row['id']});'></a></td>
-                <td>{$row['storetime']}</td>
+                <td><a class='glyphicon glyphicon-resize-small' href='javascript:void(0)' onclick='storeInfo(this,{$row['id']});'></a></td>
+                <td>{$row['takeTime']}</td>
+                <td>{$row['codeManu']}</td>
+                <td><a href='javascript:flowInfo({$row['sprid']})'>{$row['name']}</td>
                 <td>{$row['code']}</td>
-                <td><a href='javascript:flowInfo({$row['id']})'>{$row['name']}</td>
                 <td>{$row['no']}</td>
-                <td>{$row['resnum']} {$row['unit']}</td>
-                <td><a class='glyphicon glyphicon-cog' href='javascript:ifStore({$row['id']},{$row['resnum']});'></a></td>
+                <td>{$row['takeUser']}</td>
+                <td>{$row['factory']}{$row['depart']}</td>
+                <td><a class='glyphicon glyphicon-briefcase' href='javascript:spareSpr({$row['id']});'></a></td>
+                <td><a class='glyphicon glyphicon-cog' href='javascript:useSpr({$row['id']});'></a></td>
              </tr>";
              echo "$addHtml";
 
@@ -392,50 +380,22 @@ tr:hover > th > .glyphicon-trash {
 <script src="bootstrap/js/bootstrap-suggest.js"></script>
 <?php  include "./buyJs.php";?>
 <script type="text/javascript">
-$("#yesSpareSpr").click(function(){
-  var total = $("#ifStore #plus").attr("max");
-  var num = $("#ifStore input[name=num]").val();
-  var sprId = $("#ifStore input[name=id]").val();
-  $('#ifStore').modal('hide');
-  if (total != num) {
-    var dif = total - num;
-    $("#installSpr input[name=number]").val(dif);
-    $("#installSpr input[name=sprId]").val(sprId);
-    $("#installSpr").modal({
-      keyboard:true
-    });
-  }else{
-     $.get("./controller/gaugeProcess.php",$("#spareForm").serialize(),function(data,success){
-      // alert(data);
-        location.href="./controller/gaugeProcess.php?flag=endSpr&id="+sprId;
-     },"text");     
-  }
+function spareSpr(id){
+  $("#spareSpr input[name=id]").val(id);
+  $("#spareSpr").modal({
+    keyboard:true
+  });
+}
 
-
+$("#yesSpare").click(function(){
+   $.post("./controller/gaugeProcess.php",$("#spareForm").serialize(),function(data,success){
+      location.href="./spare.php?id="+data;
+   },"text");     
 });
     
-    
-
-// 入账的备件数目加
-$("#ifStore #plus").click(function(){
-  var num = parseInt($("#ifStore input[name=num]").val());
-  if (num != $(this).attr("max")) {
-    num++;
-    $("#ifStore input[name=num]").val(num);
-  }
-});
-
-// 入账的备件数目减
-$("#ifStore #minus").click(function(){
-  var num = parseInt($("#ifStore input[name=num]").val());
-  if (num != 0) {
-    num--;
-    $("#ifStore input[name=num]").val(num);
-  }
-});
 
 // 展开备件的检定信息 
-function ckInfo(obj,id){
+function storeInfo(obj,id){
   var flagIcon=$(obj).attr("class");
   var $rootTr=$(obj).parents("tr");
   // 列表是否未展开
@@ -443,26 +403,25 @@ function ckInfo(obj,id){
     // 展开
     $(obj).removeClass(flagIcon).addClass("glyphicon glyphicon-resize-full");
     $.get("controller/gaugeProcess.php",{
-      flag:'getCkInfo',
-      sprId:id
+      flag:'getStoreInfo',
+      id:id
     },function(data,success){
       var addHtml = "<tr class='open-"+id+"'>"+
                     "   <td colspan='12'>"+
                     "     <div class='row'>"+
                     "       <div class='col-md-4'>"+
-                    "         <p><b>制造厂：</b>"+data.supplier+"</p>"+
-                    "         <p><b>精度等级：</b>"+data.accuracy+"</p>"+
-                    "         <p><b>量程：</b>"+data.scale+"</p>"+
+                    "         <p><b>制造厂：</b> "+data.supplier+" </p>"+
+                    "         <p><b>精度等级：</b> "+data.accuracy+" </p>"+
+                    "         <p><b>量程：</b> "+data.scale+" </p>"+
                     "       </div>"+
                     "       <div class='col-md-4'>"+
-                    "         <p><b>出厂编号：</b>"+data.codeManu+"</p>"+
-                    "         <p><b>检定周期(月)：</b>"+data.circle+"</p>"+
-                    "         <p><b>检定部门：</b>"+data.depart+"</p>"+
+                    "         <p><b>检定周期：</b> "+data.circle+" </p>"+
+                    "         <p><b>溯源方式：</b> "+data.track+" </p>"+
+                    "         <p><b>证书结论：</b> "+data.certi+" </p>"+
                     "       </div>"+
                     "       <div class='col-md-4'>"+
-                    "         <p><b>检定日期：</b>"+data.checkNxt+"</p>"+
-                    "         <p><b>溯源方式：</b>"+data.track+"</p>"+
-                    "         <p><b>证书结论：</b>"+data.certi+"</p>"+    
+                    "         <p><b>检定部门：</b> "+data.factory+data.depart+" </p>"+
+                    "         <p><b>入库人：</b> "+data.storeUser+" </p>"+
                     "       </div>"+
                     "     </div>"+
                     "   </td>"+
@@ -475,8 +434,9 @@ function ckInfo(obj,id){
   }
 }
 
+
 // 父设备搜索建议
-$("#installSpr input[name=pname]").bsSuggest({
+$("#useSpr input[name=pname]").bsSuggest({
     allowNoKeyword: false,
     showBtn: false,
     indexId:3,
@@ -494,7 +454,7 @@ $("#installSpr input[name=pname]").bsSuggest({
     console.log('onSetSelectValue: ', keyword, data);
      var pid=$(this).attr("data-id");
     if (pid!="" && typeof(pid)!="undefined") {
-      $("#installSpr input[name=pid]").val(pid);
+      $("#useSpr input[name=pid]").val(pid);
     }
 }).on('onUnsetSelectValue', function (e) {
     console.log("onUnsetSelectValue");
@@ -503,32 +463,35 @@ $("#installSpr input[name=pname]").bsSuggest({
 
 
 // 添加子设备确认添加按钮
-$("#yesInstall").click(function(){
+$("#yesUse").click(function(){
   // 添加新设备信息不完整时，弹出提示框
   var allow_submit = true;
-  $("#installSpr .form-control").each(function(){
+  var pid = $("#useSpr input[name=pid]").val();
+  if (pid == "") {
+    $('#failDpt').modal({
+          keyboard: true
+    });
+    allow_submit = false;
+    return allow_submit;
+  }
+
+  $("#useSpr .form-control[name!=pname]").each(function(){
     if ($(this).val()=="") {
       $('#failAdd').modal({
           keyboard: true
       });
       allow_submit = false;
-      return allow_submit;
+      return false;
     }
   }); 
-  if (allow_submit == true) {
-    var num = $("#ifStore input[name=num]").val();
-    var sprId= $("#installSpr input[name=sprId]").val();
-    $.post("./controller/gaugeProcess.php",$("#formSpr").serialize(),function(data,success){
-      if (num !=0 ) {
-        $.get("./controller/gaugeProcess.php",$("#spareForm").serialize(),function(data,success){
-          location.href="./controller/gaugeProcess.php?flag=endSpr&id="+sprId;
-        },"text");        
-      }else{
-        location.href="./controller/gaugeProcess.php?flag=endSpr&id="+sprId;
-      }
-    },'text');
-  }
 
+  if (allow_submit == true) {
+    $.post("./controller/gaugeProcess.php",$("#useForm").serialize(),function(data,success){
+        location.href="./usingSon.php?id="+data;
+    },'text');
+  }else{
+    return allow_submit;
+  }
 });
 
 //时间选择器
@@ -537,11 +500,9 @@ $(".datetime").datetimepicker({
 });
 
 // 新设备是否备用
-function ifStore(id,resnum){
-  $("#ifStore input[name=id]").val(id);
-  $("#ifStore input[name=num]").val(resnum);
-  $("#ifStore #plus").attr("max",resnum);
-  $("#ifStore").modal({
+function useSpr(id){
+  $("#useSpr input[name=id]").val(id);
+  $("#useSpr").modal({
     keyboard:true
   });
 }

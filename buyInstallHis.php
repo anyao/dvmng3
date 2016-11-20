@@ -24,7 +24,6 @@ if (empty($_POST['flag'])) {
   $code = $_POST['sprCode'];
   $name = $_POST['sprName'];
   $no = $_POST['sprNo'];
-
   $gaugeService->buyInstallFind($installTime,$depart,$code,$name,$no,$paging);
 }
 ?>
@@ -152,7 +151,6 @@ tr:hover > th > .glyphicon-trash {
   </div>
 </nav>
 
-
 <div class="modal fade"  id="noInfo" >
   <div class="modal-dialog modal-sm" role="document">
     <div class="modal-content">
@@ -240,8 +238,10 @@ tr:hover > th > .glyphicon-trash {
     <table class="table table-striped table-hover">
         <thead>
           <tr>
-            <th>验收时间</th><th>存货编码</th><th>存货名称</th><th>规格型号</th><th>数量</th><th>申报部门</th>
-            <th style="width:4%"></th><th style="width:4%"></th>
+            <th style="width:4%"></th>
+            <th>验收时间</th><th>存货编码</th><th>存货名称</th><th>规格型号</th><th>出厂编号</th><th>验收部门</th><th>操作人员</th>
+            <th style="width:4%"></th>
+            <th style="width:4%"><span class='glyphicon glyphicon-save' id='downXls' style='cursor:pointer;display:none'></span></th>
           </tr>
         </thead>
         <tbody class="tablebody">
@@ -255,25 +255,26 @@ tr:hover > th > .glyphicon-trash {
           }
           for ($i=0; $i < count($paging->res_array); $i++) { 
             $row = $paging->res_array[$i];
-             // [sprid] => 2 [devid] => 198 [trsftime] => [name] => 超声波流量计 [code] => 510740110011 [number] => 2 
-             // [state] => 正常 [depart] => 竖炉车间 [factory] => 新区竖炉
-            if ($row['state'] == "正常") {
+            if ($row['res'] == 4) {
               $url = "usingSon";
               $icon = "glyphicon glyphicon-play-circle";
+              $xlsx = "<a class='glyphicon glyphicon-save' href='javascript:downXls({$row['devid']})'></a>";
             }else{
               $url = "spare";
               $icon = "glyphicon glyphicon-briefcase";
+              $xlsx = "";
             }
             $addHtml = 
             "<tr>
-                <td>{$row['trsftime']}</td>
+                <td><a class='glyphicon glyphicon-unchecked' href='javascript:void(0);' chosen='{$row['devid']}'></a></td>
+                <td>{$row['trsfTime']}</td>
                 <td>{$row['code']}</td>
                 <td><a href='javascript:flowInfo({$row['sprid']})'>{$row['name']}</td>
                 <td>{$row['no']}</td>
-                <td>{$row['number']}</td>
-                <td>{$row['factory']}{$row['depart']}</td>
+                <td>{$row['codeManu']}</td>
+                <td>{$row['factory']}{$row['depart']}</td><td>{$row['trsfUser']}</td>
                 <td><a class='{$icon}' href='./{$url}.php?id={$row['devid']}' style='display:inline;'></a></td>
-                <td><a class='glyphicon glyphicon-save' href='javascript:downXls({$row['devid']})' style='display:inline;'></a></td>
+                <td>".$xlsx."</td>
              </tr>";
              echo "$addHtml";
             // <td><a class='glyphicon glyphicon-save' href='./xlsx/sprInstall.php?id={$row['id']}' style='display:inline;'></a></td>
@@ -299,10 +300,32 @@ tr:hover > th > .glyphicon-trash {
 <script src="bootstrap/js/bootstrap-suggest.js"></script>
 <?php  include "./buyJs.php";?>
 <script type="text/javascript">
+$("#downXls").click(function(){
+  var arr = new Array();
+  var i = 0;
+  $(".glyphicon-check").each(function(){
+    arr[i] = $(this).attr('chosen');
+    i++;
+  });
+  arr = JSON.stringify(arr);
+  location.href='./xlsx/sprInfo.php?dev='+arr;
+});
+
+// 多选按钮
+$(".tablebody").on("click","tr>td:first-child>a",function checked(){
+    $(this).toggleClass("glyphicon glyphicon-unchecked");
+    $(this).toggleClass("glyphicon glyphicon-check");
+    var isChosen = $(".glyphicon-check").length;
+    if (isChosen != 0) {
+      $("#downXls").show();
+    }else{
+      $("#downXls").hide();
+    }
+});
+
 $("#yesInstall").click(function(){
   var allow_submit = true;
   $("#installInfo input,#installInfo textarea").each(function() {
-    // alert($(this))
     if ($(this).val() == "") {
       allow_submit = false;
       $("#failAdd").modal({
@@ -321,12 +344,13 @@ $("#addInfo").click(function(){
 });
 
 function downXls(id){
+
   $.get("./controller/gaugeProcess.php",{
     flag:'installXls',
     devid:id
   },function(data,success){
     if (data == 0) {
-      $("#installInfo input[name=sprId]").val(id);
+      $("#installInfo input[name=devId]").val(id);
       $("#noInfo").modal({
         keyboard:true
       });

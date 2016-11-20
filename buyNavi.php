@@ -327,7 +327,7 @@
             </div>
             </div>
             <div class="modal-footer">
-              <input type="hidden" name="flag" value="findStore">
+              <input type="hidden" name="flag" value="findInstall">
               <input type="hidden" name="dptId">
               <button type="submit" class="btn btn-primary yesFind">搜索</button>
               <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>

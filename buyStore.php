@@ -149,7 +149,9 @@ tr:hover > th > .glyphicon-trash {
     <table class="table table-striped table-hover">
         <thead>
           <tr>
-            <th>存货编码</th><th>存货名称</th><th>规格型号</th><th>申报部门</th><th>到货数量</th><th style="width:4%"></th>
+            <th style="width:4%"></th>
+            <th>存货编码</th><th>出厂编号</th><th>存货名称</th><th>规格型号</th><th>申报部门</th><th>入厂时间</th>
+            <th style="width:4%"><span class="glyphicon glyphicon-tags" style='cursor:pointer;display:none'></span></th>
           </tr>
         </thead>
         <tbody class="tablebody">
@@ -159,16 +161,17 @@ tr:hover > th > .glyphicon-trash {
           }
           for ($i=0; $i < count($paging->res_array); $i++) { 
             $row = $paging->res_array[$i];
-            // [id] => 1 [code] => 510740110018 [name] => 超声波流量计 [no] => TJZ-100B  [unit] => 个 [depart] => 能源部 
-            // [factory] => 办公楼 [total] => 1 [strflag] =>
+            // [id] => 11 [codeManu] => 123456 [code] => 78911 [name] => test2 [no] => 451kkk [depart] => 竖炉车间 [factory] => 新区竖炉 
             $addHtml = 
             "<tr>
+                <td><a class='glyphicon glyphicon-unchecked' href='javascript:void(0);' chosen='{$row['id']}'></a></td>
                 <td>{$row['code']}</td>
-                <td><a href='javascript:flowInfo({$row['id']})'>{$row['name']}</td>
+                <td>{$row['codeManu']}</td>
+                <td><a href='javascript:flowInfo({$row['sprid']})'>{$row['name']}</td>
                 <td>{$row['no']}</td>
                 <td>{$row['factory']}{$row['depart']}</td>
-                <td>{$row['total']} {$row['unit']}</td>
-                <td><a class='glyphicon glyphicon-tags' href='javascript:sprStore({$row['id']},{$row['total']})'></a></td>
+                <td>{$row['checkTime']}</td>
+                <td><a class='glyphicon glyphicon-tag' href='javascript:sprStore({$row['id']})'></a></td>
              </tr>";
              echo "$addHtml";
 
@@ -188,7 +191,7 @@ tr:hover > th > .glyphicon-trash {
 
 
 <!-- 审核弹出框 -->
-<div class="modal fade" id="storeSpr">
+<!-- <div class="modal fade" id="storeSpr">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -197,19 +200,11 @@ tr:hover > th > .glyphicon-trash {
       </div>
       <form class="form-horizontal" action="controller/gaugeProcess.php" method="post">
         <div class="modal-body">
-          <div class="form-group">
-            <label class="col-sm-4 control-label">处理结果：</label>
-            <div class="col-sm-8">
-              <label class="radio-inline">
-                <input type="radio" name="storeRes" value="5" checked> 入账·领取安装
-              </label>
-            </div>
-          </div>
            <div class="form-group">
-            <label class="col-sm-4 control-label">分配数量：</label>
-            <div class="col-sm-8">
+            <label class="col-sm-5 control-label">申报部门领取数量：</label>
+            <div class="col-sm-7">
               <div class="col-sm-5" style="padding-left: 0px;">
-                <div class="input-group input-group-sm" style="width:80%">
+                <div class="input-group input-group-sm">
                   <span class="input-group-btn">
                     <button class="btn btn-default" type="button" id="minus"><span class="glyphicon glyphicon-minus"></span></button>
                   </span>
@@ -231,8 +226,43 @@ tr:hover > th > .glyphicon-trash {
         </form>
     </div>
   </div>
+</div> -->
+
+<!-- 确认存库警告框 多个-->
+<div class="modal fade"  id="ifStoreMulti" >
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+         <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
+         </div>
+         <div class="modal-body"><br/>
+            <div class="loginModal">确定要入账存库您所选中的备件吗？</div><br/>
+         </div>
+         <div class="modal-footer">  
+          <button type="button" class="btn btn-primary" id='yesStoreMulti'>确定</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+        </div>
+    </div>
+  </div>
 </div>
 
+<!-- 确认存库警告框  单个-->
+<div class="modal fade"  id="ifStoreOne" >
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+         <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
+         </div>
+         <div class="modal-body"><br/>
+            <div class="loginModal">确定要入账存库该备件吗？</div><br/>
+         </div>
+         <div class="modal-footer">  
+          <button type="button" class="btn btn-primary" id='yesStoreOne'>确定</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+        </div>
+    </div>
+  </div>
+</div>
 
 <script src="bootstrap/js/jquery.js"></script>
 <script src="bootstrap/js/bootstrap.js"></script>
@@ -241,6 +271,52 @@ tr:hover > th > .glyphicon-trash {
 <script src="bootstrap/js/bootstrap-suggest.js"></script>
 <?php  include "./buyJs.php";?>
 <script type="text/javascript">
+$("#yesStoreOne").click(function(){
+  var id = '["'+$(this).attr('store')+'"]';
+  AjaxStore(id);
+});
+
+function AjaxStore(str){
+   $.get("./controller/gaugeProcess.php",{
+    flag:'storeSpr',
+    idArr:str
+  },function(data,success){
+    if (data == 'success') {
+      location.href="./buyStoreHouse.php";
+    }
+  },'text');
+}
+
+// 确认存库按钮
+$("#yesStoreMulti").click(function(){
+  var arr = new Array();
+  var i = 0;
+  $(".glyphicon-check").each(function(){
+    arr[i] = $(this).attr('chosen');
+    i++;
+  });
+  AjaxStore(JSON.stringify(arr));
+});
+
+// 多个备件同时入库
+$(".glyphicon-tags").click(function(){
+  $("#ifStoreMulti").modal({
+    keyboard:true
+  });
+});
+
+// 多选按钮
+$(".tablebody").on("click","tr>td:first-child>a",function checked(){
+    $(this).toggleClass("glyphicon glyphicon-unchecked");
+    $(this).toggleClass("glyphicon glyphicon-check");
+    var isChosen = $(".glyphicon-check").length;
+    if (isChosen != 0) {
+      $(".glyphicon-tags").show();
+    }else{
+      $(".glyphicon-tags").hide();
+    }
+});
+
 // 入账的备件数目加
 $("#storeSpr #plus").click(function(){
   var num = parseInt($("#storeSpr input[name=num]").val());
@@ -259,12 +335,9 @@ $("#storeSpr #minus").click(function(){
   }
 });
 
-// 检定弹出框
-function sprStore(id,num){
-  $("#storeSpr input[name=id]").val(id);
-  $("#storeSpr input[name=num]").val(num);
-  $("#plus").attr("max",num);
-  $("#storeSpr").modal({
+function sprStore(id){
+  $("#yesStoreOne").attr('store',id);
+  $("#ifStoreOne").modal({
     keyboard:true
   });
 }

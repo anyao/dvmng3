@@ -205,14 +205,14 @@ tr:hover > th > .glyphicon-trash {
             // glyphicon glyphicon-transfer
             $addHtml = 
             "<tr>
-                <td>{$row['checktime']}</td>
+                <td>{$row['checkTime']}</td>
                 <td>{$row['total']} {$row['unit']}</td>
                 <td>{$row['code']}</td>
                 <td><a href='javascript:flowInfo({$row['id']});'>{$row['name']}</td>
                 <td>{$row['no']}</td>
                 <td>{$row['factory']}{$row['depart']}</td>
                 <td><a class='glyphicon glyphicon-shopping-cart' href='javascript:flowInfo({$row['id']});'></a></td>
-                <td><a class='glyphicon glyphicon-folder-open' href='javascript:getCkInfo({$row['id']},\"{$row['checktime']}\");'></a></td>
+                <td><a class='glyphicon glyphicon-folder-open' href='javascript:getCkInfo({$row['id']},\"{$row['checkTime']}\");'></a></td>
              </tr>";
              echo "$addHtml";
 

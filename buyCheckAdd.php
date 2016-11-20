@@ -48,11 +48,15 @@ $dptAll = $dptService->getDpt();
     
     .part > .col-md-4 > .input-group{
       margin:5px;
+    }
+
+    .part > .col-md-12 > .input-group{
+      margin:5px;
     } 
 
-    .nDptCk{
+    /*.nDptCk{
       border-radius: 0px !important; 
-    }
+    }*/
   </style>
 <link rel="stylesheet" href="tp/datetimepicker.css">
 <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
@@ -230,6 +234,12 @@ include "message.php";
                "        </div>".
                "   </div>  ".
                " </div>".
+               " <div class='col-md-12'>".
+               "   <div class='input-group'>".
+               "     <span class='input-group-addon'>检定人员</span>".
+               "     <input type='text' class='form-control' name='check[".$i."][checkUser]' placeholder='可填写多个姓名，用逗号隔开'>".
+               "   </div>  ".
+               " </div>".
                "</div>";
     }
     echo "$addHtml";
@@ -305,7 +315,7 @@ $(".minus").click(function(){
 // 部门搜索提示
  $(".nDptCk").bsSuggest({
     allowNoKeyword: false,
-    showBtn: false,
+    // showBtn: false,
     indexId:2,
     // indexKey: 1,
     data: {
