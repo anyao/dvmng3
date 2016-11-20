@@ -17,6 +17,11 @@ class gaugeService{
 				$this->authAnd="";
 				$this->instal="";
 				break;
+			case 'a':
+				$this->authWhr="";
+				$this->authAnd="";
+				$this->instal="";
+				break;
 			case '1':
 				$sql="select id from depart where id=$upid or path in('%-{$upid}','%-{$upid}-%')";
 				$upid=$sqlHelper->dql_arr($sql);
@@ -230,6 +235,8 @@ class gaugeService{
 		switch ($_SESSION['permit']) {
 			case 0:
 				$res = 1;
+				break;
+			case 'a':
 				break;
 			default:
 				$sqlHelper = new sqlHelper();

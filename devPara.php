@@ -79,7 +79,12 @@ include "message.php";
   <div id="navbar" class="navbar-collapse collapse">
     <ul class="nav navbar-nav">
       <li><a href="homePage.php">首页</a></li>
-      <li><a href="javascript:void(0)">设备购置</a></li>
+      <li class="dropdown">
+          <a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown" role="button">设备购置 <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="buyGauge.php">仪表备件申报</a></li>
+          </ul>
+        </li>
       <li class="dropdown active">
         <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">设备档案 <span class="caret"></span></a>
         <ul class="dropdown-menu">

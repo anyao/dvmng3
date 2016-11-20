@@ -97,7 +97,7 @@ tr:hover > th > .glyphicon-trash {
         <li class="active dropdown">
           <a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown" role="button">设备购置 <span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="buyApply.php">仪表备件申报</a></li>
+            <li><a href="buyGauge.php">仪表备件申报</a></li>
           </ul>
         </li>
         <li class="dropdown">
