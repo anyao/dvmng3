@@ -186,7 +186,8 @@ if (empty($_REQUEST['flag']) && empty($_GET['fct']) && empty($_GET['dpt'])) {
             </div>
     <table class="table table-striped table-hover">
         <thead><tr>
-            <th>　</th><th>编号</th><th>设备名称</th><th>运行状态</th><th>运行天数</th><th>上次巡检</th><th>上次维修</th>
+            <th>　</th><th>编号</th><th>设备名称</th><th>运行状态</th><th>运行天数</th><th>类别</th>
+            <th>上次巡检</th><th>上次维修</th>
             <th><span style='cursor: pointer;' class="glyphicon glyphicon-import"></span></th>
             <th>&nbsp;&nbsp;&nbsp;&nbsp;</th>
           </tr></thead>
@@ -196,13 +197,28 @@ if (empty($_REQUEST['flag']) && empty($_GET['fct']) && empty($_GET['dpt'])) {
                 $row=$paging->res_array[$i];
                 $son=$devService->IfHasSon($row['id']);
                 $timediff = $devService->timediff($row['dateInstall'],$row['dateEnd']);
-                if($son['count(id)']==0){
+                if ($row['class'] == '仪表') {
                   $info="<tr>
                           <td></td>
                           <td>{$row['code']}</td>
                           <td><a href='using.php?id={$row['id']}'>{$row['name']}</a></td>
-                          <td>{$row['state']}</td><td>{$timediff[0]}{$timediff[1]}</td>
+                          <td>{$row['state']}</td>
+                          <td>{$timediff[0]}{$timediff[1]}</td><td>{$row['class']}</td>
                           <td>{$row['insp']}</td><td>{$row['rep']}</td>
+                          
+                          <td></td>
+                          <td><span class='glyphicon glyphicon-trash' id='{$row['id']}'></span></td>
+                        </tr>";
+                }
+                else if($son['count(id)']==0){
+                  $info="<tr>
+                          <td></td>
+                          <td>{$row['code']}</td>
+                          <td><a href='using.php?id={$row['id']}'>{$row['name']}</a></td>
+                          <td>{$row['state']}</td>
+                          <td>{$timediff[0]}{$timediff[1]}</td><td>{$row['class']}</td>
+                          <td>{$row['insp']}</td><td>{$row['rep']}</td>
+                          
                           <td><span class='glyphicon glyphicon-import' id='{$row['id']}'></span></td>
                           <td><span class='glyphicon glyphicon-trash' id='{$row['id']}'></span></td>
                         </tr>";
@@ -211,8 +227,10 @@ if (empty($_REQUEST['flag']) && empty($_GET['fct']) && empty($_GET['dpt'])) {
                           <td><a name='openChild' class='glyphicon glyphicon-plus' value='{$row['id']}'></a></td>
                           <td>{$row['code']}</td>
                           <td><a href='using.php?id={$row['id']}'>{$row['name']}</a></td>
-                          <td>{$row['state']}</td><td>{$timediff[0]}{$timediff[1]}</td>
+                          <td>{$row['state']}</td>
+                          <td>{$timediff[0]}{$timediff[1]}</td><td>{$row['class']}</td>
                           <td>{$row['insp']}</td><td>{$row['rep']}</td>
+                          
                           <td><span class='glyphicon glyphicon-import' id='{$row['id']}'></span></td>
                           <td><span class='glyphicon glyphicon-trash' id='{$row['id']}'></span></td>
                         </tr>";

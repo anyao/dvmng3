@@ -195,13 +195,12 @@ if (!empty($_REQUEST['flag'])) {
 		// 安装验收备件，在dtl表中添加devid和installtime
 	else if($flag == "useSpr"){
 		$dateInstall = $_POST['dateInstall'];
-		$pid = $_POST['pid'];
 		$number = 1;
 		$para = $_POST['para'];
 		$id = $_POST['id'];
 
 		// 先添加备件基本信息
-		$devId = $gaugeService->transSpr($id,$number,'正常',$pid,$dateInstall);
+		$devId = $gaugeService->transSpr($id,$number,'正常',0,$dateInstall);
 		$res = $gaugeService->useDtl($devId,$para);
 		echo $devId;
 		exit();

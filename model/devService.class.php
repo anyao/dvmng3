@@ -33,7 +33,7 @@ class devService{
 
 	function getPaging($paging){	
 		$sqlHelper=new sqlHelper();
-		$sql1="	select id,code,name,state,insp,rep,dateInstall,dateEnd
+		$sql1="	select id,code,name,state,insp,rep,dateInstall,dateEnd,class
 				from device 
 				left join 
 				(select time as insp,devid from insplist where id in (select max(id) from insplist group by devid)) as insptime

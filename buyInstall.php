@@ -206,17 +206,7 @@ tr:hover > th > .glyphicon-trash {
               <div class="form-group">
                 <label class="col-sm-3 control-label">安装地点：</label>
                 <div class="col-sm-8">
-                  <div class="input-group">
-                    <input type="text" name="pname" class="form-control">
-                    <div class="input-group-btn">
-                      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                      <span class="caret"></span>
-                      </button>
-                      <ul class="dropdown-menu dropdown-menu-right" role="menu">
-                      </ul>
-                    </div>
-                    <!-- /btn-group -->
-                  </div>
+                  <input type="text" class="form-control" name="para[94]">
                 </div>
               </div>
 
@@ -308,7 +298,6 @@ tr:hover > th > .glyphicon-trash {
 
         </div>
         <div class="modal-footer">
-          <input type="hidden" name="pid">
           <input type="hidden" name="id">
           <input type="hidden" name="flag" value="useSpr">
           <button type="button" class="btn btn-primary" id="yesUse">确定添加</button>
@@ -435,47 +424,14 @@ function storeInfo(obj,id){
 }
 
 
-// 父设备搜索建议
-$("#useSpr input[name=pname]").bsSuggest({
-    allowNoKeyword: false,
-    showBtn: false,
-    indexId:3,
-    // indexKey: 1,
-    data: {
-         'value':
-         <?php 
-          $allDev=$devService->getDevAll();
-          echo "$allDev";
-         ?>
-    }
-}).on('onDataRequestSuccess', function (e, result) {
-    console.log('onDataRequestSuccess: ', result);
-}).on('onSetSelectValue', function (e, keyword, data) {
-    console.log('onSetSelectValue: ', keyword, data);
-     var pid=$(this).attr("data-id");
-    if (pid!="" && typeof(pid)!="undefined") {
-      $("#useSpr input[name=pid]").val(pid);
-    }
-}).on('onUnsetSelectValue', function (e) {
-    console.log("onUnsetSelectValue");
-});
-
 
 
 // 添加子设备确认添加按钮
 $("#yesUse").click(function(){
   // 添加新设备信息不完整时，弹出提示框
   var allow_submit = true;
-  var pid = $("#useSpr input[name=pid]").val();
-  if (pid == "") {
-    $('#failDpt').modal({
-          keyboard: true
-    });
-    allow_submit = false;
-    return allow_submit;
-  }
 
-  $("#useSpr .form-control[name!=pname]").each(function(){
+  $("#useSpr .form-control").each(function(){
     if ($(this).val()=="") {
       $('#failAdd').modal({
           keyboard: true
@@ -487,6 +443,7 @@ $("#yesUse").click(function(){
 
   if (allow_submit == true) {
     $.post("./controller/gaugeProcess.php",$("#useForm").serialize(),function(data,success){
+      // alert(data);
         location.href="./usingSon.php?id="+data;
     },'text');
   }else{

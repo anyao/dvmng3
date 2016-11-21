@@ -632,7 +632,7 @@ class gaugeService{
 				 left join depart as factory
 				 on factory.id=depart.fid
 				 where gauge_spr_check.res in(4,5) "
-				 .$this->authAnd."order by id desc  limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
+				 .$this->authAnd."order by trsfTime desc  limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
 		$sql2 = "SELECT count(*)
 				 from gauge_spr_check
 				 left join depart
@@ -756,22 +756,21 @@ class gaugeService{
 
 	function transSpr($id,$num,$state,$pid,$installTime){
 		$sqlHelper = new sqlHelper();
-
 		$depart = $_SESSION['dptid'];
 		$sql = "select fid from depart where id=$depart";
 		$fct = $sqlHelper->dql($sql);
 
 		if ($state == "正常") {
-			$sql="select path from device where id=$pid";
-			$pathPrt=$sqlHelper->dql($sql);
-			$path=$pathPrt['path']."-".$pid;
 			$sql = "INSERT INTO device 
-					(name,code,no,class,factory,depart,state,`number`,supplier,`path`,dateInstall,pid)
-					select name,code,no,'仪表',{$fct['fid']},$depart,'{$state}',$num,supplier,'{$path}','{$installTime}',$pid
+					(name,code,no,class,factory,depart,state,`number`,supplier,dateInstall,pid)
+					select name,code,no,'仪表',{$fct['fid']},$depart,'{$state}',$num,supplier,'{$installTime}',0
 					from gauge_spr_dtl
 					left join gauge_spr_check
 					on gauge_spr_check.sprid=gauge_spr_dtl.id
 					where gauge_spr_check.id=$id";
+					// echo "$sql";
+					// exit();
+
 			$result = 4;
 			$logRes  = 8;
 		}else{
