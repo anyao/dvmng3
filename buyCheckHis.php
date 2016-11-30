@@ -160,8 +160,8 @@ tr:hover > th > .glyphicon-trash {
         <table class="table table-striped table-hover">
           <thead>
             <tr>
-              <th>出厂编号</th><th>制造厂</th><th>精度等级</th><th>量程</th><th>检定周期(月)</th><th>检定部门</th>
-              <th>检定日期</th><th>溯源方式</th><th>证书结论</th>
+              <th>设备名称</th><th>规格型号</th><th>精度等级</th><th>量程</th><th>出厂编号</th><th>制造厂</th>
+              <th>检定周期(月)</th><th>检定部门</th><th>检定日期</th><th>溯源方式</th><th>证书结论</th>
             </tr>
           </thead>
           <tbody class="tablebody">
@@ -245,17 +245,18 @@ function getCkInfo(sprid,checktime){
     checktime:checktime,
     sprid:sprid
   },function(data,success){
-    // [{"supplier":"qwe","accuracy":"1.200","scale":"1-12","codeManu":"123456","circle":"6","depart":"能源部",
-    // "checkNxt":"2016-11-10","track":"检定","certi":"aqikn"}]
+    // [{"name":"test2","no":"451kkk","accuracy":"1.200","scale":"1-12","codeManu":"123456","supplier":"qwe","circle":"6","depart":"能源部","checkNxt":"2016-11-10","track":"检定","certi":"aqikn"}
     var addHtml = "";
     for (var i = 0; i < data.length; i++) {
-      // <th>制造厂</th><th>精度等级</th><th>量程</th><th>出厂编号</th><th>检定周期(月)</th><th>检定部门</th>
-      // <th>检定日期</th><th>溯源方式</th><th>证书结论</th>
+       // <th>设备名称</th><th>规格型号</th><th>精度等级</th><th>量程</th><th>出厂编号</th><th>制造厂</th>
+       // <th>检定周期(月)</th><th>检定部门</th><th>检定日期</th><th>溯源方式</th><th>证书结论</th>
       addHtml += "<tr>"+
-                 "   <td>"+data[i].codeManu+"</td>"+
-                 "   <td>"+data[i].supplier+"</td>"+
+                 "   <td>"+data[i].name+"</td>"+
+                 "   <td>"+data[i].no+"</td>"+
                  "   <td>"+data[i].accuracy+"</td>"+
                  "   <td>"+data[i].scale+"</td>"+
+                 "   <td>"+data[i].codeManu+"</td>"+
+                 "   <td>"+data[i].supplier+"</td>"+
                  "   <td>"+data[i].circle+"</td>"+
                  "   <td>"+data[i].depart+"</td>"+
                  "   <td>"+data[i].checkNxt+"</td>"+

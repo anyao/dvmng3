@@ -13,11 +13,8 @@ class gaugeService{
 		$pmt=$_SESSION['permit'];
 		switch ($pmt) {
 			case '0':
-				$this->authWhr="";
-				$this->authAnd="";
-				$this->instal="";
-				break;
 			case 'a':
+			case 'b':
 				$this->authWhr="";
 				$this->authAnd="";
 				$this->instal="";
@@ -67,7 +64,7 @@ class gaugeService{
 		$dtl = $this->findWhere($code,$name,$no);
 		$bsc = "";
 		if (!empty($createTime)) {
-			$bsc .= " createtime='{$createTime}%' ";
+			$bsc .= " createtime like '{$createTime}%' ";
 		}
 		if (!empty($depart)) {
 			if ($bsc != "") {
@@ -296,7 +293,7 @@ class gaugeService{
 		$dtl = $this->findWhere($code,$name,$no);
 		$bsc = "";
 		if (!empty($apvTime)) {
-			$bsc .= " apvtime='{$apvTime}%' ";
+			$bsc .= " apvtime like '{$apvTime}%' ";
 		}
 		if (!empty($depart)) {
 			if ($bsc != "") {
@@ -421,7 +418,7 @@ class gaugeService{
 		$dtl = $this->findWhere($code,$name,$no);
 		$where = "";
 		if (!empty($checkTime)) {
-			$where .= " checkTime='{$checkTime}%' ";
+			$where .= " checkTime like '{$checkTime}%' ";
 		}
 
 		if (!empty($depart)) {
@@ -528,7 +525,7 @@ class gaugeService{
 		$dtl = $this->findWhere($code,$name,$no);
 		$where = "";
 		if (!empty($storeTime)) {
-			$where .= " storetime='{$storeTime}%' ";
+			$where .= " storetime like '{$storeTime}%' ";
 		}
 		if (!empty($depart)) {
 			if ($where != "") {
@@ -652,7 +649,7 @@ class gaugeService{
 			// if ($dtl != "") {
 			// 	$where .= " and installtime='{$installTime}%' ";
 			// }else{
-				$where .= " trsfTime='{$installTime}%' ";
+				$where .= " trsfTime like '{$installTime}%' ";
 			// }
 		}
 		if (!empty($depart)) {
@@ -713,9 +710,12 @@ class gaugeService{
 
 	function getCkInfo($checkTime,$sprId){
 		$sqlHelper = new sqlHelper();
-		$sql = "select supplier,accuracy,scale,codeManu,circle,depart.depart,checkNxt,track,certi from gauge_spr_check
+		$sql = "SELECT name,no,accuracy,scale,codeManu,supplier,circle,depart.depart,checkNxt,track,certi 
+				from gauge_spr_check
 				left join depart
 				on checkDpt=depart.id
+				left join gauge_spr_dtl
+				on gauge_spr_check.sprid=gauge_spr_dtl.id
 				where sprid=$sprId and checkTime = '{$checkTime}'";
 		$res = $sqlHelper->dql_arr($sql);
 		$res = json_encode($res, JSON_UNESCAPED_UNICODE);
@@ -966,6 +966,14 @@ class gaugeService{
 		$res = $sqlHelper->dql($sql);
 		$sqlHelper->close_connect();
 		return $res['num'];
+	}
+
+	function array_iconv($arr, $in_charset="utf-8", $out_charset="gb2312")
+	{
+	  $ret = eval('return '.iconv($in_charset,$out_charset,var_export($arr,true).';'));
+	  return $ret;
+	  // 这里转码之后可以输出json
+	  //  return json_encode($ret);
 	}
 
 }

@@ -46,11 +46,11 @@ $dptAll = $dptService->getDpt();
       border-bottom: 1px solid #CCCCCC;
     }
     
-    .part > .col-md-4 > .input-group{
+    .part > .col-md-4 > .input-group, .part > .col-md-8> .input-group{
       margin:5px;
     }
 
-    .part > .col-md-12 > .input-group{
+   {
       margin:5px;
     } 
 
@@ -221,10 +221,27 @@ include "message.php";
                "   </div>  ".
                " </div>".
                " <div class='col-md-4'>".
+               "   <div class='input-group' style='height:34px'>".
+               "     <span class='input-group-addon'>检定单位</span>".
+               "     <span class='input-group-addon'>".
+               "       <input type='radio' name='checkWho' value='self' checked> 公司内".
+               "     </span>".
+               "     <span class='input-group-addon'>".
+               "       <input type='radio' name='checkWho' value='out'> 外检".
+               "     </span>".
+               "   </div>  ".
+               " </div>".
+               " <div class='col-md-8'>".
+               "   <div class='input-group'>".
+               "     <span class='input-group-addon'>检定人员</span>".
+               "     <input type='text' class='form-control' name='check[".$i."][checkUser]' placeholder='可填写多个姓名，用逗号隔开'>".
+               "   </div>  ".
+               " </div>".
+               " <div class='col-md-4'>".
                "   <div class='input-group'>".
                "     <span class='input-group-addon'>检定部门</span>".
-               "        <input type='text' class='form-control nDptCk'>".
-               "        <input type='hidden' name='check[".$i."][dptCk]' class='dptCk'>".
+               "        <input type='text' class='form-control nDptCk' value='计量室'>".
+               "        <input type='hidden' name='check[".$i."][dptCk]' class='dptCk' value='199'>".
                "        <div class='input-group-btn'>".
                "          <button type='button' class='btn btn-default dropdown-toggle' data-toggle='dropdown'>".
                "          <span class='caret'></span>".
@@ -232,12 +249,6 @@ include "message.php";
                "          <ul class='dropdown-menu dropdown-menu-right' role='menu'>".
                "          </ul>".
                "        </div>".
-               "   </div>  ".
-               " </div>".
-               " <div class='col-md-12'>".
-               "   <div class='input-group'>".
-               "     <span class='input-group-addon'>检定人员</span>".
-               "     <input type='text' class='form-control' name='check[".$i."][checkUser]' placeholder='可填写多个姓名，用逗号隔开'>".
                "   </div>  ".
                " </div>".
                "</div>";
@@ -290,6 +301,14 @@ include "message.php";
 <script src="tp/bootstrap-datetimepicker.zh-CN.js"></script>
 <script src="bootstrap/js/bootstrap-suggest.js"></script>
 <script type="text/javascript">
+$("input[name=checkWho]").click(function(){
+  var sector = $(this).val();
+  
+  if (sector == 'self') {
+
+  }
+});
+
 // 检定周期加
 $(".plus").click(function(){
   var $circle = $(this).parents(".input-group").find("input[type=text]");

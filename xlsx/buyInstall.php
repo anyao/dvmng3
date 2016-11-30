@@ -14,7 +14,6 @@
  </xml><![endif]-->
 </head>
 <?php
-header("content-type:text/html;charset=utf-8");
 require_once '../model/gaugeService.class.php';	
 $devId = $_GET['devid'];	
 
@@ -66,7 +65,7 @@ $addHtml= "<table>
       			";
       
 	   $addHtml .= "</table>";
-
+     $addHtml = $gaugeService->array_iconv($addHtml);
 header("Content-type:application/vnd.ms-excel");
 Header("Accept-Ranges:bytes");
 Header('Content-Disposition:attachment;filename=CLJL-'.$res['cljl'].'-07.xls');
