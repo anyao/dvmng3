@@ -126,10 +126,11 @@ $user=$_SESSION['user'];
         </li>
       </ul>
        <ul class="nav navbar-nav navbar-right">
-		<li class="dropdown active"  >
-          <a href="dptUser.php" role="button">用户管理</span></a>
-        </li>
-
+		 <ul class="nav navbar-nav navbar-right">
+        <?php if (in_array($_SESSION['permit'],array("a","b",0,2))) {
+               echo "<li><a href='dptUser.php'>用户管理</a></li>";
+             } 
+        ?>
         <li class="dropdown">
         <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button"><?php 
               if (empty($user)) {
@@ -139,12 +140,12 @@ $user=$_SESSION['user'];
               } 
             ?> <span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="javascript:void(0);">我的基本信息</a></li>
-            <li><a href="javascript:void(0);">更改密码</a></li>
+            <li><a href="#">我的基本信息</a></li>
+            <li><a href="#">更改密码</a></li>
             <li class="divider">&nbsp;</li>
             <li><a href="login.php">注销</a></li>
           </ul>
-         </li>
+          </li>
       </ul>
 
     </div><!--/.nav-collapse -->

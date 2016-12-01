@@ -46,6 +46,10 @@ $addHtml= "<table>
               <td colspan=\"5\">{$res['parainfo']}</td>
             </tr>
             <tr>
+              <td>安装情况</td>
+              <td colspan=\"5\">{$res['installInfo']}</td>
+            </tr>
+            <tr>
               <td>运行情况</td>
               <td colspan=\"5\">{$res['runinfo']}</td>
             </tr>

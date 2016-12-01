@@ -184,7 +184,7 @@
               </div>
             </div>
             <div class="form-group">
-              <label class="col-sm-4 control-label">备件编号：</label>
+              <label class="col-sm-4 control-label">存货编号：</label>
               <div class="col-sm-6">
                 <input type="text" class="form-control" name="sprCode">
               </div>

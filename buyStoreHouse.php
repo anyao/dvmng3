@@ -108,8 +108,7 @@ tr:hover > th > .glyphicon-trash {
                  echo "<li role='separator' class='divider'></li>";
               } ?>
             <li><a href="spareList.php">备品备件</a></li>
-            
-            <?php if ($_SESSION['permit']<2) {
+            <?php if (in_array($_SESSION['permit'],array("a","b",0,2))) {
                  echo "<li role='separator' class='divider'></li><li><a href='devPara.php'>属性参数</a></li>";
                } ?>
           </ul>

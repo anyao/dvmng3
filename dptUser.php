@@ -263,10 +263,10 @@ $user=$_SESSION['user'];
             <label class="col-sm-3 control-label">管理权限：</label>
             <div class="col-sm-7">  
               <label class="radio-inline">
-                <input type="radio" name="permit" value="0"> 高级用户
+                <input type="radio" name="permit" value="1"> 高级管理员
               </label>
               <label class="radio-inline">
-                <input type="radio" name="permit" value="1" checked> 普通用户
+                <input type="radio" name="permit" value="2" checked> 普通管理员
               </label>
             </div>
           </div>

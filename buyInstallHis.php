@@ -125,7 +125,7 @@ tr:hover > th > .glyphicon-trash {
         </li>
       </ul>
        <ul class="nav navbar-nav navbar-right">
-       <?php if ($_SESSION['permit']<2) {
+       <?php if (in_array($_SESSION['permit'],array("a","b",0,2))) {
                echo "<li><a href='dptUser.php'>用户管理</a></li>";
              } 
         ?>

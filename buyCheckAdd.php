@@ -126,7 +126,7 @@ include "message.php";
         </li>
       </ul>
        <ul class="nav navbar-nav navbar-right">
-         <?php if ($_SESSION['permit']<2) {
+         <?php if (in_array($_SESSION['permit'],array("a","b",0,2))) {
                echo "<li><a href='dptUser.php'>用户管理</a></li>";
              } 
         ?>
@@ -209,10 +209,10 @@ include "message.php";
                " <div class='col-md-4'>".
                "   <div class='input-group' style='height:34px'>".
                "     <span class='input-group-addon'>溯源方式</span>".
-               "     <span class='input-group-addon'>".
+               "     <span class='input-group-addon' style='border-right: 0px'>".
                "       <input type='radio' name='check[".$i."][track]' value='检定' checked> 检定".
                "     </span>".
-               "     <span class='input-group-addon'>".
+               "     <span class='input-group-addon'  style='border-right:0px;border-left:0px'>".
                "       <input type='radio' name='check[".$i."][track]' value='校准'> 校准".
                "     </span>".
                "     <span class='input-group-addon'>".
@@ -223,11 +223,11 @@ include "message.php";
                " <div class='col-md-4'>".
                "   <div class='input-group' style='height:34px'>".
                "     <span class='input-group-addon'>检定单位</span>".
-               "     <span class='input-group-addon'>".
-               "       <input type='radio' name='checkWho' value='self' checked> 公司内".
+               "     <span class='input-group-addon' style='border-right: 0px'>".
+               "       <input type='radio' name='check[".$i."][who]' value='self' checked class='checkWho'> 公司内".
                "     </span>".
                "     <span class='input-group-addon'>".
-               "       <input type='radio' name='checkWho' value='out'> 外检".
+               "       <input type='radio' name='check[".$i."][who]' value='out' class='checkWho'> 外检".
                "     </span>".
                "   </div>  ".
                " </div>".
@@ -237,10 +237,9 @@ include "message.php";
                "     <input type='text' class='form-control' name='check[".$i."][checkUser]' placeholder='可填写多个姓名，用逗号隔开'>".
                "   </div>  ".
                " </div>".
-               " <div class='col-md-4'>".
+               " <div class='col-md-4 checkDpt'>".
                "   <div class='input-group'>".
-               "     <span class='input-group-addon'>检定部门</span>".
-               "        <input type='text' class='form-control nDptCk' value='计量室'>".
+               "        <input type='text' class='form-control nDptCk' value='计量室' style='width:98%'>".
                "        <input type='hidden' name='check[".$i."][dptCk]' class='dptCk' value='199'>".
                "        <div class='input-group-btn'>".
                "          <button type='button' class='btn btn-default dropdown-toggle' data-toggle='dropdown'>".
@@ -249,6 +248,12 @@ include "message.php";
                "          <ul class='dropdown-menu dropdown-menu-right' role='menu'>".
                "          </ul>".
                "        </div>".
+               "   </div>  ".
+               " </div>".
+               " <div class='col-md-4 checkComp' style='display:none'>".
+               "   <div class='input-group'>".
+               "     <span class='input-group-addon'>外检公司</span>".
+               "     <input type='text' class='form-control' name='check[".$i."][checkComp]'>".
                "   </div>  ".
                " </div>".
                "</div>";
@@ -301,11 +306,15 @@ include "message.php";
 <script src="tp/bootstrap-datetimepicker.zh-CN.js"></script>
 <script src="bootstrap/js/bootstrap-suggest.js"></script>
 <script type="text/javascript">
-$("input[name=checkWho]").click(function(){
+$("input.checkWho").click(function(){
   var sector = $(this).val();
-  
+  var $pnt = $(this).parents(".col-md-4");
   if (sector == 'self') {
-
+    $pnt.siblings(".checkDpt").show();
+    $pnt.siblings(".checkComp").hide();
+  }else{
+    $pnt.siblings(".checkDpt").hide();
+    $pnt.siblings(".checkComp").show();
   }
 });
 
@@ -334,7 +343,7 @@ $(".minus").click(function(){
 // 部门搜索提示
  $(".nDptCk").bsSuggest({
     allowNoKeyword: false,
-    // showBtn: false,
+    showBtn: false,
     indexId:2,
     // indexKey: 1,
     data: {
@@ -355,7 +364,8 @@ $(".minus").click(function(){
 $(document).on("click","button[type=submit]",yesAdd);
 function yesAdd(){
   var all_allow=true;
-  $("#checkAdd .form-control").each(function(){
+  var $checkInfo = $("#checkAdd .form-control:visible");
+  $checkInfo.each(function(){
     if ($(this).val()=="") {
       $('#failAdd').modal({
           keyboard: true

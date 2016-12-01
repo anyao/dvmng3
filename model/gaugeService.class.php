@@ -349,18 +349,21 @@ class gaugeService{
 				 on depart.fid=factory.id
 				 where res in(1,3) 
 				 union
-				 SELECT gauge_spr_dtl.id as id,code,name,no,num,unit,info,depart.depart,factory.depart as factory,count(gauge_spr_check.id) as checknum
-			     FROM gauge_spr_dtl
-			     left join gauge_spr_bsc
-			     on gauge_spr_bsc.id=gauge_spr_dtl.basic
-			     left join depart
-			     on gauge_spr_bsc.depart=depart.id
-			     left join depart as factory
-			     on depart.fid=factory.id
-			     right join gauge_spr_check
-			     on gauge_spr_dtl.id=gauge_spr_check.sprid  where gauge_spr_check.res=2
-			     GROUP BY sprid
-			     HAVING count(gauge_spr_check.id)!=num
+				 SELECT * from 
+				 (
+				 SELECT gauge_spr_dtl.id as id,code,name,no,num,unit,info,depart.depart,factory.depart as factory,COUNT(sprid) as checkNum
+				 from gauge_spr_check
+				 left join gauge_spr_dtl
+				 on gauge_spr_dtl.id=gauge_spr_check.sprid
+				 left join gauge_spr_bsc
+				 on gauge_spr_bsc.id=gauge_spr_dtl.basic
+				 left join depart
+				 on gauge_spr_bsc.depart=depart.id
+				 left join depart as factory
+				 on depart.fid=factory.id
+				 GROUP BY id
+				 having num!= checknum
+				 ) as a
 				 order by id desc limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
 		$sql2 = "SELECT count(*) FROM
 				(
@@ -693,13 +696,16 @@ class gaugeService{
 
 	function addSprInCk($sprId,$check,$time){
 		$sqlHelper = new sqlHelper();
-		$sql = "insert into gauge_spr_check (sprid,supplier,accuracy,scale,codeManu,circle,checkDpt,checkNxt,track,certi,checkTime,checkUser,res) 
+		$sql = "insert into gauge_spr_check (sprid,supplier,accuracy,scale,codeManu,circle,checkDpt,checkComp,checkNxt,track,certi,checkTime,checkUser,res) 
 				values ";
 		for ($i=1; $i <= count($check); $i++) { 
+			if ($check[$i]['who'] == 'out') {
+				$check[$i]['dptCk'] = 'null';
+			}
 			if ($i != count($check)) {
-				$sql .= "($sprId,'{$check[$i]['supplier']}',{$check[$i]['accuracy']},'{$check[$i]['scale']}','{$check[$i]['codeManu']}',{$check[$i]['circle']},{$check[$i]['dptCk']},'{$check[$i]['checkNxt']}','{$check[$i]['track']}','{$check[$i]['certi']}','{$time}','{$check[$i]['checkUser']}',1), ";
+				$sql .= "($sprId,'{$check[$i]['supplier']}',{$check[$i]['accuracy']},'{$check[$i]['scale']}','{$check[$i]['codeManu']}',{$check[$i]['circle']},{$check[$i]['dptCk']},'{$check[$i]['checkComp']}','{$check[$i]['checkNxt']}','{$check[$i]['track']}','{$check[$i]['certi']}','{$time}','{$check[$i]['checkUser']}',1), ";
 			}else{
-				$sql .= "($sprId,'{$check[$i]['supplier']}',{$check[$i]['accuracy']},'{$check[$i]['scale']}','{$check[$i]['codeManu']}',{$check[$i]['circle']},{$check[$i]['dptCk']},'{$check[$i]['checkNxt']}','{$check[$i]['track']}','{$check[$i]['certi']}','{$time}','{$check[$i]['checkUser']}',1) ";
+				$sql .= "($sprId,'{$check[$i]['supplier']}',{$check[$i]['accuracy']},'{$check[$i]['scale']}','{$check[$i]['codeManu']}',{$check[$i]['circle']},{$check[$i]['dptCk']},'{$check[$i]['checkComp']}','{$check[$i]['checkNxt']}','{$check[$i]['track']}','{$check[$i]['certi']}','{$time}','{$check[$i]['checkUser']}',1) ";
 			}
 		}
 		$res = $sqlHelper->dml($sql);
@@ -853,7 +859,7 @@ class gaugeService{
 
 	function installDown($devId){
 		$sqlHelper = new sqlHelper();
-		$sql = "SELECT if(a.num is null,b.num,a.num) as cljl,name,no,location,parainfo,installinfo,runinfo,conclude,
+		$sql = "SELECT if(a.num is null,b.num,a.num) as cljl,name,no,location,parainfo,installInfo,runinfo,conclude,
 				c.paraval as scale,d.paraval as codeManu,
 				depart.depart,factory.depart as factory
 				from gauge_spr_install
