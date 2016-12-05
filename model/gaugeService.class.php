@@ -696,16 +696,16 @@ class gaugeService{
 
 	function addSprInCk($sprId,$check,$time){
 		$sqlHelper = new sqlHelper();
-		$sql = "insert into gauge_spr_check (sprid,supplier,accuracy,scale,codeManu,circle,checkDpt,checkComp,checkNxt,track,certi,checkTime,checkUser,res) 
+		$sql = "insert into gauge_spr_check (sprid,supplier,accuracy,scale,codeManu,circle,checkDpt,checkComp,checkNxt,track,certi,checkTime,checkUser,res,valid) 
 				values ";
 		for ($i=1; $i <= count($check); $i++) { 
 			if ($check[$i]['who'] == 'out') {
 				$check[$i]['dptCk'] = 'null';
 			}
 			if ($i != count($check)) {
-				$sql .= "($sprId,'{$check[$i]['supplier']}',{$check[$i]['accuracy']},'{$check[$i]['scale']}','{$check[$i]['codeManu']}',{$check[$i]['circle']},{$check[$i]['dptCk']},'{$check[$i]['checkComp']}','{$check[$i]['checkNxt']}','{$check[$i]['track']}','{$check[$i]['certi']}','{$time}','{$check[$i]['checkUser']}',1), ";
+				$sql .= "($sprId,'{$check[$i]['supplier']}',{$check[$i]['accuracy']},'{$check[$i]['scale']}','{$check[$i]['codeManu']}',{$check[$i]['circle']},{$check[$i]['dptCk']},'{$check[$i]['checkComp']}','{$check[$i]['checkNxt']}','{$check[$i]['track']}','{$check[$i]['certi']}','{$time}','{$check[$i]['checkUser']}',1,'{$check[$i]['valid']}'), ";
 			}else{
-				$sql .= "($sprId,'{$check[$i]['supplier']}',{$check[$i]['accuracy']},'{$check[$i]['scale']}','{$check[$i]['codeManu']}',{$check[$i]['circle']},{$check[$i]['dptCk']},'{$check[$i]['checkComp']}','{$check[$i]['checkNxt']}','{$check[$i]['track']}','{$check[$i]['certi']}','{$time}','{$check[$i]['checkUser']}',1) ";
+				$sql .= "($sprId,'{$check[$i]['supplier']}',{$check[$i]['accuracy']},'{$check[$i]['scale']}','{$check[$i]['codeManu']}',{$check[$i]['circle']},{$check[$i]['dptCk']},'{$check[$i]['checkComp']}','{$check[$i]['checkNxt']}','{$check[$i]['track']}','{$check[$i]['certi']}','{$time}','{$check[$i]['checkUser']}',1,'{$check[$i]['checkvalid']}') ";
 			}
 		}
 		$res = $sqlHelper->dml($sql);
@@ -982,26 +982,7 @@ class gaugeService{
 	  //  return json_encode($ret);
 	}
 
-	function transTime($time){
-		if ($time / 525600 >= 1) {
-			// 大于年
-			$t[0] = $time / 525600;
-			$t[1] = '年';
-		}else if ($time / 43200 >=1) {
-			$t[0] = $time / 43200;
-			$t[1] = '月';
-		}else if ($time / 1440 >= 1) {
-			$t[0] = $time / 1440;
-			$t[1] = '天';
-		}else if ($time / 60 >= 1) {
-			$t[0] = $time / 60;
-			$t[1] = '小时';
-		}else{
-			$t[0] = $time;
-			$t[1] = '分钟';
-		}
-		return $t;
-	}
+	
 
 }
 ?>

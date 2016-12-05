@@ -231,10 +231,16 @@ include "message.php";
                "     </span>".
                "   </div>  ".
                " </div>".
-               " <div class='col-md-8'>".
+               " <div class='col-md-4'>".
                "   <div class='input-group'>".
                "     <span class='input-group-addon'>检定人员</span>".
                "     <input type='text' class='form-control' name='check[".$i."][checkUser]' placeholder='可填写多个姓名，用逗号隔开'>".
+               "   </div>  ".
+               " </div>".
+               " <div class='col-md-4'>".
+               "   <div class='input-group'>".
+               "     <span class='input-group-addon'>有效日期</span>".
+               "     <input type='text' class='form-control datetime' name='check[".$i."][valid]' readonly>".
                "   </div>  ".
                " </div>".
                " <div class='col-md-4 checkDpt'>".

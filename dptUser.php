@@ -101,7 +101,8 @@ $user=$_SESSION['user'];
 		    <li class="dropdown active" >
           <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">用户管理 <span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="dptUser.php">基本信息</a></li>
+            <li><a href="dptUser.php">部门 / 人员</a></li>
+            <li><a href="dptRole.php">角色 / 功能</a></li>
             <li class="divider">&nbsp;</li>
             <li><a href="javascript:findUser();">用户搜索</a></li>
           </ul>

@@ -170,12 +170,16 @@ include "message.php";
      <?php
         for ($i=0; $i < count($paging->res_array); $i++) { 
           $row = $paging->res_array[$i];
+          $cyc = $inspectService->transTime($row['cyc']);
           // [id] => 35 [devid] => 45 [cyc] => 480 [nxt] => 2016-12-03 16:00:00 [type] => 1 [inspDpt] => 2 
           // [factory] => 新区竖炉 [depart] => 竖炉车间 [inspdpt] => 竖炉车间 [inspfct] => 新区竖炉
           $addHtml = 
           "<tr>
             <td><a class='glyphicon glyphicon-resize-small' href='javascript:void(0);' onclick='buyList(this,{$row['id']})'></a></td>
-
+            <td>{$row['nxt']}<td>
+            <td>{$row['type']}</td>
+            <td><a href='using.php?id={$row['devid']}'>{$row['name']}</a></td>
+            <td></td>
           </tr>";
         }
         //  [2016-12-03 16:00:00] => Array

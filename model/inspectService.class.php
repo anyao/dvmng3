@@ -434,6 +434,26 @@ class inspectService{
 		return $res;
 	}
 
+	function transTime($time){
+		if ($time / 525600 >= 1) {
+			// 大于年
+			$t[0] = $time / 525600;
+			$t[1] = '年';
+		}else if ($time / 43200 >=1) {
+			$t[0] = $time / 43200;
+			$t[1] = '月';
+		}else if ($time / 1440 >= 1) {
+			$t[0] = $time / 1440;
+			$t[1] = '天';
+		}else if ($time / 60 >= 1) {
+			$t[0] = $time / 60;
+			$t[1] = '小时';
+		}else{
+			$t[0] = $time;
+			$t[1] = '分钟';
+		}
+		return $t;
+	}
 
 
 }
