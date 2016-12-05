@@ -76,9 +76,11 @@ if (!empty($_REQUEST['flag'])) {
 
 	// 获得单个巡检任务信息
 	else if($flag=="getMis"){
-		$start=$_GET['start'];
-		$res=$inspectService->getMis($start);
+		// $idArr=explode(",",$_GET['idArr']);
+		$idArr = $_GET['idArr'];
+		$res=$inspectService->getMis($idArr);
 		echo "$res";
+		exit();
 	}
 
 	// 修改巡检任务信息

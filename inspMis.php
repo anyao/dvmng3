@@ -21,6 +21,10 @@ $user=$_SESSION['user'];
   thead > tr > th:nth-last-child(1), thead > tr > th:nth-last-child(2){
       width:4%;
   }
+
+  thead > tr > td:first-child{
+    display:none;
+  }
 </style>
 <link rel="stylesheet" href="bootstrap/css/bootstrap.css">
 <link rel="stylesheet" href="bootstrap/css/treeview.css">
@@ -154,36 +158,56 @@ include "message.php";
   <div class="row">
     <div class="col-md-10">
       <div class="page-header">
-        <h4>　点检任务</h4>
+        <h4>　巡检任务</h4>
       </div>
     <table class="table table-striped table-hover">
         <thead><tr>
-            <th>点检时间</th><th>所在部门</th><th>所在分厂</th><th>点检路线</th>
-            <th>&nbsp;&nbsp;&nbsp;&nbsp;</th><th>&nbsp;&nbsp;&nbsp;&nbsp;</th>
+            <th style='width:4%'></th>
+            <th>下一次巡检时间</th><th>检查类型</th><th>设备名称</th><th>巡检周期</th><th>执行部门</th><th>使用部门</th>
+            <th style='width:4%'></th><th style='width:4%'></th>
         </tr></thead>
         <tbody class="tablebody">     
      <?php
-        $result=array();
-        foreach ($paging->res_array as $k => $v) {
-          $result[$v['start']][]=$v;
+        for ($i=0; $i < count($paging->res_array); $i++) { 
+          $row = $paging->res_array[$i];
+          // [id] => 35 [devid] => 45 [cyc] => 480 [nxt] => 2016-12-03 16:00:00 [type] => 1 [inspDpt] => 2 
+          // [factory] => 新区竖炉 [depart] => 竖炉车间 [inspdpt] => 竖炉车间 [inspfct] => 新区竖炉
+          $addHtml = 
+          "<tr>
+            <td><a class='glyphicon glyphicon-resize-small' href='javascript:void(0);' onclick='buyList(this,{$row['id']})'></a></td>
+
+          </tr>";
         }
-        foreach ($result as $k => $v) {
-          $misid=array();
-          $addHtml="<tr><td>$k</td><td>{$v[0]['depart']}</td><td>{$v[0]['factory']}</td><td>";
-          for ($i=0; $i < count($v); $i++) { 
-            $misid[$i]=$v[$i]['id'];
-            if ($i==count($v)-1) {
-              $addHtml.="<a href='using.php?id={$v[$i]['devid']}'>{$v[$i]['name']}</a>";
-            }else{
-              $addHtml.="<a href='using.php?id={$v[$i]['devid']}'>{$v[$i]['name']}</a>、";
-            }
-          }
-          // $misid=json_encode($misid,JSON_UNESCAPED_UNICODE);
-          $misid=implode(",",$misid);
-          $addHtml.="</td><td><a href=\"javascript:updateMis('{$k}');\" class='glyphicon glyphicon-edit'></a></td>
-          <td><a href=\"javascript:delMis('{$misid}');\" class='glyphicon glyphicon-trash'></a></td></tr>";
-          echo "$addHtml";
-        }
+        //  [2016-12-03 16:00:00] => Array
+        // (
+        //     [0] => Array
+        //         (
+        //             [id] => 35
+        //             [devid] => 45
+        //             [cyc] => 480
+        //             [nxt] => 2016-12-03 16:00:00
+        //             [type] => 1
+        //             [inspDpt] => 2
+        //             [name] => 加热炉电源柜
+        //             [factory] => 新区竖炉
+        //             [depart] => 竖炉车间
+        //             [inspfct] => 新区竖炉
+        //         )
+        // foreach ($result as $k => $v) {
+        //   $addHtml="<tr><td>$k</td><td>{$v[0]['depart']}</td><td>{$v[0]['factory']}</td><td>";
+        //   for ($i=0; $i < count($v); $i++) { 
+        //     $misid[]=$v[$i]['id'];
+        //     if ($i==count($v)-1) {
+        //       $addHtml.="<a href='using.php?id={$v[$i]['devid']}'>{$v[$i]['name']}</a>";
+        //     }else{
+        //       $addHtml.="<a href='using.php?id={$v[$i]['devid']}'>{$v[$i]['name']}</a>、";
+        //     }
+        //   }
+        //   $misid=implode(",",$misid);
+        //   $addHtml.="</td><td><a href=\"javascript:uptMis('{$misid}');\" class='glyphicon glyphicon-edit'></a></td>
+        //   <td><a href=\"javascript:delMis('{$misid}');\" class='glyphicon glyphicon-trash'></a></td></tr>";
+        //   echo "$addHtml";
+        // }
         
      ?>
         </tbody></table><div class='page-count'><?php echo $paging->navi;?></div>         
@@ -211,7 +235,7 @@ include "message.php";
 
 
 <!-- 修改任务信息-->
-<div class="modal fade" id="updateMis" role="dialog">
+<div class="modal fade" id="uptMis" role="dialog">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -254,7 +278,7 @@ include "message.php";
 
           
           <div class="modal-footer">
-            <input type="hidden" name="flag" value="updateMis">
+            <input type="hidden" name="flag" value="uptMis">
             <input type="hidden" name="oid">
             <button type="submit" class="btn btn-primary" id="updateYes">确认修改</button>
             <button type="button" class="btn btn-danger" data-dismiss="modal">取消</button>
@@ -339,14 +363,15 @@ include "message.php";
     <script src="tp/bootstrap-datetimepicker.zh-CN.js"></script>
     <script src="bootstrap/js/bootstrap-suggest.js"></script>
     <script type="text/javascript">
+    // var auth = <?php echo $_SESSION['permit']; ?>;
     // 修改任务弹出框中确认添加设备按钮
-    $("#updateMis #yesDev").click(function(){
-      if($("#updateMis input[name=devName]").val().length>0){
-        var nameDev=$("#updateMis input[name=devName]").val();
-        var idDev=$("#updateMis input[name=devName]").attr("data-id");
+    $("#uptMis #yesDev").click(function(){
+      if($("#uptMis input[name=devName]").val().length>0){
+        var nameDev=$("#uptMis input[name=devName]").val();
+        var idDev=$("#uptMis input[name=devName]").attr("data-id");
         var addHtml="<span class='badge'>"+nameDev+" <a href='javascript:void(0);' class='glyphicon glyphicon-remove' style='color: #f5f5f5;text-decoration: none'></a><input type='hidden' name='dev[]' value="+idDev+"></span> "
-        $("#updateMis #forDev").append(addHtml);
-        $("#updateMis input[name=devName]").val("");
+        $("#uptMis #forDev").append(addHtml);
+        $("#uptMis input[name=devName]").val("");
       }else{
         $('#noDev').modal({
           keyboard: true
@@ -369,8 +394,8 @@ include "message.php";
    // 确认修改按钮
    $("#updateYes").click(function(){
      var allow_submit = true;
-     var forDev=$("#updateMis #forDev input").length;
-     var forTime=$("#updateMis input[name=start]").val().length;
+     var forDev=$("#uptMis #forDev input").length;
+     var forTime=$("#uptMis input[name=start]").val().length;
     if (forDev==0 || forTime==0) {
           $('#failAdd').modal({
               keyboard: true
@@ -382,49 +407,38 @@ include "message.php";
   
    // 删除巡检任务
    function delMis(arr){
-    if (auth==2) {
-        $('#failAuth').modal({
-          keyboard: true
-        });
-    }else{
-        $('#delMis').modal({
-          keyboard: true
-        });
-        $("#del").click(function() {
-          location.href="controller/inspectProcess.php?flag=delMis&misid="+arr;
-        });            
-    }
+    
+      $('#delMis').modal({
+        keyboard: true
+      });
+      $("#del").click(function() {
+        location.href="controller/inspectProcess.php?flag=delMis&misid="+arr;
+      });            
   }
 
-    function updateMis(time){ 
-      if (auth==2) {
-          $('#failAuth').modal({
-            keyboard: true
-          });
-      }else{
-        $("#updateMis #forDev").empty();
-        $.get("controller/inspectProcess.php",{
-          start:time,
-          flag:"getMis"
-        },function(data,success){
-          // [{"id":"61","devid":"135","start":"00:00:00",name},
-           var arr=new Array();
-           $("#updateMis input[name=start]").val(time);
-           $("#updateMis input[name=mid]").val(idMis);
-           for(var i=0;i<data.length;i++){
-              var nameDev=data[i].name;
-              var idDev=data[i].devid;
-              var idMis=data[i].id;
-              arr[i]=idMis;
-              var addHtml="<span class='badge'>"+nameDev+" <a href='javascript:void(0);' class='glyphicon glyphicon-remove' style='color: #f5f5f5;text-decoration: none'></a><input type='hidden' name='dev[]' value="+idDev+"></span> "
-              $("#updateMis #forDev").append(addHtml);
-           }
-           $("#updateMis input[name=oid]").val(arr);
-           $('#updateMis').modal({
-                keyboard: true
-           });
-        },"json");
-      }
+    function uptMis(idArr){
+      $.get("controller/inspectProcess.php",{
+        idArr:idArr,
+        flag:"getMis"
+      },function(data,success){
+        // {"id":"35","devid":"45","cyc":"480","nxt":"2016-12-03 16:00:00","name":"加热炉电源柜"}
+         // var arr=new Array();
+         // $("#uptMis input[name=start]").val(time);
+         // $("#uptMis input[name=mid]").val(idMis);
+         // for(var i=0;i<data.length;i++){
+         //    var nameDev=data[i].name;
+         //    var idDev=data[i].devid;
+         //    var idMis=data[i].id;
+         //    arr[i]=idMis;
+         //    var addHtml="<span class='badge'>"+nameDev+" <a href='javascript:void(0);' class='glyphicon glyphicon-remove' style='color: #f5f5f5;text-decoration: none'></a><input type='hidden' name='dev[]' value="+idDev+"></span> "
+         //    $("#uptMis #forDev").append(addHtml);
+         // }
+         // $("#uptMis input[name=oid]").val(arr);
+         // $("#uptMis #forDev").empty();
+         $('#uptMis').modal({
+              keyboard: true
+         });
+      },"json");
     }
 
     $("input[name=devName]").bsSuggest({

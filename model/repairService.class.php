@@ -4,10 +4,6 @@ require_once 'paging.class.php';
 class repairService{
 	public $authWhr="";
 	public $authAnd="";
-	// public $authDpt="";
-	// public $authDptAnd="";
-	// public $authUsr="";
-	// public $authUsrAnd="";
 
 	function __construct(){
 		$sqlHelper=new sqlHelper();
@@ -32,6 +28,8 @@ class repairService{
 		}
 		$sqlHelper->close_connect();	
 	}
+
+
 
 	// 获取维修任务列表并分页显示
 	function getPagingMis($paging){

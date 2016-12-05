@@ -15,6 +15,8 @@ class inspectService{
 		$pmt=$_SESSION['permit'];
 		switch ($pmt) {
 			case '0':
+			case 'a':
+			case 'b':
 				$this->authWhr="";
 				$this->authAnd="";
 				break;
@@ -24,10 +26,12 @@ class inspectService{
 				$upid=implode(",",array_column($upid,'id'));
 				$this->authWhr=" where device.depart in(".$upid.") ";
 				$this->authAnd=" and device.depart in(".$upid.") ";
+				$this->authMis = " where device.depart in(".$upid.") or inspDpt=$upid ";
 				break;
 			case '2':
 				$this->authWhr=" where device.depart=$upid ";
 				$this->authAnd=" and device.depart=$upid ";
+				$this->authMis = " where device.depart=$upid or inspDpt=$upid ";
 				break;
 		}
 		$sqlHelper->close_connect();	
@@ -158,23 +162,23 @@ class inspectService{
 
 	function getPagingMis($paging){
 		$sqlHelper=new sqlHelper();
-		$sql1=" select inspmis.*,device.name,factory.depart as factory,depart.depart
+		$sql1=" SELECT inspmis.*,factory.depart as factory,depart.depart,inspdpt.depart as inspdpt,inspfct.depart as inspfct
 				from inspmis 
 				inner join device
 				on inspmis.devid=device.id
 				inner join depart
 				on depart.id=device.depart
 				inner join depart as factory
-				on factory.id=device.factory".$this->authWhr."
-				order by start
+				on factory.id=device.factory
+				inner join depart as inspdpt
+				on inspdpt.id=inspmis.inspDpt
+				inner join depart as inspfct
+				on inspdpt.fid=inspfct.id
+				".$this->authMis."
+				group by nxt,inspmis.type,inspmis.inspdpt
 			    limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
-		$sql2="select count(inspmis.id) from inspmis
-				inner join device
-				on inspmis.devid=device.id
-				inner join depart
-				on depart.id=device.depart
-				inner join depart as factory
-				on factory.id=device.factory".$this->authWhr;
+		$sql2 = "SELECT COUNT(*) from inspmis
+				 ".$this->authMis;
 		$sqlHelper->dqlPaging($sql1,$sql2,$paging);
 		$sqlHelper->close_connect();	
 	}
@@ -192,13 +196,13 @@ class inspectService{
 		return $res;
 	}
 
-	function getMis($start){
+	function getMis($idArr){
+		$sqlHelper=new sqlHelper();
 		$sql="select inspmis.*,device.name 
 			  from inspmis
 			  left join device 
 			  on device.id=inspmis.devid 
-			  where start='{$start}'".$this->authAnd;
-		$sqlHelper=new sqlHelper();
+			  where inspmis.id in($idArr)".$this->authAnd;
 		$res=$sqlHelper->dql_arr($sql);
 		$sqlHelper->close_connect();
 		$res=json_encode($res,JSON_UNESCAPED_UNICODE);
