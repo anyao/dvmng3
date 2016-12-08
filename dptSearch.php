@@ -14,7 +14,7 @@ $user=$_SESSION['user'];
 <meta name="author" content="安瑶">
 <link rel="icon" href="img/favicon.ico">
 
-<title>部门/人员-设备管理系统</title>
+<title>用户搜索-设备管理系统</title>
 
 <!-- Bootstrap core CSS -->
 <!-- <style type="text/css">
@@ -126,8 +126,8 @@ $user=$_SESSION['user'];
 	<div class="row">
     <div class="col-md-3">
       <ul class="nav nav-pills  nav-stacked nav-self" role="tablist">
-        <li role="presentation"><a href="dptSearch.php">用户搜索</a></li>
-        <li role="presentation" class="active"><a href="dptUser.php">部门 / 人员</a></li>
+        <li role="presentation" class="active"><a href="dptSearch.php">用户搜索</a></li>
+        <li role="presentation"><a href="dptUser.php">部门 / 人员</a></li>
         <li role="presentation"><a href="dptRole.php">角色 / 功能</a></li>
       </ul>
     </div>

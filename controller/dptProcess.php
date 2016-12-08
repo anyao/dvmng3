@@ -174,6 +174,25 @@ if (!empty($_REQUEST['flag'])) {
 		exit();
 	}
 
+	else if($flag == "addRole"){
+		$func = $_GET['func'];
+		$roleName = $_GET['roleName'];
+		$res = $dptService->addRole($func,$roleName);
+		if ($res != 0) {
+			header("location:./../dptRole.php");
+			exit();
+		}else{
+			echo "操作失败，请联系管理员：0310-5178939";
+			exit();
+		}
+	}
+
+	else if ($flag == "delRole") {
+		$rid = $_GET['rid'];
+		$res = $dptService->delRole($rid);
+		echo "$res";
+		exit();
+	}
 
 }
 ?>

@@ -39,7 +39,7 @@ class dptService{
 	// 将所取数据转化为所要求的格式
 	function getFctByJson($comp){
 		$sqlHelper=new sqlHelper();
-		$sql="select depart.*,`user`.num
+		$sql="SELECT depart.*,`user`.num
 			  from depart
 			  left join 
 			  (select departid,count(*) as num from user group by departid) as `user`
@@ -53,6 +53,19 @@ class dptService{
         }
         $info=json_encode($info,JSON_UNESCAPED_UNICODE);
         return $info;
+	}
+
+	function getRoleFunc(){
+		$sqlHelper = new sqlHelper();
+		$sql = "SELECT staff_func.title func,staff_role.title role,rid
+				from staff_func
+				inner join staff_role_func
+				on staff_role_func.fid = staff_func.id
+				inner join staff_role
+				on staff_role.id = staff_role_func.rid";
+		$res = $sqlHelper->dql_arr($sql);
+		$sqlHelper->close_connect();
+		return $res;
 	}
 
 	function getSecSome($comp,$fct){
@@ -313,6 +326,33 @@ class dptService{
 		$sql="select * from user where concat(name,',',code) like '%{$kword}%'";
 		$res=$sqlHelper->dql_arr($sql);
 		$res=json_encode($res,JSON_UNESCAPED_UNICODE);
+		$sqlHelper->close_connect();
+		return $res;
+	}
+
+	function addRole($func,$roleName){
+		$sqlHelper = new sqlHelper();
+		$sql = "INSERT INTO staff_role (title) values ('{$roleName}')";
+		$res[] = $sqlHelper->dml($sql);
+		$rid =  mysql_insert_id();
+
+		$sql = "INSERT INTO staff_role_func (rid,fid) values ";
+		for ($i=0; $i < count($func); $i++) { 
+			if ($i != count($func)-1) {
+				$sql .= "($rid, {$func[$i]}),";
+			}else{
+				$sql .= "($rid,{$func[$i]})";
+			}
+		}
+		$res[] = $sqlHelper->dml($sql);
+		$sqlHelper->close_connect();
+		return !in_array(0,$res);
+	}
+
+	function delRole($rid){
+		$sqlHelper = new sqlHelper();
+		$sql = "DELETE FROM staff_role where id = $rid";
+		$res = $sqlHelper->dml($sql);
 		$sqlHelper->close_connect();
 		return $res;
 	}
