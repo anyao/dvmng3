@@ -57,12 +57,20 @@ class dptService{
 
 	function getRoleFunc(){
 		$sqlHelper = new sqlHelper();
-		$sql = "SELECT staff_func.title func,staff_role.title role,rid
+		$sql = "SELECT staff_func.title func,fid,staff_role.title role,rid
 				from staff_func
 				inner join staff_role_func
 				on staff_role_func.fid = staff_func.id
 				inner join staff_role
 				on staff_role.id = staff_role_func.rid";
+		$res = $sqlHelper->dql_arr($sql);
+		$sqlHelper->close_connect();
+		return $res;
+	}
+
+	function getRoleAll(){
+		$sqlHelper = new sqlHelper();
+		$sql = "SELECT * from staff_role";
 		$res = $sqlHelper->dql_arr($sql);
 		$sqlHelper->close_connect();
 		return $res;
@@ -355,6 +363,26 @@ class dptService{
 		$res = $sqlHelper->dml($sql);
 		$sqlHelper->close_connect();
 		return $res;
+	}
+
+	function uptRole($rid,$func,$roleName){
+		$sqlHelper = new sqlHelper();
+		$sql = "DELETE FROM staff_role_func where rid=$rid";
+		$res[] = $sqlHelper->dml($sql);
+
+		$sql = "INSERT INTO staff_role_func(rid,fid) values ";
+		for ($i=0; $i < count($func); $i++) { 
+			if ($i != count($func)-1) {
+				$sql .= "($rid, {$func[$i]}),";
+			}else{
+				$sql .= "($rid,{$func[$i]})";
+			}
+		}
+		$res[] = $sqlHelper->dml($sql);
+
+		$sql = "UPDATE staff_role set title='{$roleName}' where id=$rid";
+		$res[] = $sqlHelper->dml($sql);
+		return !in_array(0,$res);
 	}
 
 }

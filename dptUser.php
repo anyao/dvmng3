@@ -17,11 +17,18 @@ $user=$_SESSION['user'];
 <title>部门/人员-设备管理系统</title>
 
 <!-- Bootstrap core CSS -->
-<!-- <style type="text/css">
-  thead > tr > th:nth-last-child(1),thead > tr > th:nth-last-child(2){
+<style type="text/css">
+  /*thead > tr > th:nth-last-child(1),thead > tr > th:nth-last-child(2){
       width: 3%;
+  }*/
+  .glyphicon-check, .glyphicon-unchecked{
+    cursor:pointer;
   }
-</style> -->
+
+  #roleInfo > .row, #departInfo > .row{
+    margin:auto 5px !important;
+  }
+</style>
 <link rel="stylesheet" type="text/css" href="tp/datetimepicker.css">
 <link rel="stylesheet" href="bootstrap/css/treeview.css">
 <link rel="stylesheet" href="bootstrap/css/choose.css" media="all" type="text/css">
@@ -243,40 +250,63 @@ $user=$_SESSION['user'];
       </div>
       <form class="form-horizontal" id="formUser">
         <div class="modal-body">
-          <div class="form-group">
-            <label class="col-sm-3 control-label">用户编号：</label>
-            <div class="col-sm-7">  
-              <input type="text" class="form-control" name="code">
+          <div style="margin:10px auto">  
+            <ol class="breadcrumb">
+              <li><a href="javascript:addUserStep('basic');">基本信息</a></li>
+              <li><a href="javascript:addUserStep('role');">功能权限</a></li>
+              <li><a href="javascript:addUserStep('depart');">管理部门</a></li>
+            </ol>
+          </div>
+
+          <div id="basicInfo">
+            <div class="form-group">
+              <label class="col-sm-3 control-label">用户编号：</label>
+              <div class="col-sm-7">  
+                <input type="text" class="form-control" name="code">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-3 control-label">用户名称：</label>
+              <div class="col-sm-7">  
+                <input type="text" class="form-control" name="name">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-3 control-label">登录密码：</label>
+              <div class="col-sm-7">  
+                <input type="password" class="form-control" name="psw">
+              </div>
             </div>
           </div>
-          <div class="form-group">
-            <label class="col-sm-3 control-label">用户名称：</label>
-            <div class="col-sm-7">  
-              <input type="text" class="form-control" name="name">
+
+          <div id="roleInfo">
+            <div class="row">
+              <?php  
+                // 如果所登录的用户有角色管理这一权限，则显示。没有则直接默认普通用户
+                $role = $dptService->getRoleAll();
+                $addHtml = "";
+                for ($i=1; $i < count($role); $i++) { 
+                  $addHtml .= "<div class='col-md-3'>
+                                  <p>
+                                    <span class='glyphicon glyphicon-unchecked' role='{$role[$i]['id']}'></span> {$role[$i]['title']}
+                                  </p>
+                               </div>";
+                }
+                echo "$addHtml";
+              ?>
             </div>
           </div>
-          <div class="form-group">
-            <label class="col-sm-3 control-label">登录密码：</label>
-            <div class="col-sm-7">  
-              <input type="password" class="form-control" name="psw">
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="col-sm-3 control-label">管理权限：</label>
-            <div class="col-sm-7">  
-              <label class="radio-inline">
-                <input type="radio" name="permit" value="1"> 高级管理员
-              </label>
-              <label class="radio-inline">
-                <input type="radio" name="permit" value="2" checked> 普通管理员
-              </label>
+
+          <div id="departInfo">
+            <div class="row">
+              $dptScale = $dptService
             </div>
           </div>
           </div> 
           <div class="modal-footer">
             <input type="hidden" name="flag" value="addUser">
             <input type="hidden" name="dptid">
-            <button type="button" class="btn btn-primary" id="yesAddUser">确认添加</button>
+            <button type="button" class="btn btn-primary" id="yesAddUser">功能权限</button>
             <button type="button" class="btn btn-danger" data-dismiss="modal">取消</button>
           </div>
         </form>
@@ -444,8 +474,6 @@ $user=$_SESSION['user'];
   </div>
 </div>
 
-
-
 <!-- 删除配置柜提示框 -->
 <div class="modal fade"  id="delDpt">
   <div class="modal-dialog modal-sm" role="document">
@@ -465,52 +493,52 @@ $user=$_SESSION['user'];
 </div>
 
 <div class="modal fade"  id="failAdd">
-<div class="modal-dialog modal-sm" role="document" >
-<div class="modal-content">
-     <div class="modal-header">
-      <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
-     </div>
-     <div class="modal-body"><br/>
-        <div class="loginModal">您需要添加的信息不完整，请补充。</div><br/>
-     </div>
-     <div class="modal-footer">  
-      <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+  <div class="modal-dialog modal-sm" role="document" >
+    <div class="modal-content">
+         <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
+         </div>
+         <div class="modal-body"><br/>
+            <div class="loginModal">您需要添加的信息不完整，请补充。</div><br/>
+         </div>
+         <div class="modal-footer">  
+          <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+        </div>
     </div>
-</div>
-</div>
+  </div>
 </div> 
 
 <!-- 删除失败弹出框 -->
 <div class="modal fade"  id="failDel">
-<div class="modal-dialog modal-sm" role="document" >
-<div class="modal-content">
-     <div class="modal-header">
-      <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
-     </div>
-     <div class="modal-body"><br/>
-        <div class="loginModal">删除失败，其下存在子部门/用户/设备。</div><br/>
-     </div>
-     <div class="modal-footer">  
-      <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+  <div class="modal-dialog modal-sm" role="document" >
+    <div class="modal-content">
+         <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
+         </div>
+         <div class="modal-body"><br/>
+            <div class="loginModal">删除失败，其下存在子部门/用户/设备。</div><br/>
+         </div>
+         <div class="modal-footer">  
+          <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+        </div>
     </div>
-</div>
-</div>
+  </div>
 </div> 
 
 <div class="modal fade"  id="userErr">
-<div class="modal-dialog modal-sm" role="document" >
-<div class="modal-content">
-     <div class="modal-header">
-      <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
-     </div>
-     <div class="modal-body"><br/>
-        <div class="loginModal">添加失败，您需要添加的用户名或用户编号已存在。</div><br/>
-     </div>
-     <div class="modal-footer">  
-      <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+  <div class="modal-dialog modal-sm" role="document" >
+    <div class="modal-content">
+         <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
+         </div>
+         <div class="modal-body"><br/>
+            <div class="loginModal">添加失败，您需要添加的用户名或用户编号已存在。</div><br/>
+         </div>
+         <div class="modal-footer">  
+          <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+        </div>
     </div>
-</div>
-</div>
+  </div>
 </div> 
 
 <div class="modal fade"  id="delUser">
@@ -531,35 +559,35 @@ $user=$_SESSION['user'];
 </div>
 
 <div class="modal fade"  id="userFail">
-<div class="modal-dialog modal-sm" role="document" >
-<div class="modal-content">
-     <div class="modal-header">
-      <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
-     </div>
-     <div class="modal-body"><br/>
-        <div class="loginModal">操作失败，请联系管理员。</div><br/>
-     </div>
-     <div class="modal-footer">  
-      <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+  <div class="modal-dialog modal-sm" role="document" >
+    <div class="modal-content">
+         <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
+         </div>
+         <div class="modal-body"><br/>
+            <div class="loginModal">操作失败，请联系管理员。</div><br/>
+         </div>
+         <div class="modal-footer">  
+          <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+        </div>
     </div>
-</div>
-</div>
+  </div>
 </div> 
 
 <div class="modal fade"  id="getAuth">
-<div class="modal-dialog modal-sm" role="document" >
-<div class="modal-content">
-     <div class="modal-header">
-      <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
-     </div>
-     <div class="modal-body"><br/>
-        <div class="loginModal">建设中，敬请期待。</div><br/>
-     </div>
-     <div class="modal-footer">  
-      <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+  <div class="modal-dialog modal-sm" role="document" >
+    <div class="modal-content">
+         <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
+         </div>
+         <div class="modal-body"><br/>
+            <div class="loginModal">建设中，敬请期待。</div><br/>
+         </div>
+         <div class="modal-footer">  
+          <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+        </div>
     </div>
-</div>
-</div>
+  </div>
 </div> 
 
 <div class="modal fade"  id="noDev" >
@@ -587,6 +615,27 @@ $user=$_SESSION['user'];
 <script src="bootstrap/js/jsonToTree.js"></script>
 <script src="bootstrap/js/bootstrap-suggest.js"></script>
 <script type="text/javascript">
+// 选中按钮
+$(".col-md-3 > p > .glyphicon").click(function(){
+  $(this).toggleClass("glyphicon glyphicon-check");
+  $(this).toggleClass("glyphicon glyphicon-unchecked");
+}); 
+
+function addUserStep(step){
+  if (step == "basic") {
+    $("#roleInfo, #departInfo").hide();
+    $("#basicInfo").show();
+  }else if (step == "role") {
+    $("#basicInfo, #departInfo").hide();
+    $("#roleInfo").show();
+  }else if (step == "depart") {
+    $("#basicInfo,#roleInfo").hide();
+    $("#departInfo").show();
+  }
+
+}
+
+
 $("#yesFind").click(function(){
   var find=$("#findUser input[name=find]").val();
   if (find.length==0) {

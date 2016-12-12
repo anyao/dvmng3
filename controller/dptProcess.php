@@ -194,5 +194,19 @@ if (!empty($_REQUEST['flag'])) {
 		exit();
 	}
 
+	else if ($flag == "uptRole") {
+		$func = $_GET['func'];
+		$rid = $_GET['rid'];
+		$roleName = $_GET['roleName'];
+		$res = $dptService->uptRole($rid,$func,$roleName);
+		if ($res != 0) {
+			header("location:./../dptRole.php");
+			exit();
+		}else{
+			echo "操作失败，请联系管理员：0310-5178939";
+			exit();
+		}
+	}
+
 }
 ?>
