@@ -55,6 +55,21 @@ class dptService{
         return $info;
 	}
 
+	function getDptForRole($comp){
+		$sqlHelper=new sqlHelper();
+		$sql="SELECT depart,id,pid
+			  from depart
+			  where comp=$comp";
+		$res=$sqlHelper->dql_arr($sql);
+		$sqlHelper->close_connect();
+        $info="";
+        for ($i=0; $i < count($res); $i++) { 
+        	$info[$i]=array("text"=>"{$res[$i]['depart']}","href"=>"javascript:checkDpt({$res[$i]['id']});","tags"=>"{$res[$i]['id']}","pid"=>"{$res[$i]['pid']}");
+        }
+        $info=json_encode($info,JSON_UNESCAPED_UNICODE);
+        return $info;
+	}
+
 	function getRoleFunc(){
 		$sqlHelper = new sqlHelper();
 		$sql = "SELECT staff_func.title func,fid,staff_role.title role,rid

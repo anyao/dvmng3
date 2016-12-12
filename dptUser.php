@@ -28,6 +28,18 @@ $user=$_SESSION['user'];
   #roleInfo > .row, #departInfo > .row{
     margin:auto 5px !important;
   }
+
+  #formUser .col-md-4{
+    margin:15px auto !important;
+  }
+  
+  #formUser .list-group-item{
+    padding:5px 15px !important;
+  }
+  .dvd-line{
+    border-bottom: 1px solid #CCCCCC;
+    margin:auto 5px 10px 5px !important;
+  }
 </style>
 <link rel="stylesheet" type="text/css" href="tp/datetimepicker.css">
 <link rel="stylesheet" href="bootstrap/css/treeview.css">
@@ -242,7 +254,7 @@ $user=$_SESSION['user'];
 
 <!-- 部门下添加新用户 -->
 <div class="modal fade" id="addUser-modal">
-  <div class="modal-dialog" role="document">
+  <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -250,63 +262,60 @@ $user=$_SESSION['user'];
       </div>
       <form class="form-horizontal" id="formUser">
         <div class="modal-body">
-          <div style="margin:10px auto">  
-            <ol class="breadcrumb">
-              <li><a href="javascript:addUserStep('basic');">基本信息</a></li>
-              <li><a href="javascript:addUserStep('role');">功能权限</a></li>
-              <li><a href="javascript:addUserStep('depart');">管理部门</a></li>
-            </ol>
-          </div>
-
-          <div id="basicInfo">
-            <div class="form-group">
-              <label class="col-sm-3 control-label">用户编号：</label>
-              <div class="col-sm-7">  
-                <input type="text" class="form-control" name="code">
+          <div class="row dvd-line">
+            <div class="col-md-4">
+              <div class="input-group">
+                <span class="input-group-addon">用户编号</span>
+                <input type="text" class="form-control"  name="code">
               </div>
             </div>
-            <div class="form-group">
-              <label class="col-sm-3 control-label">用户名称：</label>
-              <div class="col-sm-7">  
-                <input type="text" class="form-control" name="name">
+            <div class="col-md-4">
+              <div class="input-group">
+                <span class="input-group-addon">用户姓名</span>
+                <input type="text" class="form-control"  name="name">
               </div>
             </div>
-            <div class="form-group">
-              <label class="col-sm-3 control-label">登录密码：</label>
-              <div class="col-sm-7">  
-                <input type="password" class="form-control" name="psw">
+            <div class="col-md-4">
+              <div class="input-group">
+                <span class="input-group-addon">登录密码</span>
+                <input type="text" class="form-control"  name="psw">
               </div>
             </div>
           </div>
 
-          <div id="roleInfo">
-            <div class="row">
-              <?php  
-                // 如果所登录的用户有角色管理这一权限，则显示。没有则直接默认普通用户
-                $role = $dptService->getRoleAll();
-                $addHtml = "";
-                for ($i=1; $i < count($role); $i++) { 
-                  $addHtml .= "<div class='col-md-3'>
-                                  <p>
-                                    <span class='glyphicon glyphicon-unchecked' role='{$role[$i]['id']}'></span> {$role[$i]['title']}
-                                  </p>
-                               </div>";
-                }
-                echo "$addHtml";
-              ?>
+          <div class="row dvd-line">
+            <?php  
+              // 如果所登录的用户有角色管理这一权限，则显示。没有则直接默认普通用户
+              $role = $dptService->getRoleAll();
+              $addHtml = "";
+              for ($i=1; $i < count($role); $i++) { 
+                $addHtml .= "<div class='col-md-3'>
+                                <p>
+                                  <span class='glyphicon glyphicon-unchecked' role='{$role[$i]['id']}'></span> {$role[$i]['title']}
+                                </p>
+                             </div>";
+              }
+              echo "$addHtml";
+            ?>
+          </div>
+
+          <div class="row">
+            <div class="col-md-4">
+              <div id='py-dpt'></div>
+            </div>
+            <div class="col-md-4">
+              <div id="zp-dpt"></div>
+            </div>
+            <div class="col-md-4">
+              <div id="gp-dpt"></div>
             </div>
           </div>
 
-          <div id="departInfo">
-            <div class="row">
-              $dptScale = $dptService
-            </div>
-          </div>
           </div> 
           <div class="modal-footer">
             <input type="hidden" name="flag" value="addUser">
             <input type="hidden" name="dptid">
-            <button type="button" class="btn btn-primary" id="yesAddUser">功能权限</button>
+            <button type="button" class="btn btn-primary" id="yesAddUser">确认</button>
             <button type="button" class="btn btn-danger" data-dismiss="modal">取消</button>
           </div>
         </form>
@@ -615,6 +624,10 @@ $user=$_SESSION['user'];
 <script src="bootstrap/js/jsonToTree.js"></script>
 <script src="bootstrap/js/bootstrap-suggest.js"></script>
 <script type="text/javascript">
+function checkDpt(id){
+  
+}
+
 // 选中按钮
 $(".col-md-3 > p > .glyphicon").click(function(){
   $(this).toggleClass("glyphicon glyphicon-check");
@@ -970,48 +983,85 @@ $(document).on("click",".glyphicon-import",function addDpt(){
 });
 
 // 从数据库中所取出的数据
-$(function(){
-    var dataPy='<?php $dataPy=$dptService->getFctByJson(1); echo $dataPy; ?>';
-    var pyDataTree = transData(eval(dataPy), 'tags', 'pid', 'nodes'); 
-    dataPy=JSON.stringify(pyDataTree); 
+var dataPy='<?php $dataPy=$dptService->getDptForRole(1); echo $dataPy; ?>';
+var pyDataTree = transData(eval(dataPy), 'tags','pid', 'nodes'); 
+dataPy=JSON.stringify(pyDataTree); 
 
-    var dataZp='<?php $dataZp=$dptService->getFctByJson(2); echo $dataZp; ?>';
-    var zpDataTree = transData(eval(dataZp), 'tags', 'pid', 'nodes'); 
-    dataZp=JSON.stringify(zpDataTree); 
+var dataZp='<?php $dataZp=$dptService->getDptForRole(2); echo $dataZp; ?>';
+var zpDataTree = transData(eval(dataZp), 'tags','pid', 'nodes'); 
+dataZp=JSON.stringify(zpDataTree);
 
-    var dataGp='<?php $dataGp=$dptService->getFctByJson(3); echo $dataGp; ?>';
-    var gpDataTree = transData(eval(dataGp), 'tags', 'pid', 'nodes'); 
-    dataGp=JSON.stringify(gpDataTree); 
+var dataGp='<?php $dataGp=$dptService->getDptForRole(3); echo $dataGp; ?>';
+var gpDataTree = transData(eval(dataGp), 'tags','pid', 'nodes'); 
+dataGp=JSON.stringify(gpDataTree);
 
-	// 调用树形结构
-	$('#py-tree').treeview({
-      // color: "#428bca",
-      showBorder: false,
-      data: dataPy,
-      levels: 1,
-      enableLinks: true,
-      showTags: true
-    });
+// 添加新用户时权限范围
+$("#py-dpt").treeview({
+  nodeIcon: "glyphicon glyphicon-unchecked",
+  showBorder: false,
+  data: dataPy,
+  levels: 1,
+  enableLinks: true,
+  showTags: false
+});
 
-    $('#zp-tree').treeview({
-      // color: "#428bca",
-      showBorder: false,
-      data: dataZp,
-      levels: 1,
-      enableLinks: true,
-      showTags: true
-    });
+$('#zp-dpt').treeview({
+  nodeIcon: "glyphicon glyphicon-unchecked",
+  showBorder: false,
+  data: dataZp,
+  levels: 1,
+  enableLinks: true,
+  showTags: false
+});
 
-    $('#gp-tree').treeview({
-      // color: "#428bca",
-      showBorder: false,
-      data: dataGp,
-      levels: 1,
-      enableLinks: true,
-      showTags: true
-    });
+$('#gp-dpt').treeview({
+  nodeIcon: "glyphicon glyphicon-unchecked",
+  showBorder: false,
+  data: dataGp,
+  levels: 1,
+  enableLinks: true,
+  showTags: false
+});
 
+// 从数据库中所取出的数据
+var dataPy='<?php $dataPy=$dptService->getFctByJson(1); echo $dataPy; ?>';
+var pyDataTree = transData(eval(dataPy), 'tags', 'pid', 'nodes'); 
+dataPy=JSON.stringify(pyDataTree); 
 
+var dataZp='<?php $dataZp=$dptService->getFctByJson(2); echo $dataZp; ?>';
+var zpDataTree = transData(eval(dataZp), 'tags', 'pid', 'nodes'); 
+dataZp=JSON.stringify(zpDataTree); 
+
+var dataGp='<?php $dataGp=$dptService->getFctByJson(3); echo $dataGp; ?>';
+var gpDataTree = transData(eval(dataGp), 'tags', 'pid', 'nodes'); 
+dataGp=JSON.stringify(gpDataTree); 
+
+// 调用树形结构
+$('#py-tree').treeview({
+  // color: "#428bca",
+  showBorder: false,
+  data: dataPy,
+  levels: 1,
+  enableLinks: true,
+  showTags: true
+});
+
+$('#zp-tree').treeview({
+  // color: "#428bca",
+  showBorder: false,
+  data: dataZp,
+  levels: 1,
+  enableLinks: true,
+  showTags: true
+});
+
+$('#gp-tree').treeview({
+  // color: "#428bca",
+  showBorder: false,
+  data: dataGp,
+  levels: 1,
+  enableLinks: true,
+  showTags: true
 });
 
 function getUser(id){
