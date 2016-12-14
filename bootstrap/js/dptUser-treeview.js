@@ -619,6 +619,8 @@
 					.append(node.text);
 			}
 
+
+
 			// Test Add num as badges
 			if (node.num) {
 				// $.each(node.num, function addTag(id, tag) {

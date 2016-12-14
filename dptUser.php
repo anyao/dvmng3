@@ -299,7 +299,7 @@ $user=$_SESSION['user'];
             ?>
           </div>
 
-          <div class="row">
+          <div class="row dvd-line" >
             <div class="col-md-4">
               <div id='py-dpt'></div>
             </div>
@@ -309,6 +309,10 @@ $user=$_SESSION['user'];
             <div class="col-md-4">
               <div id="gp-dpt"></div>
             </div>
+          </div>
+          
+          <div id="dptList">
+            
           </div>
 
           </div> 
@@ -624,8 +628,20 @@ $user=$_SESSION['user'];
 <script src="bootstrap/js/jsonToTree.js"></script>
 <script src="bootstrap/js/bootstrap-suggest.js"></script>
 <script type="text/javascript">
-function checkDpt(id){
-  
+function checkDpt(id,flag){
+  // 只有点击是部门时才会进行操作
+  if (flag == 1) {
+    $.get("./controller/dptProcess.php",{
+      flag:'getFct',
+      id:id
+    },function(data,success){
+      // {"depart":"竖炉车间","id":"1","factory":"新区竖炉"}
+      var addHtml="<span class='badge'>"+data.factory+"-"+data.depart+" <a href='javascript:void(0);' class='glyphicon glyphicon-remove' style='color: #f5f5f5;text-decoration: none'></a><input type='hidden' name='chkDpt[]' value="+data.id+"></span> ";
+      $("#dptList").append(addHtml);
+
+      
+    },'json');
+  }
 }
 
 // 选中按钮
@@ -656,7 +672,7 @@ $("#yesFind").click(function(){
         keyboard: true
     });
   }else{
-    $.get("oller/dptProcess.php",{
+    $.get("controller/dptProcess.php",{
       flag:'findUser',
       kword:find
     },function(data,success){
@@ -760,7 +776,7 @@ function delDeved(){
 
 // 获取用户管理的相应设备
 function getDev(id){
-  $.get("oller/dptProcess.php",{
+  $.get("controller/dptProcess.php",{
     flag:'getCon',
     uid:id
   },function(data,success){
@@ -867,7 +883,7 @@ $("#yesUptUser").click(function(){
   });
   if (allow_submit==true) {
     var dptid=$("#formUptUser input[name=dptid]").val();
-    $.get("  controller/dptProcess.php",$("#formUptUser").serialize(),function(data,success){
+    $.get("controller/dptProcess.php",$("#formUptUser").serialize(),function(data,success){
       if (data=="fail") {
         $("#userFail").modal({ 
           keyboard: true
@@ -893,7 +909,7 @@ $("#yesAddUser").click(function(){
   });
   if (allow_submit==true) {
     var dptid=$("#formUser input[name=dptid]").val();
-    $.get("  controller/dptProcess.php",$("#formUser").serialize(),function(data,success){
+    $.get("controller/dptProcess.php",$("#formUser").serialize(),function(data,success){
       if (data=="error") {
         $("#userErr").modal({ 
           keyboard: true
@@ -997,30 +1013,24 @@ dataGp=JSON.stringify(gpDataTree);
 
 // 添加新用户时权限范围
 $("#py-dpt").treeview({
-  nodeIcon: "glyphicon glyphicon-unchecked",
   showBorder: false,
   data: dataPy,
-  levels: 1,
   enableLinks: true,
-  showTags: false
+  levels: 1
 });
 
 $('#zp-dpt').treeview({
-  nodeIcon: "glyphicon glyphicon-unchecked",
   showBorder: false,
-  data: dataZp,
-  levels: 1,
   enableLinks: true,
-  showTags: false
+  data: dataZp,
+  levels: 1
 });
 
 $('#gp-dpt').treeview({
-  nodeIcon: "glyphicon glyphicon-unchecked",
   showBorder: false,
-  data: dataGp,
-  levels: 1,
   enableLinks: true,
-  showTags: false
+  data: dataGp,
+  levels: 1
 });
 
 // 从数据库中所取出的数据

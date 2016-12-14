@@ -57,14 +57,14 @@ class dptService{
 
 	function getDptForRole($comp){
 		$sqlHelper=new sqlHelper();
-		$sql="SELECT depart,id,pid
+		$sql="SELECT depart,id,pid,IF(path,1,2) as flag
 			  from depart
 			  where comp=$comp";
 		$res=$sqlHelper->dql_arr($sql);
 		$sqlHelper->close_connect();
         $info="";
         for ($i=0; $i < count($res); $i++) { 
-        	$info[$i]=array("text"=>"{$res[$i]['depart']}","href"=>"javascript:checkDpt({$res[$i]['id']});","tags"=>"{$res[$i]['id']}","pid"=>"{$res[$i]['pid']}");
+        	$info[$i]=array("text"=>"{$res[$i]['depart']}","href"=>"javascript:checkDpt({$res[$i]['id']},{$res[$i]['flag']});","tags"=>"{$res[$i]['id']}","pid"=>"{$res[$i]['pid']}");
         }
         $info=json_encode($info,JSON_UNESCAPED_UNICODE);
         return $info;
@@ -398,6 +398,19 @@ class dptService{
 		$sql = "UPDATE staff_role set title='{$roleName}' where id=$rid";
 		$res[] = $sqlHelper->dml($sql);
 		return !in_array(0,$res);
+	}
+
+	function getFct($id){
+		$sqlHelper = new sqlHelper();
+		$sql = "SELECT depart.depart,depart.id,factory.id,factory.depart as factory
+				from depart
+				left join depart as factory
+				on depart.fid=factory.id
+				where depart.id=$id";
+		$res = $sqlHelper->dql($sql);
+		$sqlHelper->close_connect();
+		$res=json_encode($res,JSON_UNESCAPED_UNICODE);
+		return $res;
 	}
 
 }

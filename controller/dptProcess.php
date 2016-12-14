@@ -208,5 +208,12 @@ if (!empty($_REQUEST['flag'])) {
 		}
 	}
 
+	else if ($flag == "getFct") {
+		$id = $_GET['id'];
+		$res = $dptService->getFct($id);
+		echo "$res";
+
+	}
+
 }
 ?>
