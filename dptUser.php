@@ -43,6 +43,7 @@ $user=$_SESSION['user'];
 </style>
 <link rel="stylesheet" type="text/css" href="tp/datetimepicker.css">
 <link rel="stylesheet" href="bootstrap/css/treeview.css">
+<link rel="stylesheet" href="bootstrap/css/metroStyle/metroStyle.css">
 <link rel="stylesheet" href="bootstrap/css/choose.css" media="all" type="text/css">
 <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
 
@@ -299,22 +300,17 @@ $user=$_SESSION['user'];
             ?>
           </div>
 
-          <div class="row dvd-line" >
-            <div class="col-md-4">
-              <div id='py-dpt'></div>
+            <div class="row">
+              <div class="col-md-4">
+                <ul id="tree-py" class="ztree"></ul>
+              </div>
+              <div class="col-md-4">
+                <ul id="tree-zp" class="ztree"></ul>
+              </div>
+              <div class="col-md-4">
+                <ul id="tree-gp" class="ztree"></ul>
+              </div>
             </div>
-            <div class="col-md-4">
-              <div id="zp-dpt"></div>
-            </div>
-            <div class="col-md-4">
-              <div id="gp-dpt"></div>
-            </div>
-          </div>
-          
-          <div id="dptList">
-            
-          </div>
-
           </div> 
           <div class="modal-footer">
             <input type="hidden" name="flag" value="addUser">
@@ -627,7 +623,55 @@ $user=$_SESSION['user'];
 <script src="bootstrap/js/dptUser-treeview.js"></script>
 <script src="bootstrap/js/jsonToTree.js"></script>
 <script src="bootstrap/js/bootstrap-suggest.js"></script>
+<script src="bootstrap/js/jquery.ztree.core.js"></script>
+<script src="bootstrap/js/jquery.ztree.excheck.min.js"></script>
 <script type="text/javascript">
+// zTree参数设置
+var setting = {
+    view: {
+        selectedMulti: false,
+        showIcon: false
+    },
+    check: {
+        enable: true,
+        autoCheckTrigger: true
+    },
+    data: {
+        simpleData: {
+            enable: true
+        }
+    }
+};
+
+
+
+var zTreePy = <?php $data = $dptService->getDptForRole(1); echo $data; ?>;
+var zTreeZp = <?php $data = $dptService->getDptForRole(2); echo $data; ?>;
+var zTreeGp = <?php $data = $dptService->getDptForRole(3); echo $data; ?>;
+$(document).ready(function(){
+  $.fn.zTree.init($("#tree-py"), setting, zTreePy);
+  $.fn.zTree.init($("#tree-zp"), setting, zTreeZp);
+  $.fn.zTree.init($("#tree-gp"), setting, zTreeGp);
+$("#test").click(function(){
+var treeObj = $.fn.zTree.getZTreeObj("treeDemo");
+var nodes = treeObj.getCheckedNodes(true);
+alert(JSON.stringify(nodes));
+});
+});
+
+
+// 部门添加新用户
+$("#addUser").click(function(){
+  
+
+  var dptid=$(this).val();
+  $("#addUser-modal").modal({ 
+    keyboard: true
+  });
+});
+
+
+// -------------------------------------------------------
 function checkDpt(id,flag){
   // 只有点击是部门时才会进行操作
   if (flag == 1) {
@@ -927,13 +971,7 @@ $("#yesAddUser").click(function(){
 });
 
 
-// 部门添加新用户
-$("#addUser").click(function(){
-  var dptid=$(this).val();
-  $("#addUser-modal").modal({ 
-    keyboard: true
-  });
-});
+
 
 // 删除部门按钮
 $(document).on("click",".glyphicon-trash",function delDpt(){
