@@ -40,6 +40,13 @@ $user=$_SESSION['user'];
     border-bottom: 1px solid #CCCCCC;
     margin:auto 5px 10px 5px !important;
   }
+
+  .ztree-row{
+    position: relative;
+    top: -20px;
+    margin-left: 0px !important; 
+    margin-bottom:0px !important
+  }
 </style>
 <link rel="stylesheet" type="text/css" href="tp/datetimepicker.css">
 <link rel="stylesheet" href="bootstrap/css/treeview.css">
@@ -254,7 +261,7 @@ $user=$_SESSION['user'];
 </div>
 
 <!-- 部门下添加新用户 -->
-<div class="modal fade" id="addUser-modal">
+<div class="modal fade" id="addUserModal">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -279,7 +286,7 @@ $user=$_SESSION['user'];
             <div class="col-md-4">
               <div class="input-group">
                 <span class="input-group-addon">登录密码</span>
-                <input type="text" class="form-control"  name="psw">
+                <input type="password" class="form-control"  name="psw">
               </div>
             </div>
           </div>
@@ -300,7 +307,7 @@ $user=$_SESSION['user'];
             ?>
           </div>
 
-            <div class="row">
+            <div class="row ztree-row">
               <div class="col-md-4">
                 <ul id="tree-py" class="ztree"></ul>
               </div>
@@ -315,7 +322,9 @@ $user=$_SESSION['user'];
           <div class="modal-footer">
             <input type="hidden" name="flag" value="addUser">
             <input type="hidden" name="dptid">
-            <button type="button" class="btn btn-primary" id="yesAddUser">确认</button>
+            <input type="hidden" name="node">
+            <input type="hidden" name="role">
+            <button type="button" class="btn btn-primary" id="yesAddUser">确认添加</button>
             <button type="button" class="btn btn-danger" data-dismiss="modal">取消</button>
           </div>
         </form>
@@ -430,53 +439,6 @@ $user=$_SESSION['user'];
             <input type="hidden" name="dptid">
             <button type="button" class="btn btn-primary" id="yesUptUser">确认修改</button>
             <button type="button" class="btn btn-danger" data-dismiss="modal">取消</button>
-          </div>
-        </form>
-    </div>
-  </div>
-</div>
-
-<!-- 用户对应设备 -->
-<div class="modal fade" id="getDev" role="dialog">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">用户当前管理设备</h4>
-      </div>
-      <form class="form-horizontal" id="formDev">
-        <div class="modal-body">
-          <div class='form-group' >
-            <label class='col-sm-3 control-label'>新添加：</label>
-              <div class='col-sm-7'>
-            <div class='input-group'>
-              <input type='text' class='form-control' name="devName">
-              <div class='input-group-btn'>
-                <button type='button' class='btn btn-default dropdown-toggle' data-toggle='dropdown'>
-                  <span class='caret'></span>
-                </button>
-                <ul class='dropdown-menu dropdown-menu-right' role='menu'>
-                </ul>
-              </div>
-            </div>
-          </div>
-            <div class="btn-set">
-             <a href="javascript:void(0);" id="yesDev" class='glyphicon glyphicon-ok'></a>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label class="col-sm-3 control-label">设备列表：</label>
-            <div class="col-sm-8" id="forDev" style="padding-top: 5px">
-            </div>
-          </div>
-          <div class="modal-footer">
-            <input type="hidden" name="flag" value="setCon">
-            <input type="hidden" name="uid">
-            <input type="hidden" name="oCon">
-            <button type="button" class="btn btn-primary" id="addConYes">确认修改</button>
-            <button type="button" class="btn btn-danger" data-dismiss="modal">取消</button>
-          </div>
           </div>
         </form>
     </div>
@@ -634,7 +596,8 @@ var setting = {
     },
     check: {
         enable: true,
-        autoCheckTrigger: true
+        // autoCheckTrigger: true,
+        chkboxType: { "Y" : "s", "N" : "s" }
     },
     data: {
         simpleData: {
@@ -643,71 +606,83 @@ var setting = {
     }
 };
 
-
-
 var zTreePy = <?php $data = $dptService->getDptForRole(1); echo $data; ?>;
 var zTreeZp = <?php $data = $dptService->getDptForRole(2); echo $data; ?>;
 var zTreeGp = <?php $data = $dptService->getDptForRole(3); echo $data; ?>;
-$(document).ready(function(){
-  $.fn.zTree.init($("#tree-py"), setting, zTreePy);
-  $.fn.zTree.init($("#tree-zp"), setting, zTreeZp);
-  $.fn.zTree.init($("#tree-gp"), setting, zTreeGp);
-$("#test").click(function(){
-var treeObj = $.fn.zTree.getZTreeObj("treeDemo");
-var nodes = treeObj.getCheckedNodes(true);
-alert(JSON.stringify(nodes));
-});
-});
-
 
 // 部门添加新用户
 $("#addUser").click(function(){
-  
-
-  var dptid=$(this).val();
-  $("#addUser-modal").modal({ 
+  $.fn.zTree.init($("#tree-py"), setting, zTreePy);
+  $.fn.zTree.init($("#tree-zp"), setting, zTreeZp);
+  $.fn.zTree.init($("#tree-gp"), setting, zTreeGp);
+  treePy = $.fn.zTree.getZTreeObj("tree-py");
+  treeZp = $.fn.zTree.getZTreeObj("tree-zp");
+  treeGp = $.fn.zTree.getZTreeObj("tree-gp");
+  $("#addUserModal").modal({ 
     keyboard: true
   });
 });
 
+$("#yesAddUser").click(function(){
+  var nodesPy = treePy.getCheckedNodes(true);
+  var nodesZp = treeZp.getCheckedNodes(true);
+  var nodesGp = treeGp.getCheckedNodes(true);
+  var nodes = $.extend(nodesPy,nodesZp,nodesGp);
+  var allow_submit=true;
+  // 用户基本信息
+  $("#addUserModal input[type=text]").each(function(){ 
+    if ($(this).val()=="") {
+      allow_submit=false;
+      return false;
+    }
+  });
 
-// -------------------------------------------------------
-function checkDpt(id,flag){
-  // 只有点击是部门时才会进行操作
-  if (flag == 1) {
-    $.get("./controller/dptProcess.php",{
-      flag:'getFct',
-      id:id
-    },function(data,success){
-      // {"depart":"竖炉车间","id":"1","factory":"新区竖炉"}
-      var addHtml="<span class='badge'>"+data.factory+"-"+data.depart+" <a href='javascript:void(0);' class='glyphicon glyphicon-remove' style='color: #f5f5f5;text-decoration: none'></a><input type='hidden' name='chkDpt[]' value="+data.id+"></span> ";
-      $("#dptList").append(addHtml);
-
-      
-    },'json');
+  // 管理部门范围
+  var nodeDpt = "";
+  for (var i = 0; i < nodes.length; i++) {
+      nodeDpt += nodes[i].id+",";
   }
-}
+  if (nodes.length == 0) {
+    allow_submit = false;
+  }else{
+    $("#addUserModal input[name=node]").val(nodeDpt);
+  }
+
+  // 角色管理范围
+  var role = "";
+  $("#addUserModal .glyphicon-check").each(function(){
+    role += $(this).attr("role")+",";
+  });
+  $("#addUserModal input[name=role]").val(role);
+  
+
+  if (allow_submit==true) {
+    var dptid=$("#formUser input[name=dptid]").val();
+    $.get("controller/dptProcess.php",$("#formUser").serialize(),function(data,success){
+      if (data == "error") {
+        // 用户编号已存在
+        $("#userErr").modal({ 
+         keyboard: true
+        });
+      }else if(data == "success"){
+        $("#addUserModal").modal('toggle');
+        getUser(dptid); 
+      }else if (data == "failure") {
+        alert("failure!!");
+      }
+    },'text');
+  }else{
+     $("#failAdd").modal({ 
+        keyboard: true
+     });
+  }
+});
 
 // 选中按钮
 $(".col-md-3 > p > .glyphicon").click(function(){
   $(this).toggleClass("glyphicon glyphicon-check");
   $(this).toggleClass("glyphicon glyphicon-unchecked");
 }); 
-
-function addUserStep(step){
-  if (step == "basic") {
-    $("#roleInfo, #departInfo").hide();
-    $("#basicInfo").show();
-  }else if (step == "role") {
-    $("#basicInfo, #departInfo").hide();
-    $("#roleInfo").show();
-  }else if (step == "depart") {
-    $("#basicInfo,#roleInfo").hide();
-    $("#departInfo").show();
-  }
-
-}
-
 
 $("#yesFind").click(function(){
   var find=$("#findUser input[name=find]").val();
@@ -752,45 +727,6 @@ function findUser(){
   });
 }
 
-// 确认添加用户和设备关系按钮
-$("#addConYes").click(function(){
-  var allow_submit = true;
-  var forDev=$("#getDev #forDev input").length;
-  if (forDev==0) {
-    $('#failAdd').modal({
-        keyboard: true
-    });
-    allow_submit = false;
-  }
-  
-  if (allow_submit==true) {
-    $.post("controller/dptProcess.php",$("#formDev").serialize(),function(data,success){
-      if (data=="success") {
-        $("#getDev").modal('toggle');
-        getUser(dptid);
-      }else if (data=="failDel") {
-        alert("停止管理设备失败，请联系管理员。");
-      }else{
-        alert("新增加管理关系失败，请联系管理员。");
-      }
-    },"text");
-  }
-});
-
-$("#getDev #yesDev").click(function(){
-  if($("#getDev input[name=devName]").val().length>0){
-    var nameDev=$("#getDev input[name=devName]").val();
-    var idDev=$("#getDev input[name=devName]").attr("data-id");
-    var addHtml="<span class='badge'>"+nameDev+" <a href='javascript:void(0);' class='glyphicon glyphicon-remove' style='color: #f5f5f5;text-decoration: none'></a><input type='hidden' name='dev[]' value="+idDev+"></span> "
-    $("#getDev #forDev").append(addHtml);
-    $("#getDev input[name=devName]").val("");
-  }else{
-    $('#noDev').modal({
-      keyboard: true
-    });
-  }  
-});
-
 $("input[name=devName]").bsSuggest({
     allowNoKeyword: false,
      showBtn: false,
@@ -816,32 +752,6 @@ $("input[name=devName]").bsSuggest({
 $(document).on("click",".glyphicon-remove",delDeved);
 function delDeved(){
   $(this).parents("span").detach();
-}
-
-// 获取用户管理的相应设备
-function getDev(id){
-  $.get("controller/dptProcess.php",{
-    flag:'getCon',
-    uid:id
-  },function(data,success){
-    // [{"id":"5","devid":"85","name":"炉区控制器A柜"},{"id":"17","devid":"186","name":"粗轧顺控控制器柜"}]
-    // if (data.length==0) {
-    //   $addHtml="该用户未管理设备，可在文本框中搜索添加";
-    // }else{
-    var $addHtml="";
-    var oCon=new Array();
-    for (var i = 0; i < data.length; i++) {
-      oCon[i]=data[i].id;
-      $addHtml+="<span class='badge'>"+data[i].name+" <a href='javascript:void(0);' class='glyphicon glyphicon-remove' style='color: #f5f5f5;text-decoration: none'></a><input type='hidden' name='con[]' value="+data[i].id+"></span> ";
-      // }
-    }
-    $("#getDev input[name=uid]").val(id);
-    $("#getDev input[name=oCon]").val(oCon);
-    $("#forDev").empty().append($addHtml);
-    $("#getDev").modal({ 
-      keyboard: true
-    });
-  },"json");
 }
 
 function setAuth(id){
@@ -915,7 +825,6 @@ function uptUser(id){
 
 // 修改用户信息确认按钮
 $("#yesUptUser").click(function(){
-
   var allow_submit=true;
   $("#uptUser input[type!=hidden]").each(function(){
     if ($(this).val()=="") {
@@ -928,50 +837,11 @@ $("#yesUptUser").click(function(){
   if (allow_submit==true) {
     var dptid=$("#formUptUser input[name=dptid]").val();
     $.get("controller/dptProcess.php",$("#formUptUser").serialize(),function(data,success){
-      if (data=="fail") {
-        $("#userFail").modal({ 
-          keyboard: true
-        });
-      }else{
         $("#uptUser").modal('toggle');
         getUser(dptid);
-      }
     },'text');
   }
 });
-
-
-$("#yesAddUser").click(function(){
-  var allow_submit=true;
-  $("#addUser-modal input[type!=hidden]").each(function(){ 
-    if ($(this).val()=="") {
-      $("#failAdd").modal({ 
-        keyboard: true
-      });
-      allow_submit=false;
-    }
-  });
-  if (allow_submit==true) {
-    var dptid=$("#formUser input[name=dptid]").val();
-    $.get("controller/dptProcess.php",$("#formUser").serialize(),function(data,success){
-      if (data=="error") {
-        $("#userErr").modal({ 
-          keyboard: true
-        });
-      }else if (data=="fail") {
-        $("#userFail").modal({ 
-          keyboard: true
-        });
-      }else{
-        $("#addUser-modal").modal('toggle');
-        getUser(dptid);
-      }
-    },'text');
-  }
-});
-
-
-
 
 // 删除部门按钮
 $(document).on("click",".glyphicon-trash",function delDpt(){
@@ -1036,40 +906,6 @@ $(document).on("click",".glyphicon-import",function addDpt(){
 	});
 });
 
-// 从数据库中所取出的数据
-var dataPy='<?php $dataPy=$dptService->getDptForRole(1); echo $dataPy; ?>';
-var pyDataTree = transData(eval(dataPy), 'tags','pid', 'nodes'); 
-dataPy=JSON.stringify(pyDataTree); 
-
-var dataZp='<?php $dataZp=$dptService->getDptForRole(2); echo $dataZp; ?>';
-var zpDataTree = transData(eval(dataZp), 'tags','pid', 'nodes'); 
-dataZp=JSON.stringify(zpDataTree);
-
-var dataGp='<?php $dataGp=$dptService->getDptForRole(3); echo $dataGp; ?>';
-var gpDataTree = transData(eval(dataGp), 'tags','pid', 'nodes'); 
-dataGp=JSON.stringify(gpDataTree);
-
-// 添加新用户时权限范围
-$("#py-dpt").treeview({
-  showBorder: false,
-  data: dataPy,
-  enableLinks: true,
-  levels: 1
-});
-
-$('#zp-dpt').treeview({
-  showBorder: false,
-  enableLinks: true,
-  data: dataZp,
-  levels: 1
-});
-
-$('#gp-dpt').treeview({
-  showBorder: false,
-  enableLinks: true,
-  data: dataGp,
-  levels: 1
-});
 
 // 从数据库中所取出的数据
 var dataPy='<?php $dataPy=$dptService->getFctByJson(1); echo $dataPy; ?>';
@@ -1137,7 +973,7 @@ function getUser(id){
 			}
 		}
 		$("#userMsg tbody").empty().append($addHtml);
-    $("#addUser-modal input[name=dptid]").val(id);
+    $("#addUserModal input[name=dptid]").val(id);
 		$('#userMsg').modal({
 		    keyboard: true
 		});

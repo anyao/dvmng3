@@ -218,12 +218,31 @@ class dptService{
 	}
 
 	// 添加用户
-	function addUser($code,$name,$permit,$dptid,$psw){
+	function addUser($code,$name,$psw,$dptid,$node,$role){
 		$sqlHelper=new sqlHelper();
-		$sql="insert into user (code,name,permit,departid,psw) values('{$code}','{$name}','{$permit}',$dptid,'{$psw}')";
-		$res=$sqlHelper->dml($sql);
+		// user表添加用户基本信息
+		$sql = "INSERT INTO user (code,name,psw,departid) values('{$code}','{$name}','{$psw}',$dptid)";
+		$res[] = $sqlHelper->dml($sql);
+		$uid = mysql_insert_id();
+
+		// 用户可操作的功能
+		$sql = "INSERT INTO staff_user_role (uid,rid) values ";
+		for ($i=0; $i < count($role)-1; $i++) { 
+				$sql .= "($uid,{$role[$i]}),";
+		}
+		$sql = substr($sql,0,-1);
+		$res[] = $sqlHelper->dml($sql);
+
+		// 用户可操作的部门范围
+		$sql = "INSERT INTO staff_user_dpt (uid,dptid) values";
+		for ($i=0; $i < count($node)-1; $i++) { 
+			$sql .= "($uid,{$node[$i]}),";
+		}
+		$sql = substr($sql,0,-1);
+		$res[] = $sqlHelper->dml($sql);
+
 		$sqlHelper->close_connect();
-		return $res;
+		return !in_array(0,$res);
 	}
 
 	// 获得用户信息用于修改

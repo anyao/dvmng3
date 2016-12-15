@@ -69,23 +69,24 @@ if (!empty($_REQUEST['flag'])) {
 	}
 
 	else if ($flag=="addUser") {
-		$code=$_GET['code'];
-		$name=$_GET['name'];
-		$permit=$_GET['permit'];
-		$dptid=$_GET['dptid'];
-		$psw=$_GET['psw'];
+		$code = $_GET['code'];
+	    $name = $_GET['name'];
+	    $psw = $_GET['psw'];
+	    $dptid = $_GET['dptid'];
+	    $node = explode(",",$_GET['node']);
+	    $role = explode(",",$_GET['role']);
 
 		$res=$dptService->checkUser($code);
 		if ($res['num']!=0) {
 			echo "error";
 			exit();
 		}else{
-			$res=$dptService->addUser($code,$name,$permit,$dptid,$psw);
-			if ($res!=0) {
+			$res=$dptService->addUser($code,$name,$psw,$dptid,$node,$role);
+			if ($res != 0) {
 				echo "success";
 				exit();
 			}else{
-				echo "fail";
+				echo "failure";
 				exit();
 			}
 		}
