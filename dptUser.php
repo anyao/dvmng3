@@ -2,6 +2,12 @@
 require_once "model/cookie.php";
 checkValidate();
 $user=$_SESSION['user'];
+
+require_once "model/dptService.class.php";
+$dptService=new dptService();
+
+require_once "model/repairService.class.php";
+$repairService=new repairService();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -42,11 +48,17 @@ $user=$_SESSION['user'];
   }
 
   .ztree-row{
-    position: relative;
-    top: -20px;
     margin-left: 0px !important; 
-    margin-bottom:0px !important
+    margin-bottom:0px !important;
+    height: 400px;
+    overflow-y:auto
   }
+
+  .ztree-row > .col-md-4{
+    margin:0px !important;
+  }
+
+
 </style>
 <link rel="stylesheet" type="text/css" href="tp/datetimepicker.css">
 <link rel="stylesheet" href="bootstrap/css/treeview.css">
@@ -61,15 +73,7 @@ $user=$_SESSION['user'];
 <![endif]-->
 </head>
 <body role="document">
-<?php 
-	require_once "model/repairService.class.php";
-	$repairService=new repairService();
-	include "message.php";
-
-	require_once "model/dptService.class.php";
-	$dptService=new dptService();
-?>
-
+<?php include "message.php";?>
 <nav class="navbar navbar-inverse">
   <div class="container">
     <div class="navbar-header">
@@ -217,12 +221,15 @@ $user=$_SESSION['user'];
           <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
           <h4 class="modal-title"> <span class="glyphicon glyphicon-user"></span> 用户管理</h4>
         </div>
-        <div class="modal-body" style="height: 300px">
+        <div class="modal-body">
+        <div class="row" style="height: 400px;overflow-y:scroll;margin-left: 0px">
           <table class="table table-striped table-hover">
-          <thead><tr><th>用户ID</th><th>用户编号</th><th>用户姓名</th><th>用户级别</th>
+          <thead><tr><th>用户ID</th><th>用户编号</th><th>用户姓名</th><th>所属角色组</th>
           <th style="width: 4%">　</th><th style="width: 4%">　</th><th style="width: 4%">　</th><th style="width: 4%">　</th></tr></thead>
             <tbody></tbody>
           </table>
+          
+        </div>
         </div>
         <div class="modal-footer">
         	<button class="btn btn-primary" id="addUser">添加新用户</button>
@@ -295,15 +302,15 @@ $user=$_SESSION['user'];
             <?php  
               // 如果所登录的用户有角色管理这一权限，则显示。没有则直接默认普通用户
               $role = $dptService->getRoleAll();
-              $addHtml = "";
+              $roleList = "";
               for ($i=1; $i < count($role); $i++) { 
-                $addHtml .= "<div class='col-md-3'>
+                $roleList .= "<div class='col-md-3'>
                                 <p>
                                   <span class='glyphicon glyphicon-unchecked' role='{$role[$i]['id']}'></span> {$role[$i]['title']}
                                 </p>
                              </div>";
               }
-              echo "$addHtml";
+              echo "$roleList";
             ?>
           </div>
 
@@ -375,13 +382,13 @@ $user=$_SESSION['user'];
 </div>
 
 
-<!-- 修改用户信息 -->
-<div class="modal fade" id="uptUser">
+<!-- 修改基本用户信息 -->
+<div class="modal fade" id="getUserBsc">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="myModalLabel">修改用户信息</h4>
+        <h4 class="modal-title" id="myModalLabel">用户基本信息</h4>
       </div>
       <form class="form-horizontal" id="formUptUser">
         <div class="modal-body">
@@ -421,30 +428,73 @@ $user=$_SESSION['user'];
               <input type="password" class="form-control" name="psw">
             </div>
           </div>
-          <div class="form-group">
-            <label class="col-sm-3 control-label">管理权限：</label>
-            <div class="col-sm-7">  
-              <label class="radio-inline">
-                <input type="radio" name="permit" value="0"> 高级用户
-              </label>
-              <label class="radio-inline">
-                <input type="radio" name="permit" value="1"> 普通用户
-              </label>
-            </div>
-          </div>
+
           </div> 
           <div class="modal-footer">
+            <input type="hidden" name="flag" value="uptUserBsc">
             <input type="hidden" name="id">
-            <input type="hidden" name="flag" value="uptUser">
             <input type="hidden" name="dptid">
-            <button type="button" class="btn btn-primary" id="yesUptUser">确认修改</button>
-            <button type="button" class="btn btn-danger" data-dismiss="modal">取消</button>
+            <button type="button" class="btn btn-primary" id="yesUptUserBsc">确认修改</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
           </div>
         </form>
     </div>
   </div>
 </div>
 
+<div class="modal fade" id="getUserRole">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">用户角色分组</h4>
+      </div>
+      <form class="form-horizontal" id='formUserRole' action="./controller/dptProcess.php">
+        <div class="modal-body">
+         <div class="row" style="margin-top: 20px">
+             <?php echo "$roleList"; ?>
+         </div>
+        </div> 
+        <div class="modal-footer">
+          <input type="hidden" name="uid">
+          <input type="hidden" name="rid">
+          <input type="hidden" name="flag" value="uptUserRole">
+          <button type="hidden" class="btn btn-primary" id="yesUptUserRole">确认修改</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+        </div>
+        </form>
+    </div>
+  </div>
+</div>
+
+<!-- 修改用户可操作范围 -->
+<div class="modal fade" id="getUserDpt">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">管理部门范围</h4>
+      </div>
+      <form class="form-horizontal" id="formUserDpt" action="./controller/dptProcess.php">
+        <div class="modal-body">
+          <div class="row" style="height: 500px;overflow-y:scroll;">
+            <div class="col-md-offset-2">
+              <ul id="treeUpt" class="ztree"></ul>
+              
+            </div>
+          </div>
+        </div> 
+        <div class="modal-footer">
+          <input type="hidden" name="uid">
+          <input type="hidden" name="dptid">
+          <input type="hidden" name="flag" value="uptUserDpt">
+          <button type="button" class="btn btn-primary" id="yesUptUserDpt">确认修改</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+        </div>
+        </form>
+    </div>
+  </div>
+</div>
 <!-- 删除配置柜提示框 -->
 <div class="modal fade"  id="delDpt">
   <div class="modal-dialog modal-sm" role="document">
@@ -519,7 +569,7 @@ $user=$_SESSION['user'];
           <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
          </div>
          <div class="modal-body">
-          <br>确定要删除该用户记录吗？<br/>删除后对应与设备管理关系也将删除。<br/><br/>
+          <br>确定要删除该用户记录吗？<br/><br/>
          </div>
          <div class="modal-footer">  
           <button type="button" class="btn btn-danger" id="yesDelUser">删除</button>
@@ -537,22 +587,6 @@ $user=$_SESSION['user'];
          </div>
          <div class="modal-body"><br/>
             <div class="loginModal">操作失败，请联系管理员。</div><br/>
-         </div>
-         <div class="modal-footer">  
-          <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
-        </div>
-    </div>
-  </div>
-</div> 
-
-<div class="modal fade"  id="getAuth">
-  <div class="modal-dialog modal-sm" role="document" >
-    <div class="modal-content">
-         <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
-         </div>
-         <div class="modal-body"><br/>
-            <div class="loginModal">建设中，敬请期待。</div><br/>
          </div>
          <div class="modal-footer">  
           <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
@@ -606,6 +640,57 @@ var setting = {
     }
 };
 
+
+// 获取用户管理部门的范围
+function getScale(id){
+  $.get("./controller/dptProcess.php",{
+    flag:'getUserDpt',
+    uid:id
+  },function(data){
+    var dptid = "";
+    for (var i = 0; i < data.length; i++) {
+      if(data[i].uid){
+        dptid += data[i].id+",";
+      }
+    }
+
+    $.fn.zTree.init($("#treeUpt"), setting, data);
+    uptTree = $.fn.zTree.getZTreeObj("treeUpt");
+    
+    $("#getUserDpt input[name=dptid]").val(dptid);
+    $("#getUserDpt input[name=uid]").val(id);
+    $("#getUserDpt").modal({ 
+      keyboard: true
+    });
+  },'json');
+}
+
+// 提交用户管理范围的修改
+$("#yesUptUserDpt").click(function(){
+  var valDpt = $("#getUserDpt input[name=dptid]").val();
+  var uptNodes = uptTree.getCheckedNodes(true);
+  if (uptNodes.length == 0) {
+    // 范围为空，不可提交
+    $("#failAdd").modal({
+      keyboard: true
+    });
+  }else{
+    var nodeDpt = "";
+    for (var i = 0; i < uptNodes.length; i++) {
+        nodeDpt += uptNodes[i].id+",";
+    }
+    $("#getUserDpt input[name=dptid]").val(nodeDpt);
+    $.get("./controller/dptProcess.php",$("#formUserDpt").serialize(),function(data){
+      if (data == "success") {
+        $("#getUserDpt").modal('hide');
+        getUser($("#userMsg").attr("dptid"));
+      }
+    },'text');
+  }
+  return allow_submit;
+});
+
+
 var zTreePy = <?php $data = $dptService->getDptForRole(1); echo $data; ?>;
 var zTreeZp = <?php $data = $dptService->getDptForRole(2); echo $data; ?>;
 var zTreeGp = <?php $data = $dptService->getDptForRole(3); echo $data; ?>;
@@ -623,6 +708,7 @@ $("#addUser").click(function(){
   });
 });
 
+// 提交添加新用户
 $("#yesAddUser").click(function(){
   var nodesPy = treePy.getCheckedNodes(true);
   var nodesZp = treeZp.getCheckedNodes(true);
@@ -665,7 +751,7 @@ $("#yesAddUser").click(function(){
          keyboard: true
         });
       }else if(data == "success"){
-        $("#addUserModal").modal('toggle');
+        $("#addUserModal").modal('hide');
         getUser(dptid); 
       }else if (data == "failure") {
         alert("failure!!");
@@ -680,8 +766,8 @@ $("#yesAddUser").click(function(){
 
 // 选中按钮
 $(".col-md-3 > p > .glyphicon").click(function(){
-  $(this).toggleClass("glyphicon glyphicon-check");
-  $(this).toggleClass("glyphicon glyphicon-unchecked");
+  $(this).toggleClass("glyphicon-check");
+  $(this).toggleClass("glyphicon-unchecked");
 }); 
 
 $("#yesFind").click(function(){
@@ -706,10 +792,10 @@ $("#yesFind").click(function(){
             data[i].permit="高级管理员";
           }
           $addHtml+="<tr><td>"+data[i].id+"</td><td>"+data[i].code+"</td><td>"+data[i].name+"</td><td>"+data[i].permit+"</td>"+
-                "<td><a href=\"javascript:setAuth("+data[i].id+")\" class='glyphicon glyphicon-thumbs-up'></a></td>"+
-                "<td><a href=\"javascript:uptUser("+data[i].id+")\" class='glyphicon  glyphicon glyphicon-scissors'></a></td>"+
+                "<td><a href=\"javascript:("+data[i].id+")\" class='glyphicon glyphicon-thumbs-up'></a></td>"+
+                "<td><a href=\"javascript:getBsc("+data[i].id+")\" class='glyphicon  glyphicon glyphicon-scissors'></a></td>"+
                 "<td><a href=\"javascript:getDev("+data[i].id+")\" class='glyphicon glyphicon-list'></a></td>"+
-                "<td><a href=\"javascript:delUser("+data[i].id+","+data[i].departid+")\" class='glyphicon glyphicon-remove'></a></td></tr>";
+                "<td><a href=\"javascript:delUser("+data[i].id+")\" class='glyphicon glyphicon-remove'></a></td></tr>";
         }
       }
       $("#findUser tbody").empty().append($addHtml);
@@ -727,106 +813,108 @@ function findUser(){
   });
 }
 
-$("input[name=devName]").bsSuggest({
-    allowNoKeyword: false,
-     showBtn: false,
-    indexKey: 0,
-    indexId:1,
-    inputWarnColor: '#f5f5f5',
-    data: {
-       'value':<?php
-                $devAll=$dptService->getUsingAll();
-                echo "$devAll";
-               ?>,
+
+function getRole(id){
+  $.get("./controller/dptProcess.php",{
+    flag:"getUserRole",
+    uid:id
+  },function(data){
+    var rid = "";
+    for (var i = 0; i < data.length; i++) {
+      $("#getUserRole span[role="+data[i].rid+"]").removeClass("glyphicon-unchecked").addClass('glyphicon-check');
+      rid += data[i].rid+",";
     }
-}).on('onDataRequestSuccess', function (e, result) {
-    console.log('onDataRequestSuccess: ', result);
-}).on('onSetSelectValue', function (e, keyword, data) {
-    console.log('onSetSelectValue: ', keyword, data);
-    var devid=$(this).attr("data-id");
-}).on('onUnsetSelectValue', function (e) {
-    console.log("onUnsetSelectValue");
+    $("#getUserRole input[name=uid]").val(id);
+    $("#getUserRole input[name=rid]").val(rid);
+    $("#getUserRole").modal({ 
+      keyboard: true
+    });
+  },'json'); 
+}
+
+// 提交修改用户Role
+$("#yesUptUserRole").click(function(){
+  var rid = "";
+  $check.each(function(){
+    rid += $(this).attr("role")+",";
+  });
+  $("#getUserRole input[name=rid]").val(rid);
+  $.get("./controller/dptProcess.php",$("#formUserRole").serialize(),function(data){
+    if (data == "success") {
+      $("#getUserRole").modal('hide');
+      getUser($("#userMsg").attr("dptid"));
+    }else{
+      alert("操作失败请联系管理员。");
+    }
+  },'text');
 });
 
-// 已确定添加的设备删除
-$(document).on("click",".glyphicon-remove",delDeved);
-function delDeved(){
-  $(this).parents("span").detach();
-}
-
-function setAuth(id){
-  $("#getAuth").modal({ 
-    keyboard: true
-  });
-}
-
-function delUser(id,dptid){
-  $("#yesDelUser").val(id);
-  $("#yesDelUser").attr("dptid",dptid);
+function delUser(id){
+  $("#yesDelUser").attr("uid",id);
   $("#delUser").modal({ 
     keyboard: true
   });
 }
 
 $("#yesDelUser").click(function(){
-  var id=$(this).val();
-  var dptid=$(this).attr('dptid');
-  // location.href="controller/dptProcess.php?flag=delUser&id="+id;
+  var uid=$(this).attr("uid");
   $.get("controller/dptProcess.php",{
     flag:'delUser',
-    id:id
+    uid:uid
   },function(data,success){
     if (data=="fail") {
       $("#userFail").modal({ 
         keyboard: true
       });
     }else{
-      $("#delUser").modal('toggle');
-      getUser(dptid);
+      $("#delUser").modal('hide');
+      getUser($("#userMsg").attr("dptid"));
     }
   },"text");
 });
 
-// 修改用户信息
-function uptUser(id){
+
+// 修改用户基本信息
+function getBsc(id){
   $.get("controller/dptProcess.php",{
-    flag:'getUserForUpt',
+    flag:'getUserBsc',
     id:id
   },function(data,success){
-    $("#uptUser input[name=id]").val(data.id);
-    $("#uptUser input[name=name]").val(data.name);
-    $("#uptUser input[name=code]").val(data.code);
-    $("#uptUser input[name=psw]").val(data.psw);
-    $("#uptUser input[name=dptid]").val(data.departid);
-    $("#uptUser input[name=permit][value="+data.permit+"]").attr("checked","checked");
-    $("#uptUser input[name=dptName]").val(data.depart);
+    $("#getUserBsc input[name=id]").val(id);
+    $("#getUserBsc input[name=name]").val(data.name);
+    $("#getUserBsc input[name=code]").val(data.code);
+    $("#getUserBsc input[name=dptid]").val(data.dptid);
+    $("#getUserBsc input[name=dptName]").val(data.depart);
+    $("#getUserBsc input[name=psw]").val(data.psw);
     // 修改用户信息弹出框下的部门提示
-    $("#uptUser input[name=dptName]").bsSuggest({
+    $("#getUserBsc input[name=dptName]").bsSuggest({
         allowNoKeyword: false,
         showBtn: false,
         indexId:1,
         data: {
-             'value':<?php $dptForUser=$dptService->getDptForUser();echo "$dptForUser"; ?>,
+             'value':<?php $dptAll = $dptService->getDpt();
+                           echo "$dptAll"; ?>
         }
     }).on('onDataRequestSuccess', function (e, result) {
         console.log('onDataRequestSuccess: ', result);
     }).on('onSetSelectValue', function (e, keyword, data) {
        console.log('onSetSelectValue: ', keyword, data);
-       var idDepart=$(this).attr("data-id");
-       $(this).parents("form").find("input[name=dptid]").val(idDepart);
+       var dptid = $(this).attr("data-id");
+       $(this).parents("form").find("input[name=dptid]").val(dptid);
     }).on('onUnsetSelectValue', function (e) {
         console.log("onUnsetSelectValue");
     });
-    $("#uptUser").modal({ 
-        keyboard: true
-      });
+    $("#getUserBsc").modal({ 
+      keyboard: true
+    });
   },'json');
 }
 
-// 修改用户信息确认按钮
-$("#yesUptUser").click(function(){
+
+// 提交用户修改
+$("#yesUptUserBsc").click(function(){
   var allow_submit=true;
-  $("#uptUser input[type!=hidden]").each(function(){
+  $("#getUserBsc input[type!=hidden]").each(function(){
     if ($(this).val()=="") {
       $("#failAdd").modal({ 
         keyboard: true
@@ -836,9 +924,9 @@ $("#yesUptUser").click(function(){
   });
   if (allow_submit==true) {
     var dptid=$("#formUptUser input[name=dptid]").val();
-    $.get("controller/dptProcess.php",$("#formUptUser").serialize(),function(data,success){
-        $("#uptUser").modal('toggle');
-        getUser(dptid);
+    $.get("controller/dptProcess.php",$("#formUptUser").serialize(),function(){
+      $("#getUserBsc").modal('hide');
+      getUser(dptid);
     },'text');
   }
 });
@@ -953,26 +1041,20 @@ function getUser(id){
 		flag:"getUser",
 		dptid:id
 	},function(data,success){
-		// [{"id":"1","name":"admin","code":"admin","psw":"123456","departid":"2","permit":"1"}]
-		// <th>用户ID</th><th>用户编号</th><th>用户姓名</th><th>用户级别</th>
-		if (data.length==0) {
+		if (jQuery.isEmptyObject(data)) {
 			$addHtml="<tr><td colspan='12'>该 部门 / 分厂 暂时没有设备管理员，请添加。</td></tr>"
 		}else{	
 			var $addHtml="";
-			for (var i = data.length - 1; i >= 0; i--) {
-        if (data[i].permit==1) {
-            data[i].permit="普通管理员";
-          }else{
-            data[i].permit="高级管理员";
-          }
-				$addHtml+="<tr><td>"+data[i].id+"</td><td>"+data[i].code+"</td><td>"+data[i].name+"</td><td>"+data[i].permit+"</td>"+
-						  "<td><a href=\"javascript:setAuth("+data[i].id+")\" class='glyphicon glyphicon-thumbs-up'></a></td>"+
-						  "<td><a href=\"javascript:uptUser("+data[i].id+")\" class='glyphicon  glyphicon glyphicon-scissors'></a></td>"+
-						  "<td><a href=\"javascript:getDev("+data[i].id+")\" class='glyphicon glyphicon-list'></a></td>"+
-						  "<td><a href=\"javascript:delUser("+data[i].id+","+id+")\" class='glyphicon glyphicon-remove'></a></td></tr>";
-			}
+      $.each(data,function(i,val){
+        $addHtml += "<tr><td>"+i+"</td><td>"+val.code+"</td><td>"+val.name+"</td><td>"+val.role+"</td>"+
+                    "    <td><a href=\"javascript:getBsc("+i+")\" class='glyphicon glyphicon-credit-card'></a></td>"+
+                    "    <td><a href=\"javascript:getRole("+i+")\" class='glyphicon glyphicon-tower'></a></td>"+
+                    "    <td><a href=\"javascript:getScale("+i+")\" class='glyphicon glyphicon-list'></a></td>"+
+                    "    <td><a href=\"javascript:delUser("+i+")\" class='glyphicon glyphicon-remove'></a></td></tr>";
+      });
 		}
 		$("#userMsg tbody").empty().append($addHtml);
+    $("#userMsg").attr("dptid",id);
     $("#addUserModal input[name=dptid]").val(id);
 		$('#userMsg').modal({
 		    keyboard: true

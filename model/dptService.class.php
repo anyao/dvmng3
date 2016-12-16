@@ -5,7 +5,8 @@ class dptService{
 	// 获取部门及其分厂	后期具体添加他们的部门结构限制
 	function getDpt(){
 		$sqlHelper = new sqlHelper();
-		$sql = "select depart.depart,IFNULL(factory.depart,'分厂') as factory,depart.id from depart 
+		$sql = "SELECT depart.depart,IFNULL(factory.depart,'分厂') as factory,depart.id 
+				from depart 
 				left join depart as factory
 				on depart.fid = factory.id";
 		$res = $sqlHelper->dql_arr($sql);
@@ -14,9 +15,13 @@ class dptService{
 		return $res;
 	}
 
-	function getFctAll($comp){
+	function getFctAll($comp = 0){
 		$sqlHelper=new sqlHelper();
-		$sql="select * from depart where path is null and comp=$comp";
+		if ($comp != 0) {
+			$sql = "SELECT * FROM depart where path is null and comp=$comp";
+		}else{
+			$sql = "SELECT depart,id FROM depart where path is null";
+		}
 		$res=$sqlHelper->dql_arr($sql);
 		$sqlHelper->close_connect();
 		return $res;
@@ -101,11 +106,15 @@ class dptService{
 		}
 	}
 
-	function getSector($fid){
+	function getSector($fid,$ext = 0){
 		$sqlHelper=new sqlHelper();
-		$sql="select * from depart where path like '-{$fid}'";
+		if ($ext == 0) {
+			$sql="SELECT * from depart where fid = $fid";
+		}else{
+			$sql = "SELECT depart,id from depart where fid = $fid";
+		}
 		$res=$sqlHelper->dql_arr($sql);
-		$res=json_encode($res,JSON_UNESCAPED_UNICODE);
+		
 		$sqlHelper->close_connect();
 		return $res;
 	}
@@ -138,9 +147,14 @@ class dptService{
 
 	function getUser($dptid){
 		$sqlHelper=new sqlHelper();
-		$sql="select * from user where departid=$dptid";
+		$sql = "SELECT user.id,user.name,user.code,staff_role.title as role
+				from user
+				left join staff_user_role
+				on staff_user_role.uid=user.id
+				left join staff_role
+				on staff_user_role.rid=staff_role.id
+				where user.departid=$dptid";
 		$res=$sqlHelper->dql_arr($sql);
-		$res=json_encode($res,JSON_UNESCAPED_UNICODE);
 		$sqlHelper->close_connect();
 		return $res;
 	}
@@ -226,34 +240,26 @@ class dptService{
 		$uid = mysql_insert_id();
 
 		// 用户可操作的功能
-		$sql = "INSERT INTO staff_user_role (uid,rid) values ";
-		for ($i=0; $i < count($role)-1; $i++) { 
-				$sql .= "($uid,{$role[$i]}),";
-		}
-		$sql = substr($sql,0,-1);
-		$res[] = $sqlHelper->dml($sql);
+		$res[] = $this->addUserRole($uid,$role);
 
 		// 用户可操作的部门范围
-		$sql = "INSERT INTO staff_user_dpt (uid,dptid) values";
-		for ($i=0; $i < count($node)-1; $i++) { 
-			$sql .= "($uid,{$node[$i]}),";
-		}
-		$sql = substr($sql,0,-1);
-		$res[] = $sqlHelper->dml($sql);
+		$res[] = $this->addUserDpt($uid,$node);
 
 		$sqlHelper->close_connect();
 		return !in_array(0,$res);
 	}
 
 	// 获得用户信息用于修改
-	function getUserForUpt($id){
+	function getUserBsc($id){
 		$sqlHelper=new sqlHelper();
-		$sql="select user.*,depart.depart from user
-			  left join depart
-			  on depart.id=user.departid
-			  where user.id=$id";
+		$sql = "SELECT name,code,CONCAT(depart.depart,'-',IFNULL(factory.depart,'分厂级')) as depart,departid dptid,psw
+			    from user
+			    left join depart
+			    on depart.id=user.departid
+			    left join depart as factory
+			    on depart.fid=factory.id
+			    where user.id=$id";
 		$res=$sqlHelper->dql($sql);
-		$res=json_encode($res,JSON_UNESCAPED_UNICODE);
 		$sqlHelper->close_connect();
 		return $res;
 	}
@@ -277,17 +283,16 @@ class dptService{
 		return $res;
 	}
 
-	function uptUser($code,$dptid,$name,$permit,$psw,$id){
+	function uptUserBsc($code,$dptid,$name,$psw,$id){
 		$sqlHelper=new sqlHelper();
-		$sql="update user set code='{$code}',departid=$dptid,name='{$name}',permit=$permit,psw='{$psw}' where id=$id";
+		$sql="UPDATE user set code='{$code}',departid=$dptid,name='{$name}',psw='{$psw}' where id=$id";
 		$res=$sqlHelper->dml($sql);
 		$sqlHelper->close_connect();
-		return $res;
 	}
 
 	function delUser($id){
 		$sqlHelper=new sqlHelper();
-		$sql="delete from user where id=$id";
+		$sql="DELETE from user where id=$id";
 		$res=$sqlHelper->dml($sql);
 		$sqlHelper->close_connect();
 		return $res;
@@ -425,6 +430,67 @@ class dptService{
 		$res = $sqlHelper->dql($sql);
 		$sqlHelper->close_connect();
 		$res=json_encode($res,JSON_UNESCAPED_UNICODE);
+		return $res;
+	}
+
+	function getUserRole($uid){
+		$sqlHelper = new sqlHelper();
+		$sql = "SELECT * from staff_user_role where uid=$uid";
+		$res = $sqlHelper->dql_arr($sql);
+		$sqlHelper->close_connect();
+		return $res;
+	}
+
+	function delUserRole($uid){
+		$sqlHelper = new sqlHelper();
+		$sql = "DELETE FROM staff_user_role where uid=$uid";
+		$res = $sqlHelper->dml($sql);
+		$sqlHelper->close_connect();
+		return $res;
+	}
+
+	function addUserRole($uid,$rid){
+		$sqlHelper = new sqlHelper();
+		$sql = "INSERT INTO staff_user_role (uid,rid) values ";
+		for ($i=0; $i < count($rid)-1; $i++) { 
+				$sql .= "($uid,{$rid[$i]}),";
+		}
+		$sql = substr($sql,0,-1);
+		$res = $sqlHelper->dml($sql);
+		return $res;
+	}
+
+	function getUserDpt($uid){
+		$sqlHelper = new sqlHelper();
+		$sql = "SELECT depart as name,id,pid as pId,uid,IF(uid,'true','false') as checked
+				from depart
+				left join 
+				(
+				SELECT * FROM staff_user_dpt where uid = $uid
+				) user_dpt
+				on depart.id=user_dpt.dptid";
+		$res = $sqlHelper->dql_arr($sql);
+		$sqlHelper->close_connect();
+		return $res;
+	}
+
+	function delUserDpt($uid){
+		$sqlHelper = new sqlHelper();
+		$sql = "DELETE from staff_user_dpt where uid = $uid";
+		$res = $sqlHelper->dml($sql);
+		$sqlHelper->close_connect();
+		return $res;
+	}
+
+	function addUserDpt($uid,$dptid){
+		$sqlHelper = new sqlHelper();
+		$sql = "INSERT INTO staff_user_dpt (uid,rid) values ";
+		for ($i=0; $i < count($dptid)-1; $i++) { 
+			$sql .= "($uid,{$dptid[$i]}), ";
+		}
+		$sql = substr($sql,0,-1);
+		$res = $sqlHelper->dml($sql);
+		$sqlHelper->close_connect();
 		return $res;
 	}
 

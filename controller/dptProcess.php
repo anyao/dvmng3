@@ -7,6 +7,7 @@ if (!empty($_REQUEST['flag'])) {
 	if ($flag=="getSector") {
 		$fid=$_GET['fid'];
 		$res=$dptService->getSector($fid);
+		$res=json_encode($res,JSON_UNESCAPED_UNICODE);
 		echo "$res";
 		exit();
 	}
@@ -21,7 +22,13 @@ if (!empty($_REQUEST['flag'])) {
 	else if ($flag=="getUser") {
 		$idDpt=$_GET['dptid'];
 		$res=$dptService->getUser($idDpt);
-		echo "$res";
+		foreach ($res as $v) {
+			$arr[$v['id']]['name'] = $v['name'];
+			$arr[$v['id']]['code'] = $v['code'];
+			$arr[$v['id']]['role'][] = $v['role'];
+		}
+		$arr=json_encode($arr,JSON_UNESCAPED_UNICODE);
+		echo "$arr";
 		exit();
 	}
 
@@ -92,33 +99,27 @@ if (!empty($_REQUEST['flag'])) {
 		}
 	}
 
-	else if ($flag=="getUserForUpt") {
+	else if ($flag=="getUserBsc") {
 		$id=$_GET['id'];
-		$res=$dptService->getUserForUpt($id);	
+		$res=$dptService->getUserBsc($id);	
+		$res=json_encode($res,JSON_UNESCAPED_UNICODE);
 		echo "$res";
 		exit();
 	}
 
-	else if($flag=="uptUser"){
-		$id=$_GET['id'];
-		$code=$_GET['code'];
-		$dptid=$_GET['dptid'];
-		$name=$_GET['name'];
-		$permit=$_GET['permit'];
-		$psw=$_GET['psw'];
-		$res=$dptService->uptUser($code,$dptid,$name,$permit,$psw,$id);
-		if ($res!=0) {
-			echo "success";
-			exit();
-		}else{
-			echo "fail";
-			exit();
-		}
+	else if($flag=="uptUserBsc"){
+		$code = $_GET['code'];
+		$name = $_GET['name'];
+		$psw = $_GET['psw'];
+		$uid = $_GET['id'];
+		$dptid = $_GET['dptid'];
+		$dptService->uptUserBsc($code,$dptid,$name,$psw,$uid);
+		exit();
 	}
 
 	else if($flag=="delUser"){
-		$id=$_GET['id'];
-		$res=$dptService->delUser($id);
+		$uid=$_GET['uid'];
+		$res=$dptService->delUser($uid);
 		if ($res!=0) {
 			echo "success";
 			exit();
@@ -213,8 +214,64 @@ if (!empty($_REQUEST['flag'])) {
 		$id = $_GET['id'];
 		$res = $dptService->getFct($id);
 		echo "$res";
-
 	}
+
+	else if ($flag == "getDptByFct") {
+		$fid = $_GET['fid'];
+		$res = $dptService->getSector($fid,1);
+		$res = json_encode($res,JSON_UNESCAPED_UNICODE);
+		echo "$res";
+		exit();
+	}
+
+	else if ($flag == "getUserRole") {
+		$uid = $_GET['uid'];
+		$res = $dptService->getUserRole($uid);
+		$res = json_encode($res,JSON_UNESCAPED_UNICODE);
+		echo "$res";
+		exit();
+	}
+
+	else if ($flag == "uptUserRole") {
+		$uid = $_GET['uid'];
+		$res[] = $dptService->delUserRole($uid);
+		$rid = $_GET['rid'];
+		if (!empty($rid)) {
+			$rid = explode(",",$_GET['rid']);
+			$res[] = $dptService->addUserRole($uid,$rid);
+		}
+		if (!in_array(0,$res)) {
+			echo "success";
+			exit();
+		}else{
+			echo "fail";
+			exit();
+		}
+	}
+
+	else if ($flag == "getUserDpt") {
+		$uid = $_GET['uid'];
+		$res = $dptService->getUserDpt($uid);
+		$res = json_encode($res,JSON_UNESCAPED_UNICODE);
+		echo "$res";
+		exit(); 
+	}
+
+	else if ($flag == "uptUserDpt") {
+		$uid = $_GET['uid'];
+		$dptid = explode(",",$_GET['dptid']);
+		$res[] = $dptService->delUserDpt($uid);
+		$res[] = $dptService->addUserDpt($uid,$dptid);
+		if (!in_array(0,$res)) {
+			echo "success";
+			exit();
+		}else{
+			echo "fail";
+			exit();
+		}
+	}
+
+
 
 }
 ?>
