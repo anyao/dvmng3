@@ -50,12 +50,12 @@ session_destroy();
         </div>
 
         <div class="inner cover" style="position:relative;top: -30px">
-          <form action="controller/userProcess.php" method="post" class="form-horizontal">
+          <form action="controller/userProcess.php" id='formLogin' class="form-horizontal">
             <div class="form-group">
               <div class="lead">
                 <label class="col-md-4 control-label"><span class="glyphicon glyphicon-user"></span>　用户账号：</label>
                 <div class="col-md-8">
-                  <input type="text" class="form-control input-lg" name="code" placeholder="请输入账号/ID"><br/>
+                  <input type="text" class="form-control input-lg" name="code" value='admin' placeholder="请输入账号/ID"><br/>
                 </div>
               </div>
             </div>
@@ -64,21 +64,15 @@ session_destroy();
               <div class="lead">
                 <label class="col-md-4 control-label"><span class="glyphicon glyphicon-lock"></span>　密　　码：</label>
                 <div class="col-md-8">
-                  <input type="password" class="form-control input-lg" name="psw" placeholder="请输入密码"><br/>
+                  <input type="password" class="form-control input-lg" name="psw"  value='123456' placeholder="请输入密码"><br/>
                 </div>
               </div>
             </div>
-        <!--     <div class="form-group">
-              <div class="checkbox">
-                <label>
-                  <input checked="checked" name="keep" type="checkbox"> 记住我？
-                </label>
-              </div>
-            </div> -->
+
     
             <div class="form-group">
               <div class="lead">
-                <button class="btn btn-lg btn-default" style="width: 45%" id="yesLogin">登　　　　　录</button>
+                <button type='button' class="btn btn-lg btn-default" style="width: 45%" id="yesLogin">登　　　　　录</button>
               </div>
             </div>
           </form>
@@ -134,40 +128,43 @@ session_destroy();
 <script src="bootstrap/js/jquery.js"></script>
 <script src="bootstrap/js/bootstrap.js"></script>
 <script type="text/javascript">
-$(function(){
-  var err="<?php 
-              if (!empty($_GET['err'])) {
-              echo $_GET['err'];      
-              }
-            ?>";
-  // 用户名输入错误或不存在
-  if (err==1) {
-    $("#failInfo").text("用户名输入错误或该用户不存在。");
-    $('#failLogin').modal({
-        keyboard: true
-     });
-  }else if(err==2){
-    $("#failInfo").text("您输入的密码不正确，请重新输入!");
-    $('#failLogin').modal({
-        keyboard: true
-     });
-  }
-})
-
 // 确认登录按钮检查是否账户和密码为空
 $("#yesLogin").click(function(){
   var allow_submit=true;
-  $("input[name=code],input[name=psw]").each(function(){
-    if($(this).val().length==0){
-      allow_submit=false;
+  $("#formLogin input").each(function(){
+    if($(this).val().length == 0){
+      allow_submit = false;
+      return false;
     }
   });
+
   if (allow_submit==false) {
-     $('#failNull').modal({
+      $('#failNull').modal({
          keyboard: true
       });
+  }else{
+    $.post("./controller/userProcess.php",$("#formLogin").serialize(),function(data){
+      switch (data){
+        case '3':
+          // 用户存在且密码正确
+          location.href='./homePage.php';
+          break;
+        case '2':
+          // 用户存在但密码不正确
+          $("#failInfo").text("您输入的密码不正确，请重新输入!");
+          $('#failLogin').modal({
+              keyboard: true
+           });
+          break;
+        case '1':
+          $("#failInfo").text("用户名输入错误或该用户不存在。");
+          $('#failLogin').modal({
+              keyboard: true
+           });
+          break;
+      }
+    },'text');
   }
-  return allow_submit;
 });
 </script>
   </body>
