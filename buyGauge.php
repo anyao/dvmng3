@@ -135,7 +135,7 @@ tr:hover > th > .glyphicon-trash {
 </nav>
 
 
-      <img src="./img/bg.jpg" style="width:100%;position: absolute;top:0px;z-index: -999;height: 100%">
+      <img src="./img/login.JPG" style="width:100%;position: absolute;top:0px;z-index: -999;height: 100%">
 
 <div class="container">
 

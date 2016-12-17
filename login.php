@@ -18,6 +18,11 @@ session_destroy();
       .form-group{
         margin:25px auto !important;
       }
+
+    /*  body{
+        background: url(./img/login.JPG) no-repeat!important; 
+       ;
+      }*/
     </style>
 
     <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
@@ -29,13 +34,7 @@ session_destroy();
       <script src="bootstrap/js/respond.js"></script>
     <![endif]-->
   </head>
-
   <body>
-  <?php
-    // require_once 'model/cookie.php';
-    
-  ?>
-
   <div class="site-wrapper">
     <div class="site-wrapper-inner">
       <div class="cover-container">
@@ -69,15 +68,14 @@ session_destroy();
                 </div>
               </div>
             </div>
-
-            <div class="form-group">
+        <!--     <div class="form-group">
               <div class="checkbox">
                 <label>
                   <input checked="checked" name="keep" type="checkbox"> 记住我？
                 </label>
               </div>
-            </div>
-            
+            </div> -->
+    
             <div class="form-group">
               <div class="lead">
                 <button class="btn btn-lg btn-default" style="width: 45%" id="yesLogin">登　　　　　录</button>

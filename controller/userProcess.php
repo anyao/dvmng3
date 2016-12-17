@@ -21,23 +21,15 @@ if (!empty($_POST['psw'])) {
 if (!empty($_POST['keep'])) {
 	$keep=$_POST['keep'];
 	if (!empty($code)) {
-		setcookie("user",$code,time()-100);
+		setcookie("user",$code,time()+3600*24);
 	}
 }else{
-	setcookie("user",$code,time()+3600*24);
+	setcookie("user",$code,time()-100);
 }
 
 $userService=new userService();
 $checkUser=$userService->checkUser($code,$psw);
-if ($checkUser!=1 && $checkUser!=2) {
-	$checkUser=explode(",",$checkUser);
-
-	// session_start();
-	$_SESSION['user']=$checkUser[0];
-	$_SESSION['dptid']=$checkUser[1];
-	$_SESSION['permit']=$checkUser[2];
-	$_SESSION['uid']=$checkUser[3];
-	// echo $_SESSION['user'];
+if ($checkUser != 1) {
 	header("location:../homePage.php");
 	exit();
 }else if($checkUser==1){
