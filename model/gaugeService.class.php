@@ -8,32 +8,36 @@ class gaugeService{
 	public $authAnd = "";
 	public $install = "";
 	function __construct(){
-		$sqlHelper=new sqlHelper();
-		$upid=$_SESSION['dptid'];
-		$pmt=$_SESSION['permit'];
-		switch ($pmt) {
-			case '0':
-			case 'a':
-			case 'b':
-				$this->authWhr="";
-				$this->authAnd="";
-				$this->instal="";
-				break;
-			case '1':
-				$sql="select id from depart where id=$upid or path in('%-{$upid}','%-{$upid}-%')";
-				$upid=$sqlHelper->dql_arr($sql);
-				$upid=implode(",",array_column($upid,'id'));
-				$this->authWhr=" where gauge_spr_bsc.depart in(".$upid.") ";
-				$this->authAnd=" and gauge_spr_bsc.depart in(".$upid.") ";
-				$this->install=" ";
-				break;
-			case '2':
-				$this->authWhr=" where gauge_spr_bsc.depart=$upid ";
-				$this->authAnd=" and gauge_spr_bsc.depart=$upid ";
-				$this->instal = " trsf=$upid ";
-				break;
+		if ($_SESSION['user'] == 'admin') {
+			$auth = "";
+		}else{
+			$arrDpt = implode(",",$_SESSION['dptid']);
+			$auth = " in($arrDpt) ";
 		}
-		$sqlHelper->close_connect();	
+		// $upid=$_SESSION['dptid'];
+		// $pmt=$_SESSION['permit'];
+		// switch ($pmt) {
+		// 	case '0':
+		// 	case 'a':
+		// 	case 'b':
+		// 		$this->authWhr="";
+		// 		$this->authAnd="";
+		// 		$this->instal="";
+		// 		break;
+		// 	case '1':
+		// 		$sql="select id from depart where id=$upid or path in('%-{$upid}','%-{$upid}-%')";
+		// 		$upid=$sqlHelper->dql_arr($sql);
+		// 		$upid=implode(",",array_column($upid,'id'));
+		// 		$this->authWhr=" where gauge_spr_bsc.depart in(".$upid.") ";
+		// 		$this->authAnd=" and gauge_spr_bsc.depart in(".$upid.") ";
+		// 		$this->install=" ";
+		// 		break;
+		// 	case '2':
+		// 		$this->authWhr=" where gauge_spr_bsc.depart=$upid ";
+		// 		$this->authAnd=" and gauge_spr_bsc.depart=$upid ";
+		// 		$this->instal = " trsf=$upid ";
+		// 		break;
+		// }
 	}
 
 

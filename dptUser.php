@@ -459,7 +459,7 @@ $repairService=new repairService();
           <input type="hidden" name="uid">
           <input type="hidden" name="rid">
           <input type="hidden" name="flag" value="uptUserRole">
-          <button type="hidden" class="btn btn-primary" id="yesUptUserRole">确认修改</button>
+          <button type="button" class="btn btn-primary" id="yesUptUserRole">确认修改</button>
           <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
         </div>
         </form>
@@ -679,6 +679,7 @@ $("#yesUptUserDpt").click(function(){
     for (var i = 0; i < uptNodes.length; i++) {
         nodeDpt += uptNodes[i].id+",";
     }
+
     $("#getUserDpt input[name=dptid]").val(nodeDpt);
     $.get("./controller/dptProcess.php",$("#formUserDpt").serialize(),function(data){
       if (data == "success") {
@@ -687,7 +688,6 @@ $("#yesUptUserDpt").click(function(){
       }
     },'text');
   }
-  return allow_submit;
 });
 
 
@@ -835,6 +835,7 @@ function getRole(id){
 // 提交修改用户Role
 $("#yesUptUserRole").click(function(){
   var rid = "";
+  var $check = $("#getUserRole .glyphicon-check");
   $check.each(function(){
     rid += $(this).attr("role")+",";
   });

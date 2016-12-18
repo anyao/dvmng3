@@ -230,6 +230,7 @@ include "message.php";
           </div>
           <div class="row">
               <h4>仪表申报</h4>
+              <div class="col-md-2"><p><span class='glyphicon glyphicon-unchecked' func='14'></span> 仪表申报浏览</p></div>
               <div class="col-md-2"><p><span class='glyphicon glyphicon-unchecked' func='6'></span> 备件审核</p></div>
               <div class="col-md-2"><p><span class='glyphicon glyphicon-unchecked' func='7'></span> 入厂检定</p></div>
               <div class="col-md-2"><p><span class='glyphicon glyphicon-unchecked' func='8'></span> 入账存库</p></div>

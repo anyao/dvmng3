@@ -4,6 +4,10 @@ include "./model/dptService.class.php";
 $dptService = new dptService();
 $dptAll = $dptService->getDpt();
 ?>
+
+var session = <?php echo json_encode($_SESSION,JSON_UNESCAPED_UNICODE); ?>;
+	// {"funcid":["1","2","7","10","11"],"dptid":["1","2","3","198"],"user":"trigger","uid":"22"}/
+
 // 搜索表单提交时为空限制
 $(".yesFind").click(function(){
 	var allow_submit = false;
@@ -61,20 +65,15 @@ $(".date").datetimepicker({
 });
 
 
-function gotoBuy(pro, phase,website){
-	$.post("./controller/gaugeProcess.php",{
-		flag:'check',
-		pro:pro,
-		phase:phase
-	},function(data,success){
-		if (data != 0 ) {
-			location.href="buy"+website+".php";
-		}else{
-		  $('#failCheck').modal({
+function gotoBuy(funcid,website){
+	var allow_enter = $.inArray(funcid.toString(),session.funcid);
+	if(allow_enter != -1){
+		location.href = "./"+website+".php";
+	}else{
+		$("#failCheck").modal({
 	          keyboard: true
 	      });
-		}
-	},'text');
+	}
 }
 
 function find(pro,phase,modal){

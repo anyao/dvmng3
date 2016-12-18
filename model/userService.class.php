@@ -19,14 +19,11 @@ class userService{
 					on staff_user_role.rid=staff_role_func.rid
 					where uid = {$bsc['id']}";
 			$funcid = $sqlHelper->dql_arr($sql);
-			for ($i=0; $i < count($funcid); $i++) { 
-				$_SESSION['funcid'][] = $funcid[$i]['funcid'];
-			}
+			$_SESSION['funcid'] = array_column($funcid,'funcid');
+		
 			$sql = "SELECT dptid from staff_user_dpt where uid={$bsc['id']}";
 			$dptid = $sqlHelper->dql_arr($sql);
-			for ($i=0; $i < count($dptid); $i++) { 
-				$_SESSION['dptid'][] = $dptid[$i]['dptid'];
-			}
+			$_SESSION['dptid'] = array_column($dptid,'dptid');
 
 			$_SESSION['user'] = $bsc['name'];
 			$_SESSION['uid'] = $bsc['id'];

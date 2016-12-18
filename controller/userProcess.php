@@ -8,7 +8,6 @@ $psw=$_POST['psw'];
 
 // 是否保存cookie 如果保存则存1天
 if (!empty($_POST['keep'])) {
-	$keep=$_POST['keep'];
 	if (!empty($code)) {
 		setcookie("user",$code,time()+3600*24);
 	}

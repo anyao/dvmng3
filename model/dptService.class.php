@@ -484,9 +484,9 @@ class dptService{
 
 	function addUserDpt($uid,$dptid){
 		$sqlHelper = new sqlHelper();
-		$sql = "INSERT INTO staff_user_dpt (uid,rid) values ";
+		$sql = "INSERT INTO staff_user_dpt (uid,dptid) values ";
 		for ($i=0; $i < count($dptid)-1; $i++) { 
-			$sql .= "($uid,{$dptid[$i]}), ";
+			$sql .= "($uid,{$dptid[$i]}),";
 		}
 		$sql = substr($sql,0,-1);
 		$res = $sqlHelper->dml($sql);

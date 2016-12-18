@@ -55,7 +55,7 @@ session_destroy();
               <div class="lead">
                 <label class="col-md-4 control-label"><span class="glyphicon glyphicon-user"></span>　用户账号：</label>
                 <div class="col-md-8">
-                  <input type="text" class="form-control input-lg" name="code" value='admin' placeholder="请输入账号/ID"><br/>
+                  <input type="text" class="form-control input-lg" name="code" placeholder="请输入账号/ID"><br/>
                 </div>
               </div>
             </div>
@@ -64,11 +64,18 @@ session_destroy();
               <div class="lead">
                 <label class="col-md-4 control-label"><span class="glyphicon glyphicon-lock"></span>　密　　码：</label>
                 <div class="col-md-8">
-                  <input type="password" class="form-control input-lg" name="psw"  value='123456' placeholder="请输入密码"><br/>
+                  <input type="password" class="form-control input-lg" name="psw" placeholder="请输入密码"><br/>
                 </div>
               </div>
             </div>
-
+            
+            <div class="form-group">
+              <div class="checkbox">
+                <label>
+                  <input name="keep" type="checkbox"> 记住我？
+                </label>
+              </div>
+            </div>
     
             <div class="form-group">
               <div class="lead">
