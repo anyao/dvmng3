@@ -8,7 +8,8 @@ class repairService{
 	function __construct(){
 		$sqlHelper=new sqlHelper();
 		$upid=$_SESSION['dptid'];//用户所在部门id
-		$pmt=$_SESSION['permit'];
+		// $pmt=$_SESSION['permit'];
+		$pmt="";
 		switch ($pmt) {
 			case '0':
 				$this->authWhr="";

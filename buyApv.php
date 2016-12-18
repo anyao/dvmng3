@@ -13,11 +13,8 @@ $paging->gotoUrl="buyApv.php";
 if (!empty($_GET['pageNow'])) {
   $paging->pageNow=$_GET['pageNow'];
 }
-
 $gaugeService = new gaugeService();
 $gaugeService->buyApv($paging);
-
-
 
 ?>
 <!DOCTYPE html>

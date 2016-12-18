@@ -35,14 +35,21 @@ class userService{
 	}
 
 	// 查询当前用户所在分厂
-	function getFct($departid){
+	function getFct($uid){
 		$sqlHelper=new sqlHelper();
-		$sql="select depart.fid,factory.depart as factory,depart.id as did,depart.depart
-			  from depart
+		$sql="SELECT depart.fid,factory.depart as factory,depart.id as did,depart.depart
+			  from user 
+			  left join depart
+			  on user.departid=depart.id
 			  LEFT JOIN depart as factory 
 			  on factory.id=depart.fid
-			  where depart.id=$departid";
+			  where user.id=$uid";
 		$res=$sqlHelper->dql($sql);
+		 // [fid] => [factory] => [did] => 1 [depart] => 新区竖炉
+		 if (empty($res['fid'])) {
+		 	$res['factory'] = $res['depart'];
+		 	$res['depart'] = "分厂级";
+		 }
 		$sqlHelper->close_connect();
 		return $res;
 	}

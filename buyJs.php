@@ -76,22 +76,17 @@ function gotoBuy(funcid,website){
 	}
 }
 
-function find(pro,phase,modal){
-	$.post("./controller/gaugeProcess.php",{
-		flag:'check',
-		pro:pro,
-		phase:phase
-	},function(data,success){
-		if (data != 0) {
-		  $("#find"+modal).modal({
+function find(funcid,modal){
+	var allow_enter = $.inArray(funcid.toString(),session.funcid);
+	if(allow_enter != -1){
+		$("#find"+modal).modal({
 	          keyboard: true
 	      });
-		}else{
-		  $('#failCheck').modal({
+	}else{
+		$('#failCheck').modal({
 	          keyboard: true
-	      });
-		}
-	},'text')
+	    });
+	}
 }
 
 

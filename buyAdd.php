@@ -4,19 +4,18 @@ checkValidate();
 $user=$_SESSION['user'];
 $uid=$_SESSION['uid'];
 
-require_once "model/repairService.class.php";
-$repairService=new repairService();
-
-
 require_once "model/userService.class.php";
 $userService=new userService();
-$dptid=$_SESSION['dptid'];
-$basic=$userService->getFct($dptid);
+$basic=$userService->getFct($uid);
+
+// require_once "model/repairService.class.php";
+// $repairService=new repairService();
 
 require_once "model/gaugeService.class.php";
 $gaugeService=new gaugeService();
 // 获取测量记录部门编号
-$cljl=$gaugeService->getCLJL($dptid);
+$cljl=$gaugeService->getCLJL($basic['did']);
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -62,7 +61,7 @@ $cljl=$gaugeService->getCLJL($dptid);
 </head>
 <body role="document">
 <?php  
-include "message.php";
+// include "message.php";
 ?>
 <nav class="navbar navbar-inverse">
   <div class="container">
