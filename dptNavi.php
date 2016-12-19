@@ -164,3 +164,20 @@
   </div>
 </div>
 
+<!-- 无权进入 -->
+<div class="modal fade"  id="failCheck" >
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+         <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
+         </div>
+         <div class="modal-body">
+          <br>您无权进行该操作！<br/><br/>
+         </div>
+         <div class="modal-footer">  
+          <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+        </div>
+    </div>
+  </div>
+</div>
+

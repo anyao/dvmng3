@@ -1,4 +1,6 @@
 <script type='text/javascript'>
+var session = <?php echo json_encode($_SESSION,JSON_UNESCAPED_UNICODE); ?>;
+
 // zTree参数设置
 var setting = {
     view: {
@@ -16,6 +18,22 @@ var setting = {
         }
     }
 };
+
+// 进入角色管理权限
+function goto(funcid,website){
+  var user = session.user;
+  var allow_enter = $.inArray(funcid.toString(),session.funcid);
+  if (user == "admin") {
+    allow_enter = 0;
+  }
+  if(allow_enter != -1){
+    location.href = "./"+website+".php";
+  }else{
+    $("#failCheck").modal({
+            keyboard: true
+        });
+  }
+}
 
 
 // 获取用户管理部门的范围

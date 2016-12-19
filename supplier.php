@@ -75,14 +75,16 @@ include "message.php";
               <li><a class="dropdown-toggle" data-toggle="dropdown" href="">设备档案 <span class="caret"></a>
                 <ul class="dropdown-menu">
             <li><a href="usingList.php">在用设备</a></li>
-             <?php if ($_SESSION['permit']==2) {
-                 echo "<li role='separator' class='divider'></li>";
-              } ?>
-            <li><a href="spareList.php">备品备件</a></li>
-            
-            <?php if ($_SESSION['permit']<2) {
-                 echo "<li role='separator' class='divider'></li><li><a href='devPara.php'>属性参数</a></li>";
-               } ?>
+             <?php if (!in_array(4,$_SESSION['funcid'])  && $_SESSION['user'] != 'admin') {
+                        echo "<li role='separator' class='divider'></li><li>";
+                      } 
+                ?>
+                <li><a href="spareList.php">备品备件</a></li>
+                
+                <?php if (in_array(4,$_SESSION['funcid'])) {
+                        echo "<li role='separator' class='divider'></li><li><a href='devPara.php'>属性参数</a></li>";
+                      } 
+                ?>
           </ul>
               </li>
               <li><a href="inspect.php">日常巡检</a></li>

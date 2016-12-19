@@ -58,6 +58,11 @@ $repairService=new repairService();
     margin:0px !important;
   }
 
+  .accordion-inner{
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+  }
+
 
 </style>
 <link rel="stylesheet" type="text/css" href="tp/datetimepicker.css">
@@ -98,14 +103,16 @@ $repairService=new repairService();
           <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">设备档案 <span class="caret"></span></a>
           <ul class="dropdown-menu">
           <li><a href="usingList.php">在用设备</a></li>
-           <?php if ($_SESSION['permit']==2) {
-               echo "<li role='separator' class='divider'></li>";
-            } ?>
-          <li><a href="spareList.php">备品备件</a></li>
-          
-          <?php if ($_SESSION['permit']<2) {
-               echo "<li role='separator' class='divider'></li><li><a href='devPara.php'>属性参数</a></li>";
-             } ?>
+           <?php if (!in_array(4,$_SESSION['funcid'])  && $_SESSION['user'] != 'admin') {
+                        echo "<li role='separator' class='divider'></li><li>";
+                      } 
+                ?>
+                <li><a href="spareList.php">备品备件</a></li>
+                
+                <?php if (in_array(4,$_SESSION['funcid']) || $_SESSION['user'] == 'admin') {
+                        echo "<li role='separator' class='divider'></li><li><a href='devPara.php'>属性参数</a></li>";
+                      } 
+                ?>
           
         </ul>
         </li>
@@ -129,9 +136,10 @@ $repairService=new repairService();
         </li>
       </ul>
        <ul class="nav navbar-nav navbar-right">
-		    <li>
-          <a href="dptSearch.php">用户管理</a>
-        </li>
+		    <?php if (in_array(10,$_SESSION['funcid']) || $_SESSION['user'] == 'admin') {
+                      echo "<li class='active'><a href='dptUser.php'>用户管理</a></li>";
+                    } 
+             ?>
 
         <li class="dropdown">
         <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button"><?php 
@@ -159,7 +167,7 @@ $repairService=new repairService();
       <ul class="nav nav-pills  nav-stacked nav-self" role="tablist">
         <li role="presentation"><a href="dptSearch.php">用户搜索</a></li>
         <li role="presentation" class="active"><a href="dptUser.php">部门 / 人员</a></li>
-        <li role="presentation"><a href="dptRole.php">角色 / 功能</a></li>
+        <li role="presentation"><a href="javascript:goto(12,'dptRole');">角色 / 功能</a></li>
       </ul>
 
     </div>
@@ -456,29 +464,43 @@ $("#yesAddUser").click(function(){
 // 删除部门按钮
 $(document).on("click",".glyphicon-trash",function delDpt(){
   var id=$(this).attr("dpt");
-  $.get("controller/dptProcess.php",{
-    flag:'findSon',
-    id:id
-  },function(data,success){
-    // [{"num":"3"},{"num":"0"},{"num":"110"}]
-    var all_null=true;
-    $.each(data,function(index, el) {
-      if (el.num!=0) {
-        all_null=false;
-        return false;
-      }   
+
+  var user = session.user;
+  var ifDpt = $.inArray(id.toString(),session.dptid);
+  var ifFunc = $.inArray('10',session.funcid);
+  if (user == "admin") {
+    ifDpt = 0;
+    ifFunc = 0;
+  }
+  if(ifDpt != -1 && ifFunc != -1 ){
+    $.get("controller/dptProcess.php",{
+      flag:'findSon',
+      id:id
+    },function(data,success){
+      // [{"num":"3"},{"num":"0"},{"num":"110"}]
+      var all_null=true;
+      $.each(data,function(index, el) {
+        if (el.num!=0) {
+          all_null=false;
+          return false;
+        }   
+      });
+      if (all_null==true) {
+       $('#delDpt').modal({
+          keyboard: true
+       });
+       $("#yesDel").val(id);
+      }else{
+       $('#failDel').modal({
+          keyboard: true
+       });
+      }
+    },'json');
+  }else{
+    $('#failCheck').modal({
+        keyboard: true
     });
-    if (all_null==true) {
-     $('#delDpt').modal({
-        keyboard: true
-     });
-     $("#yesDel").val(id);
-    }else{
-     $('#failDel').modal({
-        keyboard: true
-     });
-    }
-  },'json');
+  }
 });
 
 // 确认删除部门
@@ -491,7 +513,21 @@ $("#yesDel").click(function(){
 // 修改部门信息弹出窗口
 $(document).on('click','.glyphicon-edit',function uptDpt(){
 	var dptid=$(this).attr("dpt");
-	location.href="uptDpt.php?id="+dptid;
+  // 部门对应和功能必须都要对应
+  var user = session.user;
+  var ifDpt = $.inArray(dptid.toString(),session.dptid);
+  var ifFunc = $.inArray('10',session.funcid);
+  if (user == "admin") {
+    ifDpt = 0;
+    ifFunc = 0;
+  }
+  if(ifDpt != -1 && ifFunc != -1 ){
+	 location.href="uptDpt.php?id="+dptid; 
+  }else{
+    $('#failCheck').modal({
+        keyboard: true
+    });
+  }
 })
 
 // 部门添加的确认按钮
@@ -510,10 +546,24 @@ $("#yesAddDpt").click(function(){
 // 部门的增加
 $(document).on("click",".glyphicon-import",function addDpt(){
 	var dptid=$(this).attr("dpt");
-	$("#addDpt input[name=pid]").val(dptid);
-	$('#addDpt').modal({
-	    keyboard: true
-	});
+
+  var user = session.user;
+  var ifDpt = $.inArray(dptid.toString(),session.dptid);
+  var ifFunc = $.inArray('10',session.funcid);
+  if (user == "admin") {
+    ifDpt = 0;
+    ifFunc = 0;
+  }
+  if(ifDpt != -1 && ifFunc != -1 ){
+    $("#addDpt input[name=pid]").val(dptid);
+    $('#addDpt').modal({
+        keyboard: true
+    });
+  }else{
+    $('#failCheck').modal({
+        keyboard: true
+    });
+  }
 });
 
 
@@ -559,29 +609,42 @@ $('#gp-tree').treeview({
 });
 
 function getUser(id){
-	$.get("controller/dptProcess.php",{
-		flag:"getUser",
-		dptid:id
-	},function(data,success){
-		if (jQuery.isEmptyObject(data)) {
-			$addHtml="<tr><td colspan='12'>该 部门 / 分厂 暂时没有设备管理员，请添加。</td></tr>"
-		}else{	
-			var $addHtml="";
-      $.each(data,function(i,val){
-        $addHtml += "<tr><td>"+i+"</td><td>"+val.code+"</td><td>"+val.name+"</td><td>"+val.role+"</td>"+
-                    "    <td><a href=\"javascript:getBsc("+i+")\" class='glyphicon glyphicon-credit-card'></a></td>"+
-                    "    <td><a href=\"javascript:getRole("+i+")\" class='glyphicon glyphicon-tower'></a></td>"+
-                    "    <td><a href=\"javascript:getScale("+i+")\" class='glyphicon glyphicon-list'></a></td>"+
-                    "    <td><a href=\"javascript:delUser("+i+")\" class='glyphicon glyphicon-remove'></a></td></tr>";
+  var user = session.user;
+  var allow_enter = $.inArray(id.toString(),session.dptid);
+  if (user == "admin") {
+    allow_enter = 0;
+  }
+  if(allow_enter != -1){
+    $.get("controller/dptProcess.php",{
+      flag:"getUser",
+      dptid:id
+    },function(data,success){
+      if (jQuery.isEmptyObject(data)) {
+        $addHtml="<tr><td colspan='12'>该 部门 / 分厂 暂时没有设备管理员，请添加。</td></tr>"
+      }else{  
+        var $addHtml="";
+        $.each(data,function(i,val){
+          $addHtml += "<tr><td>"+i+"</td><td>"+val.code+"</td><td>"+val.name+"</td><td>"+val.role+"</td>"+
+                      "    <td><a href=\"javascript:getBsc("+i+")\" class='glyphicon glyphicon-credit-card'></a></td>"+
+                      "    <td><a href=\"javascript:getRole("+i+")\" class='glyphicon glyphicon-tower'></a></td>"+
+                      "    <td><a href=\"javascript:getScale("+i+")\" class='glyphicon glyphicon-list'></a></td>"+
+                      "    <td><a href=\"javascript:delUser("+i+")\" class='glyphicon glyphicon-remove'></a></td></tr>";
+        });
+      }
+      $("#userMsg tbody").empty().append($addHtml);
+      $("#userMsg").attr("dptid",id);
+      $("#addUserModal input[name=dptid]").val(id);
+      $('#userMsg').modal({
+          keyboard: true
       });
-		}
-		$("#userMsg tbody").empty().append($addHtml);
-    $("#userMsg").attr("dptid",id);
-    $("#addUserModal input[name=dptid]").val(id);
-		$('#userMsg').modal({
-		    keyboard: true
-		});
-	},"json");
+    },"json");
+  }else{
+    $("#failCheck").modal({
+            keyboard: true
+        });
+  }
+
+	
 }
 
 //所有弹出框

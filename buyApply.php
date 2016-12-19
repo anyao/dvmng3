@@ -92,14 +92,16 @@ tr:hover > th > .glyphicon-trash {
           <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">设备档案 <span class="caret"></span></a>
           <ul class="dropdown-menu">
             <li><a href="usingList.php">在用设备</a></li>
-             <?php if ($_SESSION['permit']==2) {
-                 echo "<li role='separator' class='divider'></li>";
-              } ?>
-            <li><a href="spareList.php">备品备件</a></li>
-            
-            <?php if ($_SESSION['permit']<2) {
-                 echo "<li role='separator' class='divider'></li><li><a href='devPara.php'>属性参数</a></li>";
-               } ?>
+             <?php if (!in_array(4,$_SESSION['funcid'])  && $_SESSION['user'] != 'admin') {
+                    echo "<li role='separator' class='divider'></li><li>";
+                   } 
+             ?>
+             <li><a href="spareList.php">备品备件</a></li>
+             
+             <?php if (in_array(4,$_SESSION['funcid']) || $_SESSION['user'] == 'admin') {
+                     echo "<li role='separator' class='divider'></li><li><a href='devPara.php'>属性参数</a></li>";
+                   } 
+             ?>
           </ul>
         </li>
         <li class="dropdown">
@@ -122,10 +124,10 @@ tr:hover > th > .glyphicon-trash {
         </li>
       </ul>
        <ul class="nav navbar-nav navbar-right">
-       <?php if (in_array($_SESSION['permit'],array("a","b",0,2))) {
-               echo "<li><a href='dptUser.php'>用户管理</a></li>";
-             } 
-        ?>
+      <?php if (in_array(10,$_SESSION['funcid']) || $_SESSION['user'] == 'admin') {
+                      echo "<li><a href='dptUser.php'>用户管理</a></li>";
+                    } 
+             ?>
        
         <li class="dropdown">
         <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button"><?php 

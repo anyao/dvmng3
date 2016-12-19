@@ -75,14 +75,16 @@ $user=$_SESSION['user'];
           <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">设备档案 <span class="caret"></span></a>
           <ul class="dropdown-menu">
           <li><a href="usingList.php">在用设备</a></li>
-           <?php if ($_SESSION['permit']==2) {
-               echo "<li role='separator' class='divider'></li>";
-            } ?>
-          <li><a href="spareList.php">备品备件</a></li>
-          
-          <?php if ($_SESSION['permit']<2) {
-               echo "<li role='separator' class='divider'></li><li><a href='devPara.php'>属性参数</a></li>";
-             } ?>
+           <?php if (!in_array(4,$_SESSION['funcid'])  && $_SESSION['user'] != 'admin') {
+                        echo "<li role='separator' class='divider'></li><li>";
+                      } 
+                ?>
+                <li><a href="spareList.php">备品备件</a></li>
+                
+                <?php if (in_array(4,$_SESSION['funcid']) || $_SESSION['user'] == 'admin') {
+                        echo "<li role='separator' class='divider'></li><li><a href='devPara.php'>属性参数</a></li>";
+                      } 
+                ?>
           
         </ul>
         </li>
@@ -106,9 +108,10 @@ $user=$_SESSION['user'];
         </li>
       </ul>
        <ul class="nav navbar-nav navbar-right">
-		    <li>
-          <a href="dptSearch.php">用户管理</a>
-        </li>
+		    <?php if (in_array(10,$_SESSION['funcid']) || $_SESSION['user'] == 'admin') {
+                      echo "<li class='active'><a href='dptUser.php'>用户管理</a></li>";
+                    } 
+             ?>
 
         <li class="dropdown">
         <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button"><?php 
@@ -136,7 +139,7 @@ $user=$_SESSION['user'];
   <ul class="nav nav-pills  nav-stacked nav-self" role="tablist">
     <li role="presentation" class="active"><a href="dptSearch.php">用户搜索</a></li>
     <li role="presentation"><a href="dptUser.php">部门 / 人员</a></li>
-    <li role="presentation"><a href="dptRole.php">角色 / 功能</a></li>
+    <li role="presentation"><a href="javascript:goto(12,'dptRole');">角色 / 功能</a></li>
   </ul>
 
 </div>
