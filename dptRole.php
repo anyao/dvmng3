@@ -225,8 +225,8 @@ include "message.php";
               <h4>设备信息</h4>
               <div class="col-md-2"><p><span class='glyphicon glyphicon-unchecked' func='1'></span> 信息修改</p></div>
               <div class="col-md-2"><p><span class='glyphicon glyphicon-unchecked' func='2'></span> 信息删除</p></div>
-              <div class="col-md-2"><p><span class='glyphicon glyphicon-unchecked' func='4'></span> 属性增加</p></div>
-              <div class="col-md-2"><p><span class='glyphicon glyphicon-unchecked' func='5'></span> 属性修改、删除</p></div>
+              <div class="col-md-2"><p><span class='glyphicon glyphicon-unchecked' func='4'></span> 属性浏览</p></div>
+              <div class="col-md-2"><p><span class='glyphicon glyphicon-unchecked' func='5'></span> 属性增删改</p></div>
           </div>
           <div class="row">
               <h4>仪表申报</h4>

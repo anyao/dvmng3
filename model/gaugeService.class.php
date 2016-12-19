@@ -12,30 +12,6 @@ class gaugeService{
 			$arrDpt = implode(",",$_SESSION['dptid']);
 			$this->authDpt = " in($arrDpt) ";
 		}
-		// $upid=$_SESSION['dptid'];
-		// $pmt=$_SESSION['permit'];
-		// switch ($pmt) {
-		// 	case '0':
-		// 	case 'a':
-		// 	case 'b':
-		// 		$this->authWhr="";
-		// 		$this->authAnd="";
-		// 		$this->instal="";
-		// 		break;
-		// 	case '1':
-		// 		$sql="select id from depart where id=$upid or path in('%-{$upid}','%-{$upid}-%')";
-		// 		$upid=$sqlHelper->dql_arr($sql);
-		// 		$upid=implode(",",array_column($upid,'id'));
-		// 		$this->authWhr=" where gauge_spr_bsc.depart in(".$upid.") ";
-		// 		$this->authAnd=" and gauge_spr_bsc.depart in(".$upid.") ";
-		// 		$this->install=" ";
-		// 		break;
-		// 	case '2':
-		// 		$this->authWhr=" where gauge_spr_bsc.depart=$upid ";
-		// 		$this->authAnd=" and gauge_spr_bsc.depart=$upid ";
-		// 		$this->instal = " trsf=$upid ";
-		// 		break;
-		// }
 	}
 
 

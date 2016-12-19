@@ -161,6 +161,7 @@ $repairService=new repairService();
         <li role="presentation" class="active"><a href="dptUser.php">部门 / 人员</a></li>
         <li role="presentation"><a href="dptRole.php">角色 / 功能</a></li>
       </ul>
+
     </div>
 		<div class="col-md-9">
 			<div class="accordion" id="sqebox">
@@ -173,8 +174,6 @@ $repairService=new repairService();
         							<div id="py-tree"></div>
         						</div>
         					</div>
-
-
 	              </div>
 	            </div>
 	          </div>
@@ -205,10 +204,6 @@ $repairService=new repairService();
 	            </div>
 	          </div>
 	        </div>
-				
-			
-                
-
 		</div>
 	</div>
 </div>
@@ -225,7 +220,8 @@ $repairService=new repairService();
         <div class="row" style="height: 400px;overflow-y:scroll;margin-left: 0px">
           <table class="table table-striped table-hover">
           <thead><tr><th>用户ID</th><th>用户编号</th><th>用户姓名</th><th>所属角色组</th>
-          <th style="width: 4%">　</th><th style="width: 4%">　</th><th style="width: 4%">　</th><th style="width: 4%">　</th></tr></thead>
+          <th style="width: 4%">　</th><th style="width: 4%">　</th>
+          <th style="width: 4%">　</th><th style="width: 4%">　</th></tr></thead>
             <tbody></tbody>
           </table>
           
@@ -339,196 +335,6 @@ $repairService=new repairService();
   </div>
 </div>
 
-<!-- 搜索用户 -->
-<div class="modal fade" id="findUser" role="dialog">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title"> <span class="glyphicon glyphicon-map-marker"></span> 用户搜索</h4>
-      </div>
-      <form class="form-horizontal" id="formFind">
-        <div class="modal-body" style="margin:0 10px">
-          <div class="row" style="border-bottom: 1px solid #CCCCCC;">
-            <div class="col-md-8">
-              <div class="form-group">
-                <label class="col-sm-3 control-label" style="text-align:left;padding-left:0px;padding-right:0px">用户名称 / 编号：</label>
-                <div class="col-sm-7">
-                  <div class="input-group"  style="position: relative;left:-20px">
-                    <input type="text" class="form-control" name="find">
-                    <span class="input-group-btn">
-                      <button class="btn btn-default" type="button" id="yesFind"><span class="glyphicon glyphicon-search"></span></button>
-                    </span>
-                  </div>  
-                </div>
-              </div>
-              
-            </div>
-          </div>
-          <div class="row" style="height: 500px">
-            <table class="table table-striped table-hover">
-            <thead><tr><th>用户ID</th><th>用户编号</th><th>用户姓名</th><th>用户级别</th>
-            <th style="width: 4%">　</th><th style="width: 4%">　</th><th style="width: 4%">　</th><th style="width: 4%">　</th></tr></thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
-        </div>    
-        </form>
-    </div>
-  </div>
-</div>
-
-
-<!-- 修改基本用户信息 -->
-<div class="modal fade" id="getUserBsc">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="myModalLabel">用户基本信息</h4>
-      </div>
-      <form class="form-horizontal" id="formUptUser">
-        <div class="modal-body">
-          <div class="form-group">
-            <label class="col-sm-3 control-label">用户编号：</label>
-            <div class="col-sm-7">  
-              <input type="text" class="form-control" name="code" readonly>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="col-sm-3 control-label">用户名称：</label>
-            <div class="col-sm-7">  
-              <input type="text" class="form-control" name="name">
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label class="col-sm-3 control-label">所在部门：</label>
-            <div class="col-sm-7">
-              <div class="input-group">
-              <input type="text" name="dptName" class="form-control">
-              <div class="input-group-btn">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-right" role="menu">
-                </ul>
-              </div>
-              <!-- /btn-group -->
-            </div>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label class="col-sm-3 control-label">登录密码：</label>
-            <div class="col-sm-7">  
-              <input type="password" class="form-control" name="psw">
-            </div>
-          </div>
-
-          </div> 
-          <div class="modal-footer">
-            <input type="hidden" name="flag" value="uptUserBsc">
-            <input type="hidden" name="id">
-            <input type="hidden" name="dptid">
-            <button type="button" class="btn btn-primary" id="yesUptUserBsc">确认修改</button>
-            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-          </div>
-        </form>
-    </div>
-  </div>
-</div>
-
-<div class="modal fade" id="getUserRole">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">用户角色分组</h4>
-      </div>
-      <form class="form-horizontal" id='formUserRole' action="./controller/dptProcess.php">
-        <div class="modal-body">
-         <div class="row" style="margin-top: 20px">
-             <?php echo "$roleList"; ?>
-         </div>
-        </div> 
-        <div class="modal-footer">
-          <input type="hidden" name="uid">
-          <input type="hidden" name="rid">
-          <input type="hidden" name="flag" value="uptUserRole">
-          <button type="button" class="btn btn-primary" id="yesUptUserRole">确认修改</button>
-          <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-        </div>
-        </form>
-    </div>
-  </div>
-</div>
-
-<!-- 修改用户可操作范围 -->
-<div class="modal fade" id="getUserDpt">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">管理部门范围</h4>
-      </div>
-      <form class="form-horizontal" id="formUserDpt" action="./controller/dptProcess.php">
-        <div class="modal-body">
-          <div class="row" style="height: 500px;overflow-y:scroll;">
-            <div class="col-md-offset-2">
-              <ul id="treeUpt" class="ztree"></ul>
-              
-            </div>
-          </div>
-        </div> 
-        <div class="modal-footer">
-          <input type="hidden" name="uid">
-          <input type="hidden" name="dptid">
-          <input type="hidden" name="flag" value="uptUserDpt">
-          <button type="button" class="btn btn-primary" id="yesUptUserDpt">确认修改</button>
-          <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-        </div>
-        </form>
-    </div>
-  </div>
-</div>
-<!-- 删除配置柜提示框 -->
-<div class="modal fade"  id="delDpt">
-  <div class="modal-dialog modal-sm" role="document">
-    <div class="modal-content">
-         <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
-         </div>
-         <div class="modal-body">
-          <br>确定要删除该部门吗？<br/><br/>
-         </div>
-         <div class="modal-footer">  
-          <button type="button" class="btn btn-danger" id="yesDel">删除</button>
-          <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
-        </div>
-    </div>
-  </div>
-</div>
-
-<div class="modal fade"  id="failAdd">
-  <div class="modal-dialog modal-sm" role="document" >
-    <div class="modal-content">
-         <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
-         </div>
-         <div class="modal-body"><br/>
-            <div class="loginModal">您需要添加的信息不完整，请补充。</div><br/>
-         </div>
-         <div class="modal-footer">  
-          <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
-        </div>
-    </div>
-  </div>
-</div> 
-
 <!-- 删除失败弹出框 -->
 <div class="modal fade"  id="failDel">
   <div class="modal-dialog modal-sm" role="document" >
@@ -562,56 +368,7 @@ $repairService=new repairService();
   </div>
 </div> 
 
-<div class="modal fade"  id="delUser">
-  <div class="modal-dialog modal-sm" role="document">
-    <div class="modal-content">
-         <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
-         </div>
-         <div class="modal-body">
-          <br>确定要删除该用户记录吗？<br/><br/>
-         </div>
-         <div class="modal-footer">  
-          <button type="button" class="btn btn-danger" id="yesDelUser">删除</button>
-          <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
-        </div>
-    </div>
-  </div>
-</div>
-
-<div class="modal fade"  id="userFail">
-  <div class="modal-dialog modal-sm" role="document" >
-    <div class="modal-content">
-         <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
-         </div>
-         <div class="modal-body"><br/>
-            <div class="loginModal">操作失败，请联系管理员。</div><br/>
-         </div>
-         <div class="modal-footer">  
-          <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
-        </div>
-    </div>
-  </div>
-</div> 
-
-<div class="modal fade"  id="noDev" >
-  <div class="modal-dialog modal-sm" role="document">
-    <div class="modal-content">
-         <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
-         </div>
-         <div class="modal-body"><br/>
-                <div class="loginModal">请先完成当前设备添加。</div><br/>
-             </div>
-         <div class="modal-footer">  
-          <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
-        </div>
-    </div>
-  </div>
-</div>
-
-
+<?php include "./dptNavi.php"; ?>
 <script src="bootstrap/js/jquery.js"></script>
 <script src="bootstrap/js/bootstrap.js"></script>
 <script src="tp/bootstrap-datetimepicker.js"></script>
@@ -621,76 +378,8 @@ $repairService=new repairService();
 <script src="bootstrap/js/bootstrap-suggest.js"></script>
 <script src="bootstrap/js/jquery.ztree.core.js"></script>
 <script src="bootstrap/js/jquery.ztree.excheck.min.js"></script>
+<?php include "./dptJs.php"; ?>
 <script type="text/javascript">
-// zTree参数设置
-var setting = {
-    view: {
-        selectedMulti: false,
-        showIcon: false
-    },
-    check: {
-        enable: true,
-        // autoCheckTrigger: true,
-        chkboxType: { "Y" : "s", "N" : "s" }
-    },
-    data: {
-        simpleData: {
-            enable: true
-        }
-    }
-};
-
-
-// 获取用户管理部门的范围
-function getScale(id){
-  $.get("./controller/dptProcess.php",{
-    flag:'getUserDpt',
-    uid:id
-  },function(data){
-    var dptid = "";
-    for (var i = 0; i < data.length; i++) {
-      if(data[i].uid){
-        dptid += data[i].id+",";
-      }
-    }
-
-    $.fn.zTree.init($("#treeUpt"), setting, data);
-    uptTree = $.fn.zTree.getZTreeObj("treeUpt");
-    
-    $("#getUserDpt input[name=dptid]").val(dptid);
-    $("#getUserDpt input[name=uid]").val(id);
-    $("#getUserDpt").modal({ 
-      keyboard: true
-    });
-  },'json');
-}
-
-// 提交用户管理范围的修改
-$("#yesUptUserDpt").click(function(){
-  var valDpt = $("#getUserDpt input[name=dptid]").val();
-  var uptNodes = uptTree.getCheckedNodes(true);
-  if (uptNodes.length == 0) {
-    // 范围为空，不可提交
-    $("#failAdd").modal({
-      keyboard: true
-    });
-  }else{
-    var nodeDpt = "";
-    for (var i = 0; i < uptNodes.length; i++) {
-        nodeDpt += uptNodes[i].id+",";
-    }
-
-    $("#getUserDpt input[name=dptid]").val(nodeDpt);
-    $.get("./controller/dptProcess.php",$("#formUserDpt").serialize(),function(data){
-      if (data == "success") {
-        $("#getUserDpt").modal('hide');
-        getUser($("#userMsg").attr("dptid"));
-      }
-    },'text');
-  }
-});
-
-
 var zTreePy = <?php $data = $dptService->getDptForRole(1); echo $data; ?>;
 var zTreeZp = <?php $data = $dptService->getDptForRole(2); echo $data; ?>;
 var zTreeGp = <?php $data = $dptService->getDptForRole(3); echo $data; ?>;
@@ -761,174 +450,6 @@ $("#yesAddUser").click(function(){
      $("#failAdd").modal({ 
         keyboard: true
      });
-  }
-});
-
-// 选中按钮
-$(".col-md-3 > p > .glyphicon").click(function(){
-  $(this).toggleClass("glyphicon-check");
-  $(this).toggleClass("glyphicon-unchecked");
-}); 
-
-$("#yesFind").click(function(){
-  var find=$("#findUser input[name=find]").val();
-  if (find.length==0) {
-    $('#failAdd').modal({
-        keyboard: true
-    });
-  }else{
-    $.get("controller/dptProcess.php",{
-      flag:'findUser',
-      kword:find
-    },function(data,success){
-      if (data.length==0) {
-        $addHtml="<tr><td colspan='12'>未找到相关用户，请核实关键字。</td></tr>"
-      }else{  
-        var $addHtml="";
-        for (var i = data.length - 1; i >= 0; i--) {
-          if (data[i].permit==1) {
-            data[i].permit="普通管理员";
-          }else{
-            data[i].permit="高级管理员";
-          }
-          $addHtml+="<tr><td>"+data[i].id+"</td><td>"+data[i].code+"</td><td>"+data[i].name+"</td><td>"+data[i].permit+"</td>"+
-                "<td><a href=\"javascript:("+data[i].id+")\" class='glyphicon glyphicon-thumbs-up'></a></td>"+
-                "<td><a href=\"javascript:getBsc("+data[i].id+")\" class='glyphicon  glyphicon glyphicon-scissors'></a></td>"+
-                "<td><a href=\"javascript:getDev("+data[i].id+")\" class='glyphicon glyphicon-list'></a></td>"+
-                "<td><a href=\"javascript:delUser("+data[i].id+")\" class='glyphicon glyphicon-remove'></a></td></tr>";
-        }
-      }
-      $("#findUser tbody").empty().append($addHtml);
-      $('#findUser').modal({
-          keyboard: true
-      });
-    },"json");
-  }
-});
-
-// 搜索部门或者用户
-function findUser(){
-  $('#findUser').modal({
-      keyboard: true
-  });
-}
-
-
-function getRole(id){
-  $.get("./controller/dptProcess.php",{
-    flag:"getUserRole",
-    uid:id
-  },function(data){
-    var rid = "";
-    for (var i = 0; i < data.length; i++) {
-      $("#getUserRole span[role="+data[i].rid+"]").removeClass("glyphicon-unchecked").addClass('glyphicon-check');
-      rid += data[i].rid+",";
-    }
-    $("#getUserRole input[name=uid]").val(id);
-    $("#getUserRole input[name=rid]").val(rid);
-    $("#getUserRole").modal({ 
-      keyboard: true
-    });
-  },'json'); 
-}
-
-// 提交修改用户Role
-$("#yesUptUserRole").click(function(){
-  var rid = "";
-  var $check = $("#getUserRole .glyphicon-check");
-  $check.each(function(){
-    rid += $(this).attr("role")+",";
-  });
-  $("#getUserRole input[name=rid]").val(rid);
-  $.get("./controller/dptProcess.php",$("#formUserRole").serialize(),function(data){
-    if (data == "success") {
-      $("#getUserRole").modal('hide');
-      getUser($("#userMsg").attr("dptid"));
-    }else{
-      alert("操作失败请联系管理员。");
-    }
-  },'text');
-});
-
-function delUser(id){
-  $("#yesDelUser").attr("uid",id);
-  $("#delUser").modal({ 
-    keyboard: true
-  });
-}
-
-$("#yesDelUser").click(function(){
-  var uid=$(this).attr("uid");
-  $.get("controller/dptProcess.php",{
-    flag:'delUser',
-    uid:uid
-  },function(data,success){
-    if (data=="fail") {
-      $("#userFail").modal({ 
-        keyboard: true
-      });
-    }else{
-      $("#delUser").modal('hide');
-      getUser($("#userMsg").attr("dptid"));
-    }
-  },"text");
-});
-
-
-// 修改用户基本信息
-function getBsc(id){
-  $.get("controller/dptProcess.php",{
-    flag:'getUserBsc',
-    id:id
-  },function(data,success){
-    $("#getUserBsc input[name=id]").val(id);
-    $("#getUserBsc input[name=name]").val(data.name);
-    $("#getUserBsc input[name=code]").val(data.code);
-    $("#getUserBsc input[name=dptid]").val(data.dptid);
-    $("#getUserBsc input[name=dptName]").val(data.depart);
-    $("#getUserBsc input[name=psw]").val(data.psw);
-    // 修改用户信息弹出框下的部门提示
-    $("#getUserBsc input[name=dptName]").bsSuggest({
-        allowNoKeyword: false,
-        showBtn: false,
-        indexId:1,
-        data: {
-             'value':<?php $dptAll = $dptService->getDpt();
-                           echo "$dptAll"; ?>
-        }
-    }).on('onDataRequestSuccess', function (e, result) {
-        console.log('onDataRequestSuccess: ', result);
-    }).on('onSetSelectValue', function (e, keyword, data) {
-       console.log('onSetSelectValue: ', keyword, data);
-       var dptid = $(this).attr("data-id");
-       $(this).parents("form").find("input[name=dptid]").val(dptid);
-    }).on('onUnsetSelectValue', function (e) {
-        console.log("onUnsetSelectValue");
-    });
-    $("#getUserBsc").modal({ 
-      keyboard: true
-    });
-  },'json');
-}
-
-
-// 提交用户修改
-$("#yesUptUserBsc").click(function(){
-  var allow_submit=true;
-  $("#getUserBsc input[type!=hidden]").each(function(){
-    if ($(this).val()=="") {
-      $("#failAdd").modal({ 
-        keyboard: true
-      });
-      allow_submit=false;
-    }
-  });
-  if (allow_submit==true) {
-    var dptid=$("#formUptUser input[name=dptid]").val();
-    $.get("controller/dptProcess.php",$("#formUptUser").serialize(),function(){
-      $("#getUserBsc").modal('hide');
-      getUser(dptid);
-    },'text');
   }
 });
 

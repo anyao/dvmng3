@@ -2,6 +2,20 @@
 require_once "sqlHelper.class.php";
 // SUBSTRING_INDEX(path,'-',-1) 
 class dptService{
+	public $authDpt = "";
+
+	function __construct(){
+		if ($_SESSION['user'] == 'admin') {
+			$this->authDpt = "";
+		}else{
+			$arrDpt = implode(",",$_SESSION['dptid']);
+			$this->authDpt = " in($arrDpt) ";
+		}
+
+	}
+
+
+
 	// 获取部门及其分厂	后期具体添加他们的部门结构限制
 	function getDpt(){
 		$sqlHelper = new sqlHelper();
@@ -366,7 +380,14 @@ class dptService{
 
 	function findUser($kword){
 		$sqlHelper=new sqlHelper();
-		$sql="select * from user where concat(name,',',code) like '%{$kword}%'";
+		$sql="SELECT user.id,user.name,user.code,depart.depart,factory.depart as factory
+			  from user
+			  left join depart
+			  on user.departid=depart.id
+			  left join depart as factory
+			  on factory.id=depart.fid
+			  where concat(name,',',code) like '%{$kword}%'
+			  and departid ".$this->authDpt;
 		$res=$sqlHelper->dql_arr($sql);
 		$res=json_encode($res,JSON_UNESCAPED_UNICODE);
 		$sqlHelper->close_connect();
