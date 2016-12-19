@@ -66,7 +66,12 @@ $(".date").datetimepicker({
 
 
 function gotoBuy(funcid,website){
+	var user = session.user;
 	var allow_enter = $.inArray(funcid.toString(),session.funcid);
+	if (user == "admin") {
+		allow_enter = 0;
+	}
+
 	if(allow_enter != -1){
 		location.href = "./"+website+".php";
 	}else{
@@ -77,7 +82,12 @@ function gotoBuy(funcid,website){
 }
 
 function find(funcid,modal){
+	var user = session.user;
 	var allow_enter = $.inArray(funcid.toString(),session.funcid);
+	if (user == "admin") {
+		allow_enter = 0;
+	}
+	
 	if(allow_enter != -1){
 		$("#find"+modal).modal({
 	          keyboard: true
