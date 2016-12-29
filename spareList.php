@@ -578,24 +578,26 @@ include "message.php";
 
 
 
-    <script src="bootstrap/js/jquery.js"></script>
-    <script src="bootstrap/js/bootstrap.js"></script>
-    <script src="tp/bootstrap-datetimepicker.js"></script>
-    <script src="tp/bootstrap-datetimepicker.zh-CN.js"></script>
-    <script src="bootstrap/js/bootstrap-suggest.js"></script>
-    <script src="bootstrap/js/bootstrap-suggest.js"></script>
-    <script type="text/javascript">
-    var auth='<?php echo "{$_SESSION['permit']}"; ?>';
+<script src="bootstrap/js/jquery.js"></script>
+<script src="bootstrap/js/bootstrap.js"></script>
+<script src="tp/bootstrap-datetimepicker.js"></script>
+<script src="tp/bootstrap-datetimepicker.zh-CN.js"></script>
+<script src="bootstrap/js/bootstrap-suggest.js"></script>
+<script src="bootstrap/js/bootstrap-suggest.js"></script>
+<script type="text/javascript">
+var session = <?php echo json_encode($_SESSION,JSON_UNESCAPED_UNICODE); ?>;
+var user = session.user;
+function allow_enter(funcid){
+  var allow = $.inArray(funcid.toString(),session.funcid);
+  if (user == "admin") {
+    allow = 0;
+  }
+  return allow;
+}
     $("#modalAdd").click(function(){
-      if (auth==2) {
-          $('#failAuth').modal({
-            keyboard: true
-          });
-      }else{
-         $('#addSpare').modal({
-            keyboard: true
-         });
-      }
+     $('#addSpare').modal({
+        keyboard: true
+     });
     });
 
     $("#getByAll").click(function(){
@@ -668,7 +670,8 @@ include "message.php";
 
     // 类别设置按钮
     $("#setType").click(function(){
-      if (auth==2) {
+      var enter = allow_enter(5);
+      if (enter == -1) {
           $('#failAuth').modal({
             keyboard: true
           });
@@ -681,6 +684,7 @@ include "message.php";
     $("#typeYes").click(function(){
        var allow_submit = true;
        $("#typeAdd  .form-control").each(function(){
+
           if($(this).val()==""){
             $('#failAdd').modal({
                 keyboard: true
@@ -803,7 +807,8 @@ include "message.php";
      
      function delSpare(id){
       var $id =id;
-      if (auth==2) {
+      var enter = allow_enter(2);
+      if (enter == -1) {
           $('#failAuth').modal({
             keyboard: true
           });

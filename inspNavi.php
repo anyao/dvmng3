@@ -8,7 +8,7 @@
         <li><a class="badge"  data-toggle="modal" data-target="#findStd"><span class="glyphicon glyphicon-search"></span> 搜索巡检标准 </a></li>
         <li style="height: 10px"></li>
         <li><a class="badge" href="inspMis.php"><span class="glyphicon glyphicon-list-alt"></span> 巡检任务列表 </a></li>
-        <li><a class="badge" id="modalAddMis"><span class="glyphicon glyphicon-plus"></span> 分配新的巡检任务 </a></li>
+        <li><a class="badge" href="javascript:addMis(1);"><span class="glyphicon glyphicon-plus"></span> 分配新的巡检任务 </a></li>
         <li><a class="badge"  data-toggle="modal" data-target="#findMis"><span class="glyphicon glyphicon-search"></span> 搜索巡检任务 </a></li>
         <li style="height: 10px"></li>
          <li><a class="badge" href="inspList.php"><span class="glyphicon glyphicon-list-alt"></span> 巡检记录列表 </a></li>

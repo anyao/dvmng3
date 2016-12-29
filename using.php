@@ -1,7 +1,15 @@
 <?php 
 require_once "model/cookie.php";
+require_once "model/repairService.class.php";
+require_once 'model/devService.class.php';
+$repairService=new repairService();
 checkValidate();
 $user=$_SESSION['user'];
+
+$id=$_GET['id'];
+$devService=new devService();
+$arr=$devService->getDevById($id);
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -47,19 +55,7 @@ $user=$_SESSION['user'];
 </head>
 <body>
 <?php 
-require_once "model/repairService.class.php";
-$repairService=new repairService();
 include "message.php";
- ?>
-<?php
-require_once 'model/devService.class.php';
-$id=$_GET['id'];
-$devService=new devService();
-$arr=$devService->getDevById($id);
-// echo "<pre>";
-// print_r($arr);
-// echo "</pre>";
-// exit();
 ?>
  <nav class="navbar navbar-inverse">
   <div class="container">
@@ -860,7 +856,16 @@ $arr=$devService->getDevById($id);
 <script src="bootstrap/js/chartModernizr.js"></script>
 <script src="bootstrap/js/bootstrap-suggest.js"></script>
 <script type="text/javascript">
-var auth='<?php echo "{$_SESSION['permit']}"; ?>';
+var session = <?php echo json_encode($_SESSION,JSON_UNESCAPED_UNICODE); ?>;
+var user = session.user;
+function allow_enter(funcid){
+  var allow = $.inArray(funcid.toString(),session.funcid);
+  if (user == "admin") {
+    allow = 0;
+  }
+  return allow;
+}
+
 $("#stop").click(function(){
   var id=<?php echo $id;?>;
   location.href="controller/devProcess.php?flag=stopDev&id="+id;
@@ -868,7 +873,8 @@ $("#stop").click(function(){
 
 // 父设备停用按钮
 $(".glyphicon-modal-window").click(function(){
-  if (auth==2) {
+  var enter = allow_enter(1);
+  if (enter == -1) {
       $('#failAuth').modal({
         keyboard: true
       });
@@ -881,7 +887,8 @@ $(".glyphicon-modal-window").click(function(){
 
 // 删除维修记录按钮
 $("#repDel").click(function(){
-  if (auth==2) {
+  var enter = allow_enter(2);
+  if (enter == -1) {
       $('#failAuth').modal({
         keyboard: true
       });
@@ -894,7 +901,8 @@ $("#repDel").click(function(){
 
 // 修改维修记录确认按钮
 $("#updtRepYes").click(function(){
-  if (auth==2) {
+  var enter = allow_enter(1);
+  if (enter == -1) {
     $('#failAuth').modal({
       keyboard: true
     });
@@ -954,7 +962,8 @@ function repAdd(devid){
 
 // 删除巡检记录按钮
 $("#inspDel").click(function(){
-  if (auth==2) {
+  var enter = allow_enter(2);
+  if (enter == -1) {
       $('#failAuth').modal({
         keyboard: true
       });
@@ -984,7 +993,8 @@ function inspUpdt(id){
 
 // 修改巡检记录确认按钮
 $("#inspUpdtYes").click(function(){
-  if (auth==2) {
+  var enter = allow_enter(1);
+  if (enter == -1) {
       $('#failAuth').modal({
         keyboard: true
       });
@@ -1062,7 +1072,8 @@ function delDeved(){
 
 // 修改当前设备管理员
 function updateLia(id){
-  if (auth==2) {
+  var enter = allow_enter(1);
+  if (enter == -1) {
       $('#failAuth').modal({
         keyboard: true
       });
@@ -1120,7 +1131,8 @@ $(function(){
 });
 
 $("#updateInfo").click(function(){
-  if (auth==2) {
+  var enter = allow_enter(1);
+  if (enter == -1) {
       $('#failAuth').modal({
         keyboard: true
       });

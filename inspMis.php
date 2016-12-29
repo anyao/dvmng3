@@ -2,6 +2,10 @@
 require_once "model/cookie.php";
 checkValidate();
 $user=$_SESSION['user'];
+
+require_once "./model/dptService.class.php";
+$dptService = new dptService();
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -160,60 +164,37 @@ include "message.php";
   <div class="row">
     <div class="col-md-10">
       <div class="page-header">
-        <h4>　巡检任务</h4>
+        <h4>　设备巡检计划</h4>
       </div>
     <table class="table table-striped table-hover">
         <thead><tr>
             <th style='width:4%'></th>
-            <th>下一次巡检时间</th><th>检查类型</th><th>设备名称</th><th>巡检周期</th><th>执行部门</th><th>使用部门</th>
-            <th style='width:4%'></th><th style='width:4%'></th>
+            <th>下一次巡检时间</th><th>检查类型</th><th>设备名称</th><th>巡检周期</th><th>巡检部门</th><th>设备使用部门</th>
+            <th style='width:4%'></th><th><span class='glyphicon glyphicon-thumbs-up' id='runWellAll' style='display:none'></span></th>
         </tr></thead>
         <tbody class="tablebody">     
      <?php
+        $addHtml = "";
         for ($i=0; $i < count($paging->res_array); $i++) { 
           $row = $paging->res_array[$i];
+           // [id] => 35 [devid] => 45 [cyc] => 480 [nxt] => 2016-12-03 16:00:00 [type] => 1 [inspDpt] => 2 [factory] => 新区竖炉 [depart] => 竖炉车间 [inspdpt] => 竖炉车间 [inspfct] => 新区竖炉
           $cyc = $inspectService->transTime($row['cyc']);
-          // [id] => 35 [devid] => 45 [cyc] => 480 [nxt] => 2016-12-03 16:00:00 [type] => 1 [inspDpt] => 2 
-          // [factory] => 新区竖炉 [depart] => 竖炉车间 [inspdpt] => 竖炉车间 [inspfct] => 新区竖炉
-          $addHtml = 
-          "<tr>
-            <td><a class='glyphicon glyphicon-resize-small' href='javascript:void(0);' onclick='buyList(this,{$row['id']})'></a></td>
-            <td>{$row['nxt']}<td>
-            <td>{$row['type']}</td>
-            <td><a href='using.php?id={$row['devid']}'>{$row['name']}</a></td>
-            <td></td>
-          </tr>";
+          if ($row['type'] == 1) {
+            $type = "定期周检";
+          }else if ($row['type'] == 2) {
+            $type = "临时抽检";
+          }
+          $addHtml .= "<tr><td><span class='glyphicon glyphicon-unchecked' style='display:inline'><span></td>
+                          <td>{$row['nxt']}</td><td>$type</td>
+                          <td><a href='./using.php?id={$row['devid']}'>{$row['name']}</a></td>
+                          <td>$cyc[0]$cyc[1]</td><td>{$row['inspfct']}{$row['inspdpt']}</td>
+                          <td>{$row['factory']}{$row['depart']}</td>";
+          if (in_array(1,$_SESSION['funcid']) || $_SESSION['user'] == "admin") {
+            $addHtml .= "<td><a href=\"javascript:getMis('{$row['id']}');\" class='glyphicon glyphicon-edit'></a></td>";
+          }
+          $addHtml .= "<td><a href=\"javascript:addRes('{$row['devid']});\" class='glyphicon glyphicon-thumbs-up')></a></td></tr>";
         }
-        //  [2016-12-03 16:00:00] => Array
-        // (
-        //     [0] => Array
-        //         (
-        //             [id] => 35
-        //             [devid] => 45
-        //             [cyc] => 480
-        //             [nxt] => 2016-12-03 16:00:00
-        //             [type] => 1
-        //             [inspDpt] => 2
-        //             [name] => 加热炉电源柜
-        //             [factory] => 新区竖炉
-        //             [depart] => 竖炉车间
-        //             [inspfct] => 新区竖炉
-        //         )
-        // foreach ($result as $k => $v) {
-        //   $addHtml="<tr><td>$k</td><td>{$v[0]['depart']}</td><td>{$v[0]['factory']}</td><td>";
-        //   for ($i=0; $i < count($v); $i++) { 
-        //     $misid[]=$v[$i]['id'];
-        //     if ($i==count($v)-1) {
-        //       $addHtml.="<a href='using.php?id={$v[$i]['devid']}'>{$v[$i]['name']}</a>";
-        //     }else{
-        //       $addHtml.="<a href='using.php?id={$v[$i]['devid']}'>{$v[$i]['name']}</a>、";
-        //     }
-        //   }
-        //   $misid=implode(",",$misid);
-        //   $addHtml.="</td><td><a href=\"javascript:uptMis('{$misid}');\" class='glyphicon glyphicon-edit'></a></td>
-        //   <td><a href=\"javascript:delMis('{$misid}');\" class='glyphicon glyphicon-trash'></a></td></tr>";
-        //   echo "$addHtml";
-        // }
+        echo "$addHtml";
         
      ?>
         </tbody></table><div class='page-count'><?php echo $paging->navi;?></div>         
@@ -221,7 +202,97 @@ include "message.php";
     <?php include "inspNavi.php" ?>
 </div>
 </div>
-  <!-- 删除弹出框 -->
+
+<div class="modal fade" id="getMis" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">设备巡检基本信息</h4>
+      </div>
+      <form class="form-horizontal" action="controller/inspectProcess.php" method="post">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="col-sm-3 control-label">设备名称：</label>
+            <div class="col-sm-7">
+                <input type="text" class="form-control" name='name' readonly>     
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="col-sm-3 control-label">下一次巡检：</label>
+            <div class="col-sm-7">
+                <input type="text" class="form-control" name="nxt" readonly>     
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="col-sm-3 control-label">巡检类型：</label>
+            <div class="col-sm-7">
+              <label class="radio-inline">
+                <input type="radio" name="type" value="1"> 定期周检
+              </label>
+              <label class="radio-inline">
+                <input type="radio" name="type" value="2"> 临时抽检
+              </label>
+            </div>
+          </div>
+          
+          
+
+          <div class="form-group">
+            <label class="col-sm-3 control-label">巡检周期：</label>
+            <div class="col-sm-7">
+              <div class="input-group">
+                <input type="text" class="form-control" name='cyc'>
+                <div class="input-group-btn">
+                  <button class="btn btn-default cycUnit" type="button" ></button>
+                  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"> <span class="caret"></span></button>
+                 <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                   <li><a href="javascript:cycUnit('分钟');">分钟</a></li>
+                   <li><a href="javascript:cycUnit('小时');">小时</a></li>
+                   <li><a href="javascript:cycUnit('天');">天</a></li>
+                   <li><a href="javascript:cycUnit('月');">月</a></li>
+                   <li><a href="javascript:cycUnit('年');">年</a></li>
+                 </ul>
+                </div>
+              </div> 
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="col-sm-3 control-label">巡检部门：</label>
+            <div class="col-sm-7">
+              <div class="input-group">
+              <input type="text" name="dptName" class="form-control" style='width: 101%'>
+              <div class="input-group-btn">
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                </ul>
+              </div>
+              <!-- /btn-group -->
+            </div>
+            </div>
+          </div>
+          
+          <div class="modal-footer">
+            <input type="hidden" name="flag" value="uptMis">
+            <input type="hidden" name="inspDpt">
+            <input type="hidden" name="id">
+            <input type="hidden" name="unit">
+            <button type="button" class="btn btn-danger" id='getDel'>删除</button>
+            <button type="submit" class="btn btn-primary" id="uptMisYes">修改</button>
+          </div>
+          </div>
+        </form>
+    </div>
+  </div>
+</div>
+
+
+<!-- 删除弹出框 -->
 <div class="modal fade"  id="delMis" >
   <div class="modal-dialog modal-sm" role="document" style="margin-top: 120px">
     <div class="modal-content">
@@ -232,70 +303,11 @@ include "message.php";
           <br>确定要该条巡检任务吗？<br/><br/>
          </div>
          <div class="modal-footer">  
-          <button type="button" class="btn btn-danger" id="del">删除</button>
-          <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+          <button type="button" class="btn btn-primary" id="del">删除</button>
         </div>
     </div>
   </div>
 </div>
-
-
-<!-- 修改任务信息-->
-<div class="modal fade" id="uptMis" role="dialog">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">修改点检任务</h4>
-      </div>
-      <form class="form-horizontal" action="controller/inspectProcess.php" method="post">
-        <div class="modal-body">
-          <div class="form-group">
-            <label class="col-sm-3 control-label">点检时间：</label>
-            <div class="col-sm-7">
-                <input type="text" class="form-control datetime" name="start">     
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label class="col-sm-3 control-label">设备列表：</label>
-            <div class="col-sm-8" id="forDev">
-            </div>
-          </div>
-
-          <div class='form-group' >
-            <label class='col-sm-3 control-label'>点检设备：</label>
-              <div class='col-sm-7'>
-            <div class='input-group'>
-              <input type='text' class='form-control' name="devName">
-              <div class='input-group-btn'>
-                <button type='button' class='btn btn-default dropdown-toggle' data-toggle='dropdown'>
-                  <span class='caret'></span>
-                </button>
-                <ul class='dropdown-menu dropdown-menu-right' role='menu'>
-                </ul>
-              </div>
-            </div>
-          </div>
-            <div class="btn-set">
-             <a href="javascript:void(0);" id="yesDev" class='glyphicon glyphicon-ok'></a>
-            </div>
-          </div>
-
-          
-          <div class="modal-footer">
-            <input type="hidden" name="flag" value="uptMis">
-            <input type="hidden" name="oid">
-            <button type="submit" class="btn btn-primary" id="updateYes">确认修改</button>
-            <button type="button" class="btn btn-danger" data-dismiss="modal">取消</button>
-          </div>
-          </div>
-        </form>
-    </div>
-  </div>
-</div>
-
-
 
   <!-- 时间添加失败弹出框 -->
 <div class="modal fade"  id="noTime" >
@@ -350,34 +362,44 @@ include "message.php";
   </div>
 </div>
 
-<!-- 点检任务提醒 -->
-<!-- <div class="row" id="message">
-   <div class='col-md-12' >
-    <div class='alert alert-warning' id='mesRepMis'>
-       <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-       <strong>您今天有 <span>1</span> 项点检任务！</strong><a href='repMis.php'>点击查看</a> 或 <a href='repMis.php'>不再提醒</a>。
-    </div>
-  </div>
-</div> -->
+<script src="bootstrap/js/jquery.js"></script>
+<script src="bootstrap/js/bootstrap.js"></script>
+<script src="tp/bootstrap-datetimepicker.js"></script>
+<script src="tp/bootstrap-datetimepicker.zh-CN.js"></script>
+<script src="bootstrap/js/bootstrap-suggest.js"></script>
+<?php include "inspJs.php";?>
+<script type="text/javascript">
+var session = <?php echo json_encode($_SESSION,JSON_UNESCAPED_UNICODE); ?>;
+var user = session.user;
+function allow_enter(funcid){
+  var allow = $.inArray(funcid.toString(),session.funcid);
+  if (user == "admin") {
+    allow = 0;
+  }
+  return allow;
+}
 
+// 多选框
+// 多选按钮
+$(".tablebody").on("click","tr>td:first-child>span",function checked(){
+    $(this).toggleClass("glyphicon glyphicon-unchecked");
+    $(this).toggleClass("glyphicon glyphicon-check");
+    var isChosen = $(".glyphicon-check").length;
+    if (isChosen != 0) {
+      $("#runWellAll").show();
+    }else{
+      $("#runWellAll").hide();
+    }
+});
 
-
-
-    <script src="bootstrap/js/jquery.js"></script>
-    <script src="bootstrap/js/bootstrap.js"></script>
-    <script src="tp/bootstrap-datetimepicker.js"></script>
-    <script src="tp/bootstrap-datetimepicker.zh-CN.js"></script>
-    <script src="bootstrap/js/bootstrap-suggest.js"></script>
-    <script type="text/javascript">
-    // var auth = <?php echo $_SESSION['permit']; ?>;
     // 修改任务弹出框中确认添加设备按钮
-    $("#uptMis #yesDev").click(function(){
-      if($("#uptMis input[name=devName]").val().length>0){
-        var nameDev=$("#uptMis input[name=devName]").val();
-        var idDev=$("#uptMis input[name=devName]").attr("data-id");
+    $("#getMis #yesDev").click(function(){
+      if($("#getMis input[name=devName]").val().length>0){
+        var nameDev=$("#getMis input[name=devName]").val();
+        var idDev=$("#getMis input[name=devName]").attr("data-id");
         var addHtml="<span class='badge'>"+nameDev+" <a href='javascript:void(0);' class='glyphicon glyphicon-remove' style='color: #f5f5f5;text-decoration: none'></a><input type='hidden' name='dev[]' value="+idDev+"></span> "
-        $("#uptMis #forDev").append(addHtml);
-        $("#uptMis input[name=devName]").val("");
+        $("#getMis #forDev").append(addHtml);
+        $("#getMis input[name=devName]").val("");
       }else{
         $('#noDev').modal({
           keyboard: true
@@ -398,10 +420,10 @@ include "message.php";
     }
    
    // 确认修改按钮
-   $("#updateYes").click(function(){
+   $("#uptMisYes").click(function(){
      var allow_submit = true;
-     var forDev=$("#uptMis #forDev input").length;
-     var forTime=$("#uptMis input[name=start]").val().length;
+     var forDev=$("#getMis #forDev input").length;
+     var forTime=$("#getMis input[name=start]").val().length;
     if (forDev==0 || forTime==0) {
           $('#failAdd').modal({
               keyboard: true
@@ -411,67 +433,121 @@ include "message.php";
      return allow_submit;
    });
   
-   // 删除巡检任务
-   function delMis(arr){
-    
-      $('#delMis').modal({
-        keyboard: true
-      });
-      $("#del").click(function() {
-        location.href="controller/inspectProcess.php?flag=delMis&misid="+arr;
-      });            
+
+// 删除巡检任务
+$("#getDel").click(function(){
+  var misid = $(this).attr('misid');
+  $('#delMis').modal({
+    keyboard: true
+  });
+});
+
+// function delMis(arr){
+//   $("#del").click(function() {
+//     location.href="controller/inspectProcess.php?flag=delMis&misid="+arr;
+//   });            
+// }
+
+// 巡检基本信息模态框
+function getMis(misid){
+  $.get("controller/inspectProcess.php",{
+    misid:misid,
+    flag:"getMis"
+  },function(data){
+    $("#getMis input[name=nxt]").attr("diff",data.dateInstall);
+     $("#getMis input[name=name]").val(data.name);
+     $("#getMis input[name=id]").val(data.id);
+     $("#getMis input[name=nxt]").val(data.nxt);
+     $("#getMis input[name=cyc]").val(data.cyc[0]);
+     $("#getMis input[name=dptName]").val(data.dpt);
+     $("#getMis input[name=inspDpt]").val(data.inspDpt);
+     $("#getMis input[name=type][value="+data.type+"]").attr("checked","checked");
+     $("#delMis").attr("misid",misid);
+     cycUnit(data.cyc[1]);
+     $("#getMis input[name=type]").val(data.type);
+     $('#getMis').modal({
+          keyboard: true
+     });
+  },"json");
+}
+
+// 计算下一次巡检时间
+$("#getMis input[name=cyc]").keyup(function(){
+  var cyc = $(this).val() * $("#getMis input[name=unit]");
+  var diff = $("#getMis input[name=nxt]").attr("diff");
+  var remain = diff / cyc;
+  remain = cyc - remain;
+  var nxt = 
+
+
+});
+
+// 巡检周期单位修改
+function cycUnit(unit){
+  var times = "";
+  switch (unit){
+    case '分钟':
+      times = 1;
+      break;
+    case '小时':
+      times = 60;
+      break;
+    case '天':
+      times = 1440;
+      break;
+    case '月':
+      times = 43200;
+      break;
+    case '年':
+      times = 525600;
+      break;
   }
+  $("#getMis button.cycUnit").text(unit);
+  $("#getMis input[name=unit]").val(times);
+}
 
-    function uptMis(idArr){
-      $.get("controller/inspectProcess.php",{
-        idArr:idArr,
-        flag:"getMis"
-      },function(data,success){
-        // {"id":"35","devid":"45","cyc":"480","nxt":"2016-12-03 16:00:00","name":"加热炉电源柜"}
-         // var arr=new Array();
-         // $("#uptMis input[name=start]").val(time);
-         // $("#uptMis input[name=mid]").val(idMis);
-         // for(var i=0;i<data.length;i++){
-         //    var nameDev=data[i].name;
-         //    var idDev=data[i].devid;
-         //    var idMis=data[i].id;
-         //    arr[i]=idMis;
-         //    var addHtml="<span class='badge'>"+nameDev+" <a href='javascript:void(0);' class='glyphicon glyphicon-remove' style='color: #f5f5f5;text-decoration: none'></a><input type='hidden' name='dev[]' value="+idDev+"></span> "
-         //    $("#uptMis #forDev").append(addHtml);
-         // }
-         // $("#uptMis input[name=oid]").val(arr);
-         // $("#uptMis #forDev").empty();
-         $('#uptMis').modal({
-              keyboard: true
-         });
-      },"json");
+$("#getMis input[name=dptName]").bsSuggest({
+    allowNoKeyword: false,
+    showBtn: false,
+    indexId:2,
+    data: {
+         'value':<?php $dptAll = $dptService->getDpt();
+                       echo "$dptAll"; ?>
     }
+}).on('onDataRequestSuccess', function (e, result) {
+    console.log('onDataRequestSuccess: ', result);
+}).on('onSetSelectValue', function (e, keyword, data) {
+   console.log('onSetSelectValue: ', keyword, data);
+   var dptid = $(this).attr("data-id");
+   $(this).parents("form").find("input[name=inspDpt]").val(dptid);
+}).on('onUnsetSelectValue', function (e) {
+    console.log("onUnsetSelectValue");
+});
 
-    $("input[name=devName]").bsSuggest({
-        allowNoKeyword: false,
-         showBtn: false,
-        indexKey: 0,
-        indexId:1,
-        inputWarnColor: '#f5f5f5',
-        data: {
-           'value':<?php
-                    $devAll=$inspectService->getUsingAll();
-                    echo "$devAll";
-                   ?>,
-            // 'defaults':'没有相关设备请另查询或添加新的设备'
-        }
-    }).on('onDataRequestSuccess', function (e, result) {
-        console.log('onDataRequestSuccess: ', result);
-    }).on('onSetSelectValue', function (e, keyword, data) {
-        console.log('onSetSelectValue: ', keyword, data);
-    }).on('onUnsetSelectValue', function (e) {
-        console.log("onUnsetSelectValue");
-    });
+
+
+$("input[name=devName]").bsSuggest({
+    allowNoKeyword: false,
+     showBtn: false,
+    indexKey: 0,
+    indexId:1,
+    inputWarnColor: '#f5f5f5',
+    data: {
+       'value':<?php
+                $devAll=$inspectService->getUsingAll();
+                echo "$devAll";
+               ?>,
+        // 'defaults':'没有相关设备请另查询或添加新的设备'
+    }
+}).on('onDataRequestSuccess', function (e, result) {
+    console.log('onDataRequestSuccess: ', result);
+}).on('onSetSelectValue', function (e, keyword, data) {
+    console.log('onSetSelectValue: ', keyword, data);
+}).on('onUnsetSelectValue', function (e) {
+    console.log("onUnsetSelectValue");
+});
 
     
     </script>
-        <?php 
-        include "inspJs.php";
-        ?>
   </body>
 </html>

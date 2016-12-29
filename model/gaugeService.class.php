@@ -14,8 +14,6 @@ class gaugeService{
 		}
 	}
 
-
-
 	// 获取所在部门所有备件申报
 	function buyBsc($paging){
 		$sqlHelper = new sqlHelper();

@@ -188,7 +188,7 @@ if (empty($_REQUEST['flag']) && empty($_GET['fct']) && empty($_GET['dpt'])) {
             </div>
     <table class="table table-striped table-hover">
         <thead><tr>
-            <th>　</th><th>编号</th><th>设备名称</th><th>运行状态</th><th>运行天数</th><th>类别</th>
+            <th>　</th><th>编号</th><th>设备名称</th><th>运行状态</th><th>运行天数</th><th>所在分厂部门</th>
             <th>上次巡检</th><th>上次维修</th>
             <th><span style='cursor: pointer;' class="glyphicon glyphicon-import"></span></th>
             <th>&nbsp;&nbsp;&nbsp;&nbsp;</th>
@@ -205,7 +205,8 @@ if (empty($_REQUEST['flag']) && empty($_GET['fct']) && empty($_GET['dpt'])) {
                           <td>{$row['code']}</td>
                           <td><a href='using.php?id={$row['id']}'>{$row['name']}</a></td>
                           <td>{$row['state']}</td>
-                          <td>{$timediff[0]}{$timediff[1]}</td><td>{$row['class']}</td>
+                          <td>{$timediff[0]}{$timediff[1]}</td>
+                          <td>{$row['factory']}{$row['depart']}</td>
                           <td>{$row['insp']}</td><td>{$row['rep']}</td>
                           
                           <td></td>
@@ -218,7 +219,8 @@ if (empty($_REQUEST['flag']) && empty($_GET['fct']) && empty($_GET['dpt'])) {
                           <td>{$row['code']}</td>
                           <td><a href='using.php?id={$row['id']}'>{$row['name']}</a></td>
                           <td>{$row['state']}</td>
-                          <td>{$timediff[0]}{$timediff[1]}</td><td>{$row['class']}</td>
+                          <td>{$timediff[0]}{$timediff[1]}</td>
+                          <td>{$row['factory']}{$row['depart']}</td>
                           <td>{$row['insp']}</td><td>{$row['rep']}</td>
                           
                           <td><span class='glyphicon glyphicon-import' id='{$row['id']}'></span></td>
@@ -230,7 +232,8 @@ if (empty($_REQUEST['flag']) && empty($_GET['fct']) && empty($_GET['dpt'])) {
                           <td>{$row['code']}</td>
                           <td><a href='using.php?id={$row['id']}'>{$row['name']}</a></td>
                           <td>{$row['state']}</td>
-                          <td>{$timediff[0]}{$timediff[1]}</td><td>{$row['class']}</td>
+                          <td>{$timediff[0]}{$timediff[1]}</td>
+                          <td>{$row['factory']}{$row['depart']}</td>
                           <td>{$row['insp']}</td><td>{$row['rep']}</td>
                           
                           <td><span class='glyphicon glyphicon-import' id='{$row['id']}'></span></td>
@@ -726,10 +729,15 @@ if (empty($_REQUEST['flag']) && empty($_GET['fct']) && empty($_GET['dpt'])) {
 <script src="bootstrap/js/jsonToTree.js"></script>
 <script src="bootstrap/js/bootstrap-suggest.js"></script>
 <script type="text/javascript">
-var auth='<?php echo "{$_SESSION['permit']}"; ?>';
+var session = <?php echo json_encode($_SESSION,JSON_UNESCAPED_UNICODE); ?>;
+var user = session.user;
 // 插入根设备弹出框
 $("th > .glyphicon-import").click(function(){
-  if (auth==2) {
+  var allow = $.inArray('1',session.funcid);
+  if (user == "admin") {
+    allow = 0;
+  }
+  if (allow == -1) {
       $('#failAuth').modal({
         keyboard: true
       });
@@ -816,8 +824,12 @@ $("th > .glyphicon-import").click(function(){
     //删除提示框 made it
     $(document).on("click","span.glyphicon-trash",trash);
     function trash(){
+      var allow = $.inArray('2',session.funcid);
+      if (user == "admin") {
+        allow =0;
+      }
       var id=$(this).attr("id");
-      if (auth==2) {
+      if (allow == -1) {
             $('#failAuth').modal({
               keyboard: true
             });
@@ -849,8 +861,12 @@ $("th > .glyphicon-import").click(function(){
     // 添加新设备信息弹出框
     $(document).on("click",".tablebody .glyphicon-import",addSon);
     function addSon(){
+      var allow = $.inArray('1',session.funcid);
+      if (user == "admin") {
+        allow =0;
+      }
        var $id=$(this).attr("id");
-       if (auth==2) {
+       if (allow == -1) {
             $('#failAuth').modal({
               keyboard: true
             });

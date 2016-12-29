@@ -11,10 +11,7 @@ class dptService{
 			$arrDpt = implode(",",$_SESSION['dptid']);
 			$this->authDpt = " in($arrDpt) ";
 		}
-
 	}
-
-
 
 	// 获取部门及其分厂	后期具体添加他们的部门结构限制
 	function getDpt(){

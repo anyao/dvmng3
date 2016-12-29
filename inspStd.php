@@ -451,7 +451,7 @@ include "message.php";
     <script src="tp/bootstrap-datetimepicker.js"></script>
     <script src="tp/bootstrap-datetimepicker.zh-CN.js"></script>
     <script src="bootstrap/js/bootstrap-suggest.js"></script>
-    <?php include "inspJs.php" ?>
+    <?php include "./inspJs.php" ?>
     <script type="text/javascript">
 
    // 删除巡检标准记录

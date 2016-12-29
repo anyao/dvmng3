@@ -2,53 +2,34 @@
 require_once 'sqlHelper.class.php';
 require_once 'paging.class.php';
 class inspectService{
-	public $authWhr="";
-	public $authAnd="";
-	// public $authDpt="";
-	// public $authDptAnd="";
-	// public $authUsr="";
-	// public $authUsrAnd="";
+	public $authDpt = "";
 
 	function __construct(){
-		$sqlHelper=new sqlHelper();
-		$upid=$_SESSION['dptid'];
-		$pmt=$_SESSION['permit'];
-		switch ($pmt) {
-			case '0':
-			case 'a':
-			case 'b':
-				$this->authWhr="";
-				$this->authAnd="";
-				break;
-			case '1':
-				$sql="select id from depart where id=$upid or path in('%-{$upid}','%-{$upid}-%')";
-				$upid=$sqlHelper->dql_arr($sql);
-				$upid=implode(",",array_column($upid,'id'));
-				$this->authWhr=" where device.depart in(".$upid.") ";
-				$this->authAnd=" and device.depart in(".$upid.") ";
-				$this->authMis = " where device.depart in(".$upid.") or inspDpt=$upid ";
-				break;
-			case '2':
-				$this->authWhr=" where device.depart=$upid ";
-				$this->authAnd=" and device.depart=$upid ";
-				$this->authMis = " where device.depart=$upid or inspDpt=$upid ";
-				break;
+		if ($_SESSION['user'] == 'admin') {
+			$this->authDpt = "";
+		}else{
+			$arrDpt = implode(",",$_SESSION['dptid']);
+			$this->authDpt = " in($arrDpt) ";
 		}
-		$sqlHelper->close_connect();	
 	}
 
 	// 获得巡检记录所有信息用于显示在记录表中
 	function getPagingInfo($paging){
 		$sqlHelper=new sqlHelper();
-		$sql1="select insplist.*,device.name
+		$sql1="SELECT insplist.*,device.name
 			   from inspList
 			   left join device 
-			   on inspList.devid=device.id ".$this->authWhr."
+			   on inspList.devid=device.id 
+			   where 1=1 
+			   and device.depart $this->authDpt
 			   order by insplist.id desc
 			   limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
-		$sql2="select count(insplist.id) from insplist left join device 
-			   on inspList.devid=device.id ".$this->authWhr;
-		
+		$sql2="SELECT count(insplist.id) 
+			   from insplist 
+			   left join device 
+			   on inspList.devid=device.id 
+			   WHERE 1=1 
+			   and device.depart ".$this->authDpt;
 		$sqlHelper->dqlPaging($sql1,$sql2,$paging);
 		$sqlHelper->close_connect();	
 	}
@@ -56,20 +37,21 @@ class inspectService{
 	// 获取巡检标准记录表
 	function getPagingStd($paging){
 		$sqlHelper=new sqlHelper();
-		$sql1=" select inspstd.*,device.name,device.code,depart.depart
-				from inspstd 
-				inner join device
-				on inspstd.devid=device.id 
-				inner join depart
-				on depart.id=device.depart".$this->authWhr."
-				order by inspstd.id desc
-			    limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
-			    // aecho "$sql1";
-			    // exit();
-		$sql2="select count(inspstd.id) from inspstd inner join device
-				on inspstd.devid=device.id 
-				inner join depart
-				on depart.id=device.depart".$this->authWhr;
+		$sql1="SELECT inspstd.*,device.name,device.code,depart.depart
+			   from inspstd 
+			   inner join device
+			   on inspstd.devid=device.id 
+			   inner join depart
+			   on depart.id=device.depart
+			   WHERE 1=1 
+			   and device.depart $this->authDpt
+			   order by inspstd.id desc
+			   limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
+		$sql2="SELECT count(inspstd.id) from inspstd inner join device
+			   on inspstd.devid=device.id 
+			   inner join depart
+			   on depart.id=device.depart
+			   WHERE 1=1 AND depart.id ".$this->authDpt;
 		$sqlHelper->dqlPaging($sql1,$sql2,$paging);
 		$sqlHelper->close_connect();	
 	}
@@ -118,18 +100,18 @@ class inspectService{
 		}else{
 			$where=" depart.depart='{$depart}' ";
 		}
-		// where devid='{$devid}' or device.code='{$code}' or (depart.depart='{$depart}' and device.name like '%{$name}%') or (depart.depart='{$depart}') or (device.name like '%{$name}%')
-		$sql1="select inspstd.*,device.name,device.code,depart.depart
+		$sql1="SELECT inspstd.*,device.name,device.code,depart.depart
 			   from inspstd inner join device
 			   on inspstd.devid=device.id
 			   inner join depart
 			   on depart.id=device.depart
-			   ".$where.$this->authAnd."
+			   ".$where."and depart.id ".$this->authDpt."
 			   limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
 		
-		$sql2="select count(*)
+		$sql2="SELECT count(*)
 			   from inspstd left join device
-			   on inspstd.devid=device.id".$this->authAnd; 												   
+			   on inspstd.devid=device.id
+			   WHERE 1=1 AND depart.id ".$this->authDpt; 												   
 		$sqlHelper=new sqlHelper();			   										
 		$sqlHelper->dqlPaging($sql1,$sql2,$paging);
 		$sqlHelper->close_connect();
@@ -137,12 +119,13 @@ class inspectService{
 
 	// 获取所有配置柜名称，编号，id
 	function getUsingAll(){
-		$sql="select name,device.id,depart.depart,factory.depart as factory from device
+		$sql="SELECT name,device.id,depart.depart,factory.depart as factory from device
 			  inner join depart
 			  on depart.id=device.depart
 			  inner join depart as factory
 			  on factory.id=device.factory
-			   where device.pid=0".$this->authAnd;
+			  where device.pid=0
+			  and depart.id ".$this->authDpt;
 		$sqlHelper=new sqlHelper();
 		$res=$sqlHelper->dql_arr($sql);
 		$sqlHelper->close_connect();
@@ -162,7 +145,9 @@ class inspectService{
 
 	function getPagingMis($paging){
 		$sqlHelper=new sqlHelper();
-		$sql1=" SELECT inspmis.*,factory.depart as factory,depart.depart,inspdpt.depart as inspdpt,inspfct.depart as inspfct
+		$sql1=" SELECT inspmis.id,inspmis.devid,inspmis.cyc,inspmis.nxt,inspmis.type,inspmis.inspDpt,
+				factory.depart as factory,depart.depart,inspdpt.depart as inspdpt,inspfct.depart as inspfct,
+				device.name 
 				from inspmis 
 				inner join device
 				on inspmis.devid=device.id
@@ -174,11 +159,14 @@ class inspectService{
 				on inspdpt.id=inspmis.inspDpt
 				inner join depart as inspfct
 				on inspdpt.fid=inspfct.id
-				".$this->authMis."
-				group by nxt,inspmis.type,inspmis.inspdpt
+				where device.depart ".$this->authDpt."
 			    limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
-		$sql2 = "SELECT COUNT(*) from inspmis
-				 ".$this->authMis;
+		$sql2 = "SELECT COUNT(*) 
+				 from inspmis
+				 left join device
+				 on device.id=inspmis.devid
+				 where 1=1 
+				 and device.depart ".$this->authDpt;
 		$sqlHelper->dqlPaging($sql1,$sql2,$paging);
 		$sqlHelper->close_connect();	
 	}
@@ -188,7 +176,6 @@ class inspectService{
 		$sqlHelper=new sqlHelper();
 		for ($i=0; $i < count($arr); $i++) { 
 			$sql="delete from inspmis where id=$arr[$i]";
-			// echo "$sql;";
 			$res[]=$sqlHelper->dml($sql);
 		}
 		// exit();
@@ -196,53 +183,19 @@ class inspectService{
 		return $res;
 	}
 
-	function getMis($idArr){
+	function getMis($id){
 		$sqlHelper=new sqlHelper();
-		$sql="select inspmis.*,device.name 
+		$sql="SELECT inspmis.*,device.name,depart.depart dpt,dateInstall
 			  from inspmis
 			  left join device 
 			  on device.id=inspmis.devid 
-			  where inspmis.id in($idArr)".$this->authAnd;
-		$res=$sqlHelper->dql_arr($sql);
+			  left join depart
+			  on inspmis.inspDpt=depart.id
+			  where inspmis.id=$id";
+		$res=$sqlHelper->dql($sql);
+		$res['cyc'] = $this->transTime($res['cyc']);
 		$sqlHelper->close_connect();
-		$res=json_encode($res,JSON_UNESCAPED_UNICODE);
 		return $res;
-	}
-
-	function getMisAll(){
-		$sql="select inspmis.*,device.name,factory.depart as factory,depart.depart
-			  from inspmis 
-    	 	  inner join device
-			  on inspmis.devid=device.id
-			  inner join depart
-			  on depart.id=device.depart
-			  inner join depart as factory
-			  on factory.id=device.factory".$this->authWhr."
-			  order by start
-			  limit 0,10";
-		$sqlHelper=new sqlHelper();
-		$res=$sqlHelper->dql_arr($sql);
-        $result=array();
-        foreach ($res as $k => $v) {
-          $result[$v['start']][]=$v;
-        }
-        $result=array_values($result);
-        $info=array();
-        for ($i=0; $i < count($result); $i++) { 
-            for ($j=0; $j < count($result[$i]); $j++) { 
-                // if ($j!=count($result[$i])-1) {
-                    $info[$i]['start']=$result[$i][$j]['start'];
-                    @$info[$i]['name'].=$result[$i][$j]['name']."-";
-                    @$info[$i]['devid'].=$result[$i][$j]['devid']."-";
-                // }else{
-                //     $info[$i]['name'].=$result[$i][$j]['name'];
-                //     $info[$i]['devid'].=$result[$i][$j]['devid'];
-                // }
-            }
-        }
-		$sqlHelper->close_connect();
-		$info=json_encode($info,JSON_UNESCAPED_UNICODE);
-		return $info;
 	}
 
 	// 修改巡检路线信息
@@ -257,7 +210,7 @@ class inspectService{
 	// 搜索点检任务
 	function findMis($devid,$name,$time,$paging){
 		$sqlHelper=new sqlHelper();
-		$sql1=" select inspmis.*,device.name,factory.depart as factory,depart.depart
+		$sql1=" SELECT inspmis.*,device.name,factory.depart as factory,depart.depart
 				from inspmis 
 				inner join device
 				on inspmis.devid=device.id
@@ -266,14 +219,16 @@ class inspectService{
 				inner join depart as factory
 				on factory.id=device.factory
 				where (devid='{$devid}' and start='{$time}') or devid='{$devid}' or start='{$time}'
-				   or name like '%{$name}%' or (name like '%{$name}%' and start='{$time}')".$this->authAnd."
+				or name like '%{$name}%' or (name like '%{$name}%' and start='{$time}')
+				AND device.depart ".$this->authDpt."
 				order by start
 			    limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
-		$sql2="select count(*) from inspmis 
-				left join device
-				on inspmis.devid=device.id
-				where (devid='{$devid}' and start='{$time}') or devid='{$devid}' or start='{$time}'
-				   or name like '%{$name}%' or (name like '%{$name}%' and start='{$time}')".$this->authAnd;
+		$sql2="SELECT count(*) from inspmis 
+			   left join device
+			   on inspmis.devid=device.id
+			   where (devid='{$devid}' and start='{$time}') or devid='{$devid}' or start='{$time}'
+			   or name like '%{$name}%' or (name like '%{$name}%' and start='{$time}')
+			   and device.depart ".$this->authDpt;
 		$sqlHelper->dqlPaging($sql1,$sql2,$paging);
 		$sqlHelper->close_connect();
 	}
@@ -312,21 +267,23 @@ class inspectService{
 	// 搜索巡检记录
 	function findInfo($begin,$depart,$end,$paging){
 		$sqlHelper=new sqlHelper();
-		$sql1="select insplist.*,device.name,depart.depart
+		$sql1="SELECT insplist.*,device.name,depart.depart
 			   from inspList
 			   inner join device 
 			   on inspList.devid=device.id 
 			   inner join depart
 			   on depart.id=device.depart
 			   where (time between '{$begin}' and '{$end}') or depart.depart='{$depart}'
-			   or ((time between '{$begin}' and '{$end}') or depart.depart='{$depart}')".$this->authAnd."
+			   or ((time between '{$begin}' and '{$end}') or depart.depart='{$depart}')
+			   AND device.depart ".$this->authDpt."
 			   limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
-		$sql2="select count(device.id)
+		$sql2="SELECT count(device.id)
 			   from inspList
 			   left join device 
 			   on inspList.devid=device.id 
 			   where (time between '{$begin}' and '{$end}') or depart.depart='{$depart}'
-			   or ((time between '{$begin}' and '{$end}') or depart.depart='{$depart}')".$this->authAnd;
+			   or ((time between '{$begin}' and '{$end}') or depart.depart='{$depart}')
+			   and device.depart ".$this->authDpt;
 		$sqlHelper->dqlPaging($sql1,$sql2,$paging);
 		$sqlHelper->close_connect();
 	}
@@ -352,10 +309,12 @@ class inspectService{
 
 	// 获取单个巡检记录
 	function getInfo($id){
-		$sql="select insplist.*,device.name
+		$sql="SELECT insplist.*,device.name
 			  from inspList
 			  left join device 
-			  on inspList.devid=device.id where insplist.id=$id".$this->authAnd;
+			  on inspList.devid=device.id 
+			  where insplist.id=$id
+			  AND device.depart ".$this->authDpt;
 		$sqlHelper=new sqlHelper();
 		$res=$sqlHelper->dql($sql);
 		$res=json_encode($res,JSON_UNESCAPED_UNICODE);
@@ -380,22 +339,6 @@ class inspectService{
 		return $res;
 	}
 
-	// 点检任务提示框
-	// function getMisByDate($date){
-	// 	 // [0] => Array ( [id] => 29 [next] => 2016-06-14 ) 
-	// 	 // [1] => Array ( [id] => 33 [next] => 2016-06-14 ) 
-	// 	 // [2] => Array ( [id] => 34 [next] => 2016-06-14 ) 
-	// 	$date=date("Y-m-d",$date);
-	// 	$sql="SELECT id,DATE_ADD(last,INTERVAL `INTERVAL` day) as next from inspmis";
-	// 	$sqlHelper=new sqlHelper();
-	// 	$res=$sqlHelper->dql_arr($sql);
-	// 	for ($i=0; $i < count($res); $i++) { 
-	// 		if ($res[$i]['next']==$date) {
-	// 			$todayMis[]=$res[$i]['id'];
-	// 		}
-	// 	}
-	// 	print_r($todayMis);
-	// }
 
 	// 具体设备页面点检记录相关函数
 	function getInspByDev($devid){
@@ -453,6 +396,13 @@ class inspectService{
 			$t[1] = '分钟';
 		}
 		return $t;
+	}
+
+	function diffInstl($dateInstall){
+		$now = strtotime(date("Y-m-d"));
+		$install = strtotime($dateInstall);
+		$diff = ($now - $install)*60;
+		return $diff;
 	}
 
 

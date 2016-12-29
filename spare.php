@@ -517,15 +517,24 @@ $arr=$spareService->getSprById($id);
 <script src="tp/bootstrap-datetimepicker.zh-CN.js"></script>
 <script src="bootstrap/js/bootstrap-suggest.js"></script>
 <script type="text/javascript">
-var auth='<?php echo "{$_SESSION['permit']}"; ?>';
+var session = <?php echo json_encode($_SESSION,JSON_UNESCAPED_UNICODE); ?>;
+var user = session.user;
+function allow_enter(funcid){
+  var allow = $.inArray(funcid.toString(),session.funcid);
+  if (user == "admin") {
+    allow = 0;
+  }
+  return allow;
+}
 $(".glyphicon-modal-window").click(function(){
-  if (auth==2) {
-          $('#failAuth').modal({
-            keyboard: true
-          });
-      }else{
-        $("#spareUse").modal({ keyboard: true});
-      }
+  var allow_enter = allow_enter(1);
+  if (allow_enter == -1) {
+      $('#failAuth').modal({
+        keyboard: true
+      });
+  }else{
+    $("#spareUse").modal({ keyboard: true});
+  }
 });
 
 // 若拆分拼装过，则不可再拆分拼装
@@ -547,7 +556,8 @@ $(function(){
 
   // 修改信息按钮动画效果设置
   $("#reviseInfo").click(function(){
-    if (auth==2) {
+    var allow_enter = allow_enter(1);
+    if (allow_enter == -1) {
           $('#failAuth').modal({
             keyboard: true
           });

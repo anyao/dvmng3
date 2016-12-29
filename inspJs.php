@@ -1,7 +1,17 @@
 <script type="text/javascript">
-var auth='<?php echo "{$_SESSION['permit']}"; ?>';
-$("#modalAddMis").click(function(){
-  if (auth==2) {
+var session = <?php echo json_encode($_SESSION,JSON_UNESCAPED_UNICODE); ?>;
+var user = session.user;
+function allow_enter(funcid){
+  var allow = $.inArray(funcid.toString(),session.funcid);
+  if (user == "admin") {
+    allow = 0;
+  }
+  return allow;
+}
+
+function addMis(funcid){
+  var enter =allow_enter(funcid);
+  if (enter == -1) {
       $('#failAuth').modal({
         keyboard: true
       });
@@ -10,7 +20,7 @@ $("#modalAddMis").click(function(){
         keyboard: true 
     });
   }
-});
+}
 
   // 添加巡检标准的设备名称搜索提示
    $("#addStd input[name=name]").bsSuggest({
@@ -240,60 +250,60 @@ $("#modalAddMis").click(function(){
      return allow_submit;
    });
 
-    $("input[name=inspMis]").bsSuggest({
-        allowNoKeyword: false,
-        indexKey: 1,
-        indexId:2,
-        showHeader: true,
-        showBtn:false,
-        effectiveFieldsAlias:{start:'时间',name:'路线',devid:'编号'},
-        data: {
-          'value':<?php 
-                    $allMis=$inspectService->getMisAll();
-                    echo "$allMis";
-                 ?>
-        }
-    }).on('onDataRequestSuccess', function (e, result) {
-        console.log('onDataRequestSuccess: ', result);
-    }).on('onSetSelectValue', function (e, keyword, data) {
-        console.log('onSetSelectValue: ', keyword, data);
-        var idList=$(this).attr("data-id");
-        $("#addInfo input[name=idList]").val(idList);
-        var nameList=$(this).val();
-        var nameArr=nameList.split("-");
-        var idArr=idList.split("-");
-        var addHtml="";
-        for(var i in nameArr){
-          if (nameArr[i]!="" && idArr!="") {
-            addHtml+="<span class='badge' style='cursor:pointer'>"+nameArr[i]+
-                     "  <input type='hidden' name='idErr[]' value="+idArr[i]+">"+
-                     "</span> ";
-          }
-        }
-        $("#haveErr .col-sm-7").children("span").detach();
-        $("#haveErr .col-sm-7").append(addHtml);
-    }).on('onUnsetSelectValue', function (e) {
-        console.log("onUnsetSelectValue");
-    });
+    // $("input[name=inspMis]").bsSuggest({
+    //     allowNoKeyword: false,
+    //     indexKey: 1,
+    //     indexId:2,
+    //     showHeader: true,
+    //     showBtn:false,
+    //     effectiveFieldsAlias:{start:'时间',name:'路线',devid:'编号'},
+    //     data: {
+    //       'value':<?php 
+    //                 $allMis=$inspectService->getMisAll();
+    //                 echo "$allMis";
+    //              ?>
+    //     }
+    // }).on('onDataRequestSuccess', function (e, result) {
+    //     console.log('onDataRequestSuccess: ', result);
+    // }).on('onSetSelectValue', function (e, keyword, data) {
+    //     console.log('onSetSelectValue: ', keyword, data);
+    //     var idList=$(this).attr("data-id");
+    //     $("#addInfo input[name=idList]").val(idList);
+    //     var nameList=$(this).val();
+    //     var nameArr=nameList.split("-");
+    //     var idArr=idList.split("-");
+    //     var addHtml="";
+    //     for(var i in nameArr){
+    //       if (nameArr[i]!="" && idArr!="") {
+    //         addHtml+="<span class='badge' style='cursor:pointer'>"+nameArr[i]+
+    //                  "  <input type='hidden' name='idErr[]' value="+idArr[i]+">"+
+    //                  "</span> ";
+    //       }
+    //     }
+    //     $("#haveErr .col-sm-7").children("span").detach();
+    //     $("#haveErr .col-sm-7").append(addHtml);
+    // }).on('onUnsetSelectValue', function (e) {
+    //     console.log("onUnsetSelectValue");
+    // });
 
-    $("input[name=errDev]").bsSuggest({
-        allowNoKeyword: false,
-        indexKey: 0,
-        indexId:3,
-        showBtn:false, 
-        data: {
-          'value':<?php 
-                    $allMis=$inspectService->getMisAll();
-                    echo "$allMis";
-                 ?>
-        }
-    }).on('onDataRequestSuccess', function (e, result) {
-        console.log('onDataRequestSuccess: ', result);
-    }).on('onSetSelectValue', function (e, keyword, data) {
-        console.log('onSetSelectValue: ', keyword, data);
-    }).on('onUnsetSelectValue', function (e) {
-        console.log("onUnsetSelectValue");
-    });
+    // $("input[name=errDev]").bsSuggest({
+    //     allowNoKeyword: false,
+    //     indexKey: 0,
+    //     indexId:3,
+    //     showBtn:false, 
+    //     data: {
+    //       'value':<?php 
+    //                 $allMis=$inspectService->getMisAll();
+    //                 echo "$allMis";
+    //              ?>
+    //     }
+    // }).on('onDataRequestSuccess', function (e, result) {
+    //     console.log('onDataRequestSuccess: ', result);
+    // }).on('onSetSelectValue', function (e, keyword, data) {
+    //     console.log('onSetSelectValue: ', keyword, data);
+    // }).on('onUnsetSelectValue', function (e) {
+    //     console.log("onUnsetSelectValue");
+    // });
 
     // 搜索确认按钮
     $("#yesInfoFind").click(function(){

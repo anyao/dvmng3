@@ -149,21 +149,33 @@ $("#yesUptUserBsc").click(function(){
 
 
 function getRole(id){
-  $.get("./controller/dptProcess.php",{
-    flag:"getUserRole",
-    uid:id
-  },function(data){
-    var rid = "";
-    for (var i = 0; i < data.length; i++) {
-      $("#getUserRole span[role="+data[i].rid+"]").removeClass("glyphicon-unchecked").addClass('glyphicon-check');
-      rid += data[i].rid+",";
-    }
-    $("#getUserRole input[name=uid]").val(id);
-    $("#getUserRole input[name=rid]").val(rid);
-    $("#getUserRole").modal({ 
-      keyboard: true
+  var user = session.user;
+  var ifFunc = $.inArray('13',session.funcid);
+  if (user == "admin") {
+    ifFunc = 0;
+  }
+  if(ifFunc != -1 ){
+    $.get("./controller/dptProcess.php",{
+      flag:"getUserRole",
+      uid:id
+    },function(data){
+      var rid = "";
+      for (var i = 0; i < data.length; i++) {
+        $("#getUserRole span[role="+data[i].rid+"]").removeClass("glyphicon-unchecked").addClass('glyphicon-check');
+        rid += data[i].rid+",";
+      }
+      $("#getUserRole input[name=uid]").val(id);
+      $("#getUserRole input[name=rid]").val(rid);
+      $("#getUserRole").modal({ 
+        keyboard: true
+      });
+    },'json'); 
+  }else{
+    $('#failCheck').modal({
+        keyboard: true
     });
-  },'json'); 
+  }
+  
 }
 
 // 提交修改用户Role

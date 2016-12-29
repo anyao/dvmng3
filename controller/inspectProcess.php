@@ -76,9 +76,10 @@ if (!empty($_REQUEST['flag'])) {
 
 	// 获得单个巡检任务信息
 	else if($flag=="getMis"){
-		// $idArr=explode(",",$_GET['idArr']);
-		$idArr = $_GET['idArr'];
-		$res=$inspectService->getMis($idArr);
+		$misid = $_GET['misid'];
+		$res=$inspectService->getMis($misid);
+		$res['dateInstall'] = $inspectService->diffInstl($res['dateInstall']);
+		$res=json_encode($res,JSON_UNESCAPED_UNICODE);
 		echo "$res";
 		exit();
 	}

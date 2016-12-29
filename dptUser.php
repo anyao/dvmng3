@@ -136,7 +136,7 @@ $repairService=new repairService();
         </li>
       </ul>
        <ul class="nav navbar-nav navbar-right">
-		    <?php if (in_array(10,$_SESSION['funcid']) || $_SESSION['user'] == 'admin') {
+        <?php if (in_array(10,$_SESSION['funcid']) || $_SESSION['user'] == 'admin') {
                       echo "<li class='active'><a href='dptUser.php'>用户管理</a></li>";
                     } 
              ?>
@@ -162,7 +162,7 @@ $repairService=new repairService();
   </div>
 </nav>
 <div class="container">
-	<div class="row">
+  <div class="row">
     <div class="col-md-3">
       <ul class="nav nav-pills  nav-stacked nav-self" role="tablist">
         <li role="presentation"><a href="dptSearch.php">用户搜索</a></li>
@@ -171,49 +171,49 @@ $repairService=new repairService();
       </ul>
 
     </div>
-		<div class="col-md-9">
-			<div class="accordion" id="sqebox">
-	          <div class="accordion-group">
-	            <div class="accordion-heading"><a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#sqebox" href="#py"> <h4>河北普阳钢铁有限公司</h4> </a></div>
-	            <div style="height: auto;" id="py" class="accordion-body collapse in">
-	              <div class="accordion-inner">  
-        					<div class="row">
-        						<div class="col-md-12">
-        							<div id="py-tree"></div>
-        						</div>
-        					</div>
-	              </div>
-	            </div>
-	          </div>
+    <div class="col-md-9">
+      <div class="accordion" id="sqebox">
+            <div class="accordion-group">
+              <div class="accordion-heading"><a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#sqebox" href="#py"> <h4>河北普阳钢铁有限公司</h4> </a></div>
+              <div style="height: auto;" id="py" class="accordion-body collapse in">
+                <div class="accordion-inner">  
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div id="py-tree"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-	          <div class="accordion-group">
-	            <div class="accordion-heading"> <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#sqebox" href="#zp"> <h4>中普(邯郸)钢铁有限公司</h4> </a> </div>
-	            <div style="height: 0px;" id="zp" class="accordion-body collapse">
-	              <div class="accordion-inner"> 
-          					<div class="row">
-          						<div class="col-md-12">
-          							<div id="zp-tree"></div>
-          						</div>
-          					</div>
-	              </div>
-	            </div>
-	          </div>
+            <div class="accordion-group">
+              <div class="accordion-heading"> <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#sqebox" href="#zp"> <h4>中普(邯郸)钢铁有限公司</h4> </a> </div>
+              <div style="height: 0px;" id="zp" class="accordion-body collapse">
+                <div class="accordion-inner"> 
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div id="zp-tree"></div>
+                      </div>
+                    </div>
+                </div>
+              </div>
+            </div>
 
-	          <div class="accordion-group">
-	            <div class="accordion-heading"> <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#sqebox" href="#gp"> <h4>武安广普焦化有限公司</h4> </a> </div>
-	            <div style="height: 0px;" id="gp" class="accordion-body collapse">
-	              <div class="accordion-inner"> 
-        					<div class="row">
-        						<div class="col-md-12">
-        							<div id="gp-tree"></div>
-        						</div>
-        					</div>
-	              </div>
-	            </div>
-	          </div>
-	        </div>
-		</div>
-	</div>
+            <div class="accordion-group">
+              <div class="accordion-heading"> <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#sqebox" href="#gp"> <h4>武安广普焦化有限公司</h4> </a> </div>
+              <div style="height: 0px;" id="gp" class="accordion-body collapse">
+                <div class="accordion-inner"> 
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div id="gp-tree"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+    </div>
+  </div>
 </div>
 
 <!-- 设备管理员列表 -->
@@ -236,7 +236,7 @@ $repairService=new repairService();
         </div>
         </div>
         <div class="modal-footer">
-        	<button class="btn btn-primary" id="addUser">添加新用户</button>
+          <button class="btn btn-primary" id="addUser">添加新用户</button>
           <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
         </div>
     </div>
@@ -255,7 +255,7 @@ $repairService=new repairService();
         <div class="modal-body">
           <div class="form-group">
             <label class="col-sm-3 control-label">部门名称：</label>
-            <div class="col-sm-7">	
+            <div class="col-sm-7">  
               <input type="text" class="form-control" name="name">
             </div>
           </div> 
@@ -302,21 +302,27 @@ $repairService=new repairService();
             </div>
           </div>
 
-          <div class="row dvd-line">
+          <div class='row dvd-line'>
             <?php  
               // 如果所登录的用户有角色管理这一权限，则显示。没有则直接默认普通用户
-              $role = $dptService->getRoleAll();
-              $roleList = "";
-              for ($i=1; $i < count($role); $i++) { 
-                $roleList .= "<div class='col-md-3'>
-                                <p>
-                                  <span class='glyphicon glyphicon-unchecked' role='{$role[$i]['id']}'></span> {$role[$i]['title']}
-                                </p>
-                             </div>";
+              if(in_array(13,$_SESSION['funcid']) || $_SESSION['user'] =='admin'){
+                $role = $dptService->getRoleAll();
+                $roleList = "";
+                for ($i=1; $i < count($role); $i++) { 
+                  $roleList .= "
+                                 <div class='col-md-3'>
+                                    <p>
+                                      <span class='glyphicon glyphicon-unchecked' role='{$role[$i]['id']}'></span> {$role[$i]['title']}
+                                    </p>
+                                 </div>
+                              ";
+                }
+                echo "$roleList";
+
+                
               }
-              echo "$roleList";
             ?>
-          </div>
+           </div>
 
             <div class="row ztree-row">
               <div class="col-md-4">
@@ -342,6 +348,22 @@ $repairService=new repairService();
     </div>
   </div>
 </div>
+
+<div class="modal fade"  id="delDpt">
+  <div class="modal-dialog modal-sm" role="document" >
+    <div class="modal-content">
+         <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
+         </div>
+         <div class="modal-body"><br/>
+            <div class="loginModal">确定要删除该部门吗？</div><br/>
+         </div>
+         <div class="modal-footer">  
+            <button type="button" class="btn btn-primary" id="yesDel">删除</button>
+        </div>
+    </div>
+  </div>
+</div> 
 
 <!-- 删除失败弹出框 -->
 <div class="modal fade"  id="failDel">
@@ -464,28 +486,21 @@ $("#yesAddUser").click(function(){
 // 删除部门按钮
 $(document).on("click",".glyphicon-trash",function delDpt(){
   var id=$(this).attr("dpt");
-
   var user = session.user;
   var ifDpt = $.inArray(id.toString(),session.dptid);
-  var ifFunc = $.inArray('10',session.funcid);
+  var ifFunc = $.inArray('11',session.funcid);
   if (user == "admin") {
     ifDpt = 0;
     ifFunc = 0;
   }
+
   if(ifDpt != -1 && ifFunc != -1 ){
     $.get("controller/dptProcess.php",{
       flag:'findSon',
       id:id
-    },function(data,success){
-      // [{"num":"3"},{"num":"0"},{"num":"110"}]
-      var all_null=true;
-      $.each(data,function(index, el) {
-        if (el.num!=0) {
-          all_null=false;
-          return false;
-        }   
-      });
-      if (all_null==true) {
+    },function(data){
+      data = parseInt(data);
+      if (data == 0) {
        $('#delDpt').modal({
           keyboard: true
        });
@@ -495,8 +510,9 @@ $(document).on("click",".glyphicon-trash",function delDpt(){
           keyboard: true
        });
       }
-    },'json');
-  }else{
+    },'text');
+  }
+  else{
     $('#failCheck').modal({
         keyboard: true
     });
@@ -512,7 +528,7 @@ $("#yesDel").click(function(){
 
 // 修改部门信息弹出窗口
 $(document).on('click','.glyphicon-edit',function uptDpt(){
-	var dptid=$(this).attr("dpt");
+  var dptid=$(this).attr("dpt");
   // 部门对应和功能必须都要对应
   var user = session.user;
   var ifDpt = $.inArray(dptid.toString(),session.dptid);
@@ -522,7 +538,7 @@ $(document).on('click','.glyphicon-edit',function uptDpt(){
     ifFunc = 0;
   }
   if(ifDpt != -1 && ifFunc != -1 ){
-	 location.href="uptDpt.php?id="+dptid; 
+   location.href="uptDpt.php?id="+dptid; 
   }else{
     $('#failCheck').modal({
         keyboard: true
@@ -532,20 +548,20 @@ $(document).on('click','.glyphicon-edit',function uptDpt(){
 
 // 部门添加的确认按钮
 $("#yesAddDpt").click(function(){
-	var allow_submit=true;
-	var ifEmp=$("#addDpt input").val();
-	if (ifEmp=="") {
-		 $('#failAdd').modal({
+  var allow_submit=true;
+  var ifEmp=$("#addDpt input").val();
+  if (ifEmp=="") {
+     $('#failAdd').modal({
           keyboard: true
       });
       allow_submit = false;
-	}
-	return allow_submit;
+  }
+  return allow_submit;
 });
 
 // 部门的增加
 $(document).on("click",".glyphicon-import",function addDpt(){
-	var dptid=$(this).attr("dpt");
+  var dptid=$(this).attr("dpt");
 
   var user = session.user;
   var ifDpt = $.inArray(dptid.toString(),session.dptid);
@@ -644,7 +660,7 @@ function getUser(id){
         });
   }
 
-	
+  
 }
 
 //所有弹出框

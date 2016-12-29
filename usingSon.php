@@ -623,7 +623,15 @@ $arr=$devService->getDevById($id);
 <script src="bootstrap/js/chartModernizr.js"></script>
 <script src="bootstrap/js/bootstrap-suggest.js"></script>
 <script type="text/javascript">
-var auth='<?php echo "{$_SESSION['permit']}"; ?>';
+var session = <?php echo json_encode($_SESSION,JSON_UNESCAPED_UNICODE); ?>;
+var user = session.user;
+function allow_enter(funcid){
+  var allow = $.inArray(funcid.toString(),session.funcid);
+  if (user == "admin") {
+    allow = 0;
+  }
+  return allow;
+}
 
 function openInfo(obj,id){
   $("#change-"+id).toggle();
@@ -652,7 +660,8 @@ $("#chgeDev .datetime").datetimepicker({
 
 // 更换设备
 function chgeDev(id){
-  if (auth==2) {
+  var enter = allow_enter(1);
+  if (enter == -1) {
       $('#failAuth').modal({
         keyboard: true
       });
@@ -838,7 +847,8 @@ function addLiable(id){
       });
 
       $("#updateInfo").click(function(){
-        if (auth==2) {
+        var enter = allow_enter(1);
+        if (enter == -1) {
             $('#failAuth').modal({
               keyboard: true
             });
