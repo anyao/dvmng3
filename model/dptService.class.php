@@ -217,11 +217,11 @@ class dptService{
 
 	function findSon($id){
 		$sqlHelper=new sqlHelper();
-		$sql="select count(*) as num from depart where path like '-{$id}' or path like '%-{$id}-%' 
+		$sql="SELECT count(*) as num from depart where path like '-{$id}' or path like '%-{$id}-%' 
 			  union select count(*) as num from user where departid=$id
 			  union select count(*) as num from device where depart=$id or factory =$id";
 		$res=$sqlHelper->dql_arr($sql);
-		$res=json_encode($res,JSON_UNESCAPED_UNICODE);
+		$res = array_sum(array_column($res,'num'));
 		$sqlHelper->close_connect();
 		return $res;
 	}

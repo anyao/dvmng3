@@ -161,6 +161,7 @@ class inspectService{
 				on inspdpt.fid=inspfct.id
 				where device.depart ".$this->authDpt."
 			    limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
+			    // echo "$sql1";die;
 		$sql2 = "SELECT COUNT(*) 
 				 from inspmis
 				 left join device

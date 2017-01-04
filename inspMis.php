@@ -471,13 +471,39 @@ function getMis(misid){
   },"json");
 }
 
+function   addMinutes(date,minutes)  
+{   
+
+  minutes=parseInt(minutes)*60*1000;  
+
+  var  interTimes=minutes*60*1000;
+
+  interTimes=parseInt(interTimes);  
+
+  return   new   Date(Date.parse(date)+interTimes);  
+
+}
+
 // 计算下一次巡检时间
 $("#getMis input[name=cyc]").keyup(function(){
-  var cyc = $(this).val() * $("#getMis input[name=unit]");
-  var diff = $("#getMis input[name=nxt]").attr("diff");
-  var remain = diff / cyc;
-  remain = cyc - remain;
-  var nxt = 
+  if ($(this).val().length != 0) {
+    // var cyc = parseInt($(this).val());
+    // alert($.type(cyc));
+    var cyc = eval($(this).val() * $("#getMis input[name=unit]").val()*60);
+    var now = new Date();
+    var test = new Date();
+    test.setTime(now.getTime() + cyc);
+
+    alert(test);
+  }
+  // var cyc = parseInt($(this).val()) * parseInt();
+  // // 安装日期距今的时间差
+  // var diff = parseInt($("#getMis input[name=nxt]").attr("diff"));
+
+  // var remain = diff % cyc;
+  // alert(remain);
+  // remain = cyc - remain;
+  // var nxt = 
 
 
 });
