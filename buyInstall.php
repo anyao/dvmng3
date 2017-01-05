@@ -240,58 +240,58 @@ tr:hover > th > .glyphicon-trash {
               </div>
               </div>
               <div class="col-md-6">
-              <div class="form-group">
-                <label class="col-sm-3 control-label">管理类别：</label>
-                <div class="col-sm-8">
-                  <label class="radio-inline">
-                    <input type="radio" name="para[88]" value="A" checked> A
-                  </label>
-                  <label class="radio-inline">
-                    <input type="radio" name="para[88]" value="B"> B
-                  </label>
-                  <label class="radio-inline">
-                    <input type="radio" name="para[88]" value="C"> C
-                  </label>
+                <div class="form-group">
+                  <label class="col-sm-3 control-label">管理类别：</label>
+                  <div class="col-sm-8">
+                    <label class="radio-inline">
+                      <input type="radio" name="para[88]" value="A" checked> A
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" name="para[88]" value="B"> B
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" name="para[88]" value="C"> C
+                    </label>
+                  </div>
                 </div>
-              </div>
 
-              <div class="form-group">
-                <label class="col-sm-3 control-label">使用用途：</label>
-                <div class="col-sm-8">
-                  <label class="radio-inline">
-                    <input type="radio" name="para[91]" value="质检" checked> 质检
-                  </label>
-                  <label class="radio-inline">
-                    <input type="radio" name="para[91]" value="经营"> 经营
-                  </label>
-                  <label class="radio-inline">
-                    <input type="radio" name="para[91]" value="控制"> 控制
-                  </label>
-                  <label class="radio-inline">
-                    <input type="radio" name="para[91]" value="安全"> 安全
-                  </label><br/>
-                  <label class="radio-inline">
-                    <input type="radio" name="para[91]" value="环保"> 环保
-                  </label>
-                  <label class="radio-inline">
-                    <input type="radio" name="para[91]" value="能源"> 能源
-                  </label>
+                <div class="form-group">
+                  <label class="col-sm-3 control-label">使用用途：</label>
+                  <div class="col-sm-8">
+                    <label class="radio-inline">
+                      <input type="radio" name="para[91]" value="质检" checked> 质检
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" name="para[91]" value="经营"> 经营
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" name="para[91]" value="控制"> 控制
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" name="para[91]" value="安全"> 安全
+                    </label><br/>
+                    <label class="radio-inline">
+                      <input type="radio" name="para[91]" value="环保"> 环保
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" name="para[91]" value="能源"> 能源
+                    </label>
+                  </div>
                 </div>
-              </div>
 
-             <div class="form-group">
-                <label class="col-sm-3 control-label">使用数量：</label>
-                <div class="col-sm-8">
-                  <input type="text" class="form-control" name="number" value="1" readonly>
+               <div class="form-group">
+                  <label class="col-sm-3 control-label">使用数量：</label>
+                  <div class="col-sm-8">
+                    <input type="text" class="form-control" name="number" value="1" readonly>
+                  </div>
                 </div>
-              </div>
 
-              <div class="form-group">
-                <label class="col-sm-3 control-label">确认结论：</label>
-                <div class="col-sm-8">
-                  <textarea type="text" class="form-control" name="para[93]"></textarea>
+                <div class="form-group">
+                  <label class="col-sm-3 control-label">确认结论：</label>
+                  <div class="col-sm-8">
+                    <textarea type="text" class="form-control" name="para[93]"></textarea>
+                  </div>
                 </div>
-              </div>
             </div>
             </div>
 
@@ -356,10 +356,6 @@ tr:hover > th > .glyphicon-trash {
     </div>
 </div>
 </div>
-
-
-
-
 
 <script src="bootstrap/js/jquery.js"></script>
 <script src="bootstrap/js/bootstrap.js"></script>
@@ -465,9 +461,17 @@ $(".datetime").datetimepicker({
 // 新设备是否备用
 function useSpr(id){
   $("#useSpr input[name=id]").val(id);
-  $("#useSpr").modal({
-    keyboard:true
-  });
+  $.get("./controller/gaugeProcess.php",{
+    flag:'getChkInfo',
+    id:id
+  },function(data){
+    if (data != "") {
+      
+    }
+    // $("#useSpr").modal({
+    //   keyboard:true
+    // });
+  },'text');
 }
 
 

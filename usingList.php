@@ -857,9 +857,8 @@ $("th > .glyphicon-import").click(function(){
         }
     }
 
-
     // 添加新设备信息弹出框
-    $(document).on("click",".tablebody .glyphicon-import",addSon);
+    $(document).on("click",".tablebody .glyphicon-import,.list-group-item .glyphicon-import",addSon);
     function addSon(){
       var allow = $.inArray('1',session.funcid);
       if (user == "admin") {

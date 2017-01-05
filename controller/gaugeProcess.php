@@ -183,6 +183,14 @@ if (!empty($_REQUEST['flag'])) {
 	}
 
 
+	// 如果是成套的设备则需要查询其在入厂检定时的info值用于添加其具体的参数属性
+	else if ($flag == "getChkInfo") {
+		$id = $_GET['id'];
+		$res = $gaugeService->getChkInfo($id);
+		echo "$res";
+		die;
+	}
+
 	else if ($flag == "spareSpr") {
 		$num = 1;
 		$id = $_POST['id'];

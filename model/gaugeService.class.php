@@ -486,7 +486,7 @@ class gaugeService{
 				 left join depart as factory
 				 on depart.fid=factory.id
 				 where gauge_spr_check.res = 1
-				 ".$this->authAnd."order by id desc limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
+				 order by id desc limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
 		$sql2 = "SELECT count(*)
 				 from gauge_spr_check
 				 where gauge_spr_check.res = 1";
@@ -980,6 +980,13 @@ class gaugeService{
 	  return $ret;
 	  // 这里转码之后可以输出json
 	  //  return json_encode($ret);
+	}
+
+	function getChkInfo($id){
+		$sqlHelper = new sqlHelper();
+		$sql = "SELECT info from gauge_spr_check where id=$id";
+		$res = $sqlHelper->dql($sql);
+		return $res['info'];
 	}
 
 	
