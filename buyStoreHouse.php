@@ -283,7 +283,7 @@ $("#yesTake").click(function(){
      });
      return false;
   }
-   $.post("./controller/gaugeProcess.php",$("#formTake").serialize(),function(data,success){
+   $.post("./controller/gaugeProcess.php",$("#formTake").serialize(),function(data){
     if (data == 'success') {
       location.href="./buyStoreHouse.php";
     }

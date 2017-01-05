@@ -218,9 +218,6 @@ tr:hover > th > .glyphicon-trash {
                   <input type="text" class="form-control datetime" name="dateInstall" placeholder="请选择安装日期(不可为空)" readonly>
                 </div>
               </div>
-
-              
-              
                <div class="form-group">
                 <label class="col-sm-3 control-label">确认日期：</label>
                 <div class="col-sm-8">
@@ -397,24 +394,31 @@ function storeInfo(obj,id){
       flag:'getStoreInfo',
       id:id
     },function(data,success){
+      if(data.info){
+        var info = '<div class="row">'+
+                   '  <div class="col-md-12"><p><b>备注：</b>'+data.info+'</p></div>'+
+                   '</div>';
+      }
       var addHtml = "<tr class='open-"+id+"'>"+
                     "   <td colspan='12'>"+
                     "     <div class='row'>"+
-                    "       <div class='col-md-4'>"+
+                    "       <div class='col-md-3'>"+
                     "         <p><b>制造厂：</b> "+data.supplier+" </p>"+
                     "         <p><b>精度等级：</b> "+data.accuracy+" </p>"+
-                    "         <p><b>量程：</b> "+data.scale+" </p>"+
                     "       </div>"+
-                    "       <div class='col-md-4'>"+
+                    "       <div class='col-md-3'>"+
                     "         <p><b>检定周期：</b> "+data.circle+" </p>"+
                     "         <p><b>溯源方式：</b> "+data.track+" </p>"+
-                    "         <p><b>证书结论：</b> "+data.certi+" </p>"+
                     "       </div>"+
-                    "       <div class='col-md-4'>"+
+                    "       <div class='col-md-3'>"+
                     "         <p><b>检定部门：</b> "+data.factory+data.depart+" </p>"+
                     "         <p><b>入库人：</b> "+data.storeUser+" </p>"+
                     "       </div>"+
-                    "     </div>"+
+                    "       <div class='col-md-3'>"+
+                    "         <p><b>量程：</b> "+data.scale+" </p>"+
+                    "         <p><b>证书结论：</b> "+data.certi+" </p>"+
+                    "       </div>"+
+                    "     </div>"+info+
                     "   </td>"+
                     " </tr>";
       $rootTr.after(addHtml);

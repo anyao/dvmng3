@@ -335,7 +335,7 @@ class gaugeService{
 	// 备件申报入厂检定列表
 	function buyCheck($paging){
 		$sqlHelper = new sqlHelper();
-		$sql1 = "SELECT gauge_spr_dtl.id as id,code,name,no,num,unit,info,depart.depart,factory.depart as factory,0 as checknum
+		$sql1 = "SELECT gauge_spr_dtl.id as id,code,name,no,num,unit,depart.depart,factory.depart as factory,0 as checknum
 				 FROM gauge_spr_dtl
 				 left join gauge_spr_bsc
 				 on gauge_spr_bsc.id=gauge_spr_dtl.basic
@@ -347,7 +347,7 @@ class gaugeService{
 				 union
 				 SELECT * from 
 				 (
-				 SELECT gauge_spr_dtl.id as id,code,name,no,num,unit,info,depart.depart,factory.depart as factory,COUNT(sprid) as checkNum
+				 SELECT gauge_spr_dtl.id as id,code,name,no,num,unit,depart.depart,factory.depart as factory,COUNT(sprid) as checkNum
 				 from gauge_spr_check
 				 left join gauge_spr_dtl
 				 on gauge_spr_dtl.id=gauge_spr_check.sprid
@@ -695,21 +695,22 @@ class gaugeService{
 
 	function addSprInCk($sprId,$check,$time){
 		$sqlHelper = new sqlHelper();
-		$sql = "insert into gauge_spr_check (sprid,supplier,accuracy,scale,codeManu,circle,checkDpt,checkComp,checkNxt,track,certi,checkTime,checkUser,res,valid) 
+		$sql = "insert into gauge_spr_check (sprid,supplier,accuracy,scale,codeManu,circle,checkDpt,checkComp,checkNxt,track,certi,checkTime,checkUser,res,valid,info) 
 				values ";
 		for ($i=1; $i <= count($check); $i++) { 
 			if ($check[$i]['who'] == 'out') {
 				$check[$i]['dptCk'] = 'null';
 			}
 			if ($i != count($check)) {
-				$sql .= "($sprId,'{$check[$i]['supplier']}',{$check[$i]['accuracy']},'{$check[$i]['scale']}','{$check[$i]['codeManu']}',{$check[$i]['circle']},{$check[$i]['dptCk']},'{$check[$i]['checkComp']}','{$check[$i]['checkNxt']}','{$check[$i]['track']}','{$check[$i]['certi']}','{$time}','{$check[$i]['checkUser']}',1,'{$check[$i]['valid']}'), ";
+				$sql .= "($sprId,'{$check[$i]['supplier']}',{$check[$i]['accuracy']},'{$check[$i]['scale']}','{$check[$i]['codeManu']}',{$check[$i]['circle']},{$check[$i]['dptCk']},'{$check[$i]['checkComp']}','{$check[$i]['checkNxt']}','{$check[$i]['track']}','{$check[$i]['certi']}','{$time}','{$check[$i]['checkUser']}',1,'{$check[$i]['valid']}','{$check[$i]['info']}'), ";
 			}else{
-				$sql .= "($sprId,'{$check[$i]['supplier']}',{$check[$i]['accuracy']},'{$check[$i]['scale']}','{$check[$i]['codeManu']}',{$check[$i]['circle']},{$check[$i]['dptCk']},'{$check[$i]['checkComp']}','{$check[$i]['checkNxt']}','{$check[$i]['track']}','{$check[$i]['certi']}','{$time}','{$check[$i]['checkUser']}',1,'{$check[$i]['checkvalid']}') ";
+				$sql .= "($sprId,'{$check[$i]['supplier']}',{$check[$i]['accuracy']},'{$check[$i]['scale']}','{$check[$i]['codeManu']}',{$check[$i]['circle']},{$check[$i]['dptCk']},'{$check[$i]['checkComp']}','{$check[$i]['checkNxt']}','{$check[$i]['track']}','{$check[$i]['certi']}','{$time}','{$check[$i]['checkUser']}',1,'{$check[$i]['valid']}','{$check[$i]['info']}') ";
 			}
 		}
 		$res = $sqlHelper->dml($sql);
 		$sqlHelper->close_connect();
 		$this->flowLog($time,10,$sprId);
+
 		return $res;
 	}
 
@@ -734,7 +735,7 @@ class gaugeService{
 		$sql = "UPDATE gauge_spr_check set takeUser='{$takeUser}',takeDpt=$dptId,takeAdmin='{$takeAdmin}',takeTime='{$takeTime}',res=3 where id in($id)";
 		$res = $sqlHelper->dml($sql);
 
-		$sql = "SELECT sprid from gauge_spr_check from id in ($id)";
+		$sql = "SELECT sprid from gauge_spr_check where id in ($id)";
 		$sprId = $sqlHelper->dql_arr($sql);
 		$sqlHelper->close_connect();
 		foreach ($sprId as $k => $v) {
@@ -746,7 +747,7 @@ class gaugeService{
 	// 获取库存的入账、领取、再领取时间等信息
 	function getStoreInfo($id){
 		$sqlHelper = new sqlHelper();
-		$sql = "SELECT supplier,accuracy,scale,`circle`,checkNxt,depart.depart,factory.depart as factory,track,certi,storeUser 
+		$sql = "SELECT supplier,accuracy,scale,`circle`,checkNxt,depart.depart,factory.depart as factory,track,certi,storeUser,info
 				from  gauge_spr_check 
 				left join depart
 				on depart.id=gauge_spr_check.checkDpt

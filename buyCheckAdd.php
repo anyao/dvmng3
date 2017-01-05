@@ -157,124 +157,102 @@ include "message.php";
     <h4>　入厂检定信息</h4>
   </div>
 <form class="form-horizontal" action="controller/gaugeProcess.php" method="post" id="checkAdd">  
-  <?php 
-    $addHtml="";
-    for ($i=1; $i <= $num; $i++) { 
-      $addHtml.="<div class='part row'>".
-               " <div class='col-md-4'>".
-               "   <div class='input-group'>".
-               "     <span class='input-group-addon'>".$i.": 出厂编号</span>".
-               "     <input type='text' class='form-control' name='check[".$i."][codeManu]'>".
-               "   </div> ".
-               " </div>".
-               " <div class='col-md-4'> ".
-               "   <div class='input-group'>".
-               "     <span class='input-group-addon'>精度等级</span>".
-               "     <input type='text' class='form-control' name='check[".$i."][accuracy]'>".
-               "   </div> ".
-               " </div>".
-               " <div class='col-md-4'> ".
-               "   <div class='input-group'>".
-               "     <span class='input-group-addon'>量　　程</span>".
-               "     <input type='text' class='form-control' name='check[".$i."][scale]'>".
-               "   </div> ".
-               " </div>".
-               " <div class='col-md-4'>".
-               "   <div class='input-group'>".
-               "     <span class='input-group-addon'>制造厂</span>".
-               "     <input type='text' class='form-control' name='check[".$i."][supplier]'>".
-               "   </div>  ".
-               " </div>".
-               " <div class='col-md-4'>".
-               "   <div class='input-group'>".
-               "     <span class='input-group-addon'>证书结论</span>".
-               "     <input type='text' class='form-control' name='check[".$i."][certi]'>".
-               "   </div>  ".
-               " </div>".
-               " <div class='col-md-4'>".
-               "   <div class='input-group'>".
-               "     <span class='input-group-addon'>检定日期</span>".
-               "     <input type='text' class='form-control datetime' name='check[".$i."][checkNxt]' readonly>".
-               "   </div>  ".
-               " </div>".
-               " <div class='col-md-4'>".
-               "   <div class='input-group'>".
-               "     <span class='input-group-addon'>检定周期</span>".
-               "     <input type='text' class='form-control' name='check[".$i."][circle]' value='6' readonly='readonly' style='text-align:right'>".
-               "     <span class='input-group-btn'>".
-               "       <button class='btn btn-default minus'  type='button'><span class='glyphicon glyphicon-minus'><span></button>".
-               "       <button class='btn btn-default plus' type='button'><span class='glyphicon glyphicon-plus'></span></button>".
-               "       <button class='btn btn-default' type='button'>月</button>".
-               "     </span>".
-               "   </div>  ".
-               " </div>".
-               " <div class='col-md-4'>".
-               "   <div class='input-group' style='height:34px'>".
-               "     <span class='input-group-addon'>溯源方式</span>".
-               "     <span class='input-group-addon' style='border-right: 0px'>".
-               "       <input type='radio' name='check[".$i."][track]' value='检定' checked> 检定".
-               "     </span>".
-               "     <span class='input-group-addon'  style='border-right:0px;border-left:0px'>".
-               "       <input type='radio' name='check[".$i."][track]' value='校准'> 校准".
-               "     </span>".
-               "     <span class='input-group-addon'>".
-               "       <input type='radio' name='check[".$i."][track]' value='测试'> 测试".
-               "     </span>".
-               "   </div>  ".
-               " </div>".
-               " <div class='col-md-4'>".
-               "   <div class='input-group' style='height:34px'>".
-               "     <span class='input-group-addon'>检定单位</span>".
-               "     <span class='input-group-addon' style='border-right: 0px'>".
-               "       <input type='radio' name='check[".$i."][who]' value='self' checked class='checkWho'> 公司内".
-               "     </span>".
-               "     <span class='input-group-addon'>".
-               "       <input type='radio' name='check[".$i."][who]' value='out' class='checkWho'> 外检".
-               "     </span>".
-               "   </div>  ".
-               " </div>".
-               " <div class='col-md-4'>".
-               "   <div class='input-group'>".
-               "     <span class='input-group-addon'>检定人员</span>".
-               "     <input type='text' class='form-control' name='check[".$i."][checkUser]' placeholder='可填写多个姓名，用逗号隔开'>".
-               "   </div>  ".
-               " </div>".
-               " <div class='col-md-4'>".
-               "   <div class='input-group'>".
-               "     <span class='input-group-addon'>有效日期</span>".
-               "     <input type='text' class='form-control datetime' name='check[".$i."][valid]' readonly>".
-               "   </div>  ".
-               " </div>".
-               " <div class='col-md-4 checkDpt'>".
-               "   <div class='input-group'>".
-               "        <input type='text' class='form-control nDptCk' value='计量室' style='width:98%'>".
-               "        <input type='hidden' name='check[".$i."][dptCk]' class='dptCk' value='199'>".
-               "        <div class='input-group-btn'>".
-               "          <button type='button' class='btn btn-default dropdown-toggle' data-toggle='dropdown'>".
-               "          <span class='caret'></span>".
-               "          </button>".
-               "          <ul class='dropdown-menu dropdown-menu-right' role='menu'>".
-               "          </ul>".
-               "        </div>".
-               "   </div>  ".
-               " </div>".
-               " <div class='col-md-4 checkComp' style='display:none'>".
-               "   <div class='input-group'>".
-               "     <span class='input-group-addon'>外检公司</span>".
-               "     <input type='text' class='form-control' name='check[".$i."][checkComp]'>".
-               "   </div>  ".
-               " </div>".
-               "</div>";
-    }
-    echo "$addHtml";
-  ?>
-
-    <div style="text-align: center">
-      <input type="hidden" name="flag" value="addSprInCk">
-      <input type="hidden" name="num" value='<?php echo $num; ?>'>
-      <input type="hidden" name="sprId" value='<?php echo "$sprId"; ?>'>
-      <button type="submit" class="btn btn-primary" style="width:200px;margin: 20px 0px">确 认 入 厂</button>       
+  <?php for ($i=1; $i <= $num; $i++) { ?>
+<div class='part row'>
+  <div class='col-md-4'>
+    <div class='input-group'>
+      <span class='input-group-addon'><?php echo $i;?>: 出厂编号</span>
+      <input type='text' class='form-control' name='check[<?php echo $i;?>][codeManu]'>
+    </div> 
+    <div class='input-group'>
+      <span class='input-group-addon'>精度等级</span>
+      <input type='text' class='form-control' name='check[<?php echo $i;?>][accuracy]'>
+    </div> 
+    <div class='input-group'>
+      <span class='input-group-addon'>量　　程</span>
+      <input type='text' class='form-control' name='check[<?php echo $i;?>][scale]'>
+    </div> 
+    <div class='input-group'>
+      <span class='input-group-addon'>制造厂商</span>
+      <input type='text' class='form-control' name='check[<?php echo $i;?>][supplier]'>
+    </div>  
+    <div class='input-group'>
+      <span class='input-group-addon'>证书结论</span>
+      <input type='text' class='form-control' name='check[<?php echo $i;?>][certi]'>
+    </div>  
+  </div>
+  <div class="col-md-4">
+    <div class='input-group'>
+      <span class='input-group-addon'>检定人员</span>
+      <input type='text' class='form-control' name='check[<?php echo $i;?>][checkUser]' placeholder='可填写多个姓名，用逗号隔开'>
+    </div> 
+    <div class='input-group' style='height:34px'>
+      <span class='input-group-addon'>溯源方式</span>
+      <span class='input-group-addon' style='border-right: 0px'>
+        <input type='radio' name='check[<?php echo $i;?>][track]' value='检定' checked> 检定
+      </span>
+      <span class='input-group-addon'  style='border-right:0px;border-left:0px'>
+        <input type='radio' name='check[<?php echo $i;?>][track]' value='校准'> 校准
+      </span>
+      <span class='input-group-addon'>
+        <input type='radio' name='check[<?php echo $i;?>][track]' value='测试'> 测试
+      </span>
+    </div>  
+    <div class='input-group'>
+      <span class='input-group-addon'>检定周期</span>
+      <input type='text' class='form-control' name='check[<?php echo $i;?>][circle]' value='6' readonly='readonly' style='text-align:right'>
+      <span class='input-group-btn'>
+        <button class='btn btn-default minus'  type='button'><span class='glyphicon glyphicon-minus'></span></button>
+        <button class='btn btn-default plus' type='button'><span class='glyphicon glyphicon-plus'></span></button>
+        <button class='btn btn-default' type='button'>月</button>
+      </span>
+    </div>  
+    <div class='input-group'>
+      <span class='input-group-addon'>检定日期</span>
+      <input type='text' class='form-control datetime' name='check[<?php echo $i;?>][checkNxt]' readonly>
+    </div>  
+    <div class='input-group'>
+      <span class='input-group-addon'>有效日期</span>
+      <input type='text' class='form-control datetime' name='check[<?php echo $i;?>][valid]' readonly>
+    </div> 
+  </div>
+  <div class="col-md-4">
+    <div class='input-group' style='height:34px'>
+      <span class='input-group-addon'>检定单位</span>
+      <span class='input-group-addon' style='border-right: 0px'>
+        <input type='radio' name='check[<?php echo $i;?>][who]' value='self' checked class='checkWho'> 公司内
+      </span>
+      <span class='input-group-addon'>
+       <input type='radio' name='check[<?php echo $i;?>][who]' value='out' class='checkWho'> 外检
+      </span>
+    </div>   
+    <div class='input-group checkDpt'>
+      <input type='text' class='form-control nDptCk' value='计量室' style='width:98%'>
+      <input type='hidden' name='check[<?php echo $i;?>][dptCk]' class='dptCk' value='199'>
+      <div class='input-group-btn'>
+        <button type='button' class='btn btn-default dropdown-toggle' data-toggle='dropdown'>
+        <span class='caret'></span>
+        </button>
+        <ul class='dropdown-menu dropdown-menu-right' role='menu'>
+        </ul>
+      </div>
+    </div>  
+    <div class='input-group checkComp' style='display:none'>
+      <span class='input-group-addon'>外检公司</span>
+      <input type='text' class='form-control' name='check[<?php echo $i;?>][checkComp]'>
+    </div>  
+    <div class="input-group" style='width: 97%'>
+      <textarea class="form-control" style='border-radius: 4px' rows="4" name="check[<?php echo $i;?>][info]" placeholder="备注..."></textarea>
     </div>
+  </div>
+</div>
+    <?php } ?>
+  <div style="text-align: center">
+    <input type="hidden" name="flag" value="addSprInCk">
+    <input type="hidden" name="num" value='<?php echo $num; ?>'>
+    <input type="hidden" name="sprId" value='<?php echo "$sprId"; ?>'>
+    <button type="submit" class="btn btn-primary" style="width:200px;margin: 20px 0px">确 认 入 厂</button>       
+  </div>
 </form>
 
 <div class="modal fade"  id="notNum" >
@@ -316,7 +294,7 @@ include "message.php";
 <script type="text/javascript">
 $("input.checkWho").click(function(){
   var sector = $(this).val();
-  var $pnt = $(this).parents(".col-md-4");
+  var $pnt = $(this).parents(".input-group");
   if (sector == 'self') {
     $pnt.siblings(".checkDpt").show();
     $pnt.siblings(".checkComp").hide();
