@@ -69,8 +69,14 @@ tr:hover > th > .glyphicon-trash {
   padding-bottom: 8px !important;
 }
 
+#asetPara >.col-md-6 > .form-group{
+  margin-top: 5px !important;
+  margin-bottom: 5px !important;
+}
+
 </style>
 <link rel="stylesheet" href="tp/datetimepicker.css">
+<link rel="stylesheet" href="bootstrap/css/metroStyle/metroStyle.css">
 <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
 
 <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -299,7 +305,283 @@ tr:hover > th > .glyphicon-trash {
         <div class="modal-footer">
           <input type="hidden" name="id">
           <input type="hidden" name="flag" value="useSpr">
-          <button type="button" class="btn btn-primary" id="yesUse">确定添加</button>
+          <button type="button" class="btn btn-primary yesUse">确定添加</button>
+          <button class="btn btn-default" data-dismiss="modal">取消</button>
+        </div>
+      </div>
+    </div>
+  </div>  
+</form> 
+
+<!-- 添加新设备(成套)弹出框 -->
+<form class="form-horizontal" method="post" id="asetForm">
+  <div class="modal fade" id="useAset" role="dialog" >
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="myModalLabel">安装验收新仪表</h4>
+        </div>
+        <div class="modal-body">
+        <div class="row" >
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="col-sm-3 control-label">安装地点：</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" name="para[94]">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="col-sm-3 control-label">安装日期：</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control datetime" name="dateInstall" placeholder="请选择安装日期(不可为空)" readonly>
+                </div>
+              </div>
+              <div class="form-group">
+               <label class="col-sm-3 control-label">确认日期：</label>
+               <div class="col-sm-8">
+                 <input type="text" class="form-control datetime" name="para[92]" readonly>
+               </div>
+              </div>
+
+              <div class="form-group">
+                <label class="col-sm-3 control-label">新增时间：</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control datetime" name="para[89]" readonly>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="col-sm-3 control-label">测量装置：</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" name="para[90]">
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                  <label class="col-sm-3 control-label">管理类别：</label>
+                  <div class="col-sm-8">
+                    <label class="radio-inline">
+                      <input type="radio" name="para[88]" value="A" checked> A
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" name="para[88]" value="B"> B
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" name="para[88]" value="C"> C
+                    </label>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="col-sm-3 control-label">使用用途：</label>
+                  <div class="col-sm-8">
+                    <label class="radio-inline">
+                      <input type="radio" name="para[91]" value="质检" checked> 质检
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" name="para[91]" value="经营"> 经营
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" name="para[91]" value="控制"> 控制
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" name="para[91]" value="安全"> 安全
+                    </label><br/>
+                    <label class="radio-inline">
+                      <input type="radio" name="para[91]" value="环保"> 环保
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" name="para[91]" value="能源"> 能源
+                    </label>
+                  </div>
+                </div>
+
+               <div class="form-group">
+                  <label class="col-sm-3 control-label">使用数量：</label>
+                  <div class="col-sm-8">
+                    <input type="text" class="form-control" name="number" value="1" readonly>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="col-sm-3 control-label">确认结论：</label>
+                  <div class="col-sm-8">
+                    <textarea type="text" class="form-control" name="para[93]"></textarea>
+                  </div>
+                </div>
+            </div>
+          </div>
+            <div class="row">
+              <div class="col-md-6">
+              <span class="glyphicon glyphicon-plus" id="addLeaf" style='margin-left: 20px;cursor: pointer'></span>
+              <span class="glyphicon glyphicon-remove" id="remove" style='cursor: pointer'></span>
+<!--               <a id="addLeaf" href="javascript:void(0);" >增加叶子节点</a> -->
+              <!-- <a id="remove" href="javascript:void(0);">删除叶子节点</a> -->
+              <!-- <a id="edit" href="javascript:void(0);">重命名子节点</a> -->
+                <ul id="tree" class="ztree" style='margin-left: 10px;'></ul>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="col-sm-3 control-label">基本描述：</label>
+                  <div class="col-sm-8">
+                    <textarea class="form-control" rows="8" id="asetInfo" readonly></textarea>
+                  </div>
+                </div> 
+              </div>
+            </div>
+        </div>
+        <div id="asetPara"></div>
+        <div class="modal-footer">
+          <input type="hidden" name="id">
+          <input type="hidden" name="flag" value="useAset">
+          <button type="button" class="btn btn-primary yesUse" >确定添加</button>
+          <button class="btn btn-default" data-dismiss="modal">取消</button>
+        </div>
+      </div>
+    </div>
+  </div>  
+</form> 
+
+<!-- 成套设备下添加子设备 -->
+<form class="form-horizontal">
+  <div class="modal fade" id="asetSon" role="dialog" >
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="myModalLabel">安装验收新仪表</h4>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="col-sm-3 control-label">安装地点：</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" name="94">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-3 control-label">规格型号：</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" name="no">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-3 control-label">安装日期：</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control datetime" name="dateInstall" placeholder="请选择安装日期(不可为空)" readonly>
+                </div>
+              </div>
+               <div class="form-group">
+                <label class="col-sm-3 control-label">确认日期：</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control datetime" name="92" readonly>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="col-sm-3 control-label">新增时间：</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control datetime" name="89" readonly>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="col-sm-3 control-label">测量装置：</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" name="90">
+                </div>
+              </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label class="col-sm-3 control-label">管理类别：</label>
+                  <div class="col-sm-8">
+                    <label class="radio-inline">
+                      <input type="radio" name="88" value="A" checked> A
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" name="88" value="B"> B
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" name="88" value="C"> C
+                    </label>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="col-sm-3 control-label">使用用途：</label>
+                  <div class="col-sm-8">
+                    <label class="radio-inline">
+                      <input type="radio" name="91" value="质检" checked> 质检
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" name="91" value="经营"> 经营
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" name="91" value="控制"> 控制
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" name="91" value="安全"> 安全
+                    </label><br/>
+                    <label class="radio-inline">
+                      <input type="radio" name="91" value="环保"> 环保
+                    </label>
+                    <label class="radio-inline">
+                      <input type="radio" name="91" value="能源"> 能源
+                    </label>
+                  </div>
+                </div>
+
+               <div class="form-group">
+                  <label class="col-sm-3 control-label">使用数量：</label>
+                  <div class="col-sm-8">
+                    <input type="text" class="form-control" name="number" value="1" readonly>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="col-sm-3 control-label">确认结论：</label>
+                  <div class="col-sm-8">
+                    <textarea type="text" class="form-control" name="93"></textarea>
+                  </div>
+                </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label class="col-sm-3 control-label">所属类别：</label>
+                      <div class="col-sm-8">
+                        <div class="input-group">
+                        <input type="text" name="class" class="form-control notNull" placeholder="请搜索要设备类别">
+                        <div class="input-group-btn">
+                          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                          <span class="caret"></span>
+                          </button>
+                          <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                          </ul>
+                        </div>
+                        <!-- /btn-group -->
+                      </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div id="sonPara"></div>
+                  
+                </div>
+            
+            </div>
+
+        </div>
+        <div class="modal-footer">
+          <input type="hidden" name="tid">
+          <input type="hidden" name="name">
+          <button type="button" class="btn btn-primary yesAsetSon">确定添加</button>
           <button class="btn btn-default" data-dismiss="modal">取消</button>
         </div>
       </div>
@@ -339,7 +621,7 @@ tr:hover > th > .glyphicon-trash {
                 <td>{$row['takeUser']}</td>
                 <td>{$row['factory']}{$row['depart']}</td>
                 <td><a class='glyphicon glyphicon-briefcase' href='javascript:spareSpr({$row['id']});'></a></td>
-                <td><a class='glyphicon glyphicon-cog' href='javascript:useSpr({$row['id']});'></a></td>
+                <td><a class='glyphicon glyphicon-cog' href='javascript:useSpr({$row['id']},\"{$row['name']}\");'></a></td>
              </tr>";
              echo "$addHtml";
 
@@ -362,8 +644,98 @@ tr:hover > th > .glyphicon-trash {
 <script src="tp/bootstrap-datetimepicker.js"></script>
 <script src="tp/bootstrap-datetimepicker.zh-CN.js"></script>
 <script src="bootstrap/js/bootstrap-suggest.js"></script>
+<script src="bootstrap/js/jquery.ztree.core.js"></script>
+<script src="bootstrap/js/jquery.ztree.excheck.min.js"></script>
+<script src="bootstrap/js/jquery.ztree.exedit.js"></script>
 <?php  include "./buyJs.php";?>
 <script type="text/javascript">
+var setting = {
+      edit: {
+        enable: true,
+        showRemoveBtn: false,
+        showRenameBtn: false
+      },
+      data: {
+        keep: {
+          parent:true,
+          leaf:true
+        },
+        simpleData: {
+          enable: true
+        }
+      },
+      callback: {
+        onClick: zTreeOnClick
+      }
+      // callback: {
+        // beforeDrag: beforeDrag,
+        // beforeRemove: beforeRemove,
+        // beforeRename: beforeRename,
+        // onRemove: onRemove
+      // }
+    };
+
+// 添加子设备时，设备类别搜索建议
+$("#asetSon input[name=class]").bsSuggest({
+    allowNoKeyword: false,
+    showBtn: false,
+    indexId:1,
+    // indexKey: 1,
+    data: {
+         'value':<?php 
+          $allType=$devService->getTypeSon();
+          echo "$allType";
+          ?>,
+    }
+}).on('onDataRequestSuccess', function (e, result) {
+    console.log('onDataRequestSuccess: ', result);
+}).on('onSetSelectValue', function (e, keyword, data) {
+    console.log('onSetSelectValue: ', keyword, data);
+    var idType=$(this).attr("data-id");
+    $.get("controller/devProcess.php",{
+      flag:'getPara',
+      id:idType
+    },function(data,success){
+     var addHtml="";
+     for (var i = 0; i < data.length; i++) {
+        addHtml+="<div class='col-md-6'>"+
+                "  <div class='form-group'>"+
+                "    <label class='col-sm-3 control-label'>"+data[i].name+"：</label>"+
+                "    <div class='col-sm-8'>"+
+                "      <input type='text' class='form-control' name='"+data[i].id+"'>"+
+                "    </div>"+
+                "  </div>"+
+                "</div>";
+     }
+     $("#sonPara").empty();
+     $("#sonPara").append(addHtml);
+    },'json');
+     
+}).on('onUnsetSelectValue', function (e) {
+    console.log("onUnsetSelectValue");
+});
+
+// 添加父设备时，设备类别搜索建议
+$("#prtAdd input[name=class]").bsSuggest({
+    allowNoKeyword: false,
+    showBtn: false,
+    indexId:1,
+    // indexKey: 1,
+    data: {
+         'value':<?php 
+          $allType=$devService->getTypePrt();
+          echo "$allType";
+          ?>,
+    }
+}).on('onDataRequestSuccess', function (e, result) {
+    console.log('onDataRequestSuccess: ', result);
+}).on('onSetSelectValue', function (e, keyword, data) {
+   console.log('onSetSelectValue: ', keyword, data);
+}).on('onUnsetSelectValue', function (e) {
+    console.log("onUnsetSelectValue");
+});
+
+
 function spareSpr(id){
   $("#spareSpr input[name=id]").val(id);
   $("#spareSpr").modal({
@@ -426,14 +798,12 @@ function storeInfo(obj,id){
 }
 
 
-
-
 // 添加子设备确认添加按钮
-$("#yesUse").click(function(){
+$(".yesUse").click(function(){
   // 添加新设备信息不完整时，弹出提示框
   var allow_submit = true;
-
-  $("#useSpr .form-control").each(function(){
+  var $form = $(this).parents("form")
+  $form.find(".form-control").each(function(){
     if ($(this).val()=="") {
       $('#failAdd').modal({
           keyboard: true
@@ -441,17 +811,18 @@ $("#yesUse").click(function(){
       allow_submit = false;
       return false;
     }
-  }); 
+  });
 
   if (allow_submit == true) {
-    $.post("./controller/gaugeProcess.php",$("#useForm").serialize(),function(data,success){
+    $.post("./controller/gaugeProcess.php",$form.serialize(),function(data,success){
       // alert(data);
-        location.href="./usingSon.php?id="+data;
-    },'text');
+        location.href="./"+data.url+".php?id="+data.devid;
+    },'json');
   }else{
     return allow_submit;
   }
 });
+
 
 //时间选择器
 $(".datetime").datetimepicker({
@@ -459,20 +830,92 @@ $(".datetime").datetimepicker({
 });
 
 // 新设备是否备用
-function useSpr(id){
-  $("#useSpr input[name=id]").val(id);
+function useSpr(id,name){
+  $("#useSpr input[name=id], #useAset input[name=id]").val(id);
   $.get("./controller/gaugeProcess.php",{
     flag:'getChkInfo',
     id:id
   },function(data){
     if (data != "") {
-      
+      var zNodes = [{id:id, pId:0, name:name, open:true,isParent:true}];
+      $.fn.zTree.init($("#tree"), setting, zNodes);
+      $("#asetInfo").empty().append(data);
+      // $("#edit").bind("click", edit);
+      $("#remove").bind("click", remove);
+      $("#addLeaf").bind("click", {isParent:false,id:id}, add);
+      $("#asetPara").empty();
+      $("#useAset").modal({
+        keyboard:true
+      });
+    }else{
+      $("#useSpr").modal({
+        keyboard:true
+      });
     }
-    // $("#useSpr").modal({
-    //   keyboard:true
-    // });
   },'text');
 }
+
+var newCount = 1;
+function add(e) {
+  var zTree = $.fn.zTree.getZTreeObj("tree"),
+  isParent = e.data.isParent,
+  nodes = zTree.getNodesByParam("id", e.data.id, null),
+  treeNode = nodes[0];
+  if (treeNode) {
+    treeNode = zTree.addNodes(treeNode, {id:(100 + newCount), pId:treeNode.id, isParent:isParent, name:"子设备名称" + (newCount++)});
+  } else {
+    treeNode = zTree.addNodes(null, {id:(100 + newCount), pId:0, isParent:isParent, name:"new node" + (newCount++)});
+  }
+  if (treeNode) {
+    zTree.editName(treeNode[0]);
+  }
+};
+function remove(e) {
+  var zTree = $.fn.zTree.getZTreeObj("tree"),
+  nodes = zTree.getSelectedNodes(),
+  treeNode = nodes[0];
+  if (nodes.length != 0 && treeNode.isParent == false) {
+    zTree.removeNode(treeNode);
+    // alert(treeNode.isParent)
+    
+  }
+  // var callbackFlag = $("#callbackTrigger").attr("checked");
+};
+
+// function edit() {
+//   var zTree = $.fn.zTree.getZTreeObj("tree"),
+//   nodes = zTree.getSelectedNodes(),
+//   treeNode = nodes[0];
+//   if (nodes.length != 0 && treeNode.isParent == false) {
+//     zTree.editName(treeNode);
+//   }
+// };
+
+function zTreeOnClick(event, treeId, treeNode) {
+  if (treeNode.isParent == false) {
+    $("#asetSon input[name=tid]").val(treeNode.tId);
+    $("#asetSon input[name=name]").val(treeNode.name);
+    $("#asetSon input[type=text][name!=number]").val("");
+    $("#asetSon").modal({
+      keyboard:true
+    });
+  }
+};
+
+$(".yesAsetSon").click(function(){
+  var tid = $(this).parents("form").find("input[name=tid]").val();
+  var addHtml = "";
+  // alert(addHtml);
+  // var addHtml = '<input type="hidden" name="name" value="">';
+  var $input = $(this).parents("form").find("input[type=text],input[type=radio][checked],input[name=name]");
+  $input.each(function(){
+    addHtml += '<input type="hidden" name="aSet['+tid+']['+$(this).attr("name")+']" value="'+$(this).val()+'">';
+  });
+  $("#asetPara").append(addHtml);
+  $("#asetSon").modal('hide');
+});
+
+
 
 
 

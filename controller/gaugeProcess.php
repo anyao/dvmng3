@@ -210,7 +210,24 @@ if (!empty($_REQUEST['flag'])) {
 		// 先添加备件基本信息
 		$devId = $gaugeService->transSpr($id,$number,'正常',0,$dateInstall);
 		$res = $gaugeService->useDtl($devId,$para);
-		echo $devId;
+		echo '{"url":"usingSon","devid":$devId}';
+		exit();
+	}
+
+	else if ($flag == "useAset") {
+		$para = $_POST['para'];
+		$dateInstall = $_POST['dateInstall'];
+		$number = $_POST['number'];
+		$aSet = $_POST['aSet'];
+		$id = $_POST['id'];
+		// 添加父设备并获取其添加后id用于之后子节点的添加
+		$fid = $gaugeService->tranSpr($id,$number,'正常',0,$dateInstall);
+		$aSet = array_values($aSet);
+		for ($i=0; $i < count($aSet); $i++) { 
+			$sid = $gaugeService->asetSon($fid,$aSet[$i]['number'],'正常',$fid,$dateInstall);
+			$res[] = $gaugeService->useDtl($sid,$para);
+		}
+		echo '{"url":"using","devid":$fid}';
 		exit();
 	}
 

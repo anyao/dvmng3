@@ -824,6 +824,49 @@ class gaugeService{
 		return $devid;
 	}
 
+	// transSpr($id,$number,'正常',0,$dateInstall)
+	function asetSon($id,$num,$state,$pid,$installTime){
+		$sqlHelper = new sqlHelper();
+		$depart = $_SESSION['dptid'];
+		$sql = "select fid from depart where id=$depart";
+		$fct = $sqlHelper->dql($sql);
+
+		$sql = "INSERT INTO device 
+				(name,code,no,class,factory,depart,state,`number`,supplier,dateInstall,pid)
+				select name,code,no,'仪表',{$fct['fid']},$depart,'{$state}',$num,supplier,'{$installTime}',0
+				from gauge_spr_dtl
+				left join gauge_spr_check
+				on gauge_spr_check.sprid=gauge_spr_dtl.id
+				where gauge_spr_check.id=$id";
+				// echo "$sql";
+				// exit();
+
+		$result = 4;
+		$logRes  = 8;
+		$res = $sqlHelper->dml($sql);
+		$devid = mysql_insert_id();
+
+		// check表里原来填写好的detail
+		$sql = "SELECT sprid,accuracy,scale,codeManu,circle,checkDpt,checkNxt,track,certi from gauge_spr_check where id=$id";
+		$r = $sqlHelper->dql($sql);
+
+		// 属性参数表
+		$sql = "INSERT INTO devdetail (devid,paraid,paraval) values 
+				($devid, 79, '{$r['accuracy']}'),
+				($devid, 80, '{$r['scale']}'),
+				($devid, 81, '{$r['codeManu']}'),
+				($devid, 82, '{$r['circle']}'),
+				($devid, 83, '{$r['checkDpt']}'),
+				($devid, 84, '{$r['checkNxt']}'),
+				($devid, 86, '{$r['track']}'),
+				($devid, 87, '{$r['certi']}')";
+		$res = $sqlHelper->dml($sql);
+
+		$sqlHelper->close_connect();
+		$this->flowLog($installTime,$logRes,$r['sprid']);
+		return $devid;
+	}
+
 	function useDtl($devId,$para){
 		$sqlHelper = new sqlHelper();
 		$sql = "INSERT INTO devdetail (devid,paraid,paraval) values ";
@@ -837,6 +880,16 @@ class gaugeService{
 		$res = $sqlHelper->dml($sql);
 		$sqlHelper->close_connect();
 		return $res;
+	}
+
+	// 讲子设备的属性参数转为数组
+	function toPara($aset){
+		foreach ($aSet[$i] as $k => $v) {
+			if (is_numeric($k)) {
+				$para[] = $v;
+			}
+		}
+		return $para;
 	}
 
 
