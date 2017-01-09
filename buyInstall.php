@@ -812,12 +812,12 @@ $(".yesUse").click(function(){
       return false;
     }
   });
-
   if (allow_submit == true) {
-    $.post("./controller/gaugeProcess.php",$form.serialize(),function(data,success){
-      // alert(data);
-        location.href="./"+data.url+".php?id="+data.devid;
-    },'json');
+    $.post("./controller/gaugeProcess.php",$form.serialize(),function(data){
+      alert("hello");
+      alert(data);
+        // location.href="./"+data.url+".php?id="+data.devid;
+    },'text');
   }else{
     return allow_submit;
   }

@@ -258,7 +258,11 @@ tr:hover > th > .glyphicon-trash {
           for ($i=0; $i < count($paging->res_array); $i++) { 
             $row = $paging->res_array[$i];
             if ($row['res'] == 4) {
-              $url = "usingSon";
+              if ($row['ifaset'] == 1) {
+                $url = "using";
+              }else{
+                $url = "usingSon";
+              }
               $icon = "glyphicon glyphicon-play-circle";
               $xlsx = "<a class='glyphicon glyphicon-save' href='javascript:downXls({$row['devid']})'></a>";
             }else{

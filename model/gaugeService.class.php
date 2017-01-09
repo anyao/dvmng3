@@ -620,7 +620,7 @@ class gaugeService{
 	// 备件安装验收历史记录
 	function buyInstallHis($paging){
 		$sqlHelper = new sqlHelper();
-		$sql1 = "SELECT gauge_spr_check.id as id,trsfTime,name,code,codeManu,no,trsfUser,depart.depart,factory.depart factory,gauge_spr_check.res,devid,gauge_spr_check.sprid
+		$sql1 = "SELECT gauge_spr_check.id as id,trsfTime,name,code,codeManu,no,trsfUser,depart.depart,factory.depart factory,gauge_spr_check.res,devid,gauge_spr_check.sprid,ifaset
 				 from gauge_spr_check
 				 left join gauge_spr_dtl
 				 on gauge_spr_dtl.id=gauge_spr_check.sprid
@@ -670,7 +670,7 @@ class gaugeService{
 		}
 
 		$sqlHelper = new sqlHelper();
-		$sql1 = "SELECT gauge_spr_check.id as id,trsfTime,name,code,codeManu,no,trsfUser,depart.depart,factory.depart factory,gauge_spr_check.res,devid,gauge_spr_check.sprid
+		$sql1 = "SELECT gauge_spr_check.id as id,trsfTime,name,code,codeManu,no,trsfUser,depart.depart,factory.depart factory,gauge_spr_check.res,devid,gauge_spr_check.sprid,ifaset
 				 from gauge_spr_check
 				 left join gauge_spr_dtl
 				 on gauge_spr_dtl.id=gauge_spr_check.sprid
@@ -762,14 +762,18 @@ class gaugeService{
 
 	function transSpr($id,$num,$state,$pid,$installTime){
 		$sqlHelper = new sqlHelper();
-		$depart = $_SESSION['dptid'];
-		$sql = "select fid from depart where id=$depart";
+		$uid = $_SESSION['uid'];
+		$sql = "SELECT fid,departid as dptid
+				from user
+				left join depart
+				on user.departid=depart.id
+				where user.id=$uid";
 		$fct = $sqlHelper->dql($sql);
 
 		if ($state == "正常") {
 			$sql = "INSERT INTO device 
 					(name,code,no,class,factory,depart,state,`number`,supplier,dateInstall,pid)
-					select name,code,no,'仪表',{$fct['fid']},$depart,'{$state}',$num,supplier,'{$installTime}',0
+					select name,code,no,'仪表',{$fct['fid']},{$fct['dptid']},'{$state}',$num,supplier,'{$installTime}',0
 					from gauge_spr_dtl
 					left join gauge_spr_check
 					on gauge_spr_check.sprid=gauge_spr_dtl.id
@@ -784,7 +788,7 @@ class gaugeService{
 			// ,accuracy,scale,codeManu,`circle`,checkDpt,checkNxt,track,certi
 			$sql = "INSERT INTO device 
 					(name,code,no,class,factory,depart,state,`number`,supplier)
-					select name,code,no,'仪表',{$fct['fid']},$depart,'{$state}',$num,supplier
+					select name,code,no,'仪表',{$fct['fid']},{$fct['dptid']},'{$state}',$num,supplier
 					from gauge_spr_dtl
 					left join gauge_spr_check
 					on gauge_spr_check.sprid=gauge_spr_dtl.id
@@ -797,7 +801,7 @@ class gaugeService{
 		$devid = mysql_insert_id();
 
 		// check表里原来填写好的detail
-		$sql = "select sprid,accuracy,scale,codeManu,circle,checkDpt,checkNxt,track,certi from gauge_spr_check where id=$id";
+		$sql = "SELECT sprid,accuracy,scale,codeManu,circle,checkDpt,checkNxt,track,certi from gauge_spr_check where id=$id";
 		$r = $sqlHelper->dql($sql);
 
 		// 属性参数表
@@ -813,7 +817,7 @@ class gaugeService{
 		$res = $sqlHelper->dml($sql);
 
 		// 添加到原备件check表中
-		$trsfDpt = $_SESSION['dptid'];
+		$trsfDpt = $fct['dptid'];
 		$trsfUser = $_SESSION['user'];
 		$trsfTime = date("Y-m-d H:i:s");
 		$sql = "UPDATE gauge_spr_check set devid=$devid,res=$result,trsfUser='{$trsfUser}',trsfTime='{$trsfTime}',trsfDpt=$trsfDpt where id=$id";
@@ -825,22 +829,26 @@ class gaugeService{
 	}
 
 	// transSpr($id,$number,'正常',0,$dateInstall)
-	function asetSon($id,$num,$state,$pid,$installTime){
+	function asetSon($id,$num,$state,$pid,$installTime,$no,$name){
 		$sqlHelper = new sqlHelper();
-		$depart = $_SESSION['dptid'];
-		$sql = "select fid from depart where id=$depart";
+		$uid = $_SESSION['uid'];
+		$sql = "SELECT fid,departid as dptid
+				from user
+				left join depart
+				on user.departid=depart.id
+				where user.id=$uid";
 		$fct = $sqlHelper->dql($sql);
-
+		$path = "-".$pid;
 		$sql = "INSERT INTO device 
-				(name,code,no,class,factory,depart,state,`number`,supplier,dateInstall,pid)
-				select name,code,no,'仪表',{$fct['fid']},$depart,'{$state}',$num,supplier,'{$installTime}',0
+				(name,no,class,factory,depart,state,`number`,supplier,dateInstall,pid,path)
+				select '{$name}','{$no}','仪表',{$fct['fid']},{$fct['dptid']},'{$state}',$num,supplier,'{$installTime}',$pid,'{$path}'
 				from gauge_spr_dtl
 				left join gauge_spr_check
 				on gauge_spr_check.sprid=gauge_spr_dtl.id
 				where gauge_spr_check.id=$id";
+
 				// echo "$sql";
 				// exit();
-
 		$result = 4;
 		$logRes  = 8;
 		$res = $sqlHelper->dml($sql);
@@ -860,6 +868,10 @@ class gaugeService{
 				($devid, 84, '{$r['checkNxt']}'),
 				($devid, 86, '{$r['track']}'),
 				($devid, 87, '{$r['certi']}')";
+		$res = $sqlHelper->dml($sql);
+
+		// 修改check里是否为成套设备的标志位
+		$sql = "UPDATE gauge_spr_check SET ifaset=1 where id=$id";
 		$res = $sqlHelper->dml($sql);
 
 		$sqlHelper->close_connect();
