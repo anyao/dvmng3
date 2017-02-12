@@ -65,8 +65,20 @@ tr:hover > th > .glyphicon-trash {
   display: inline;
 }
 
+.ztree-row{
+    margin-left: 0px !important; 
+    margin-bottom:0px !important;
+    height: 400px;
+    overflow-y:auto
+  }
+
+  .ztree-row > .col-md-4{
+    margin:0px !important;
+  }
+
 </style>
 <link rel="stylesheet" href="tp/datetimepicker.css">
+<link rel="stylesheet" href="bootstrap/css/metroStyle/metroStyle.css">
 <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
 
 <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -171,24 +183,21 @@ tr:hover > th > .glyphicon-trash {
       </div>
       <form class="form-horizontal" id="formTake">
         <div class="modal-body">
-          <div class="form-group">
-            <label class="col-sm-4 control-label">申领部门：</label>
-            <div class="col-sm-6">
-              <div class="input-group">
-              <input type="text" name="nDpt" class="form-control">
-              <div class="input-group-btn">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-right" role="menu">
-                </ul>
-              </div>
-              <!-- /btn-group -->
+          <div class="row ztree-row">
+            <div class="col-md-4">
+              <ul id="tree-py" class="ztree"></ul>
             </div>
+            <div class="col-md-4">
+              <ul id="tree-zp" class="ztree"></ul>
+            </div>
+            <div class="col-md-4">
+              <ul id="tree-gp" class="ztree"></ul>
             </div>
           </div>
+
+
           <div class="form-group">
-            <label class="col-sm-4 control-label">领取人：</label>
+            <label class="col-sm-2 control-label">领取人：</label>
             <div class="col-sm-6">
               <input type="text" class="form-control" name='takeUser'>
             </div>
@@ -206,6 +215,21 @@ tr:hover > th > .glyphicon-trash {
   </div>
 </div>
 
+<div class="modal fade"  id="failRadio" >
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+         <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
+         </div>
+         <div class="modal-body"><br/>
+            <div class="loginModal">领取部门必须选择唯一。</div><br/>
+         </div>
+         <div class="modal-footer">  
+          <button class="btn btn-primary" data-dismiss="modal">关闭</button>
+        </div>
+    </div>
+  </div>
+</div> 
 
 <div class="container">
   <div class="row">
@@ -264,18 +288,66 @@ tr:hover > th > .glyphicon-trash {
 <script src="tp/bootstrap-datetimepicker.js"></script>
 <script src="tp/bootstrap-datetimepicker.zh-CN.js"></script>
 <script src="bootstrap/js/bootstrap-suggest.js"></script>
+<script src="bootstrap/js/jquery.ztree.core.js"></script>
+<script src="bootstrap/js/jquery.ztree.excheck.min.js"></script>
 <?php  include "./buyJs.php";?>
 <script type="text/javascript">
+var setting = {
+    view: {
+        selectedMulti: false,
+        showIcon: false
+    },
+    check: {
+        enable: true,
+        chkStyle:"radio",
+        radioType:'all',
+    },
+    data: {
+        simpleData: {
+            enable: true
+        }
+    }
+};
+
+var zTreePy = <?php $data = $dptService->getDptForRole(1); echo $data; ?>;
+var zTreeZp = <?php $data = $dptService->getDptForRole(2); echo $data; ?>;
+var zTreeGp = <?php $data = $dptService->getDptForRole(3); echo $data; ?>;
+
+
+function takeSpr(str){
+  $.fn.zTree.init($("#tree-py"), setting, zTreePy);
+  $.fn.zTree.init($("#tree-zp"), setting, zTreeZp);
+  $.fn.zTree.init($("#tree-gp"), setting, zTreeGp);
+  treePy = $.fn.zTree.getZTreeObj("tree-py");
+  treeZp = $.fn.zTree.getZTreeObj("tree-zp");
+  treeGp = $.fn.zTree.getZTreeObj("tree-gp");
+
+  if (!isNaN(str)) {
+    str = '["'+str+'"]';
+  }
+  $("#takeSpr input[name=id]").val(str);
+  $("#takeSpr").modal({
+    keyboard:true
+  });
+}
+
+
+
 // 确认领取按钮
 $("#yesTake").click(function(){
-  var dptid = $("#takeSpr input[name=nDpt]").val();
-  var takeUser =$("#takeSpr input[name=takeUser]").val();
-  if (dptid.length == 0) {
-     $("#failDpt").modal({
+  var nodesPy = treePy.getCheckedNodes(true);
+  var nodesZp = treeZp.getCheckedNodes(true);
+  var nodesGp = treeGp.getCheckedNodes(true);
+  var len = nodesPy.length + nodesZp.length + nodesGp.length;
+  if (len > 1 || len == 0) 
+     $("#failRadio").modal({
       keyboard:true
      });
-     return false;
-  }
+   else
+    var nodes = $.extend(nodesPy,nodesZp,nodesGp);
+  // 领取部门编号
+  $("#takeSpr input[name=dptId]").val(nodes[0].id);
+  var takeUser =$("#takeSpr input[name=takeUser]").val();
 
   if (takeUser.length == 0) {
     $("#failAdd").modal({
@@ -291,15 +363,6 @@ $("#yesTake").click(function(){
 });
 
 
-function takeSpr(str){
-  if (!isNaN(str)) {
-    str = '["'+str+'"]';
-  }
-  $("#takeSpr input[name=id]").val(str);
-  $("#takeSpr").modal({
-    keyboard:true
-  });
-}
 
 
 // 多选出库
@@ -344,29 +407,6 @@ $("#takeSpr #minus").click(function(){
     $("#takeSpr input[name=num]").val(num);
   }
 });
-
-
-// // 部门搜索提示
-//  $("#takeSpr input[name=nDpt]").bsSuggest({
-//     allowNoKeyword: false,
-//     showBtn: false,
-//     indexId:2,
-//     // indexKey: 1,
-//     data: {
-//          'value':<?php  ; ?>,
-//          echo "$dptAll"
-//     }
-// }).on('onDataRequestSuccess', function (e, result) {
-//     console.log('onDataRequestSuccess: ', result);
-// }).on('onSetSelectValue', function (e, keyword, data) {
-//    console.log('onSetSelectValue: ', keyword, data);
-//    var idDepart=$(this).attr("data-id");
-//    $(this).parents("form").find("input[name=dptTk]").val(idDepart);
-// }).on('onUnsetSelectValue', function (e) {
-//     console.log("onUnsetSelectValue");
-// });
-
-
 
 function storeInfo(obj,id){
   var flagIcon=$(obj).attr("class");

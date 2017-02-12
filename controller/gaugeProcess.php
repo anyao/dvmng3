@@ -166,7 +166,7 @@ if (!empty($_REQUEST['flag'])) {
 		$dptId = $_POST['dptId'];
 		$takeAdmin = $_SESSION['user'];
 		$takeTime = date("Y-m-d H:i:s");
-		$res = $gaugeService->takeSpr($takeUser,$id,$dptId,$takeUser,$takeTime);
+		$res = $gaugeService->takeSpr($takeUser,$id,$dptId,$takeAdmin,$takeTime);
 		if ($res != 0) {
 			echo "success";
 			exit();
@@ -210,7 +210,7 @@ if (!empty($_REQUEST['flag'])) {
 		// 先添加备件基本信息
 		$devId = $gaugeService->transSpr($id,$number,'正常',0,$dateInstall);
 		$res = $gaugeService->useDtl($devId,$para);
-		echo '{"url":"usingSon","devid":'.$devId'.}';
+		echo '{"url":"usingSon","devid":'.$devId.'}';
 		exit();
 	}
 

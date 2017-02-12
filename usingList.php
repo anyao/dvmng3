@@ -9,7 +9,6 @@ $user=$_SESSION['user'];
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 <meta name="description" content="普阳钢铁设备管理系统">
 <meta name="author" content="安瑶">
 <link rel="icon" href="img/favicon.ico">

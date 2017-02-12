@@ -1043,8 +1043,6 @@ class gaugeService{
 	{
 	  $ret = eval('return '.iconv($in_charset,$out_charset,var_export($arr,true).';'));
 	  return $ret;
-	  // 这里转码之后可以输出json
-	  //  return json_encode($ret);
 	}
 
 	function getChkInfo($id){
