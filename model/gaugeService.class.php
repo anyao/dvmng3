@@ -1029,11 +1029,15 @@ class gaugeService{
 	}
 
 	function getCLJLByDev($devid){
+		print_R($devid);
+		die;
 		$sqlHelper = new sqlHelper();
 		$sql = "SELECT gauge_dpt_num.num from gauge_dpt_num
 				left join device
 				on gauge_dpt_num.depart=device.factory
 				where device.id=$devid";
+		echo "$sql";
+		die;
 		$res = $sqlHelper->dql($sql);
 		$sqlHelper->close_connect();
 		return $res['num'];

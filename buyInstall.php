@@ -666,13 +666,10 @@ var setting = {
       },
       callback: {
         onClick: zTreeOnClick
-      }
-      // callback: {
-        // beforeDrag: beforeDrag,
-        // beforeRemove: beforeRemove,
-        // beforeRename: beforeRename,
-        // onRemove: onRemove
-      // }
+      },
+      view: {
+        showIcon: false
+      } 
     };
 
 // 添加子设备时，设备类别搜索建议
@@ -814,9 +811,7 @@ $(".yesUse").click(function(){
   });
   if (allow_submit == true) {
     $.post("./controller/gaugeProcess.php",$form.serialize(),function(data){
-      alert("hello");
-      alert(data);
-        // location.href="./"+data.url+".php?id="+data.devid;
+        location.href="./"+data.url+".php?id="+data.devid;
     },'text');
   }else{
     return allow_submit;

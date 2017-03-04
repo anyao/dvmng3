@@ -18,8 +18,7 @@
 
 require_once '../model/gaugeService.class.php';	
 $dev = json_decode($_GET['dev']);
-
-
+print_R($dev);
 $gaugeService = new gaugeService();
 $cljl = $gaugeService->getCLJLByDev($dev[1]);
 $res = $gaugeService->sprDown($dev);
