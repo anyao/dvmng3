@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>JQuery定时器</title>
+
+<script src="../bootstrap/js/jquery.js" type="text/javascript"></script>
+<script src="jquery.timers-1.2.js" type="text/javascript"></script>
+
+<script>
+
+        function check() {
+            $("#Button1").attr("disabled", true);
+            $("#Button1").val("正在提交，请稍等3秒.....");
+            $('body').oneTime('3s', function() {
+                $("#Button1").attr("disabled", false);
+                $("#Button1").val("测试提交");
+				alert("3秒后提交结果");
+            });
+        }
+
+    </script>
+
+</head>
+
+<body>
+
+<input id="Button1" onclick="check();return false;" value="测试提交" type="submit" name="Button1"> 
+
+</body>
+</html>
