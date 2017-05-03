@@ -62,6 +62,7 @@ class gaugeService{
 			if ($bsc == "") {
 				$where = " gauge_spr_bsc.id in (SELECT basic from gauge_spr_dtl where $dtl) "; 
 			}else{
+
 				$where = " gauge_spr_bsc.id in (SELECT basic from gauge_spr_dtl where $dtl ) AND ".$bsc." ";
 			}
 		}
@@ -77,8 +78,7 @@ class gaugeService{
 				 on user.id=gauge_spr_bsc.user 
 				 WHERE gauge_spr_bsc.depart ".$this->authDpt." and ".$where.
 				 "order by gauge_spr_bsc.see desc,id desc limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
-				 // echo "$sql1";
-				 // die;
+
 		$sql2 = "SELECT count(*)
 				 from gauge_spr_bsc
 				 left join depart
@@ -321,8 +321,7 @@ class gaugeService{
 				 on user.id=gauge_spr_bsc.user 
 				 where  gauge_spr_bsc.depart ".$this->authDpt." and ".$where.
 				 " order by apvtime desc limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
-				 // echo "$sql1";
-				 // die;
+
 		$sql2 = "SELECT count(*)
 				 from gauge_spr_bsc
 				 left join depart
@@ -707,13 +706,13 @@ class gaugeService{
 				$check[$i]['dptCk'] = 'null';
 			}
 			if ($i != count($check)) {
+
 				$sql .= "($sprId,'{$check[$i]['supplier']}','{$check[$i]['accuracy']}','{$check[$i]['scale']}','{$check[$i]['codeManu']}',{$check[$i]['circle']},{$check[$i]['dptCk']},'{$check[$i]['checkComp']}','{$check[$i]['checkNxt']}','{$check[$i]['track']}','{$check[$i]['certi']}','{$time}','{$check[$i]['checkUser']}',1,'{$check[$i]['valid']}','{$check[$i]['info']}'), ";
 			}else{
 				$sql .= "($sprId,'{$check[$i]['supplier']}','{$check[$i]['accuracy']}','{$check[$i]['scale']}','{$check[$i]['codeManu']}',{$check[$i]['circle']},{$check[$i]['dptCk']},'{$check[$i]['checkComp']}','{$check[$i]['checkNxt']}','{$check[$i]['track']}','{$check[$i]['certi']}','{$time}','{$check[$i]['checkUser']}',1,'{$check[$i]['valid']}','{$check[$i]['info']}') ";
 			}
 		}
-		// echo $sql;
-		// die;
+
 		$res = $sqlHelper->dml($sql);
 		$sqlHelper->close_connect();
 		$this->flowLog($time,10,$sprId);
