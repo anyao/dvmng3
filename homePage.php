@@ -21,7 +21,6 @@ $user=$_SESSION['user'];
 <title>首页-设备管理系统</title>
 
 <!-- Bootstrap core CSS -->
-
 <link rel="stylesheet" href="bootstrap/css/choose.css" media="all" type="text/css">
 <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
 
@@ -384,15 +383,10 @@ include "message.php";
 <script src="bootstrap/js/bootstrap.js"></script>
 <script src="bootstrap/js/bootstrap-suggest.js"></script>
 <script type="text/javascript">
-// $(function(){
-//   alert("hello");
-// });
-
 function toggleChos(id){
   $("#"+id).show();
   $(".choose-which").not("#"+id).hide();
 }
-
 
 $("#py").on("click","#plant1 li",function chooseA(){
   // 点击选中条件，并取消其他条件的高亮
@@ -481,7 +475,6 @@ $("#py").on("click","#office1 li",function chooseC(){
          $("#chooseC").append("<input type='hidden' name='office' value='"+$(this).val()+"'>");
       }
 });
-
  
 $("#zp").on("click","#plant2 li",function chooseD(){
   // 点击选中条件，并取消其他条件的高亮
@@ -660,8 +653,6 @@ $("#jh").on("click","#office3 li",function chooseI(){
          $("#chooseC").append("<input type='hidden' name='office' value='"+$(this).val()+"'>");
       }
 });
-
-
 
 // 搜索提示
 $(".jum-caption input[name=keyword]").bsSuggest({

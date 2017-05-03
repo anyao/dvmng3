@@ -4,7 +4,7 @@ class sqlHelper{
 	public $dbname="dvcmng";
 	public $username="root";
 	public $password="anyao";
-	public $host="localhost";
+	public $host="127.0.0.1";
 
 	public function __construct(){
 		$this->conn=mysql_connect($this->host, $this->username, $this->password);

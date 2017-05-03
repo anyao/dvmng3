@@ -605,7 +605,7 @@ class devService{
 			on depart.id=device.depart
 			inner join depart as factory
 			on factory.id=device.factory
-			where device.pid=0".$this->authAnd;
+			where device.pid=0 and depart.id ".$this->authDpt;
 		$sqlHelper=new sqlHelper();
 		$res=$sqlHelper->dql_arr($sql);
 		$sqlHelper->close_connect();
