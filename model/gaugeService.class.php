@@ -306,7 +306,7 @@ class gaugeService{
 			if ($bsc == "") {
 				$where = " gauge_spr_bsc.id in (SELECT basic from gauge_spr_dtl where $dtl) "; 
 			}else{
-				$where = " gauge_spr_bsc.id in (SELECT basic from gauge_spr_dtl where $dtl AND ".$bsc." ";
+				$where = " gauge_spr_bsc.id in (SELECT basic from gauge_spr_dtl where $dtl) AND ".$bsc." ";
 			}
 		}
 
@@ -319,8 +319,10 @@ class gaugeService{
 				 on depart.fid=factory.id
 				 left join user
 				 on user.id=gauge_spr_bsc.user 
-				 where ".$where." gauge_spr_bsc.depart ".$this->authDpt.
+				 where  gauge_spr_bsc.depart ".$this->authDpt." and ".$where.
 				 " order by apvtime desc limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
+				 // echo "$sql1";
+				 // die;
 		$sql2 = "SELECT count(*)
 				 from gauge_spr_bsc
 				 left join depart
@@ -329,7 +331,7 @@ class gaugeService{
 				 on depart.fid=factory.id
 				 left join user
 				 on user.id=gauge_spr_bsc.user 
-				 where ".$where." gauge_spr_bsc.depart ".$this->authDpt;
+				 where  gauge_spr_bsc.depart ".$this->authDpt." and ".$where;
 		
 		$res = $sqlHelper->dqlPaging($sql1,$sql2,$paging);
 		$sqlHelper->close_connect();
