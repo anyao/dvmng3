@@ -525,7 +525,7 @@ function applyList(obj,id,phase){
         addHtml += "<tr class='open "+data[i].id+" open-"+id+"'>"+
                    "<td>"+data[i].id+"</td><td>"+data[i].code+"</td>"+
                    "<td><a href='javascript:flowInfo("+data[i].id+");'>"+data[i].name+"</a></td>"+
-                   "<td>"+data[i].no+"</td><td>"+data[i].num+" "+data[i].unit+"</td><td>"+data[i].info+"</td>"+
+                   "<td style='word-break:break-all'>"+data[i].no+"</td><td>"+data[i].num+" "+data[i].unit+"</td><td>"+data[i].info+"</td>"+
                    see+edit+
                    "</tr>";
       }
