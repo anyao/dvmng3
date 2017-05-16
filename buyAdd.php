@@ -50,6 +50,7 @@ $cljl=$gaugeService->getCLJL($basic['did']);
       margin:5px;
     } 
   </style>
+<link rel="stylesheet" href="bootstrap/css/jquery.enjoyhint.css">
 <link rel="stylesheet" href="tp/datetimepicker.css">
 <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
 
@@ -237,7 +238,7 @@ $cljl=$gaugeService->getCLJL($basic['did']);
 
     <div style="text-align: center">
       <input type="hidden" name="flag" value="buyAdd">
-      <button type="submit" class="btn btn-primary" style="width:200px;margin: 20px 0px">确 认 申 报</button>       
+      <button type="submit" id='yesAdd' class="btn btn-primary" style="width:200px;margin: 20px 0px">确 认 申 报</button>       
     </div>
 </form>
 
@@ -276,7 +277,53 @@ $cljl=$gaugeService->getCLJL($basic['did']);
 <script src="bootstrap/js/bootstrap.js"></script>
 <script src="tp/bootstrap-datetimepicker.js"></script>
 <script src="tp/bootstrap-datetimepicker.zh-CN.js"></script>
+<script src="bootstrap/js/kinetic.min.js"></script>
+<script src="bootstrap/js/enjoyhint.js"></script>
 <script type="text/javascript">
+// some people believe that job satisfaction is more important than job security. others believe that people cannot always enjoy their jobs and that a permanent job is more important. discuss both views and give your own opinion.
+// a. its a choice between higher pay and job security.
+// b. find a sense of fulfilment and joy.
+
+// 1. it is always a tough choice between job satisfaction and job security for every employee and a large percentage of population advocate that people enjoy their work.
+// 2. on the other hand, opponents are of the opinion that job security can bring more benefits.
+// 3. and i agree with the former view.
+
+// 1. proponents argue that the high level of job satisfaction is advantageous for several reasons.
+// 2. initially, interest can motivate efficiency.
+// 3. case in point, if a person had a huge fancination on his job, then he would put more efforts in it with heart and hands.
+// 4. as a result of this, the project are more likely to be finished quickly.
+// 5. otherwise, a unsatisfying job would lead boredom and frustraction.
+// 
+
+// 使用向导
+function intro(){
+  var enjoyhint_instance = new EnjoyHint({});
+  var enjoyhint_script_steps = [
+    {
+      onBeforeStart: function(){
+        $("#sprNum").click(function(){
+          enjoyhint_instance.trigger("next");
+        })
+      },
+      selector: $("input[name=sprNum]").parents(".input-group"),
+      description: "在这里填写本次需添加的备件总数，点击“确定”。",
+      showSkip: false,
+    },
+    {
+      selector: "#addPart .part:first",
+      description: "填写每一个备件的基本信息。",
+      showSkip: false,
+      showNext: true
+    },
+    {
+      selector: "#yesAdd",
+      description: "填写完成后，提交等待审核。",
+    }
+  ];
+  enjoyhint_instance.set(enjoyhint_script_steps);
+  enjoyhint_instance.run();
+}
+
 // 提交时验证所有input的框不为空
 $(document).on("click","button[type=submit]",yesAdd);
 function yesAdd(){

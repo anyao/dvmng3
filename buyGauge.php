@@ -241,9 +241,6 @@ function intro(){
       showSkip: false,
     },
     {
-      // onBeforeStart: function(){
-      //   $('#findInstall').modal('hide');
-      // },
       selector: "#findInstall .modal-body",
       description: '在这里搜索想找已经安装验收的备件。条件可为空，但不可全为空。',
       top: 50,
@@ -251,10 +248,7 @@ function intro(){
     }
   ];
 
-  //set script config
   enjoyhint_instance.set(enjoyhint_script_steps);
-
-  //run Enjoyhint script
   enjoyhint_instance.run();
 }
 
