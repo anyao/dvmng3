@@ -31,6 +31,7 @@ th > .glyphicon-trash{
   display:none;
 } 
 
+
 tr:hover > th > .glyphicon-trash {
   display: inline;
 }
@@ -43,6 +44,7 @@ tr:hover > th > .glyphicon-trash {
 }
 
 </style>
+<link rel="stylesheet" href="bootstrap/css/jquery.enjoyhint.css">
 <link rel="stylesheet" href="tp/datetimepicker.css">
 <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
 
@@ -127,6 +129,8 @@ tr:hover > th > .glyphicon-trash {
             <li><a href="#">我的基本信息</a></li>
             <li><a href="#">更改密码</a></li>
             <li class="divider">&nbsp;</li>
+            <li><a href="javascript:intro();">首次使用</a></li>
+            <li class="divider">&nbsp;</li>
             <li><a href="login.php">注销</a></li>
           </ul>
           </li>
@@ -146,7 +150,8 @@ tr:hover > th > .glyphicon-trash {
     </div>
 
 </div>
-  <div class="foothome" style="color: #f0f0f0">© 河北普阳钢铁有限公司　2015-<?php echo date("Y")?></div>
+<div class="foothome" style="color: #f0f0f0">© 河北普阳钢铁有限公司　2015-<?php echo date("Y")?>
+</div>
 
 
 <script src="bootstrap/js/jquery.js"></script>
@@ -154,8 +159,105 @@ tr:hover > th > .glyphicon-trash {
 <script src="tp/bootstrap-datetimepicker.js"></script>
 <script src="tp/bootstrap-datetimepicker.zh-CN.js"></script>
 <script src="bootstrap/js/bootstrap-suggest.js"></script>
+<script src="bootstrap/js/kinetic.min.js"></script>
+<script src="bootstrap/js/enjoyhint.js"></script>
+<!-- <script src="bootstrap/js/jquery.enjoyhint.js"></script> -->
 <?php  include "./buyJs.php";?>
 <script type="text/javascript">
+// function preventClick(event){
+//   event.preventDefault();
+// }
+
+function intro(){
+  var enjoyhint_instance = new EnjoyHint({
+    onSkip:function(){
+      $('#findInstall').modal('hide');
+    }
+  });
+
+  var enjoyhint_script_steps = [
+    {
+      selector: $(".glyphicon-list-alt").parent(),
+      description: '部门备件申报列表，使用部门在这里管理申报的备件。',
+      showNext: true,
+      showSkip: false,
+    }, 
+    {
+      selector: $(".glyphicon-plus").parent(),
+      description: '在这里添加新的备件申报。',
+      showNext: true,
+      showSkip: false,
+    },
+    { 
+      selector: ".user",
+      event: 'click',
+      description: '点击尝试搜索申报的备件。',
+      showSkip: false,
+    },
+    {
+      selector: "#findApply .modal-body",
+      description: '在这里搜索想找的备件。条件可为空，但不可全为空。',
+      top: 50,
+      bottom: -70,
+      showNext: true,
+      showSkip: false,
+    }, 
+    { 
+      onBeforeStart: function(){
+        $('#findApply').modal('hide');
+      },
+      selector: ".warehouse",
+      event: 'click',
+      description: '点击搜索备件库存。',
+      showSkip: false,
+    }, 
+    {
+      selector: "#findStore .modal-body",
+      description: '在这里搜索想找的库存备件。条件可为空，但不可全为空。',
+      top: 50,
+      bottom: -70,
+      showNext: true,
+      showSkip: false,
+    },
+    { 
+      onBeforeStart: function(){
+        $('#findStore').modal('hide');
+      },
+      selector: ".install",
+      description: '从仓库领取的备件会在这里显示。',
+      showNext: true,
+      showSkip: false,
+    },  
+    {
+      selector: ".installHis",
+      description: '想要查看历史备件安装验收信息可以点击这里。',
+      showNext: true,
+      showSkip: false,
+    },
+    { 
+      selector: ".installSear",
+      event: 'click',
+      description: '点击尝试搜索已经安装验收的备件。',
+      showSkip: false,
+    },
+    {
+      // onBeforeStart: function(){
+      //   $('#findInstall').modal('hide');
+      // },
+      selector: "#findInstall .modal-body",
+      description: '在这里搜索想找已经安装验收的备件。条件可为空，但不可全为空。',
+      top: 50,
+      bottom: -70,
+    }
+  ];
+
+  //set script config
+  enjoyhint_instance.set(enjoyhint_script_steps);
+
+  //run Enjoyhint script
+  enjoyhint_instance.run();
+}
+
 $(function(){
   // 获取浏览器可视区域高度
   var he=document.documentElement.clientHeight;

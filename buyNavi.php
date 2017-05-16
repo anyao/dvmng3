@@ -4,7 +4,7 @@
   <ol class="list-unstyled" style="margin-top: 30px">
     <li><a class="badge" href="javascript:gotoBuy(14,'buyApply');"><span class="glyphicon glyphicon-list-alt"></span> 备件申报列表 </a></li>
     <li><a class="badge" href="javascript:gotoBuy(14,'buyAdd');"><span class="glyphicon glyphicon-plus"></span> 添加新的备件申报 </a></li>
-    <li><a class="badge" href="javascript:find(14,'Apply')"><span class="glyphicon glyphicon-search"></span> 搜索备件申报记录 </a></li>
+    <li><a class="badge user" href="javascript:find(14,'Apply')"><span class="glyphicon glyphicon-search"></span> 搜索备件申报记录 </a></li>
     <li style="height: 10px"></li>
     <li><a class="badge" href="javascript:gotoBuy(6,'buyApv');"><span class="glyphicon glyphicon-sunglasses"></span> 备件审核列表 </a></li>
     <li><a class="badge" href="javascript:gotoBuy(6,'buyApvHis');"><span class="glyphicon glyphicon-ok"></span> 历史审核 </a></li>
@@ -18,12 +18,12 @@
     <li><a class="badge" href="javascript:gotoBuy(8,'buyStore');"><span class="glyphicon glyphicon-tags"></span> 备件入账列表 </a></li>
     <li><a class="badge" href="javascript:gotoBuy(8,'buyStoreHis');"><span class="glyphicon glyphicon-ok"></span> 历史入账 </a></li>
     <li><a class="badge" href="javascript:gotoBuy(14,'buyStoreHouse');"><span class="glyphicon glyphicon-briefcase"></span> 备件库存列表 </a></li>
-    <li><a class="badge" href="javascript:find(8,'Store');"><span class="glyphicon glyphicon-search"></span> 搜索存库记录 </a></li>
+    <li><a class="badge warehouse" href="javascript:find(8,'Store');"><span class="glyphicon glyphicon-search"></span> 搜索存库记录 </a></li>
 
     <li style="height: 10px"></li>
-    <li><a class="badge" href="javascript:gotoBuy(14,'buyInstall');"><span class="glyphicon glyphicon-cog"></span> 备件安装验收列表 </a></li>
-    <li><a class="badge" href="javascript:gotoBuy(14,'buyInstallHis');"><span class="glyphicon glyphicon-ok"></span> 历史安装记录 </a></li>
-    <li><a class="badge" href="javascript:find(14,'Install')"><span class="glyphicon glyphicon-search"></span> 搜索已验收备件记录 </a></li>
+    <li><a class="badge install" href="javascript:gotoBuy(14,'buyInstall');"><span class="glyphicon glyphicon-cog"></span> 备件安装验收列表 </a></li>
+    <li><a class="badge installHis" href="javascript:gotoBuy(14,'buyInstallHis');"><span class="glyphicon glyphicon-ok"></span> 历史安装记录 </a></li>
+    <li><a class="badge installSear" href="javascript:find(14,'Install')"><span class="glyphicon glyphicon-search"></span> 搜索已验收备件记录 </a></li>
   </ol>
 </div>
 
@@ -412,3 +412,4 @@
     </div>
   </div>
 </div>
+
