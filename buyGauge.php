@@ -53,6 +53,13 @@ tr:hover > th > .glyphicon-trash {
   <script src="bootstrap/js/html5shiv.js"></script>
   <script src="bootstrap/js/respond.js"></script>
 <![endif]-->
+<script src="bootstrap/js/jquery.js"></script>
+<script src="bootstrap/js/bootstrap.js"></script>
+<script src="tp/bootstrap-datetimepicker.js"></script>
+<script src="tp/bootstrap-datetimepicker.zh-CN.js"></script>
+<script src="bootstrap/js/bootstrap-suggest.js"></script>
+<script src="bootstrap/js/kinetic.min.js"></script>
+<script src="bootstrap/js/enjoyhint.js"></script>
 </head>
 <body role="document">
 <?php include "message.php";?>
@@ -126,9 +133,7 @@ tr:hover > th > .glyphicon-trash {
               } 
             ?> <span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="#">我的基本信息</a></li>
-            <li><a href="#">更改密码</a></li>
-            <li class="divider">&nbsp;</li>
+            <li><a href="javascript:chgPwd();">更改密码</a></li>
             <li><a href="javascript:intro();">首次使用</a></li>
             <li class="divider">&nbsp;</li>
             <li><a href="login.php">注销</a></li>
@@ -139,35 +144,18 @@ tr:hover > th > .glyphicon-trash {
     </div><!--/.nav-collapse -->
   </div>
 </nav>
-
-
-      <img src="./img/login.JPG" style="width:100%;position: absolute;top:0px;z-index: -999;height: 100%">
-
+<img src="./img/login.JPG" style="width:100%;position: absolute;top:0px;z-index: -999;height: 100%">
 <div class="container">
-
-    <div class="col-md-3 col-md-offset-9" id="navi">
-    <?php  include "buyNavi.php";?>
-    </div>
-
+  <div class="col-md-3 col-md-offset-9" id="navi">
+  <?php  include "buyNavi.php";?>
+  </div>
 </div>
 <div class="foothome" style="color: #f0f0f0">© 河北普阳钢铁有限公司　2015-<?php echo date("Y")?>
 </div>
 
 
-<script src="bootstrap/js/jquery.js"></script>
-<script src="bootstrap/js/bootstrap.js"></script>
-<script src="tp/bootstrap-datetimepicker.js"></script>
-<script src="tp/bootstrap-datetimepicker.zh-CN.js"></script>
-<script src="bootstrap/js/bootstrap-suggest.js"></script>
-<script src="bootstrap/js/kinetic.min.js"></script>
-<script src="bootstrap/js/enjoyhint.js"></script>
-<!-- <script src="bootstrap/js/jquery.enjoyhint.js"></script> -->
 <?php  include "./buyJs.php";?>
 <script type="text/javascript">
-// function preventClick(event){
-//   event.preventDefault();
-// }
-
 function intro(){
   var enjoyhint_instance = new EnjoyHint({
     onSkip:function(){

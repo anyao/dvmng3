@@ -54,6 +54,11 @@ $user=$_SESSION['user'];
   <script src="bootstrap/js/html5shiv.js"></script>
   <script src="bootstrap/js/respond.js"></script>
 <![endif]-->
+<script src="bootstrap/js/jquery.js"></script>
+<script src="bootstrap/js/bootstrap.js"></script>
+<script src="bootstrap/js/bootstrap-suggest.js"></script>
+<script src="tp/bootstrap-datetimepicker.js"></script>
+<script src="tp/bootstrap-datetimepicker.zh-CN.js"></script>
 </head>
 <body role="document">
 
@@ -135,8 +140,7 @@ $devName=$_GET['devName'];
               } 
             ?> <span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="#">我的基本信息</a></li>
-            <li><a href="#">更改密码</a></li>
+            <li><a href="javascript:chgPwd();">更改密码</a></li>
             <li class="divider">&nbsp;</li>
             <li><a href="login.php">注销</a></li>
           </ul>
@@ -301,11 +305,6 @@ $devName=$_GET['devName'];
 
 </div>
 </body>
-<script src="bootstrap/js/jquery.js"></script>
-<script src="bootstrap/js/bootstrap.js"></script>
-<script src="bootstrap/js/bootstrap-suggest.js"></script>
-<script src="tp/bootstrap-datetimepicker.js"></script>
-<script src="tp/bootstrap-datetimepicker.zh-CN.js"></script>
 <script type="text/javascript">
 $("#tgther").click(function(){
  var allow_submit = true;

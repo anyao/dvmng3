@@ -31,67 +31,102 @@
 </div>
 
 <!-- 查看当前用户具体信息 -->
-<div class="modal fade" id="getUserInfo" role="dialog">
+<div class="modal fade" id="chgPwd" role="dialog">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">我的基本信息</h4>
+          <h4 class="modal-title">修改密码</h4>
         </div>
         <form class="form-horizontal">
           <div class="modal-body">
             <div class="form-group">
-              <label class="col-md-3 control-label">用户ID：</label>
-              <div class="col-md-7">
-                <input type="text" class="form-control" name="id" readonly="readonly">
+              <label class="col-sm-3 control-label">原密码：</label>
+              <div class="col-sm-7">
+                  <input type="password" class="form-control" name="pre">        
               </div>
             </div>
-            
             <div class="form-group">
-              <label class="col-sm-3 control-label">用户编号：</label>
+              <label class="col-sm-3 control-label">新密码：</label>
               <div class="col-sm-7">
-                  <input type="text" class="form-control" name="code" readonly="readonly">        
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label class="col-sm-3 control-label">用户姓名：</label>
-              <div class="col-sm-7">
-                  <input type="text" class="form-control" name="name">        
-              </div>
-            </div>
-            
-             <div class="form-group">
-              <label class="col-sm-3 control-label">所在部门：</label>
-              <div class="col-sm-7">
-                  <input type="text" class="form-control" name="depart" readonly="readonly">        
+                  <input type="password" class="form-control" name="new">        
               </div>
             </div>
 			
-			<div class="form-group">
-              <label class="col-sm-3 control-label">当前权限：</label>
-              <div class="col-sm-7">
-                  <input type="text" class="form-control" name="depart" readonly="readonly">        
-              </div>
+			     <div class="form-group">
+            <label class="col-sm-3 control-label">确认新密码：</label>
+            <div class="col-sm-7">
+                <input type="password" class="form-control" name="newAgain">        
             </div>
-            <div class="form-group">
-	           <label class="col-sm-3 control-label">管理权限：</label>
-	           <div class="col-sm-7">  
-	             <label class="radio-inline">
-	               <input type="radio" name="permit" value="0"> 高级用户
-	             </label>
-	             <label class="radio-inline">
-	               <input type="radio" name="permit" value="1"> 普通用户
-	             </label>
-	           </div>
-	         </div>
+          </div>
+        </div>
 
-            <div class="modal-footer">
-              <button type="button" class="btn btn-default" id="yesUptMy">确认修改</button>
-              <button class="btn btn-primary" data-dismiss="modal">关闭</button>
-            </div>
-            </div>
-          </form>
+        <div class="modal-footer">
+          <input type="hidden" name="flag" value="chgPwd">
+          <button type="button" class="btn btn-default" id="yesChgPwd">确认修改</button>
+          <button class="btn btn-primary" data-dismiss="modal">关闭</button>
+        </div>
+        </form>
       </div>
     </div>
+</div>
+
+<!-- 添加记录不完整提示框 -->
+<div class="modal fade"  id="same_new" >
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+         <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
+         </div>
+         <div class="modal-body"><br/>
+            <div class="loginModal">两次输入的新密码不一致，请重新输入。</div><br/>
+         </div>
+         <div class="modal-footer">  
+          <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+        </div>
+    </div>
   </div>
+</div>
+<script type="text/javascript">
+  function chgPwd(){
+    $('#chgPwd').modal({
+        keyboard: true
+    });
+  }
+
+  $("#yesChgPwd").click(function(){
+    var f = true;
+    $("#chgPwd input").each(function(){
+      if ($(this).val() == "") {
+        f = "has_null";
+        return;
+      }
+    });
+
+    if ($("#chgPwd input[name=new]").val() != $("#chgPwd input[name=newAgain]").val()) {
+      f = "dif_new";
+    }
+
+    switch (f){
+      case "has_null":
+        $('#failAdd').modal({
+            keyboard: true
+        });
+        break;
+      case "dif_new":
+        $('#same_new').modal({
+            keyboard: true
+        });
+        break;
+      default:
+       $.get("controller/userProcess.php",{
+        flag: "chgPwd",
+        new: $("#chgPwd input[name=new]").val(),
+        previous: $("#chgPwd input[name=pre]").val()
+       },function(data){
+         if (data == "suc") 
+          $('#chgPwd').modal('hide');
+       },'text');
+    }
+  });
+</script>

@@ -57,6 +57,7 @@ tr:hover > th > .glyphicon-trash {
 }
 
 </style>
+<link rel="stylesheet" href="bootstrap/css/jquery.enjoyhint.css">
 <link rel="stylesheet" href="tp/datetimepicker.css">
 <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
 
@@ -65,6 +66,13 @@ tr:hover > th > .glyphicon-trash {
   <script src="bootstrap/js/html5shiv.js"></script>
   <script src="bootstrap/js/respond.js"></script>
 <![endif]-->
+<script src="bootstrap/js/jquery.js"></script>
+<script src="bootstrap/js/bootstrap.js"></script>
+<script src="tp/bootstrap-datetimepicker.js"></script>
+<script src="tp/bootstrap-datetimepicker.zh-CN.js"></script>
+<script src="bootstrap/js/bootstrap-suggest.js"></script>
+<script src="bootstrap/js/kinetic.min.js"></script>
+<script src="bootstrap/js/enjoyhint.js"></script>
 </head>
 <body role="document">
 <?php include "message.php";?>
@@ -138,8 +146,8 @@ tr:hover > th > .glyphicon-trash {
               } 
             ?> <span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="#">我的基本信息</a></li>
-            <li><a href="#">更改密码</a></li>
+            <li><a href="javascript:chgPwd();">更改密码</a></li>
+            <li><a href="javascript:intro();">首次使用</a></li>
             <li class="divider">&nbsp;</li>
             <li><a href="login.php">注销</a></li>
           </ul>
@@ -260,14 +268,13 @@ tr:hover > th > .glyphicon-trash {
           <div class="modal-footer">
             <input type="hidden" name="flag" value="addInspectByName">
             <button type="submit" class="btn btn-danger" id="add">确认</button>
-            <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+            <button type="button" class="btn btn-primary" data-dismiss="modal" id="closeFlow">关闭</button>
           </div>
           </div>
         </form>
     </div>
   </div>
 </div>
-
 
 <!-- 删除该条列表下所有的备件申报记录 -->
 <div class="modal fade"  id="delBuy" >
@@ -286,7 +293,6 @@ tr:hover > th > .glyphicon-trash {
     </div>
   </div>
 </div>
-
 
 <!-- 添加记录不完整提示框 -->
 <div class="modal fade"  id="failAdd" >
@@ -343,7 +349,6 @@ tr:hover > th > .glyphicon-trash {
   </div>
   </div>
 </div>
-
 
 <!--修改备件申报基本信息-->
 <div class="modal fade" id="getSpr">
@@ -428,13 +433,52 @@ tr:hover > th > .glyphicon-trash {
   </div>
 </div>
 
-<script src="bootstrap/js/jquery.js"></script>
-<script src="bootstrap/js/bootstrap.js"></script>
-<script src="tp/bootstrap-datetimepicker.js"></script>
-<script src="tp/bootstrap-datetimepicker.zh-CN.js"></script>
-<script src="bootstrap/js/bootstrap-suggest.js"></script>
 <?php  include "./buyJs.php";?>
 <script type="text/javascript">
+// 首次使用向导
+function intro(){
+  var enjoyhint_instance = new EnjoyHint({
+    onSkip: function(){
+      $('#flowInfo').modal('hide');
+    }
+  });
+  var enjoyhint_script_steps = [
+    {
+      selector: ".tablebody tr:first",
+      description: "同批次备件。",
+      showSkip: false,
+      showNext: true
+    },
+    {
+      selector: ".tablebody td:first a",
+      description: "点击展开详细备件列表。",
+      showSkip: false,
+      event: "click",
+    },
+    {
+      selector: ".tablebody .open:nth-child(3)",
+      description: "同批次备件列表。",
+      showSkip: false,
+      showNext: true,
+    },
+    {
+      selector: ".open a:first",
+      description: "点击查看备件审核状态。",
+      showSkip: false,
+      event: "click",
+    },
+    {
+      selector: "#flowInfo .modal-body",
+      description: "备件审核当前状态。",
+      top: -20,
+      bottom: -125,
+    },
+  ];
+  enjoyhint_instance.set(enjoyhint_script_steps);
+  enjoyhint_instance.run();
+}
+
+
 // 申报单新消息查看标志，如果其下没有see=1则不提醒
 //备件新消息提示
 function seeSpr(id){

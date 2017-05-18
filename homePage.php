@@ -29,8 +29,13 @@ $user=$_SESSION['user'];
   <script src="bootstrap/js/html5shiv.js"></script>
   <script src="bootstrap/js/respond.js"></script>
 <![endif]-->
+
+<script src="bootstrap/js/jquery.js"></script>
+<script src="bootstrap/js/bootstrap.js"></script>
+<script src="bootstrap/js/bootstrap-suggest.js"></script>
 </head>
 <body role="document">
+<?php  include "message.php";?>
     <!-- Fixed navbar -->
     <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container">
@@ -103,8 +108,7 @@ $user=$_SESSION['user'];
               } 
             ?> <span class="caret"></span></a>
               <ul class="dropdown-menu">
-                <li><a href="javascript:userInfo(<?php echo $_SESSION['uid']; ?>)">我的基本信息</a></li>
-                <li><a href="#">更改密码</a></li>
+                <li><a href="javascript:chgPwd();">更改密码</a></li>
                 <li class="divider">&nbsp;</li>
                 <li><a href="login.php">注销</a></li>
               </ul>
@@ -368,20 +372,13 @@ $user=$_SESSION['user'];
 </div>
 </form>
 
-<?php 
-
-$repairService=new repairService();
-include "message.php";
- ?>
+<?php $repairService=new repairService();?>
 
   <!-- 页脚 -->
   <div class="foothome">
     &copy; 河北普阳钢铁有限公司　2016
   </div>
 
-<script src="bootstrap/js/jquery.js"></script>
-<script src="bootstrap/js/bootstrap.js"></script>
-<script src="bootstrap/js/bootstrap-suggest.js"></script>
 <script type="text/javascript">
 function toggleChos(id){
   $("#"+id).show();

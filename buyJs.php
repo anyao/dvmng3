@@ -114,43 +114,43 @@ function flowPro(arr){
 		switch (arr[i].res)
 		{
 			case '1':
-				$addHtml += "<li><span class='glyphicon glyphicon-map-marker'></span> "+arr[i].time+"： "+arr[i].user+" 创建。</li>";
+				$addHtml += "<li><span class='glyphicon glyphicon-map-marker'></span>&nbsp;&nbsp;"+arr[i].time+"： "+arr[i].user+" 创建。</li>";
 				$addHtml += flowNow(i,len,1);
 				break;
 			case '2':
-				$addHtml += "<li><span class='glyphicon glyphicon-ok'></span> "+arr[i].time+"： "+arr[i].user+" 同意。</li>";
+				$addHtml += "<li><span class='glyphicon glyphicon-ok'></span>&nbsp;&nbsp;"+arr[i].time+"： "+arr[i].user+" 同意。</li>";
 				$addHtml += flowNow(i,len,2);
 				break;
 			case '3':
-				$addHtml += "<li><span class='glyphicon glyphicon-remove'></span> "+arr[i].time+"： "+arr[i].user+" 审核不通过。</li>";
+				$addHtml += "<li><span class='glyphicon glyphicon-remove'></span>&nbsp;&nbsp;"+arr[i].time+"： "+arr[i].user+" 审核不通过。</li>";
 				$addHtml += flowNow(i,len,3);
 				break;
 			case '4':
-				$addHtml += "<li><span class='glyphicon glyphicon-search'></span> "+arr[i].time+"：由 "+arr[i].user+" 入厂检定合格。</li>";
+				$addHtml += "<li><span class='glyphicon glyphicon-search'></span>&nbsp;&nbsp;"+arr[i].time+"：由 "+arr[i].user+" 入厂检定合格。</li>";
 				$addHtml += flowNow(i,len,4);
 				break;
 			case '5':
-				$addHtml += "<li><span class='glyphicon glyphicon-remove-circle'></span> "+arr[i].time+"：由 "+arr[i].user+" 检定不合格，需返厂。</li>";
+				$addHtml += "<li><span class='glyphicon glyphicon-remove-circle'></span>&nbsp;&nbsp;"+arr[i].time+"：由 "+arr[i].user+" 检定不合格，需返厂。</li>";
 				$addHtml += flowNow(i,len,5);
 				break;
 			case '6':
-				$addHtml += "<li><span class='glyphicon glyphicon-shopping-cart'></span> "+arr[i].time+"：由 "+arr[i].user+" 存库。</li>";
+				$addHtml += "<li><span class='glyphicon glyphicon-shopping-cart'></span>&nbsp;&nbsp;"+arr[i].time+"：由 "+arr[i].user+" 存库。</li>";
 				$addHtml += flowNow(i,len,6);
 				break;
 			case '7':
-				$addHtml += "<li><span class='glyphicon glyphicon-shopping-cart'></span> "+arr[i].time+"：由 "+arr[i].user+" 同意申领。</li>";
+				$addHtml += "<li><span class='glyphicon glyphicon-shopping-cart'></span>&nbsp;&nbsp;"+arr[i].time+"：由 "+arr[i].user+" 同意申领。</li>";
 				// ,<a href='javascript:getTakeInfo('"+arr[i].time+"','"arr[i].sprid"');'>查看详情</a>
 				$addHtml += flowNow(i,len,7);
 				break;
 			case '8':
-				$addHtml += "<li><span class='glyphicon glyphicon-cog'></span> "+arr[i].time+"：由 "+arr[i].user+" 安装投入使用，"+"<a href=\'usingSon.php?id="+arr[i].devid+"\'>查看设备信息</a>。</li>";
+				$addHtml += "<li><span class='glyphicon glyphicon-cog'></span>&nbsp;&nbsp;"+arr[i].time+"：由 "+arr[i].user+" 安装投入使用，"+"<a href=\'usingSon.php?id="+arr[i].devid+"\'>查看设备信息</a>。</li>";
 				$addHtml += flowNow(i,len,8);
 				break;
 			case '9':
-				$addHtml += "<li><span class=' glyphicon glyphicon-briefcase'></span> "+arr[i].time+"：由 "+arr[i].user+" 将备件全部存为本部门备用。"+"<a href=\'spare.php?id="+arr[i].devid+"\'>查看详情</a></li>";
+				$addHtml += "<li><span class=' glyphicon glyphicon-briefcase'></span>&nbsp;&nbsp;"+arr[i].time+"：由 "+arr[i].user+" 将备件全部存为本部门备用。"+"<a href=\'spare.php?id="+arr[i].devid+"\'>查看详情</a></li>";
 				break;
 			default:
-				$addHtml += "<li><span class='glyphicon glyphicon-log-in'></span>"+arr[i].time+":由 "+arr[i].user+"登记入厂，出厂编号为："+arr[i].codeManu+" </li>"
+				$addHtml += "<li><span class='glyphicon glyphicon-log-in'></span>&nbsp;&nbsp;"+arr[i].time+":由 "+arr[i].user+"登记入厂，出厂编号为："+arr[i].codeManu+" </li>"
 		}
 	}
 	return $addHtml;

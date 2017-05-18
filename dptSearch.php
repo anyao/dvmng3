@@ -40,6 +40,15 @@ $user=$_SESSION['user'];
   <script src="bootstrap/js/html5shiv.js"></script>
   <script src="bootstrap/js/respond.js"></script>
 <![endif]-->
+<script src="bootstrap/js/jquery.js"></script>
+<script src="bootstrap/js/bootstrap.js"></script>
+<script src="tp/bootstrap-datetimepicker.js"></script>
+<script src="tp/bootstrap-datetimepicker.zh-CN.js"></script>
+<script src="bootstrap/js/dptUser-treeview.js"></script>
+<script src="bootstrap/js/jsonToTree.js"></script>
+<script src="bootstrap/js/bootstrap-suggest.js"></script>
+<script src="bootstrap/js/jquery.ztree.core.js"></script>
+<script src="bootstrap/js/jquery.ztree.excheck.min.js"></script>
 </head>
 <body role="document">
 <?php 
@@ -122,8 +131,7 @@ $user=$_SESSION['user'];
               } 
             ?> <span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="#">我的基本信息</a></li>
-            <li><a href="#">更改密码</a></li>
+            <li><a href="javascript:chgPwd();">更改密码</a></li>
             <li class="divider">&nbsp;</li>
             <li><a href="login.php">注销</a></li>
           </ul>
@@ -177,15 +185,6 @@ $user=$_SESSION['user'];
 </div>
 
 <?php include "./dptNavi.php"; ?>
-<script src="bootstrap/js/jquery.js"></script>
-<script src="bootstrap/js/bootstrap.js"></script>
-<script src="tp/bootstrap-datetimepicker.js"></script>
-<script src="tp/bootstrap-datetimepicker.zh-CN.js"></script>
-<script src="bootstrap/js/dptUser-treeview.js"></script>
-<script src="bootstrap/js/jsonToTree.js"></script>
-<script src="bootstrap/js/bootstrap-suggest.js"></script>
-<script src="bootstrap/js/jquery.ztree.core.js"></script>
-<script src="bootstrap/js/jquery.ztree.excheck.min.js"></script>
 <?php include "./dptJs.php"; ?>
 <script type="text/javascript">
 $(document).on("click","#yesFind",yesFind);

@@ -79,6 +79,7 @@ session_destroy();
     
             <div class="form-group">
               <div class="lead">
+                <input type="hidden" name="flag" value="login">
                 <button type='button' class="btn btn-lg btn-default" style="width: 45%" id="yesLogin">登　　　　　录</button>
               </div>
             </div>

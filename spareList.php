@@ -32,18 +32,23 @@ $user=$_SESSION['user'];
   <script src="bootstrap/js/html5shiv.js"></script>
   <script src="bootstrap/js/respond.js"></script>
 <![endif]-->
+<script src="bootstrap/js/jquery.js"></script>
+<script src="bootstrap/js/bootstrap.js"></script>
+<script src="tp/bootstrap-datetimepicker.js"></script>
+<script src="tp/bootstrap-datetimepicker.zh-CN.js"></script>
+<script src="bootstrap/js/bootstrap-suggest.js"></script>
+<script src="bootstrap/js/bootstrap-suggest.js"></script>
 </head>
 <body role="document">
 <?php 
-require_once "model/repairService.class.php";
-$repairService=new repairService();
-include "message.php";
- ?>
-  <?php
+
+  require_once "model/repairService.class.php";
   require_once 'model/spareService.class.php';
   require_once 'model/paging.class.php';
   // require_once 'controller/spareProcess.php';
 
+  $repairService=new repairService();
+  include "message.php";
 
   $paging=new paging();
   $paging->pageNow=1;
@@ -158,8 +163,7 @@ include "message.php";
               } 
             ?> <span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="#">我的基本信息</a></li>
-            <li><a href="#">更改密码</a></li>
+            <li><a href="javascript:chgPwd();">更改密码</a></li>
             <li class="divider">&nbsp;</li>
             <li><a href="login.php">注销</a></li>
           </ul>
@@ -576,14 +580,6 @@ include "message.php";
   </div>
 </div> 
 
-
-
-<script src="bootstrap/js/jquery.js"></script>
-<script src="bootstrap/js/bootstrap.js"></script>
-<script src="tp/bootstrap-datetimepicker.js"></script>
-<script src="tp/bootstrap-datetimepicker.zh-CN.js"></script>
-<script src="bootstrap/js/bootstrap-suggest.js"></script>
-<script src="bootstrap/js/bootstrap-suggest.js"></script>
 <script type="text/javascript">
 var session = <?php echo json_encode($_SESSION,JSON_UNESCAPED_UNICODE); ?>;
 var user = session.user;

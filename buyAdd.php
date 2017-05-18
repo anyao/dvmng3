@@ -59,10 +59,16 @@ $cljl=$gaugeService->getCLJL($basic['did']);
   <script src="bootstrap/js/html5shiv.js"></script>
   <script src="bootstrap/js/respond.js"></script>
 <![endif]-->
+
+<script src="bootstrap/js/bootstrap.js"></script>
+<script src="tp/bootstrap-datetimepicker.js"></script>
+<script src="tp/bootstrap-datetimepicker.zh-CN.js"></script>
+<script src="bootstrap/js/kinetic.min.js"></script>
+<script src="bootstrap/js/enjoyhint.js"></script>
 </head>
 <body role="document">
 <?php  
-// include "message.php";
+include "message.php";
 ?>
 <nav class="navbar navbar-inverse">
   <div class="container">
@@ -133,8 +139,7 @@ $cljl=$gaugeService->getCLJL($basic['did']);
               } 
             ?> <span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="#">我的基本信息</a></li>
-            <li><a href="#">更改密码</a></li>
+            <li><a href="javascript:chgPwd();">更改密码</a></li>
             <li><a href="javascript:intro();">首次使用</a></li>
             <li class="divider">&nbsp;</li>
             <li><a href="login.php">注销</a></li>
@@ -274,27 +279,7 @@ $cljl=$gaugeService->getCLJL($basic['did']);
 </div>
 </body>
 <script src="bootstrap/js/jquery.js"></script>
-<script src="bootstrap/js/bootstrap.js"></script>
-<script src="tp/bootstrap-datetimepicker.js"></script>
-<script src="tp/bootstrap-datetimepicker.zh-CN.js"></script>
-<script src="bootstrap/js/kinetic.min.js"></script>
-<script src="bootstrap/js/enjoyhint.js"></script>
 <script type="text/javascript">
-// some people believe that job satisfaction is more important than job security. others believe that people cannot always enjoy their jobs and that a permanent job is more important. discuss both views and give your own opinion.
-// a. its a choice between higher pay and job security.
-// b. find a sense of fulfilment and joy.
-
-// 1. it is always a tough choice between job satisfaction and job security for every employee and a large percentage of population advocate that people enjoy their work.
-// 2. on the other hand, opponents are of the opinion that job security can bring more benefits.
-// 3. and i agree with the former view.
-
-// 1. proponents argue that the high level of job satisfaction is advantageous for several reasons.
-// 2. initially, interest can motivate efficiency.
-// 3. case in point, if a person had a huge fancination on his job, then he would put more efforts in it with heart and hands.
-// 4. as a result of this, the project are more likely to be finished quickly.
-// 5. otherwise, a unsatisfying job would lead boredom and frustraction.
-// 
-
 // 使用向导
 function intro(){
   var enjoyhint_instance = new EnjoyHint({});

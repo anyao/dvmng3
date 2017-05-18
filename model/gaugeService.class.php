@@ -173,7 +173,7 @@ class gaugeService{
 
 	function uptSprById($code,$id,$info,$name,$no,$num,$unit){
 		$sqlHelper = new sqlHelper();
-		$sql = "update gauge_spr_dtl set code='{$code}',info='{$info}',name='{$name}',no='{$no}',num='{$num}',unit='{$unit}' where id=$id";
+		$sql = "UPDATE gauge_spr_dtl set code='{$code}',info='{$info}',name='{$name}',no='{$no}',num='{$num}',unit='{$unit}' where id=$id";
 		$res = $sqlHelper->dml($sql);
 		$sqlHelper->close_connect();
 		return $res;

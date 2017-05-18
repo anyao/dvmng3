@@ -31,6 +31,13 @@ $user=$_SESSION['user'];
   <script src="bootstrap/js/html5shiv.js"></script>
   <script src="bootstrap/js/respond.js"></script>
 <![endif]-->
+<script src="bootstrap/js/jquery.js"></script>
+<script src="bootstrap/js/bootstrap.js"></script>
+<script src="tp/bootstrap-datetimepicker.js"></script>
+<script src="tp/bootstrap-datetimepicker.zh-CN.js"></script>
+<script src="bootstrap/js/bootstrap-suggest.js"></script>
+<script src="tp/jquery.timers-1.2.js"></script>
+<script src="tp/format.js"></script>
 </head>
 <body role="document">
   <?php
@@ -74,6 +81,7 @@ $user=$_SESSION['user'];
       $repairService->findInfo($devid,$name,$time,$liable,$paging);
 
 }
+include "message.php";
   ?>
   <nav class="navbar navbar-inverse">
   <div class="container">
@@ -144,8 +152,7 @@ $user=$_SESSION['user'];
               } 
             ?> <span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="#">我的基本信息</a></li>
-            <li><a href="#">更改密码</a></li>
+            <li><a href="javascript:chgPwd();">更改密码</a></li>
             <li class="divider">&nbsp;</li>
             <li><a href="login.php">注销</a></li>
           </ul>
@@ -571,16 +578,6 @@ $user=$_SESSION['user'];
 
 ?>
 
-<?php 
-include "message.php";
- ?>
-<script src="bootstrap/js/jquery.js"></script>
-<script src="bootstrap/js/bootstrap.js"></script>
-<script src="tp/bootstrap-datetimepicker.js"></script>
-<script src="tp/bootstrap-datetimepicker.zh-CN.js"></script>
-<script src="bootstrap/js/bootstrap-suggest.js"></script>
-<script src="tp/jquery.timers-1.2.js"></script>
-<script src="tp/format.js"></script>
 <?php include "repJs.php" ?>
 <script type="text/javascript">
 // 右侧树形导航
@@ -656,14 +653,6 @@ $("#updateYes").click(function(){
  });
  return allow_submit;
 });
-
-
-
-
-
-
-
-  
 
     //时间选择器
     $(".datetime").datetimepicker({

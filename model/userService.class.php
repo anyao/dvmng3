@@ -1,37 +1,33 @@
 <?php
 require_once 'sqlHelper.class.php';
 class userService{
-	function checkUser($code,$password){
-		$sqlHelper=new sqlHelper();
-		$sql="SELECT psw,name,id from user where code='$code'";
-		$bsc=$sqlHelper->dql($sql);
+	// 验证密码
+	function getPwd($code){
+		$sqlHelper = new sqlHelper();
+		$sql = "SELECT psw,name,id,code FROM user where code='$code'";
+		$bsc = $sqlHelper->dql($sql);
+		$sqlHelper->close_connect();
+		if (empty($bsc)) 
+			return array("err" => "notFind", "data" => "");
+		else
+			return array('err' => "", "data" => array('psw' => $bsc['psw'], 'uid' => $bsc['id'], 'user' => $bsc['name'], 'code' => $bsc['code']));
+	}
 
-		// 用户名不存在 用户名不正确
-		if (empty($bsc)) {
-			$res = 1;
-		}else if ( $bsc['psw'] != $password) {
-			$res = 2;
-		}else{
-			// 存在该用户查询其权限，和管辖范围
-			$sql = "SELECT staff_role_func.fid funcid
-					from staff_user_role
-					left join staff_role_func
-					on staff_user_role.rid=staff_role_func.rid
-					where uid = {$bsc['id']}";
-			$funcid = $sqlHelper->dql_arr($sql);
-			$_SESSION['funcid'] = array_column($funcid,'funcid');
-		
-			$sql = "SELECT dptid from staff_user_dpt where uid={$bsc['id']}";
-			$dptid = $sqlHelper->dql_arr($sql);
-			$_SESSION['dptid'] = array_column($dptid,'dptid');
+	// 查询用户权限,uid
+	function getAuth($uid){
+		$sqlHelper = new sqlHelper();
+		$sql = "SELECT staff_role_func.fid funcid
+				FROM staff_user_role
+				LEFT JOIN staff_role_func
+				ON staff_user_role.rid = staff_role_func.rid
+				WHERE uid = $uid";
+		$funcid = $sqlHelper->dql_arr($sql);
+		$_SESSION['funcid'] = array_column($funcid, 'funcid');
 
-			$_SESSION['user'] = $bsc['name'];
-			$_SESSION['uid'] = $bsc['id'];
-			$sqlHelper->close_connect();
-			
-			$res = 3;
-		}
-		return $res;
+		$sql = "SELECT dptid from staff_user_dpt where uid= $uid";
+		$dptid = $sqlHelper->dql_arr($sql);
+		$_SESSION['dptid'] = array_column($dptid,'dptid');
+		$sqlHelper->close_connect();
 	}
 
 	// 查询当前用户所在分厂
@@ -50,6 +46,15 @@ class userService{
 		 	$res['factory'] = $res['depart'];
 		 	$res['depart'] = "分厂级";
 		 }
+		$sqlHelper->close_connect();
+		return $res;
+	}
+
+	// 修改密码
+	function chgPwd($new, $uid){
+		$sqlHelper = new sqlHelper();
+		$sql = "UPDATE user SET psw = '{$new}' WHERE id = {$uid}";
+		$res = $sqlHelper->dml($sql);
 		$sqlHelper->close_connect();
 		return $res;
 	}
