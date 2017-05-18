@@ -1,6 +1,5 @@
 <?php 
 require_once "model/cookie.php";
-require_once "model/repairService.class.php";
 require_once 'model/paging.class.php';
 require_once 'model/gaugeService.class.php';
 require_once "./model/devService.class.php";
@@ -94,10 +93,7 @@ tr:hover > th > .glyphicon-trash {
 <script src="bootstrap/js/jquery.ztree.exedit.js"></script>
 </head>
 <body role="document">
-<?php 
-  $repairService=new repairService();
-  include "message.php";
-?>
+<?php   include "message.php";?>
 <nav class="navbar navbar-inverse">
   <div class="container">
     <div class="navbar-header">

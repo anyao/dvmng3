@@ -38,30 +38,27 @@ $user=$_SESSION['user'];
 </head>
 <body role="document">
 <?php 
-require_once "model/repairService.class.php";
-$repairService=new repairService();
-include "message.php";
- ?>
-  <?php
-    require_once 'model/inspectService.class.php';
-    require_once 'model/paging.class.php';
+  include "message.php";
 
-    $paging=new paging();
-    $paging->pageNow=1;
-    $paging->pageSize=19;
-    $paging->gotoUrl="inspList.php";
-    if (!empty($_GET['pageNow'])) {
-      $paging->pageNow=$_GET['pageNow'];
-    }
-    $inspectService=new inspectService();
-    if (empty($_POST['flag'])) {
-      $inspectService->getPagingInfo($paging);
-    }else{
-      $begin=$_POST['begin'];
-      $depart=$_POST['depart']; 
-      $end=$_POST['end'];
-      $inspectService->findInfo($begin,$depart,$end,$paging);
-    }
+  require_once 'model/inspectService.class.php';
+  require_once 'model/paging.class.php';
+
+  $paging=new paging();
+  $paging->pageNow=1;
+  $paging->pageSize=19;
+  $paging->gotoUrl="inspList.php";
+  if (!empty($_GET['pageNow'])) {
+    $paging->pageNow=$_GET['pageNow'];
+  }
+  $inspectService=new inspectService();
+  if (empty($_POST['flag'])) {
+    $inspectService->getPagingInfo($paging);
+  }else{
+    $begin=$_POST['begin'];
+    $depart=$_POST['depart']; 
+    $end=$_POST['end'];
+    $inspectService->findInfo($begin,$depart,$end,$paging);
+  }
   ?>
  <nav class="navbar navbar-inverse">
   <div class="container">

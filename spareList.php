@@ -41,13 +41,10 @@ $user=$_SESSION['user'];
 </head>
 <body role="document">
 <?php 
-
-  require_once "model/repairService.class.php";
   require_once 'model/spareService.class.php';
   require_once 'model/paging.class.php';
   // require_once 'controller/spareProcess.php';
 
-  $repairService=new repairService();
   include "message.php";
 
   $paging=new paging();

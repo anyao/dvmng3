@@ -64,9 +64,8 @@ $user=$_SESSION['user'];
 
 <?php 
 require_once "model/spareService.class.php";
-require_once "model/repairService.class.php"; 
 $spareService=new spareService();
-$repairService=new repairService();
+
 include "message.php";
 $id=$_GET['id'];
 $devName=$_GET['devName'];

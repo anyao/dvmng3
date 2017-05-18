@@ -8,9 +8,6 @@ require_once "model/userService.class.php";
 $userService=new userService();
 $basic=$userService->getFct($uid);
 
-// require_once "model/repairService.class.php";
-// $repairService=new repairService();
-
 require_once "model/gaugeService.class.php";
 $gaugeService=new gaugeService();
 // 获取测量记录部门编号
@@ -59,7 +56,7 @@ $cljl=$gaugeService->getCLJL($basic['did']);
   <script src="bootstrap/js/html5shiv.js"></script>
   <script src="bootstrap/js/respond.js"></script>
 <![endif]-->
-
+<script src="bootstrap/js/jquery.js"></script>
 <script src="bootstrap/js/bootstrap.js"></script>
 <script src="tp/bootstrap-datetimepicker.js"></script>
 <script src="tp/bootstrap-datetimepicker.zh-CN.js"></script>
@@ -278,7 +275,6 @@ include "message.php";
   </div>
 </div>
 </body>
-<script src="bootstrap/js/jquery.js"></script>
 <script type="text/javascript">
 // 使用向导
 function intro(){

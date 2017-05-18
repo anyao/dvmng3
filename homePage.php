@@ -2,7 +2,6 @@
 require_once "model/cookie.php";
 require_once "model/devService.class.php";
 require_once "model/dptService.class.php";
-require_once "model/repairService.class.php";
 checkValidate();
 $user=$_SESSION['user'];
 
@@ -372,7 +371,7 @@ $user=$_SESSION['user'];
 </div>
 </form>
 
-<?php $repairService=new repairService();?>
+
 
   <!-- 页脚 -->
   <div class="foothome">

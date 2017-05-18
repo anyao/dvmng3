@@ -65,11 +65,9 @@ $res=$devService->getType();
 <script src="bootstrap/js/bootstrap-suggest.js"></script>
 </head>
 <body role="document">
-<?php 
-require_once "model/repairService.class.php";
-$repairService=new repairService();
-include "message.php";
-?>
+
+<?php include "message.php";?>
+
 <nav class="navbar navbar-inverse">
 <div class="container">
   <div class="navbar-header">

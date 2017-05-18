@@ -1,6 +1,8 @@
 <div class="row" id="message">
 <?php
- $countSee=$repairService->getMisCount();
+include "model/repairService.class.php";
+$messageService=new repairService();
+$countSee=$messageService->getMisCount();
  // $today=time();
  // $arrNow=$repairService->getMisNow($today);
  // $countNow=count($arrNow);

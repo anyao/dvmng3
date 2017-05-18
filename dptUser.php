@@ -5,9 +5,6 @@ $user=$_SESSION['user'];
 
 require_once "model/dptService.class.php";
 $dptService=new dptService();
-
-require_once "model/repairService.class.php";
-$repairService=new repairService();
 ?>
 <!DOCTYPE html>
 <html lang="en">

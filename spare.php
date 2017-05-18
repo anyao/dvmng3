@@ -33,10 +33,9 @@ $user=$_SESSION['user'];
 </head>
 <body role="document">
 <?php 
-require_once "model/repairService.class.php";
 require_once 'model/spareService.class.php';
 require_once "model/devService.class.php";
-$repairService=new repairService();
+
 include "message.php";
 
 $devService=new devService();

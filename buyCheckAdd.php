@@ -4,9 +4,6 @@ checkValidate();
 $user=$_SESSION['user'];
 $uid=$_SESSION['uid'];
 
-require_once "model/repairService.class.php";
-$repairService=new repairService();
-
 require_once "model/gaugeService.class.php";
 $gaugeService=new gaugeService();
 

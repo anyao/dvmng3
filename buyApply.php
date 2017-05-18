@@ -1,12 +1,9 @@
 <?php 
-require_once "model/repairService.class.php";
 require_once "model/cookie.php";
 require_once 'model/paging.class.php';
 require_once 'model/gaugeService.class.php';
 checkValidate();
 $user=$_SESSION['user'];
-
-$repairService = new repairService();
 
 $paging=new paging();
 $paging->pageNow=1;

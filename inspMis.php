@@ -47,43 +47,40 @@ $dptService = new dptService();
 </head>
 <body role="document">
 <?php 
-require_once "model/repairService.class.php";
-$repairService=new repairService();
-include "message.php";
- ?>
-  <?php
-    require_once 'model/inspectService.class.php';
-    require_once 'model/paging.class.php';
-    $paging=new paging();
-    $paging->pageNow=1;
-    $paging->pageSize=18;
-    $paging->gotoUrl="inspMis.php";
-    if (!empty($_GET['pageNow'])) {
-      $paging->pageNow=$_GET['pageNow'];
-    }
+  include "message.php";
 
-    $inspectService=new inspectService();
-    if (empty($_POST['flag'])) {
-      $inspectService->getPagingMis($paging);
+  require_once 'model/inspectService.class.php';
+  require_once 'model/paging.class.php';
+  $paging=new paging();
+  $paging->pageNow=1;
+  $paging->pageSize=18;
+  $paging->gotoUrl="inspMis.php";
+  if (!empty($_GET['pageNow'])) {
+    $paging->pageNow=$_GET['pageNow'];
+  }
+
+  $inspectService=new inspectService();
+  if (empty($_POST['flag'])) {
+    $inspectService->getPagingMis($paging);
+  }else{
+    if (!empty($_POST['devid'])) {
+      $devid=$_POST['devid'];
     }else{
-      if (!empty($_POST['devid'])) {
-        $devid=$_POST['devid'];
-      }else{
-        $devid='';
-      }
-      if (!empty($_POST['name'])) {
-        $name=$_POST['name']; 
-      }else{
-        $name='';
-      }
-      if (!empty($_POST['time'])) {
-        $time=$_POST['time']; 
-      }else{
-        $time='';
-      }
-      $inspectService->findMis($devid,$name,$time,$paging);
+      $devid='';
     }
-  ?>
+    if (!empty($_POST['name'])) {
+      $name=$_POST['name']; 
+    }else{
+      $name='';
+    }
+    if (!empty($_POST['time'])) {
+      $time=$_POST['time']; 
+    }else{
+      $time='';
+    }
+    $inspectService->findMis($devid,$name,$time,$paging);
+  }
+?>
    <nav class="navbar navbar-inverse">
   <div class="container">
     <div class="navbar-header">

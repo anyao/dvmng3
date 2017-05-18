@@ -37,25 +37,22 @@ $user=$_SESSION['user'];
   </head>
   <body>
   <?php 
-require_once "model/repairService.class.php";
-$repairService=new repairService();
-include "message.php";
- ?>
-  <?php
-    require_once 'model/inspectService.class.php';
-    require_once 'model/paging.class.php';
+  include "message.php";
 
-    // $paging=new paging();
-    // $paging->pageNow=1;
-    // $paging->pageSize=18;
-    // $paging->gotoUrl="devInspect.php";
-    // if (!empty($_GET['pageNow'])) {
-    //   $paging->pageNow=$_GET['pageNow'];
-    // }
+  require_once 'model/inspectService.class.php';
+  require_once 'model/paging.class.php';
 
-    // $inspectService=new inspectService();
-    // $inspectService->getPaging($paging);
-  ?>
+  // $paging=new paging();
+  // $paging->pageNow=1;
+  // $paging->pageSize=18;
+  // $paging->gotoUrl="devInspect.php";
+  // if (!empty($_GET['pageNow'])) {
+  //   $paging->pageNow=$_GET['pageNow'];
+  // }
+
+  // $inspectService=new inspectService();
+  // $inspectService->getPaging($paging);
+?>
   <nav class="navbar navbar-inverse">
     <div class="container">
         <div class="navbar-header">

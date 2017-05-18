@@ -48,47 +48,44 @@ $user=$_SESSION['user'];
 </head>
 <body role="document">
 <?php 
-require_once "model/repairService.class.php";
-$repairService=new repairService();
-include "message.php";
- ?>
-  <?php
-    require_once 'model/inspectService.class.php';
-    require_once 'model/paging.class.php';
-    $paging=new paging();
-    $paging->pageNow=1;
-    $paging->pageSize=18;
-    $paging->gotoUrl="inspStd.php";
-    if (!empty($_GET['pageNow'])) {
-      $paging->pageNow=$_GET['pageNow'];
-    }
+  include "message.php";
 
-    $inspectService=new inspectService();
-    if (empty($_POST['flag'])) {   
-      $inspectService->getPagingStd($paging);
+  require_once 'model/inspectService.class.php';
+  require_once 'model/paging.class.php';
+  $paging=new paging();
+  $paging->pageNow=1;
+  $paging->pageSize=18;
+  $paging->gotoUrl="inspStd.php";
+  if (!empty($_GET['pageNow'])) {
+    $paging->pageNow=$_GET['pageNow'];
+  }
+
+  $inspectService=new inspectService();
+  if (empty($_POST['flag'])) {   
+    $inspectService->getPagingStd($paging);
+  }else{
+    if(!empty($_POST['code'])){
+      $code=$_POST['code'];
     }else{
-      if(!empty($_POST['code'])){
-        $code=$_POST['code'];
-      }else{
-        $code='';
-      }
-      if(!empty($_POST['depart'])){
-        $depart=$_POST['depart'];
-      }else{
-        $depart='';
-      }
-      if(!empty($_POST['devid'])){
-        $devid=$_POST['devid'];
-      }else{
-        $devid='';
-      }
-      if(!empty($_POST['name'])){
-        $name=$_POST['name'];
-      }else{
-        $name='';
-      }
-      $inspectService->findStd($code,$depart,$devid,$name,$paging);
+      $code='';
     }
+    if(!empty($_POST['depart'])){
+      $depart=$_POST['depart'];
+    }else{
+      $depart='';
+    }
+    if(!empty($_POST['devid'])){
+      $devid=$_POST['devid'];
+    }else{
+      $devid='';
+    }
+    if(!empty($_POST['name'])){
+      $name=$_POST['name'];
+    }else{
+      $name='';
+    }
+    $inspectService->findStd($code,$depart,$devid,$name,$paging);
+  }
   ?>
  <nav class="navbar navbar-inverse">
   <div class="container">

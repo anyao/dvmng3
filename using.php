@@ -1,8 +1,6 @@
 <?php 
 require_once "model/cookie.php";
-require_once "model/repairService.class.php";
 require_once 'model/devService.class.php';
-$repairService=new repairService();
 checkValidate();
 $user=$_SESSION['user'];
 

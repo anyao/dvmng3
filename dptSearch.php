@@ -52,8 +52,6 @@ $user=$_SESSION['user'];
 </head>
 <body role="document">
 <?php 
-	require_once "model/repairService.class.php";
-	$repairService=new repairService();
 	include "message.php";
 
 	require_once "model/dptService.class.php";

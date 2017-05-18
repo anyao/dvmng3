@@ -53,12 +53,8 @@ $user=$_SESSION['user'];
 <body role="document">
 
 <?php 
-require_once "model/repairService.class.php";
-$repairService=new repairService();
 include "message.php";
- ?>
-<?php
-  $id=$_GET['id'];
+$id=$_GET['id'];
 ?>
  <nav class="navbar navbar-inverse">
   <div class="container">
