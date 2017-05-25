@@ -187,7 +187,7 @@ if (!empty($_REQUEST['flag'])) {
 	else if ($flag == "getChkInfo") {
 		$id = $_GET['id'];
 		$res = $gaugeService->getChkInfo($id);
-		echo "$res";
+		echo json_encode($res, JSON_UNESCAPED_UNICODE);
 		die;
 	}
 
@@ -218,17 +218,22 @@ if (!empty($_REQUEST['flag'])) {
 		$para = $_POST['para'];
 		$dateInstall = $_POST['dateInstall'];
 		$number = $_POST['number'];
-		$aSet = $_POST['aSet'];
 		$id = $_POST['id'];
+		$aSet = array_values($_POST['aSet']);
 		// 添加父设备并获取其添加后id用于之后子节点的添加
 		$fid = $gaugeService->transSpr($id,$number,'正常',0,$dateInstall);
-		$aSet = array_values($aSet);
 		for ($i=0; $i < count($aSet); $i++) { 
+			$aSet[$i] = json_decode(urldecode($aSet[$i]), true);
+			$v = array_column($aSet[$i],'value');
+			for ($k=0; $k < count($v); $k++) { 
+				$v[$k] = $gaugeService->unescape($v[$k]);
+			}
+			$aSet[$i] = array_combine(array_column($aSet[$i], 'name'), $v);
 			$sid = $gaugeService->asetSon($id,$aSet[$i]['number'],'正常',$fid,$dateInstall,$aSet[$i]['no'],$aSet[$i]['name']);
 			$res[] = $gaugeService->useDtl($sid,$para);
 		}
 		echo '{"url":"using","devid":'.$fid.'}';
-		exit();
+		die;
 	}
 
 	else if ($flag == "endSpr") {

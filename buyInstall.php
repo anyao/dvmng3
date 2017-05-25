@@ -420,10 +420,6 @@ tr:hover > th > .glyphicon-trash {
             <div class="row">
               <div class="col-md-6">
               <span class="glyphicon glyphicon-plus" id="addLeaf" style='margin-left: 20px;cursor: pointer'></span>
-              <span class="glyphicon glyphicon-remove" id="remove" style='cursor: pointer'></span>
-<!--               <a id="addLeaf" href="javascript:void(0);" >增加叶子节点</a> -->
-              <!-- <a id="remove" href="javascript:void(0);">删除叶子节点</a> -->
-              <!-- <a id="edit" href="javascript:void(0);">重命名子节点</a> -->
                 <ul id="tree" class="ztree" style='margin-left: 10px;'></ul>
               </div>
               <div class="col-md-6">
@@ -645,27 +641,28 @@ tr:hover > th > .glyphicon-trash {
 <?php  include "./buyJs.php";?>
 <script type="text/javascript">
 var setting = {
-      edit: {
-        enable: true,
-        showRemoveBtn: false,
-        showRenameBtn: false
-      },
-      data: {
-        keep: {
-          parent:true,
-          leaf:true
-        },
-        simpleData: {
-          enable: true
-        }
-      },
-      callback: {
-        onClick: zTreeOnClick
-      },
-      view: {
-        showIcon: false
-      } 
-    };
+  edit: {
+    enable: true,
+    showRemoveBtn: setRemoveBtn,
+    showRenameBtn: false
+  },
+  data: {
+    keep: {
+      parent:true,
+      leaf:true
+    },
+    simpleData: {
+      enable: true
+    }
+  },
+  callback: {
+    onClick: zTreeOnClick,
+    beforeRemove: zTreeBeforeRemove
+  },
+  view: {
+    showIcon: false
+  } 
+};
 
 // 添加子设备时，设备类别搜索建议
 $("#asetSon input[name=class]").bsSuggest({
@@ -804,13 +801,12 @@ $(".yesUse").click(function(){
       return false;
     }
   });
-  if (allow_submit == true) {
+  if (allow_submit == true) 
     $.post("./controller/gaugeProcess.php",$form.serialize(),function(data){
         location.href="./"+data.url+".php?id="+data.devid;
-    },'text');
-  }else{
+    },'json');
+  else
     return allow_submit;
-  }
 });
 
 
@@ -819,6 +815,12 @@ $(".datetime").datetimepicker({
   format: 'yyyy-mm-dd', language: "zh-CN", autoclose: true,minView:2,
 });
 
+function setRemoveBtn(treeId, treeNode) {
+  return !treeNode.isParent;
+}
+
+
+
 // 新设备是否备用
 function useSpr(id,name){
   $("#useSpr input[name=id], #useAset input[name=id]").val(id);
@@ -826,13 +828,12 @@ function useSpr(id,name){
     flag:'getChkInfo',
     id:id
   },function(data){
-    if (data != "") {
-      var zNodes = [{id:id, pId:0, name:name, open:true,isParent:true}];
+    if (data.unit == "套") {
+      newCount = 1;
+      $("#asetInfo").empty().append(data.info);
+      var zNodes = [{id:id, pId:0, name:name, open:true,isParent:true, }];
       $.fn.zTree.init($("#tree"), setting, zNodes);
-      $("#asetInfo").empty().append(data);
-      // $("#edit").bind("click", edit);
-      $("#remove").bind("click", remove);
-      $("#addLeaf").bind("click", {isParent:false,id:id}, add);
+      $("#addLeaf").one("click", {isParent:false,id:id}, add);
       $("#asetPara").empty();
       $("#useAset").modal({
         keyboard:true
@@ -842,7 +843,7 @@ function useSpr(id,name){
         keyboard:true
       });
     }
-  },'text');
+  },'json');
 }
 
 var newCount = 1;
@@ -852,34 +853,10 @@ function add(e) {
   nodes = zTree.getNodesByParam("id", e.data.id, null),
   treeNode = nodes[0];
   if (treeNode) {
-    treeNode = zTree.addNodes(treeNode, {id:(100 + newCount), pId:treeNode.id, isParent:isParent, name:"子设备名称" + (newCount++)});
-  } else {
-    treeNode = zTree.addNodes(null, {id:(100 + newCount), pId:0, isParent:isParent, name:"new node" + (newCount++)});
-  }
-  if (treeNode) {
-    zTree.editName(treeNode[0]);
+    treeNode = zTree.addNodes(treeNode, {id:(100 + newCount), pId:treeNode.id, isParent:isParent, name:"子设备" + (newCount++)});
+    zTree.editName(treeNode[0]); 
   }
 };
-function remove(e) {
-  var zTree = $.fn.zTree.getZTreeObj("tree"),
-  nodes = zTree.getSelectedNodes(),
-  treeNode = nodes[0];
-  if (nodes.length != 0 && treeNode.isParent == false) {
-    zTree.removeNode(treeNode);
-    // alert(treeNode.isParent)
-    
-  }
-  // var callbackFlag = $("#callbackTrigger").attr("checked");
-};
-
-// function edit() {
-//   var zTree = $.fn.zTree.getZTreeObj("tree"),
-//   nodes = zTree.getSelectedNodes(),
-//   treeNode = nodes[0];
-//   if (nodes.length != 0 && treeNode.isParent == false) {
-//     zTree.editName(treeNode);
-//   }
-// };
 
 function zTreeOnClick(event, treeId, treeNode) {
   if (treeNode.isParent == false) {
@@ -895,20 +872,20 @@ function zTreeOnClick(event, treeId, treeNode) {
 $(".yesAsetSon").click(function(){
   var tid = $(this).parents("form").find("input[name=tid]").val();
   var addHtml = "";
-  // alert(addHtml);
-  // var addHtml = '<input type="hidden" name="name" value="">';
-  var $input = $(this).parents("form").find("input[type=text],input[type=radio][checked],input[name=name]");
-  $input.each(function(){
-    addHtml += '<input type="hidden" name="aSet['+tid+']['+$(this).attr("name")+']" value="'+$(this).val()+'">';
-  });
+  var $input = escape(JSON.stringify($(this).parents("form").find("input[type=text],input[type=radio][checked],input[name=name]").serializeArray()));
+  addHtml += '<input type="hidden" tid='+tid+' name="aSet['+tid+']" value="'+$input+'">';
   $("#asetPara").append(addHtml);
   $("#asetSon").modal('hide');
 });
 
+function zTreeBeforeRemove(treeId, treeNode){
+  var $del = $("#asetPara").find("input[tid="+treeNode.tId+"]");
+  if ($del.length != 0) {
+    $del.detach();
+  }
+}
 
-
-
-
+// Nowadays, some organizations and charities publicize their activities by introducing special days every year like National Children's Day and Non-smoking Day. Why do they introduce special days and what effects does this have? 
     </script>
   </body>
 </html>

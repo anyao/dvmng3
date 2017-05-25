@@ -37,6 +37,11 @@ $user=$_SESSION['user'];
 <script src="bootstrap/js/bootstrap-suggest.js"></script>
 </head>
 <body role="document">
+the impression is that the logical nature of the textbooks and their conprehensive coverage of different types of examples render work sheets unnecessary.
+
+self-paced distant learning offers students flexibility and convenience.
+
+the core corriculum provides students necessary general education, irrespective of their fields of interest
 <?php 
   include "message.php";
 
