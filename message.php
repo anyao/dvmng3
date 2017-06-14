@@ -1,6 +1,6 @@
 <div class="row" id="message">
 <?php
-include "model/repairService.class.php";
+include_once "model/repairService.class.php";
 $messageService=new repairService();
 $countSee=$messageService->getMisCount();
  // $today=time();
@@ -18,6 +18,8 @@ $countSee=$messageService->getMisCount();
  //   $jsonNow=json_encode($arrNow,JSON_UNESCAPED_UNICODE);
  //   for ($i=0; $i < $countNow; $i++) { 
  //    if($arrNow[$i]['today']!=1){
+ //    
+ //    
  //      $time=date("H:i",strtotime($arrNow[$i]['time']));
  //      echo "<div class='col-md-12'>
  //            <div class='alert alert-warning' id='mesToday-{$arrNow[$i]['id']}'>
