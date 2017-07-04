@@ -5232,7 +5232,7 @@ a.thumbnail.active {
           animation: progress-bar-stripes 2s linear infinite;
 }
 .progress-bar-success {
-  background-color: #5cb85c;
+  background-color: #081F34;
 }
 .progress-striped .progress-bar-success {
   background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
@@ -6897,7 +6897,7 @@ button.close {
 .page-count{
   position:fixed;
   bottom:12px;
-  width:40%;
+  /*width:40%;*/
   text-align: center;
   margin-left: -15px;
 }

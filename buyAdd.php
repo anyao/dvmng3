@@ -46,7 +46,7 @@ $cljl=$gaugeService->getCLJL($basic['did']);
     .part > .col-md-4 > .input-group{
       margin:5px;
     } 
-  </style>
+</style>
 <link rel="stylesheet" href="bootstrap/css/jquery.enjoyhint.css">
 <link rel="stylesheet" href="tp/datetimepicker.css">
 <link href="bootstrap/css/bootstrap.css" rel="stylesheet">

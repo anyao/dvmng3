@@ -17,13 +17,13 @@ if (!empty($_REQUEST['flag'])) {
 		}else{
 			setcookie("user",$code,time()-100);
 		}
-
 		$res = $userService->getPwd($code);
 		if (empty($res['err'])) {
 			if ($res['data']['psw'] == $psw) {
 				$_SESSION['user'] = $res['data']['user'];
 				$_SESSION['uid'] = $res['data']['uid'];
 				$_SESSION['code'] = $res['data']['code'];
+				$_SESSION['udptid'] = $res['data']['udptid'];
 				$userService->getAuth($res['data']['uid']);
 				echo 3; die;
 			}else

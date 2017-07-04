@@ -18,12 +18,13 @@ $gaugeService = new gaugeService();
 if (empty($_POST['flag'])) {
   $gaugeService->buyInstallHis($paging);
 }else if ($_POST['flag'] == 'findInstall') {
-  $storeTime = $_POST['installTime'];
-  $depart = $_POST['dptId'];
-  $code = $_POST['sprCode'];
-  $name = $_POST['sprName'];
-  $no = $_POST['sprNo'];
-  $gaugeService->buyInstallFind($installTime,$depart,$code,$name,$no,$paging);
+  $install_from = $_POST['check_from'];
+  $install_to = $_POST['check_to'];
+  $codeWare = $_POST['codeWare'];
+  $name = $_POST['name'];
+  $spec = $_POST['spec'];
+
+  $gaugeService->buyCheckFind($install_from, $install_to, $codeWare, $name, $spec, $paging);
 }
 ?>
 <!DOCTYPE html>
@@ -38,37 +39,17 @@ if (empty($_POST['flag'])) {
 <link rel="icon" href="img/favicon.ico">
 <title>备件入账存库-仪表管理</title>
 <style type="text/css">
-#apvSpr li{
-    list-style: none;
-    margin:10px 0px;
+.glyphicon-briefcase, .glyphicon-play-circle{
+  display: inline !important;
+  cursor: default !important;
 }
 
-.open > th, .open > td{
-  background-color:#F0F0F0;
-}
-
-th > .glyphicon-trash{
-  display:none;
-} 
-
-tr:hover > th > .glyphicon-trash {
-  display: inline;
+#uptModal .input-group{
+  margin: 12px 0px;
 }
 
 </style>
-<link rel="stylesheet" href="tp/datetimepicker.css">
-<link href="bootstrap/css/bootstrap.css" rel="stylesheet">
-
-<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-<!--[if lt IE 9]>
-  <script src="bootstrap/js/html5shiv.js"></script>
-  <script src="bootstrap/js/respond.js"></script>
-<![endif]-->
-<script src="bootstrap/js/jquery.js"></script>
-<script src="bootstrap/js/bootstrap.js"></script>
-<script src="tp/bootstrap-datetimepicker.js"></script>
-<script src="tp/bootstrap-datetimepicker.zh-CN.js"></script>
-<script src="bootstrap/js/bootstrap-suggest.js"></script>
+<?php include "./buyVendor.php" ?>
 </head>
 <body role="document">
 <?php  include "message.php";?>
@@ -85,27 +66,13 @@ tr:hover > th > .glyphicon-trash {
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-        <li><a href="homePage.php">首页</a></li>
-        <li class="active dropdown">
-          <a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown" role="button">设备购置 <span class="caret"></span></a>
-          <ul class="dropdown-menu">
-            <li><a href="buyGauge.php">仪表备件申报</a></li>
-          </ul>
-        </li>
+        <li class="active"><a href="<?=(in_array(7, $_SESSION['funcid']) || $_SESSION['user'] == 'admin') ? "buyCheck.php" : "buyInstall.php"; ?>">备件申报</a></li>
         <li class="dropdown">
           <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">设备档案 <span class="caret"></span></a>
           <ul class="dropdown-menu">
             <li><a href="usingList.php">在用设备</a></li>
-             <?php if (!in_array(4,$_SESSION['funcid'])  && $_SESSION['user'] != 'admin') {
-                        echo "<li role='separator' class='divider'></li><li>";
-                      } 
-                ?>
-                <li><a href="spareList.php">备品备件</a></li>
-                
-                <?php if (in_array(4,$_SESSION['funcid']) || $_SESSION['user'] == 'admin') {
-                        echo "<li role='separator' class='divider'></li><li><a href='devPara.php'>属性参数</a></li>";
-                      } 
-                ?>
+            <li><a href="spareList.php">备品备件</a></li>
+            <li style="display: <?= (in_array(4, $_SESSION['funcid'])  && $_SESSION['user'] != 'admin') ? "inline" : "none";?>"><a href='devPara.php' >属性参数</a></li>
           </ul>
         </li>
         <li class="dropdown">
@@ -113,7 +80,6 @@ tr:hover > th > .glyphicon-trash {
           <ul class="dropdown-menu">
             <li><a href="inspStd.php">巡检标准</a></li>
             <li><a href="inspMis.php">巡检计划</a></li>
-            <li class="divider">&nbsp;</li>
             <li><a href="inspList.php">巡检记录</a></li>
           </ul>
         </li>
@@ -122,244 +88,150 @@ tr:hover > th > .glyphicon-trash {
           <ul class="dropdown-menu">
             <li><a href="repPlan.php">检修计划</a></li>
             <li><a href="repMis.php">维修/保养任务</a></li>
-            <li class="divider">&nbsp;</li>
             <li><a href="repList.php">维修记录</a></li>
           </ul>
         </li>
       </ul>
        <ul class="nav navbar-nav navbar-right">
-       <?php if (in_array(10,$_SESSION['funcid']) || $_SESSION['user'] == 'admin') {
-                      echo "<li><a href='dptUser.php'>用户管理</a></li>";
-                    } 
-             ?>
-       
+        <li style="display: <?= (!in_array(10, $_SESSION['funcid']) && $_SESSION['user'] != 'admin') ? "none" : "inline";?>"><a href='dptUser.php'>用户管理</a></li>
         <li class="dropdown">
-        <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button"><?php 
-              if (empty($user)) {
-                echo "用户信息";
-              }else{
-                echo "$user";
-              } 
-            ?> <span class="caret"></span></a>
+        <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button"><?= $user?> <span class="caret"></span></a>
           <ul class="dropdown-menu">
             <li><a href="javascript:chgPwd();">更改密码</a></li>
-            <li class="divider">&nbsp;</li>
             <li><a href="login.php">注销</a></li>
           </ul>
-          </li>
+        </li>
       </ul>
-
     </div><!--/.nav-collapse -->
   </div>
 </nav>
 
-<div class="modal fade"  id="noInfo" >
+<div class="modal fade" id="uptModal">
   <div class="modal-dialog modal-sm" role="document">
     <div class="modal-content">
-         <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
-         </div>
-         <div class="modal-body"><br/>
-            <div class="loginModal">您尚未完善安装验收单，填写后可下载。</div><br/>
-         </div>
-         <div class="modal-footer">  
-          <button type="button" class="btn btn-primary" id="addInfo">添加</button>
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">修改</h4>
+      </div>
+      <form class="form-horizontal" method="post" action="./controller/gaugeProcess.php">
+        <div class="modal-body">
+          <div class="input-group">
+            <span class="input-group-addon">使用方式</span>
+            <select class="form-control" name="status">
+              <option value="4">使用</option>
+              <option value="5">备用</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <span class="input-group-addon">安装地点</span>
+            <input class="form-control" name="loc" type="text">
+          </div>  
         </div>
+        <div class="modal-footer">
+          <input type="hidden" name="flag" value="uptInstall">
+          <input type="hidden" name="id">
+          <button class="btn btn-primary" id="yesUpt">确定</button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
 
-<!-- 添加新设备弹出框 -->
-<form class="form-horizontal" method="post" id="formInfo" action="./controller/gaugeProcess.php">
-  <div class="modal fade" id="installInfo" role="dialog" >
-    <div class="modal-dialog modal-lg" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title" id="myModalLabel">安装验收新仪表</h4>
-        </div>
-        <div class="modal-body">
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-group">
-                <label class="col-sm-3 control-label">安装地点：</label>
-                <div class="col-sm-9">
-                  <input type="text" class="form-control" name="location">
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-group">
-                <label class="col-sm-3 control-label">技术参数：</label>
-                <div class="col-sm-9">
-                  <textarea type="text" class="form-control" name="paraInfo"></textarea>
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="col-sm-3 control-label">运行情况：</label>
-                <div class="col-sm-9">
-                  <textarea type="text" class="form-control" name="runInfo"></textarea>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                  <label class="col-sm-3 control-label">安装情况：</label>
-                  <div class="col-sm-9">
-                    <textarea type="text" class="form-control" name="installInfo"></textarea>
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label class="col-sm-3 control-label">结论：</label>
-                  <div class="col-sm-9">
-                    <textarea type="text" class="form-control" name="conclude"></textarea>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        <div class="modal-footer">
-          <input type="hidden" name="devId">
-          <input type="hidden" name="flag" value="installInfo">
-          <button class="btn btn-primary" id="yesInstall">确定添加</button>
-          <button class="btn btn-default" data-dismiss="modal">取消</button>
-        </div>
-      </div>
-    </div>
-  </div>  
-</form>
-
 <div class="container">
   <div class="row">
-  <div class="col-md-10">
-    <div class="page-header">
+    <div class="col-md-10">
+      <div class="page-header">
         <h4>　仪表备件验收记录</h4>
-    </div>
-    <table class="table table-striped table-hover">
+      </div>
+      <table class="table table-striped table-hover">
         <thead>
           <tr>
+            <th></th>
+            <th>使用时间</th><th>设备名称</th><th>规格型号</th><th>出厂编号</th><th>使用部门</th><th>安装地点</th>
+            <th style="width:4%">
+              <span class='glyphicon glyphicon-save' id='downXls' style='cursor:pointer;display:none'></span>
+            </th>
             <th style="width:4%"></th>
-            <th>验收时间</th><th>存货编码</th><th>存货名称</th><th>规格型号</th><th>出厂编号</th><th>验收部门</th><th>操作人员</th>
-            <th style="width:4%"></th>
-            <th style="width:4%"><span class='glyphicon glyphicon-save' id='downXls' style='cursor:pointer;display:none'></span></th>
           </tr>
         </thead>
         <tbody class="tablebody">
         <?php 
           if (count($paging->res_array) == 0) {
-            if (empty($_POST['flag'])) {
-              echo "<tr><td colspan=12>当前无历史安装验收记录</td></tr>";
+            echo "<tr><td colspan=12>当前无历史安装验收记录</td></tr>";
+          }else{
+            for ($i=0; $i < count($paging->res_array); $i++) { 
+              $row = $paging->res_array[$i];
+            if ($row['status'] == 4) {
+              $icon = "<td><span class='glyphicon glyphicon-play-circle'></span></td>";
+              $time = $row['useTime'];
+              $down = "<td><a href='./controller/gaugeProcess.php?flag=getXls&id={$row['id']}' class='glyphicon glyphicon-save'></a></td>";
             }else{
-              echo "<tr><td colspan=12>没有符合当前搜索条件的记录，请重新核实。</td></tr>";
+              $icon = "<td><span class='glyphicon glyphicon-briefcase'></span></td>";
+              $time = $row['storeTime'];
+              $down = "<td></td>";
             }
-          }
-          for ($i=0; $i < count($paging->res_array); $i++) { 
-            $row = $paging->res_array[$i];
-            if ($row['res'] == 4) {
-              if ($row['ifaset'] == 1) {
-                $url = "using";
-              }else{
-                $url = "usingSon";
-              }
-              $icon = "glyphicon glyphicon-play-circle";
-              $xlsx = "<a class='glyphicon glyphicon-save' href='javascript:downXls({$row['devid']})'></a>";
-            }else{
-              $url = "spare";
-              $icon = "glyphicon glyphicon-briefcase";
-              $xlsx = "";
+            echo
+              "<tr>{$icon}
+              <td>$time</td>
+              <td>{$row['name']}</td>
+              <td>{$row['spec']}</td>
+              <td>{$row['codeManu']}</td>
+              <td>{$row['factory']}{$row['depart']}</td><td>{$row['loc']}</td>
+              <td><a href='javascript:uptInstall({$row['id']},{$row['status']},\"{$row['loc']}\");' class='glyphicon glyphicon-pencil'></a></td>
+              $down
+              </tr>";
             }
-            $addHtml = 
-            "<tr>
-                <td><a class='glyphicon glyphicon-unchecked' href='javascript:void(0);' chosen='{$row['devid']}'></a></td>
-                <td>{$row['trsfTime']}</td>
-                <td>{$row['code']}</td>
-                <td><a href='javascript:flowInfo({$row['sprid']})'>{$row['name']}</td>
-                <td>{$row['no']}</td>
-                <td>{$row['codeManu']}</td>
-                <td>{$row['factory']}{$row['depart']}</td><td>{$row['trsfUser']}</td>
-                <td><a class='{$icon}' href='./{$url}.php?id={$row['devid']}' style='display:inline;'></a></td>
-                <td>".$xlsx."</td>
-             </tr>";
-             echo "$addHtml";
-            // <td><a class='glyphicon glyphicon-save' href='./xlsx/sprInstall.php?id={$row['id']}' style='display:inline;'></a></td>
           }
         ?>
         </tbody>
-        </table>
-        <div class='page-count'><?php echo $paging->navi?></div>                    
+      </table>
+      <div class='page-count'><?php echo $paging->navi?></div>                    
     </div>
     <div class="col-md-2">
-    <div class="col-md-3">
-    <?php  include "buyNavi.php";?>
+      <div class="col-md-3">
+        <?php  include "buyNavi.php";?>
+      </div>
     </div>
-    </div>
-</div>
+  </div>
 </div>
 
 <?php  include "./buyJs.php";?>
 <script type="text/javascript">
-$("#downXls").click(function(){
-  var arr = new Array();
-  var i = 0;
-  $(".glyphicon-check").each(function(){
-    arr[i] = $(this).attr('chosen');
-    i++;
-  });
-  arr = JSON.stringify(arr);
-  location.href='./xlsx/sprInfo.php?dev='+arr;
-});
+function uptStatus(status){
+  if (status == 5)
+    $("#uptModal input[name=loc]").parents(".input-group").hide();
+  else
+    $("#uptModal input[name=loc]").parents(".input-group").show();
+}
 
-// 多选按钮
-$(".tablebody").on("click","tr>td:first-child>a",function checked(){
-    $(this).toggleClass("glyphicon glyphicon-unchecked");
-    $(this).toggleClass("glyphicon glyphicon-check");
-    var isChosen = $(".glyphicon-check").length;
-    if (isChosen != 0) {
-      $("#downXls").show();
-    }else{
-      $("#downXls").hide();
-    }
-});
-
-$("#yesInstall").click(function(){
-  var allow_submit = true;
-  $("#installInfo input,#installInfo textarea").each(function() {
-    if ($(this).val() == "") {
-      allow_submit = false;
-      $("#failAdd").modal({
-        keyboard:true
-      });
-    }
+function uptInstall(id, status, loc){
+  $("#uptModal input[name=id]").val(id);
+  $("#uptModal select[name=status]").val(status);
+  $("#uptModal input[name=loc]").val(loc);
+  uptStatus(status);
+  $("#uptModal").modal({
+    keyboard:true
   });
+}
+
+$("#uptModal select").click(function(){
+  var status = $(this).val();
+  uptStatus(status);
+})
+
+$("#yesUpt").click(function(){
+  var status = $("#uptModal select").val(),
+      allow_submit = true
+      loc = $("#uptModal input[name=loc]").val();
+  if (status == 4 && loc == "") {
+    $("#failAdd").modal({
+      keyboard:true
+    });
+    allow_submit = false;
+  }
   return allow_submit;
 });
 
-$("#addInfo").click(function(){
-  $("#noInfo").modal('hide');
-  $("#installInfo").modal({
-    keyboard:true
-  });
-});
-
-function downXls(id){
-
-  $.get("./controller/gaugeProcess.php",{
-    flag:'installXls',
-    devid:id
-  },function(data,success){
-    if (data == 0) {
-      $("#installInfo input[name=devId]").val(id);
-      $("#noInfo").modal({
-        keyboard:true
-      });
-    }else{
-      // 已经有安装验收单啦
-      location.href="./xlsx/buyInstall.php?devid="+id;
-    }
-  },"text");
-}
     </script>
   </body>
 </html>

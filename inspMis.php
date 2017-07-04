@@ -375,7 +375,6 @@ function allow_enter(funcid){
   return allow;
 }
 
-// 多选框
 // 多选按钮
 $(".tablebody").on("click","tr>td:first-child>span",function checked(){
     $(this).toggleClass("glyphicon glyphicon-unchecked");

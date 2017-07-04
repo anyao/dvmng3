@@ -4,13 +4,22 @@ class userService{
 	// 验证密码
 	function getPwd($code){
 		$sqlHelper = new sqlHelper();
-		$sql = "SELECT psw,name,id,code FROM user where code='$code'";
+		$sql = "SELECT psw,name,id,code,departid FROM user where code='$code'";
 		$bsc = $sqlHelper->dql($sql);
 		$sqlHelper->close_connect();
 		if (empty($bsc)) 
-			return array("err" => "notFind", "data" => "");
+			return ["err" => "notFind", "data" => ""];
 		else
-			return array('err' => "", "data" => array('psw' => $bsc['psw'], 'uid' => $bsc['id'], 'user' => $bsc['name'], 'code' => $bsc['code']));
+			return [
+					"err" => "",
+				    "data" => [
+				    	'psw' => $bsc['psw'],
+				        'uid' => $bsc['id'], 
+				        'user' => $bsc['name'], 
+				        'code' => $bsc['code'],
+				        'udptid' => $bsc['departid']
+				    ]
+				   ];
 	}
 
 	// 查询用户权限,uid
