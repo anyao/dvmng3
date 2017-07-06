@@ -150,6 +150,7 @@ tbody .glyphicon{
       <table class="table table-striped table-hover">
         <thead>
           <tr>
+            <th style="width: 4%"></th>
             <th>检定日期</th><th>出厂编号</th><th>名称</th><th>规格</th>
             <th>单位</th><th>存货分类</th><th>存货编码</th>
             <th style="width:4%"></th><th style="width:4%"></th>
@@ -161,8 +162,18 @@ tbody .glyphicon{
       <?php else: ?>
         <?php for ($i=0; $i < count($paging->res_array); $i++) { 
           $row = $paging->res_array[$i]; 
+          if ($row['unit'] == "套") {
+            $leaf = "<td><a href='javascript:void(0);' onclick=\"getLeaf(this, {$row['id']});\" class='glyphicon glyphicon-resize-small' id='test'></a></td>";
+            $use = "<td></td>";
+            $store = "<td></td>";
+          }else{
+            $leaf = "<td></td>";
+            $use = "<td><a href='javascript:use({$row['id']});' class='glyphicon glyphicon-play-circle'></a></td>";
+            $store = "<td><a href='javascript:store({$row['id']});' class='glyphicon glyphicon-briefcase'></a></td>";
+          }
           echo 
           "<tr>
+          {$leaf}
           <td>{$row['checkTime']}</td>
           <td>{$row['codeManu']}</td>
           <td><a href='javascript:flowInfo({$row['id']})'>{$row['name']}</td>
@@ -170,8 +181,7 @@ tbody .glyphicon{
           <td>{$row['unit']}</td>
           <td>{$row['category']}</td>
           <td>{$row['codeWare']}</td>
-          <td><a href='javascript:use({$row['id']});' class='glyphicon glyphicon-play-circle'></a></td>
-          <td><a href='javascript:store({$row['id']});' class='glyphicon glyphicon-briefcase'></a></td>
+          {$use}{$store}
           </tr>";
         } ?>
       <?php endif ?> 
@@ -189,6 +199,42 @@ tbody .glyphicon{
 
 <?php include "./buyJs.php";?>
 <script type="text/javascript">
+function getLeaf(obj,id){
+    var flagIcon=$(obj).attr("class");
+    var $rootTr=$(obj).parents("tr");
+    // 列表是否未展开
+    if (flagIcon=="glyphicon glyphicon-resize-small") {
+      // 展开
+      $(obj).removeClass(flagIcon).addClass("glyphicon glyphicon-resize-full");
+      $.post("controller/gaugeProcess.php",{
+        flag:'getLeaf',
+        id: id,
+        status: 3
+      },function(data){
+        var addHtml = "";
+        for (var i = 0; i < data.length; i++){
+          addHtml += 
+          "<tr class='open "+data[i].id+" open-"+id+"' style='border: 1px solid #ddd !important;'>"+
+              "<td></td>"+
+              "<td>" + data[i].checkTime + "</td>" +
+              "<td>" + data[i].codeManu + "</td>" +
+              "<td>" + data[i].name + "</td>" +
+              "<td>" + data[i].spec + "</td>" +
+              "<td>" + data[i].unit + "</td>" +
+              "<td>" + data[i].category + "</td>" +
+              "<td>" + data[i].codeWare + "</td>" +
+              "<td><a href='javascript:use(" + data[i].id + ");' class='glyphicon glyphicon-play-circle'></a></td>"+
+              "<td><a href='javascript:store(" + data[i].id + ");' class='glyphicon glyphicon-briefcase'></a></td>"+
+           "</tr>";
+        }
+        $rootTr.after(addHtml);
+      },'json');
+    }else{
+      $(obj).removeClass(flagIcon).addClass("glyphicon glyphicon-resize-small");
+      $(".open-"+id).detach();
+    }
+}
+
 function use(id){
   $("#useModal input[name=id]").val(id);
   $("#useModal").modal({
@@ -210,153 +256,11 @@ function store(id){
   });
 }
 
-// 展开备件的检定信息 
-function storeInfo(obj,id){
-  var flagIcon=$(obj).attr("class");
-  var $rootTr=$(obj).parents("tr");
-  // 列表是否未展开
-  if (flagIcon=="glyphicon glyphicon-resize-small") {
-    // 展开
-    $(obj).removeClass(flagIcon).addClass("glyphicon glyphicon-resize-full");
-    $.get("controller/gaugeProcess.php",{
-      flag:'getStoreInfo',
-      id:id
-    },function(data,success){
-      if(data.info){
-        var info = '<div class="row">'+
-                   '  <div class="col-md-12"><p><b>备注：</b>'+data.info+'</p></div>'+
-                   '</div>';
-      }
-      var addHtml = "<tr class='open-"+id+"'>"+
-                    "   <td colspan='12'>"+
-                    "     <div class='row'>"+
-                    "       <div class='col-md-3'>"+
-                    "         <p><b>制造厂：</b> "+data.supplier+" </p>"+
-                    "         <p><b>精度等级：</b> "+data.accuracy+" </p>"+
-                    "       </div>"+
-                    "       <div class='col-md-3'>"+
-                    "         <p><b>检定周期：</b> "+data.circle+" </p>"+
-                    "         <p><b>溯源方式：</b> "+data.track+" </p>"+
-                    "       </div>"+
-                    "       <div class='col-md-3'>"+
-                    "         <p><b>检定部门：</b> "+data.factory+data.depart+" </p>"+
-                    "         <p><b>入库人：</b> "+data.storeUser+" </p>"+
-                    "       </div>"+
-                    "       <div class='col-md-3'>"+
-                    "         <p><b>量程：</b> "+data.scale+" </p>"+
-                    "         <p><b>证书结论：</b> "+data.certi+" </p>"+
-                    "       </div>"+
-                    "     </div>"+info+
-                    "   </td>"+
-                    " </tr>";
-      $rootTr.after(addHtml);
-    },'json');
-  }else{
-    $(obj).removeClass(flagIcon).addClass("glyphicon glyphicon-resize-small");
-    $(".open-"+id).detach();
-  }
-}
-
-
-// 添加子设备确认添加按钮
-$(".yesUse").click(function(){
-  // 添加新设备信息不完整时，弹出提示框
-  var allow_submit = true;
-  var $form = $(this).parents("form")
-  $form.find(".form-control").each(function(){
-    if ($(this).val()=="") {
-      $('#failAdd').modal({
-          keyboard: true
-      });
-      allow_submit = false;
-      return false;
-    }
-  });
-  if (allow_submit == true) 
-    $.post("./controller/gaugeProcess.php",$form.serialize(),function(data){
-        location.href="./"+data.url+".php?id="+data.devid;
-    },'json');
-  else
-    return allow_submit;
-});
-
-
 //时间选择器
 $(".datetime").datetimepicker({
   format: 'yyyy-mm-dd', language: "zh-CN", autoclose: true,minView:2,
 });
 
-function setRemoveBtn(treeId, treeNode) {
-  return !treeNode.isParent;
-}
-
-
-
-// 新设备是否备用
-function useSpr(id,name){
-  $("#useSpr input[name=id], #useAset input[name=id]").val(id);
-  $.get("./controller/gaugeProcess.php",{
-    flag:'getChkInfo',
-    id:id
-  },function(data){
-    if (data.unit == "套") {
-      newCount = 1;
-      $("#asetInfo").empty().append(data.info);
-      var zNodes = [{id:id, pId:0, name:name, open:true,isParent:true, }];
-      $.fn.zTree.init($("#tree"), setting, zNodes);
-      $("#addLeaf").one("click", {isParent:false,id:id}, add);
-      $("#asetPara").empty();
-      $("#useAset").modal({
-        keyboard:true
-      });
-    }else{
-      $("#useSpr").modal({
-        keyboard:true
-      });
-    }
-  },'json');
-}
-
-var newCount = 1;
-function add(e) {
-  var zTree = $.fn.zTree.getZTreeObj("tree"),
-  isParent = e.data.isParent,
-  nodes = zTree.getNodesByParam("id", e.data.id, null),
-  treeNode = nodes[0];
-  if (treeNode) {
-    treeNode = zTree.addNodes(treeNode, {id:(100 + newCount), pId:treeNode.id, isParent:isParent, name:"子设备" + (newCount++)});
-    zTree.editName(treeNode[0]); 
-  }
-};
-
-function zTreeOnClick(event, treeId, treeNode) {
-  if (treeNode.isParent == false) {
-    $("#asetSon input[name=tid]").val(treeNode.tId);
-    $("#asetSon input[name=name]").val(treeNode.name);
-    $("#asetSon input[type=text][name!=number]").val("");
-    $("#asetSon").modal({
-      keyboard:true
-    });
-  }
-};
-
-$(".yesAsetSon").click(function(){
-  var tid = $(this).parents("form").find("input[name=tid]").val();
-  var addHtml = "";
-  var $input = escape(JSON.stringify($(this).parents("form").find("input[type=text],input[type=radio][checked],input[name=name]").serializeArray()));
-  addHtml += '<input type="hidden" tid='+tid+' name="aSet['+tid+']" value="'+$input+'">';
-  $("#asetPara").append(addHtml);
-  $("#asetSon").modal('hide');
-});
-
-function zTreeBeforeRemove(treeId, treeNode){
-  var $del = $("#asetPara").find("input[tid="+treeNode.tId+"]");
-  if ($del.length != 0) {
-    $del.detach();
-  }
-}
-
-// Nowadays, some organizations and charities publicize their activities by introducing special days every year like National Children's Day and Non-smoking Day. Why do they introduce special days and what effects does this have? 
     </script>
   </body>
 </html>

@@ -39,13 +39,13 @@ class gaugeService{
 		$sqlHelper->close_connect();
 	}
 
-	function getLeaf($id){
+	function getLeaf($id, $status){
 		$sqlHelper = new sqlHelper();
 		$sql = "SELECT buy.id id,checkTime,codeManu,buy.name,spec,wareTime,unit,category.name category,supplier,codeWare
 			    FROM buy
 			    left join category
 			    on buy.category = category.no
-			    where pid = $id";
+			    where pid = $id and status = $status";
 		$res = $sqlHelper->dql_arr($sql);
 		$sqlHelper->close_connect();
 		return $res;
@@ -102,6 +102,33 @@ class gaugeService{
 	}
 
 	function buyInstallFind($install_from, $install_to, $codeWare, $name, $spec, $paging){
+		$dtl = $this->findWhere($codeWare,$name,$spec);
+		$where = " 1 = 1 ";
+		if (!empty($install_from) && !empty($install_to)) 
+			$where .= " AND (useTime between '{$install_from}' and '{$install_to}' OR 
+							 storeTime between '{$install_from}' and '{$install_to}')";
+		elseif (empty($install_from) && !empty($install_to)) 
+			$where .= " AND (useTime < '{$install_to}' 
+							OR storeTime < '{$install_to}')";
+		elseif (!empty($install_from) && empty($install_to)) 
+			$where .= " AND (useTime between '{$install_from}' and ".date("Y-m-d")
+						."OR storeTime between '{$install_from}' and ".date("Y-m-d").")";
+
+		$sqlHelper = new sqlHelper();
+		$sql1 = "SELECT storeTime, useTime, depart.depart, factory.depart factory, name, codeManu, spec, status, loc, buy.id
+				 from buy 
+				 left join depart
+				 on depart.id = buy.takeDpt
+				 left join depart factory
+				 on depart.fid = factory.id
+				 where status in(4,5) AND $where AND $dtl
+				 AND takeDpt {$this->authDpt}
+				 order by buy.id  desc
+				 limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
+		$sql2 = "SELECT count(*)
+				 from buy
+				 where status in(4,5) AND $where AND $dtl
+				 AND takeDpt {$this->authDpt}";
 		$res = $sqlHelper->dqlPaging($sql1,$sql2,$paging);
 		$sqlHelper->close_connect();
 	}
@@ -112,10 +139,31 @@ class gaugeService{
 				 FROM buy
 				 left join category
 				 on buy.category = category.no
-				 where status=3 
-				 AND takeDpt ".$this->authDpt."
+				 where (
+					 (
+					 	status=3 
+					 	and pid is null
+					 	AND unit != '套'
+					 )
+					 OR
+						buy.id in (
+							SELECT pid from buy where pid is not null and status=3 
+					 	) 
+				 )
+				 AND takeDpt {$this->authDpt}	
 				 limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
-		$sql2 = "SELECT count(*) from buy where status=3 and takeDpt ".$this->authDpt;
+		$sql2 = "SELECT count(*) from buy where (
+					 (
+					 	status=3 
+					 	and pid is null
+					 	AND unit != '套'
+					 )
+					 OR
+						buy.id in (
+							SELECT pid from buy where pid is not null and status=3 
+					 	) 
+				 )
+				 AND takeDpt {$this->authDpt}";
 		$res = $sqlHelper->dqlPaging($sql1,$sql2,$paging);
 		$sqlHelper->close_connect();
 	}
@@ -124,7 +172,7 @@ class gaugeService{
 		$sqlHelper = new sqlHelper();
 		$takeUser = $_SESSION['user'];
 		$takeTime = date("Y-m-d");
-		$sql = "UPDATE buy set takeUser='{$takeUser}',takeDpt=$dptid,takeTime='{$takeTime}',status=3 where id in($sprid)";
+		$sql = "UPDATE buy set takeUser='{$takeUser}',takeDpt=$dptid,takeTime='{$takeTime}',status=3 where id in($sprid) or pid = $sprid";
 		$res = $sqlHelper->dml($sql);
 		return $res;
 	}
@@ -160,10 +208,10 @@ class gaugeService{
 		return $res;
 	}
 
-	function cloneCheck($id){
+	function cloneCheck($id, $name, $spec, $unit){
 		$sqlHelper = new sqlHelper();
 		$sql = "INSERT INTO buy(wareTime,codeWare,name,spec,unit,category,supplier,wareId,status) 
-				SELECT wareTime,codeWare,name,spec,unit,category,supplier,wareId,status FROM buy where id = $id";
+				SELECT wareTime,codeWare,'{$name}','{$spec}','{$unit}',category,supplier,wareId,status FROM buy where id = $id";
 		$res = $sqlHelper->dml($sql);
 		return mysql_insert_id();
 	}

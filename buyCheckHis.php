@@ -280,7 +280,7 @@ if (empty($_POST['flag'])) {
     <table class="table table-striped table-hover">
       <thead>
         <tr><th><span class='glyphicon glyphicon-log-out' id="takeAll" ></span></th>
-            <th>检定日期</th><th>出厂编号</th><th>名称</th><th>规格</th><th>入库日期</th><th>单位</th>
+            <th style="width: 8%">检定日期</th><th style="width: 8%">出厂编号</th><th>名称</th><th>规格</th><th>入库日期</th><th>单位</th>
             <th>存货分类</th><th>供应商</th><th>存货编码</th>
             <th style="width:4%"></th><th style="width:4%"></th><th style="width:4%"></th>
         </tr>
@@ -377,7 +377,6 @@ if (empty($_POST['flag'])) {
 
 <?php  include "./buyJs.php";?>
 <script type="text/javascript">
-
 function getLeaf(obj,id){
     var flagIcon=$(obj).attr("class");
     var $rootTr=$(obj).parents("tr");
@@ -386,12 +385,10 @@ function getLeaf(obj,id){
       // 展开
       $(obj).removeClass(flagIcon).addClass("glyphicon glyphicon-resize-full");
       $.post("controller/gaugeProcess.php",{
-        flag:'getLeaf',
-        id:id
+        flag: 'getLeaf',
+        id: id,
+        status: 2
       },function(data){
-     // {"id":"400","checkTime":"2017-07-04","codeManu":"test1code","name":"耐震压力表","spec":"Y-100AZ\/1.6MPA",
-     // "wareTime":"2017-02-06","unit":"套","category":"耐震压力表","supplier":"上海满川电器有限公司","codeWare":"260040020189"
-
         var user = session.user;
         var allow_enter = $.inArray(7,session.funcid);
         if (user == "admin") {
@@ -591,7 +588,7 @@ $("#takeAll").click(function(){
 });
 
 function takeOne(id){
-  $("#takeSpr input[name=arrId]").val(id);
+  $("#takeSpr input[name=arrId]").val(id+",");
   takeSpr();
 }
 

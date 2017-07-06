@@ -296,7 +296,7 @@ if (!empty($_REQUEST['flag'])) {
 		$spr = $_POST['spr'];
 		$pid = $_POST['pid'];
 		for ($i=0; $i < count($spr); $i++) { 
-			$id = $gaugeService->cloneCheck($pid);
+			$id = $gaugeService->cloneCheck($pid, $spr[$i]['name'], $spr[$i]['spec'], $spr[$i]['unit']);
 			$res = $gaugeService->addCheck($id, $spr[$i]['codeManu'], $spr[$i]['accuracy'], $spr[$i]['scale'], $spr[$i]['certi'], $spr[$i]['track'], $spr[$i]['checkNxt'], $spr[$i]['valid'], $spr[$i]['circle'], $spr[$i]['checkDpt'], $spr[$i]['outComp'], $pid, '-'.$pid);
 		}
 		$pStatus = $gaugeService->chgStatus($pid);
@@ -357,7 +357,8 @@ if (!empty($_REQUEST['flag'])) {
 
 	else if ($flag == "getLeaf") {
 		$id = $_POST['id'];
-		$res = $gaugeService->getLeaf($id);
+		$status = $_POST['status'];
+		$res = $gaugeService->getLeaf($id, $status);
 		echo json_encode($res, JSON_UNESCAPED_UNICODE);
 		die;
 	}

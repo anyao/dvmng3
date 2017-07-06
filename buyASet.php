@@ -123,6 +123,14 @@ $uid=$_SESSION['uid'];
         <div class="row">
           <div class="col-md-6">
             <div class="input-group">
+              <span class="input-group-addon">备件名称</span>
+              <input class="form-control" name="spr[<?=$i?>][name]" type="text">
+            </div> 
+            <div class="input-group">
+              <span class="input-group-addon">规格型号</span>
+              <input class="form-control" name="spr[<?=$i?>][spec]" type="text">
+            </div> 
+            <div class="input-group">
               <span class="input-group-addon">出厂编号</span>
               <input class="form-control" name="spr[<?=$i?>][codeManu]" type="text">
             </div> 
@@ -138,6 +146,13 @@ $uid=$_SESSION['uid'];
               <span class="input-group-addon">证书结论</span>
               <input class="form-control" name="spr[<?=$i?>][certi]" type="text">
             </div>  
+             
+          </div>
+          <div class="col-md-6">
+            <div class="input-group">
+              <span class="input-group-addon">单&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;位</span>
+              <input class="form-control" name="spr[<?=$i?>][unit]" type="text">
+            </div> 
             <div class="input-group">
               <span class="input-group-addon">溯源方式</span>
               <select class="form-control" name="spr[<?=$i?>][track]">
@@ -145,9 +160,7 @@ $uid=$_SESSION['uid'];
                 <option value="校准">校准</option>
                 <option value="测试">测试</option>
               </select>
-            </div> 
-          </div>
-          <div class="col-md-6">
+            </div>
             <div class="input-group">
               <span class="input-group-addon">检定日期</span>
               <input class="form-control datetime" name="spr[<?=$i?>][checkNxt]" readonly="" type="text">
@@ -209,6 +222,14 @@ $("#addBtn").click(function(){
   '    <div class="row">'+
   '      <div class="col-md-6">'+
   '        <div class="input-group">'+
+  '          <span class="input-group-addon">备件名称</span>'+
+  '          <input class="form-control" name="spr['+i+'][name]" type="text">'+
+  '        </div> '+
+  '        <div class="input-group">'+
+  '          <span class="input-group-addon">规格型号</span>'+
+  '          <input class="form-control" name="spr['+i+'][spec]" type="text">'+
+  '        </div> '+
+  '        <div class="input-group">'+
   '          <span class="input-group-addon">出厂编号</span>'+
   '          <input class="form-control" name="spr['+i+'][codeManu]" type="text">'+
   '        </div> '+
@@ -224,6 +245,12 @@ $("#addBtn").click(function(){
   '          <span class="input-group-addon">证书结论</span>'+
   '          <input class="form-control" name="spr['+i+'][certi]" type="text">'+
   '        </div>  '+
+  '      </div>'+
+  '      <div class="col-md-6">'+
+  '      <div class="input-group">'+
+  '        <span class="input-group-addon">单&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;位</span>'+
+  '        <input class="form-control" name="spr['+i+'][unit]" type="text">'+
+  '      </div> '+
   '        <div class="input-group">'+
   '          <span class="input-group-addon">溯源方式</span>'+
   '          <select class="form-control" name="spr['+i+'][track]">'+
@@ -232,8 +259,6 @@ $("#addBtn").click(function(){
   '            <option value="测试">测试</option>'+
   '          </select>'+
   '        </div> '+
-  '      </div>'+
-  '      <div class="col-md-6">'+
   '        <div class="input-group">'+
   '          <span class="input-group-addon">检定日期</span>'+
   '          <input class="form-control datetime" name="spr['+i+'][checkNxt]" readonly="" type="text">'+
