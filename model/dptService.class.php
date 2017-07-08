@@ -75,7 +75,7 @@ class dptService{
 		$sqlHelper=new sqlHelper();
 		$sql="SELECT depart as name,id,pid as pId
 			  from depart
-			  where comp=$comp";
+			  where comp in ($comp)";
 		$res=$sqlHelper->dql_arr($sql);
 		$sqlHelper->close_connect();
         $res=json_encode($res,JSON_UNESCAPED_UNICODE);

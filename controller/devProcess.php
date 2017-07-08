@@ -4,53 +4,24 @@ header("content-type:text/html;charset=utf-8");
 $devService=new devService();
 if (!empty($_REQUEST['flag'])) {
 	$flag=$_REQUEST['flag'];
-	// 添加子设备信息
-	if($flag=="addCld"){ 
-		$brand=$_POST['brand'];
-		$class=$_POST['class'];
-		$code=$_POST['code'];
-		$dateInstall=$_POST['dateInstall'];
-		$dateManu=$_POST['dateManu'];
-		$depart=$_POST['depart'];
-		$factory=$_POST['factory'];
-		$number=$_POST['number'];
-		$name=$_POST['name'];
-		$no=$_POST['no'];
-		$periodVali=$_POST['periodVali'];
-		$pid=$_POST['pid'];
-		$price=$_POST['price'];
-		$supplier=$_POST['supplier'];
-		$res=$devService->addCld($brand,$class,$code,$dateInstall,$dateManu,$depart,$factory,$number,$name,$no,$periodVali,$pid,$price,$supplier);
-		if ($res!=0) {
-			// 如果存在自定义属性参数
-			if (!empty($_POST['paraId'])) {
-				$paraId=$_POST['paraId'];
-				$devid=$devService->getId();
-				$res=$devService->addDetail($devid,$paraId);
-
-				if(!in_array(0,$res)){
-					// if (!empty($_POST['ext'])) {
-					// 	// 如果是从备件表那边转过来的，需要在gauge_spr_dtl添加在用设备id
-					// 	echo $devid;
-					// 	exit();
-					// }else{
-						// 如果属性参数表添加成功，但不是从仪表备件申报转过来的，直接跳到设备列表
-						header("location:../usingList.php");
-						exit();	
-					// }
-				}else{
-					echo "添加属性参数失败，请联系管理员。<br/>联系电话：0310-5178939。";
-					exit();
-				}
-			}else{
-				// 如果不存自定义属性参数直接返回设备列表
-				header("location:../usingList.php");
-				exit();
-			}
-		}else{
-			echo "添加设备基本信息失败，请联系管理员。<br/>联系电话：0310-5178939。";
-			exit();
-		} 
+	if($flag=="addDev"){ 
+		$name = $_POST['name'];
+		$spec = $_POST['spec'];
+		$codeManu = $_POST['codeManu'];
+		$accuracy = $_POST['accuracy'];
+		$status = $_POST['status'];
+		$scale = $_POST['scale'];
+		$certi = $_POST['certi'];
+		$unit = $_POST['unit'];
+		$checkDpt = $_POST['checkDpt'];
+		$outComp = $_POST['outComp'];
+		$checkNxt = $_POST['checkNxt'];
+		$valid = $_POST['valid'];
+		$circle = $_POST['circle'];
+		$track = $_POST['track'];
+		$depart = $_POST['depart'];
+		$pid = $_POST['pid'];
+		$path = $pid ? "-".$pid : $pid;
 	}
 
 	// 修改设备信息 made it
@@ -362,37 +333,6 @@ if (!empty($_REQUEST['flag'])) {
 		exit();
 	}
 
-	// // 主页搜索
-	// else if($flag=="findDev"){
-	// 	echo "hello";
-	// 	exit();
-	// 	if(empty($_POST['depart'])){
-	// 		$depart='';
-	// 	}else{
-	// 		$depart=$_POST['depart'];
-	// 	}
-
-	// 	if(empty($_POST['factory'])){
-	// 		$factory='';
-	// 	}else{
-	// 		$factory=$_POST['factory'];
-	// 	}
-
-	// 	if(empty($_POST['keyword'])){
-	// 		$keyword='';
-	// 	}else{
-	// 		$keyword=$_POST['keyword'];
-	// 	}
-
-	// 	if(empty($_POST['devid'])){
-	// 		$devid='';
-	// 	}else{
-	// 		$devid=$_POST['devid'];
-	// 	}
-
-	// 	$res=$devService->findDev($depart,$factory,$keyword,$devid);
-	// }
-
 	// 子设备的更换
 	else if($flag=="chgeDev"){
 		$info=$_POST['info'];
@@ -446,6 +386,13 @@ if (!empty($_REQUEST['flag'])) {
 		}
 		$res = $devService->checkCon($con,$id,$ext);
 		echo "$res";
+	}
+
+	else if ($flag == 'getLeaf') {
+		$pid = $_POST['id'];
+		$res = $devService->getLeaf($pid);
+		echo json_encode($res, JSON_UNESCAPED_UNICODE);
+		die;
 	}
 
 }

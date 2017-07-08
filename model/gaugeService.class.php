@@ -309,7 +309,7 @@ class gaugeService{
 	}
 
 	function installStyle(Array $res){
-	  $res['date'] =  
+	  $res['date'] =  date('Y-m-d');
 	  $objPHPExcel = new PHPExcel();
 	  // 列宽
 	  $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setWidth(14.6);
@@ -392,7 +392,7 @@ class gaugeService{
 
 	  // Redirect output to a client’s web browser (Excel5)
 	  header('Content-Type: application/vnd.ms-excel');
-	  header('Content-Disposition: attachment;filename='.$res['date']);
+	  header('Content-Disposition: attachment;filename='.$res['date'].".xls");
 	  header('Cache-Control: max-age=0');
 	  // If you're serving to IE 9, then the following may be needed
 	  header('Cache-Control: max-age=1');

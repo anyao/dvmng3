@@ -89,7 +89,7 @@ session_destroy();
 
         <div class="mastfoot">
           <div class="inner">
-            <p>© 河北普阳钢铁有限公司　2015-<?php echo date("Y")?></p>
+            <p>© 河北普阳钢铁有限公司　2015-<?=date("Y")?></p>
           </div>
         </div>
 

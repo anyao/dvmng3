@@ -1,62 +1,22 @@
 <?php 
 require_once "model/cookie.php";
+require_once 'model/devService.class.php';
+require_once 'model/dptService.class.php';
+require_once 'model/paging.class.php';
 checkValidate();
-$user=$_SESSION['user'];
-?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="普阳钢铁设备管理系统">
-<meta name="author" content="安瑶">
-<link rel="icon" href="img/favicon.ico">
+$user = $_SESSION['user'];
 
-<title>在用设备-设备管理系统</title>
+$devService = new devService();
+$dptService = new dptService();
 
-<!-- Bootstrap core CSS -->
-<style type="text/css">
-  thead > tr > th:nth-last-child(1),thead > tr > th:nth-last-child(2){
-      width: 3%;
-  }
-</style>
-<link rel="stylesheet" type="text/css" href="tp/datetimepicker.css">
-<link rel="stylesheet" href="bootstrap/css/treeview.css">
-<link rel="stylesheet" href="bootstrap/css/choose.css" media="all" type="text/css">
-<link href="bootstrap/css/bootstrap.css" rel="stylesheet">
+$paging=new paging();
+$paging->pageNow=1;
+$paging->pageSize=10;
 
-<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-<!--[if lt IE 9]>
-  <script src="bootstrap/js/html5shiv.js"></script>
-  <script src="bootstrap/js/respond.js"></script>
-<![endif]-->
-<script src="bootstrap/js/jquery.js"></script>
-<script src="bootstrap/js/bootstrap.js"></script>
-<script src="tp/bootstrap-datetimepicker.js"></script>
-<script src="tp/bootstrap-datetimepicker.zh-CN.js"></script>
-<script src="bootstrap/js/table-treeview.js"></script>
-<script src="bootstrap/js/jsonToTree.js"></script>
-<script src="bootstrap/js/bootstrap-suggest.js"></script>
-</head>
-<body role="document">
-<?php 
-  include "message.php";
-
-  require_once 'model/devService.class.php';
-  require_once 'model/paging.class.php';
-
-  
-  $paging=new paging();
-  $paging->pageNow=1;
-  $paging->pageSize=18;
-  $paging->gotoUrl="usingList.php";
-  if (!empty($_GET['pageNow'])) {
-    $paging->pageNow=$_GET['pageNow'];
-  }
-
-  $devService=new devService();
-
+$paging->gotoUrl="usingList.php";
+if (!empty($_GET['pageNow'])) {
+  $paging->pageNow=$_GET['pageNow'];
+}
 
 
 if (empty($_REQUEST['flag']) && empty($_GET['fct']) && empty($_GET['dpt'])) {
@@ -98,11 +58,70 @@ if (empty($_REQUEST['flag']) && empty($_GET['fct']) && empty($_GET['dpt'])) {
       $devid=$_POST['devid'];
     }
 
-    $devService->findDev($depart,$factory,$keyword,$devid,$office,$paging);
-  
+    $devService->findDev($depart,$factory,$keyword,$devid,$office,$paging); 
 }
+
 ?>
- <nav class="navbar navbar-inverse">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="普阳钢铁设备管理系统">
+<meta name="author" content="安瑶">
+<link rel="icon" href="img/favicon.ico">
+<title>在用设备-设备管理系统</title>
+<style type="text/css">
+  .col-md-2, #addForm .ztree-row{
+    overflow-y: scroll
+  }
+
+  .glyphicon-check, .glyphicon-unchecked, .glyphicon-resize-small, .glyphicon-resize-full{
+    display:inline !important;
+  }
+
+  #takeAll{
+    padding-left:0px;
+    padding-right: 0px;
+    width:5%;
+  }
+  #takeAll > span{
+    display: none;
+  }
+
+  .page-header{
+    margin-bottom: 0px !important
+  }
+
+  .page-header > h4 > span{
+    float: right;
+    padding-right: 25px
+  }
+
+  .glyphicon-plus{
+    cursor: pointer;
+  }
+
+  #addForm .row{
+    padding-left: 10px;
+    padding-right: 10px;
+    border-bottom: 1px solid #CCCCCC;
+  }
+
+  #addForm .input-group{
+    margin: 10px 0px;
+  }
+
+  div[comp=outComp]{
+    display: none;
+  }
+</style>
+<?php include 'buyVendor.php'; ?>
+</head>
+<body role="document">
+<?php include "message.php";?>
+<nav class="navbar navbar-inverse">
   <div class="container">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -115,27 +134,13 @@ if (empty($_REQUEST['flag']) && empty($_GET['fct']) && empty($_GET['dpt'])) {
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-        <li><a href="homePage.php">首页</a></li>
-        <li class="dropdown">
-          <a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown" role="button">设备购置 <span class="caret"></span></a>
-          <ul class="dropdown-menu">
-            <li><a href="buyGauge.php">仪表备件申报</a></li>
-          </ul>
-        </li>
+        <li><a href="<?= (in_array(7, $_SESSION['funcid']) || $_SESSION['user'] == 'admin') ? "buyCheck.php" : "buyInstall.php"; ?>">备件申报</a></li>
         <li class="dropdown active">
           <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">设备档案 <span class="caret"></span></a>
           <ul class="dropdown-menu">
             <li><a href="usingList.php">在用设备</a></li>
-            <?php if (!in_array(4,$_SESSION['funcid'])  && $_SESSION['user'] != 'admin') {
-                        echo "<li role='separator' class='divider'></li><li>";
-                      } 
-                ?>
-                <li><a href="spareList.php">备品备件</a></li>
-                
-                <?php if (in_array(4,$_SESSION['funcid']) || $_SESSION['user'] == 'admin') {
-                        echo "<li role='separator' class='divider'></li><li><a href='devPara.php'>属性参数</a></li>";
-                      } 
-                ?>
+            <li><a href="spareList.php">备品备件</a></li>
+            <li style="display: <?= (in_array(4, $_SESSION['funcid'])  && $_SESSION['user'] != 'admin') ? "none" : "inline"?>"><a href='devPara.php' >属性参数</a></li>
           </ul>
         </li>
         <li class="dropdown">
@@ -143,7 +148,6 @@ if (empty($_REQUEST['flag']) && empty($_GET['fct']) && empty($_GET['dpt'])) {
           <ul class="dropdown-menu">
             <li><a href="inspStd.php">巡检标准</a></li>
             <li><a href="inspMis.php">巡检计划</a></li>
-            <li class="divider">&nbsp;</li>
             <li><a href="inspList.php">巡检记录</a></li>
           </ul>
         </li>
@@ -152,496 +156,200 @@ if (empty($_REQUEST['flag']) && empty($_GET['fct']) && empty($_GET['dpt'])) {
           <ul class="dropdown-menu">
             <li><a href="repPlan.php">检修计划</a></li>
             <li><a href="repMis.php">维修/保养任务</a></li>
-            <li class="divider">&nbsp;</li>
             <li><a href="repList.php">维修记录</a></li>
           </ul>
         </li>
       </ul>
        <ul class="nav navbar-nav navbar-right">
-        <?php if (in_array(10,$_SESSION['funcid']) || $_SESSION['user'] == 'admin') {
-                      echo "<li><a href='dptUser.php'>用户管理</a></li>";
-                    } 
-             ?>
-       
+        <li style="display: <?=(!in_array(10, $_SESSION['funcid']) && $_SESSION['user'] != 'admin') ? "none" : "inline"?>"><a href='dptUser.php'>用户管理</a></li>
         <li class="dropdown">
-        <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button"><?php 
-              if (empty($user)) {
-                echo "用户信息";
-              }else{
-                echo "$user";
-              } 
-            ?> <span class="caret"></span></a>
+        <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button"><?=$user?> <span class="caret"></span></a>
           <ul class="dropdown-menu">
             <li><a href="javascript:chgPwd();">更改密码</a></li>
-            <li class="divider">&nbsp;</li>
             <li><a href="login.php">注销</a></li>
           </ul>
-          </li>
+        </li>
       </ul>
-
     </div><!--/.nav-collapse -->
   </div>
 </nav>
+
 <div class="container">
   <div class="row">
-      <div class="col-md-10">
-            <div class="page-header">
-                <h4>　所有在用设备</h4>
-            </div>
-    <table class="table table-striped table-hover">
-        <thead><tr>
-            <th>　</th><th>编号</th><th>设备名称</th><th>运行状态</th><th>运行天数</th><th>所在分厂部门</th>
-            <th>上次巡检</th><th>上次维修</th>
-            <th><span style='cursor: pointer;' class="glyphicon glyphicon-import"></span></th>
-            <th>&nbsp;&nbsp;&nbsp;&nbsp;</th>
-          </tr></thead>
-        <tbody class="tablebody">  
-            <?php
-              for ($i=0; $i < count($paging->res_array); $i++) { 
-                $row=$paging->res_array[$i];
-                $son=$devService->IfHasSon($row['id']);
-                $timediff = $devService->timediff($row['dateInstall'],$row['dateEnd']);
-                if ($row['class'] == '仪表') {
-                  $info="<tr>
-                          <td></td>
-                          <td>{$row['code']}</td>
-                          <td><a href='using.php?id={$row['id']}'>{$row['name']}</a></td>
-                          <td>{$row['state']}</td>
-                          <td>{$timediff[0]}{$timediff[1]}</td>
-                          <td>{$row['factory']}{$row['depart']}</td>
-                          <td>{$row['insp']}</td><td>{$row['rep']}</td>
-                          
-                          <td></td>
-                          <td><span class='glyphicon glyphicon-trash' id='{$row['id']}'></span></td>
-                        </tr>";
-                }
-                else if($son['count(id)']==0){
-                  $info="<tr>
-                          <td></td>
-                          <td>{$row['code']}</td>
-                          <td><a href='using.php?id={$row['id']}'>{$row['name']}</a></td>
-                          <td>{$row['state']}</td>
-                          <td>{$timediff[0]}{$timediff[1]}</td>
-                          <td>{$row['factory']}{$row['depart']}</td>
-                          <td>{$row['insp']}</td><td>{$row['rep']}</td>
-                          
-                          <td><span class='glyphicon glyphicon-import' id='{$row['id']}'></span></td>
-                          <td><span class='glyphicon glyphicon-trash' id='{$row['id']}'></span></td>
-                        </tr>";
-                }else{
-                  $info="<tr>
-                          <td><a name='openChild' class='glyphicon glyphicon-plus' value='{$row['id']}'></a></td>
-                          <td>{$row['code']}</td>
-                          <td><a href='using.php?id={$row['id']}'>{$row['name']}</a></td>
-                          <td>{$row['state']}</td>
-                          <td>{$timediff[0]}{$timediff[1]}</td>
-                          <td>{$row['factory']}{$row['depart']}</td>
-                          <td>{$row['insp']}</td><td>{$row['rep']}</td>
-                          
-                          <td><span class='glyphicon glyphicon-import' id='{$row['id']}'></span></td>
-                          <td><span class='glyphicon glyphicon-trash' id='{$row['id']}'></span></td>
-                        </tr>";
-                  }
-                echo $info;
-              }
-            ?>  
-            </tbody></table>
-            <div class='page-count'><?php echo $paging->navi?></div>                
+    <div class="col-md-10">
+      <div class="page-header">
+          <h4>　所有在用设备
+            <span class="glyphicon glyphicon-search"></span>
+          </h4>
       </div>
-      <div class="col-md-2">
-      <div class="tree">
-      <!-- <li><span>一期制氧</span>—<a href="">设备</a> <a href="">电气</a> <a href="">仪器</a></li> -->
-      <?php 
-        $dptNavi=$devService->departNavi();
-        $addHtml="<ul>";
-        for ($k=1; $k <= count($dptNavi); $k++) {
-          if ($k==1) {
-            $addHtml.="<li class='comp'><span> 普阳钢铁有限公司 </span><ul>";
-          }else if($k==2){
-            $addHtml.="<li class='comp'><span> 中普(邯郸)钢铁有限公司 </span><ul>";
-          }else if ($k==3) {
-            $addHtml.="<li class='comp'><span> 武安广普焦化有限公司 </span><ul>";
-          }
-
-          for ($i=0; $i < count($dptNavi[$k]); $i++) { 
-            $addHtml.="<li><span class='badge' fct='{$dptNavi[$k][$i]['id']}'>{$dptNavi[$k][$i]['name']}
-                           <a href=\"javascript:void(0);\" class='glyphicon glyphicon-map-marker'></a></span><ul>";
-            if (!empty($dptNavi[$k][$i]['childrens'])) {  
-              for ($j=0; $j < count($dptNavi[$k][$i]['childrens']); $j++) { 
-                $addHtml.="<li dpt='{$dptNavi[$k][$i]['childrens'][$j]['id']}'><a href=\"javascript:getDevByDpt({$dptNavi[$k][$i]['childrens'][$j]['id']});\"><span>{$dptNavi[$k][$i]['childrens'][$j]['name']}</span></a></li>";
-              }
+      <table class="table table-striped table-hover">
+        <thead><tr>
+          <th id="takeAll">
+            <span class="glyphicon glyphicon-download-alt"></span> 
+            <span class="glyphicon glyphicon-edit" style="margin-left: 5px"></span>
+          </th>
+          <th>出厂编号</th><th>设备名称</th><th>规格型号</th><th>单位</th>
+          <th>所在分厂部门</th><th>状态</th><th>安装地点</th>
+          <th><a class="glyphicon glyphicon-plus" href="javascript: addDev('root');" ></a></th>
+        </tr></thead>
+        <tbody class="tablebody">  
+        <?php
+          for ($i=0; $i < count($paging->res_array); $i++) { 
+            $row=$paging->res_array[$i]; 
+            if ($row['unit'] == "套") {
+              $status = "<td></td>";
+              $leaf = "<td><a href='javascript:void(0);' onclick=\"getLeaf(this, {$row['id']});\" class='glyphicon glyphicon-resize-small'></a></td>";
+              $addLeaf = "<td><a class='glyphicon glyphicon-plus' href=\"javascript:addDev({$row['id']})\"></a></td>";
+            }else{
+              $status = "<td>{$row['status']}</td>";
+              $leaf = "<td><span class='glyphicon glyphicon-unchecked chosen' chosen='{$row['id']}'></span></td>";
+              $addLeaf = "<td></td>";
             }
-            $addHtml.="</ul></li>";
+            echo "<tr>
+              {$leaf}
+              <td>{$row['codeManu']}</td>
+              <td><a href='using.php?id={$row['id']}'>{$row['name']}</a></td>
+              <td>{$row['spec']}</td>
+              <td>{$row['unit']}</td>
+              <td>{$row['factory']}{$row['depart']}</td>
+              {$status}
+              <td>{$row['loc']}</td>
+              {$addLeaf}
+            </tr>";
           }
-          
-          $addHtml.="</ul></li>";
-        }
-        $addHtml.="</ul>";
-        echo $addHtml;
-       ?>
-         
-       </div>
-
+        ?>  
+        </tbody>
+      </table>
+          <div class='page-count'><?= $paging->navi?></div>                
+    </div>
+      <div class="col-md-2">
+        <div class="row ztree-row">
+            <ul id="tree" class="ztree"></ul>
+        </div>
       </div> 
   </div>
 </div>
 
-<!-- 添加父设备 -->
-<form class="form-horizontal" action="controller/devProcess.php?flag=addPrt" method="post">
-  <div class="modal fade" id="prtAdd" role="dialog" aria-labelledby="myModalLabel">
-    <div class="modal-dialog modal-lg" role="document">
-      <div class="modal-content">
+<!-- 根设备 -->
+<div class="modal fade" id="addForm">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <form class="form-horizontal" action="controller/devProcess.php" method="post">
         <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title" id="myModalLabel">添加父设备</h4>
-        </div>
-        <div class="modal-body">
-         <div class="row">
-            <div class="col-md-6 add-left">
-              <div class="form-group">
-                <label class="col-sm-4 control-label">设备编号：</label>
-                <div class="col-sm-8">
-                  <input type="text" class="form-control" name="code" placeholder="请输入新设备编号">
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="col-sm-4 control-label">设备名称：</label>
-                <div class="col-sm-8">
-                  <input type="text" class="form-control notNull" name="name" placeholder="请输入新设备名称(不可为空)">
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="col-sm-4 control-label">设备型号：</label>
-                <div class="col-sm-8">
-                  <input type="text" class="form-control" name="no" placeholder="请输入新设备型号">
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="col-sm-4 control-label">所属品牌：</label>
-                <div class="col-sm-8">
-                  <input type="text" class="form-control" name="brand" placeholder="请输入新设备品牌">
-                </div>
-              </div>
-               <div class="form-group">
-                <label class="col-sm-4 control-label">所属类别：</label>
-                <div class="col-sm-8">
-                  <div class="input-group">
-                  <input type="text" name="class" class="form-control notNull" placeholder="请搜索要设备类别">
-                  <div class="input-group-btn">
-                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                    <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-right" role="menu">
-                    </ul>
-                  </div>
-                  <!-- /btn-group -->
-                </div>
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="col-sm-4 control-label">购入价格：</label>
-                <div class="col-sm-8">
-                  <input type="text" class="form-control" name="price" placeholder="请输入新设备所购价格">
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label class="col-sm-4 control-label">所在分厂：</label>
-                <div class="col-sm-8">
-                  <div class="input-group">
-                  <input type="text" name="nameFct" class="form-control notNull" placeholder="请搜索所在分厂(不可为空)">
-                  <div class="input-group-btn">
-                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                    <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-right" role="menu">
-                    </ul>
-                  </div>
-                  <!-- /btn-group -->
-                </div>
-                </div>
-              </div>
-
-            </div>
-            <div class="col-md-6 add-right">
-              <div class="form-group">
-                <label class="col-sm-4 control-label">出厂日期：</label>
-                <div class="col-sm-8">
-                  <input type="text" class="form-control datetime" name="dateManu" placeholder="请选择出厂日期" readonly>
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="col-sm-4 control-label">安装日期：</label>
-                <div class="col-sm-8">
-                  <input type="text" class="form-control datetime notNull" name="dateInstall" placeholder="请选择安装日期(不可为空)" readonly>
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="col-sm-4 control-label">有效期止：</label>
-                <div class="col-sm-8">
-                  <input type="text" class="form-control datetime" name="periodVali" placeholder="请选择有效期止" readonly>
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="col-sm-4 control-label">供应商：</label>
-                <div class="col-sm-8">
-                  <input type="text" class="form-control" name="supplier" placeholder="请输入新设备的供应源">
-                </div>
-              </div>
-            
-               <div class="form-group">
-                <label class="col-sm-4 control-label">所在部门：</label>
-                <div class="col-sm-8">
-                  <div class="input-group">
-                  <input type="text" name="nameDepart" class="form-control notNull" placeholder="请搜索所在部门" readonly="readonly">
-                  <div class="input-group-btn">
-                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                    <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-right" role="menu">
-                    </ul>
-                  </div>
-                  <!-- /btn-group -->
-                </div>
-                </div>
-              </div>
-              
-
-              <div class='form-group' >
-                <label class='col-sm-4 control-label'>责任人员：</label>
-                  <div class='col-sm-8'>
-                <div class='input-group'>
-                  <input type="text" class="form-control" name="theLiable" placeholder="负责人员(不可为空)">
-                  <div class='input-group-btn'>
-                    <button type='button' class='btn btn-default dropdown-toggle' data-toggle='dropdown'>
-                      <span class='caret'></span>
-                    </button>
-                    <ul class='dropdown-menu dropdown-menu-right' role='menu'>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-              </div>
-
-              <div class="form-group">
-                <label class="col-sm-4 control-label">责任人列表：</label>
-                <div class="col-sm-8" id="forLiable" style="padding-top:7px">
-                </div>
-              </div>
-
-
-            </div>
-          </div>
-          
-        </div>
-        <div class="modal-footer">
-          <input type="hidden" name="depart">
-          <input type="hidden" name="factory">
-          <button type="submit" class="btn btn-primary" id="addPrt">确定添加</button>
-          <button type="button" class="btn btn-danger" data-dismiss="modal">取消</button>
-        </div>
-      </div>
-    </div>
-  </div>  
-</form> 
-
-<!-- 添加新设备弹出框 -->
-<form class="form-horizontal" action="controller/devProcess.php" method="post" id="formCld">
-  <div class="modal fade" id="cldAdd" role="dialog" >
-    <div class="modal-dialog modal-lg" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title" id="myModalLabel">添加新设备</h4>
+          <button class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span></button>
+          <h4 class="modal-title" id="myModalLabel">新设备</h4>
         </div>
         <div class="modal-body">
           <div class="row">
-            <div class="col-md-6">
-              <div class="form-group">
-                <label class="col-sm-3 control-label">设备编号：</label>
-                <div class="col-sm-8">
-                  <input type="text" class="form-control" name="code" placeholder="请输入新设备编号">
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label class="col-sm-3 control-label ">设备名称：</label>
-                <div class="col-sm-8">
-                  <input type="text" class="form-control notNull" name="name" placeholder="请输入新设备名称(不可为空)">
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label class="col-sm-3 control-label">设备型号：</label>
-                <div class="col-sm-8">
-                  <input type="text" class="form-control notNull" name="no" placeholder="请输入新设备型号(不可为空)">
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label class="col-sm-3 control-label">所属品牌：</label>
-                <div class="col-sm-8">
-                  <input type="text" class="form-control" name="brand" placeholder="请输入新设备品牌">
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6">
-               <div class="form-group">
-                <label class="col-sm-3 control-label">所属类别：</label>
-                <div class="col-sm-8">
-                  <div class="input-group">
-                  <input type="text" name="class" class="form-control notNull" placeholder="请搜索要设备类别">
-                  <div class="input-group-btn">
-                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                    <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-right" role="menu">
-                    </ul>
-                  </div>
-                  <!-- /btn-group -->
-                </div>
-                </div>
-              </div>
-            </div>
-            
-            <div class="col-md-6">
-              <div class="form-group">
-                <label class="col-sm-3 control-label">购入价格：</label>
-                <div class="col-sm-8">
-                  <input type="text" class="form-control" name="price" placeholder="请输入新设备所购价格">
-                </div>
-              </div>
-            </div>
-            
-            <div class="col-md-6">
-              <div class="form-group">
-                <label class="col-sm-3 control-label">出厂日期：</label>
-                <div class="col-sm-8">
-                  <input type="text" class="form-control datetime" name="dateManu" placeholder="请选择出厂日期" readonly>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label class="col-sm-3 control-label">安装日期：</label>
-                <div class="col-sm-8">
-                  <input type="text" class="form-control datetime notNull" name="dateInstall" placeholder="请选择安装日期(不可为空)" readonly>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label class="col-sm-3 control-label">有效期止：</label>
-                <div class="col-sm-8">
-                  <input type="text" class="form-control datetime" name="periodVali" placeholder="请选择有效期止" readonly>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label class="col-sm-3 control-label">供应商：</label>
-                <div class="col-sm-8">
-                  <input type="text" class="form-control" name="supplier" placeholder="请输入新设备的供应源">
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label class="col-sm-3 control-label">数量：</label>
-                <div class="col-sm-8">
-                  <input type="text" class="form-control" name="number" placeholder="请输入该设备具体数量">
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6">
-         <div class="form-group">
-            <label class="col-sm-3 control-label">所在部门：</label>
-            <div class="col-sm-8">
+            <div class="col-md-4">
               <div class="input-group">
-              <input type="text" name="nameDepart" class="form-control notNull" placeholder="请选择所在部门" readonly="readonly">
-              <div class="input-group-btn">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-right" role="menu">
-                </ul>
-              </div>
-              <!-- /btn-group -->
-            </div>
-            </div>
-          </div>
-        </div>
-          <div class="col-md-6">
-           <div class="form-group">
-            <label class="col-sm-3 control-label">所在分厂：</label>
-            <div class="col-sm-8">
+                <span class="input-group-addon">备件名称</span>
+                <input class="form-control" name="name" type="text">
+              </div> 
               <div class="input-group">
-              <input type="text" name="nameFct" class="form-control notNull" placeholder="请搜索所在分厂(不可为空)">
-              <div class="input-group-btn">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-right" role="menu">
-                </ul>
+                <span class="input-group-addon">规格型号</span>
+                <input class="form-control" name="spec" type="text">
+              </div> 
+              <div class="input-group">
+                <span class="input-group-addon">出厂编号</span>
+                <input class="form-control" name="codeManu" type="text">
+              </div> 
+              <div class="input-group">
+                <span class="input-group-addon">精度等级</span>
+                <input class="form-control" name="accuracy" type="text">
+              </div> 
+              <div class="input-group">
+                <span class="input-group-addon">运行状态</span>
+                <select class="form-control" name="status">
+                  <option value="4">在用</option>
+                  <option value="5">封存</option>
+                </select>
               </div>
-              <!-- /btn-group -->
             </div>
+            <div class="col-md-4">
+              <div class="input-group">
+                <span class="input-group-addon">量　　程</span>
+                <input class="form-control" name="scale" type="text">
+              </div> 
+              <div class="input-group">
+                <span class="input-group-addon">证书结论</span>
+                <input class="form-control" name="certi" type="text">
+              </div>  
+              <div class="input-group">
+                <span class="input-group-addon">单&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;位</span>
+                <input class="form-control" name="unit" type="text">
+              </div> 
+              <div class="input-group">
+                <span class="input-group-addon">检定单位</span>
+                <select class="form-control" name="checkDpt" dpt="checkDpt">
+                  <option value="199">计量室</option>
+                  <option value="<?= $_SESSION['udptid']?>">使用部门</option>
+                  <option value="isOut">外检单位</option>
+                </select>
+              </div>
+              <div class="input-group" comp="outComp">
+                <span class="input-group-addon">外检公司</span>
+                <input class="form-control" name="outComp" type="text">
+              </div> 
+            </div>
+            <div class="col-md-4">
+              <div class="input-group">
+                <span class="input-group-addon">检定日期</span>
+                <input class="form-control datetime" name="checkNxt" readonly="" type="text">
+              </div>  
+              <div class="input-group">
+                <span class="input-group-addon">有效日期</span>
+                <input class="form-control datetime" name="valid" readonly="" type="text">
+              </div>
+              <div class="input-group">
+                <span class="input-group-addon">检定周期</span>
+                <input class="form-control" name="circle" value="6" readonly="readonly" type="text">
+                <span class="input-group-btn">
+                  <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-minus"></span></button>
+                  <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-plus"></span></button>
+                  <button class="btn btn-default" type="button">月</button>
+                </span>
+              </div> 
+              <div class="input-group">
+                <span class="input-group-addon">溯源方式</span>
+                <select class="form-control" name="track">
+                  <option value="检定">检定</option>
+                  <option value="校准">校准</option>
+                  <option value="测试">测试</option>
+                </select>
+              </div>
+            </div>    
+          </div>
+          <div class="row ztree-row">
+            <div class="col-md-4">
+              <ul id="tree-py" class="ztree"></ul>
+            </div>
+            <div class="col-md-4">
+              <ul id="tree-zp" class="ztree"></ul>
+            </div>
+            <div class="col-md-4">
+              <ul id="tree-gp" class="ztree"></ul>
             </div>
           </div>
-        </div>
-        
-
-          </div>
-          <div class="row" id="cldPara">
-            
-          </div> 
         </div>
         <div class="modal-footer">
-        <input type="hidden" name="depart">
-        <input type="hidden" name="factory">
+          <input type="hidden" name="depart">
           <input type="hidden" name="pid">
-          <input type="hidden" name="flag" value="addCld">
-          <button class="btn btn-primary" id="addCld">确定添加</button>
-          <button class="btn btn-danger" data-dismiss="modal">取消</button>
-        </div>
-      </div>
-    </div>
-  </div>  
-</form> 
-
-
-
-
-<!-- 删除配置柜提示框 -->
-<div class="modal fade"  id="devDel">
-  <div class="modal-dialog modal-sm" role="document">
-    <div class="modal-content">
-         <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
-         </div>
-         <div class="modal-body">
-          <br>确定要删除该设备记录吗？<br/><br/>
-         </div>
-         <div class="modal-footer">  
-          <button type="button" class="btn btn-danger" id="del">删除</button>
-          <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
-        </div>
+          <input type="hidden" name="flag" value="addDev">
+          <button class="btn btn-primary" id="yesAdd">确定</button>
+      </form> 
     </div>
   </div>
-</div>
+</div>  
 
-<!-- 删除失败其下有新元素提示框 -->
-<div class="modal fade"  id="failDel" >
+<div class="modal fade"  id="failRadio" >
   <div class="modal-dialog modal-sm" role="document">
     <div class="modal-content">
          <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
          </div>
          <div class="modal-body"><br/>
-            <div class="loginModal">删除失败，请删除其下子设备后再操作。</div><br/>
+            <div class="loginModal">领取部门必须选择唯一。</div><br/>
          </div>
          <div class="modal-footer">  
           <button class="btn btn-primary" data-dismiss="modal">关闭</button>
@@ -649,44 +357,6 @@ if (empty($_REQUEST['flag']) && empty($_GET['fct']) && empty($_GET['dpt'])) {
     </div>
   </div>
 </div> 
-
-<!-- 设备类别重新选择提示框 -->
-<div class="modal fade"  id="failParaInfo" >
-  <div class="modal-dialog modal-sm" role="document">
-    <div class="modal-content">
-         <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
-         </div>
-         <div class="modal-body"><br/>
-            <div class="loginModal">请重新选择设备类别(需从下拉菜单中选择)。</div><br/>
-         </div>
-         <div class="modal-footer">  
-          <button class="btn btn-primary" data-dismiss="modal">关闭</button>
-        </div>
-    </div>
-  </div>
-</div> 
-
-
-<!-- 确认更换提示框 -->
-<div class='modal fade' id="sonCnfr">
-  <div class='modal-dialog modal-sm' role='document' style='margin-top: 70px'>
-    <div class='modal-content'>
-      <div class='modal-header'>
-        <button type='button' class='close' data-dismiss='modal' aria-label='Close' style='margin-top:-10px;'>
-          <span aria-hidden='true'>&times;</span>
-        </button>
-      </div>
-      <div class='modal-body'>
-        <br/>若更换,其下新设备都将停用。<br/>确定要更换设备吗？<br/><br/>
-      </div>
-      <div class='modal-footer'>  
-          <button class='btn btn-danger' id="sure">确定</button>
-        <button  class='btn btn-primary' data-dismiss='modal'>关闭</button>
-      </div>
-    </div>
-  </div>
-</div>
 
 <!-- 添加不完整提示框 -->
 <div class="modal fade"  id="failAdd">
@@ -705,26 +375,151 @@ if (empty($_REQUEST['flag']) && empty($_GET['fct']) && empty($_GET['dpt'])) {
   </div>
 </div> 
 
-<!-- 权限警告 -->
-<div class="modal fade"  id="failAuth">
-  <div class="modal-dialog modal-sm" role="document" >
-    <div class="modal-content">
-         <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
-         </div>
-         <div class="modal-body"><br/>
-            <div class="loginModal">您无权限进行此操作。</div><br/>
-         </div>
-         <div class="modal-footer">  
-          <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
-        </div>
-    </div>
-  </div>
-</div> 
-
+<?php include 'devJs.php';?>
 <script type="text/javascript">
-var session = <?php echo json_encode($_SESSION,JSON_UNESCAPED_UNICODE); ?>;
-var user = session.user;
+// 树形部门结构基础配置
+var setting = {
+    view: {
+        selectedMulti: false,
+        showIcon: false
+    },
+    check: {
+        enable: true,
+        chkStyle:"radio",
+        radioType:'all',
+    },
+    data: {
+        simpleData: {
+            enable: true
+        }
+    }
+};
+
+var zTree = <?= $dptService->getDptForRole('1,2,3') ?>,
+dptTree = {
+  py: <?= $dptService->getDptForRole(1) ?>, 
+  zp: <?= $dptService->getDptForRole(2) ?>, 
+  gp: <?= $dptService->getDptForRole(3) ?>
+};
+
+// 外检input框显示
+$("#addForm").on('click', 'select[dpt=checkDpt]', function() {
+  if ($(this).val() == "isOut") 
+    $(this).parents(".input-group").next().css("display", "table");
+  else
+    $(this).parents(".input-group").next().hide();
+    $("div[comp=outComp]");
+});
+
+// 检定周期加
+$("#addForm .glyphicon-plus").parents("button").click(function(){
+  var $circle = $(this).parents(".input-group").find("input[type=text]");
+  var num = parseInt($circle.val());
+  num++;
+  $circle.val(num);
+});
+
+// 检定周期减
+$("#addForm .glyphicon-minus").parents("button").click(function(){
+  var $circle = $(this).parents(".input-group").find("input[type=text]");
+  var num = parseInt($circle.val());
+  if (num != 1) {
+    num--;
+    $circle.val(num);
+  }
+});
+
+// 确认添加
+$("#yesAdd").click(function(){
+  var allow_submit = true;
+  var nodesPy = treePy.getCheckedNodes(true);
+  var nodesZp = treeZp.getCheckedNodes(true);
+  var nodesGp = treeGp.getCheckedNodes(true);
+  var len = nodesPy.length + nodesZp.length + nodesGp.length;
+  if (len > 1 || len == 0) {
+    allow_submit = false;
+    $("#failRadio").modal({
+     keyboard:true
+    });
+  }else
+    var nodes = $.extend(nodesPy,nodesZp,nodesGp);
+  // 领取部门编号
+  $("#addForm input[name=depart]").val(nodes[0].id);
+  return allow_submit;
+});
+
+// 添加设备
+function addDev(path){
+  $.fn.zTree.init($("#tree-py"), setting, dptTree.py);
+  $.fn.zTree.init($("#tree-zp"), setting, dptTree.zp);
+  $.fn.zTree.init($("#tree-gp"), setting, dptTree.gp);
+  treePy = $.fn.zTree.getZTreeObj("tree-py");
+  treeZp = $.fn.zTree.getZTreeObj("tree-zp");
+  treeGp = $.fn.zTree.getZTreeObj("tree-gp");
+  $("#addForm .ztree-row").height(0.4 * $(window).height());
+
+  if (path == 'root') 
+    $("#addForm input[name=pid]").val(null);
+  else
+    $("#addForm input[name=pid]").val(path);
+
+  $('#addForm').modal({
+    keyboard: true
+  });  
+}
+
+$(function(){
+  $(".col-md-2").height(0.9 * $(window).height());
+  $.fn.zTree.init($("#tree"), setting, zTree);
+  tree = $.fn.zTree.getZTreeObj("tree");
+});
+
+// 多选
+$(".tablebody").on("click","span.chosen",function checked(){
+    $(this).toggleClass("glyphicon glyphicon-unchecked chosen");
+    $(this).toggleClass("glyphicon glyphicon-check chosen");
+    var isChosen = $(".glyphicon-check").length;
+    if (isChosen != 0) {
+      $("#takeAll span").show();
+    }else{
+      $("#takeAll span").hide();
+    }
+});
+
+// 成套设备展开
+function getLeaf(obj,id){
+    var flagIcon=$(obj).attr("class");
+    var $rootTr=$(obj).parents("tr");
+    // 列表是否未展开
+    if (flagIcon=="glyphicon glyphicon-resize-small") {
+      // 展开
+      $(obj).removeClass(flagIcon).addClass("glyphicon glyphicon-resize-full");
+      $.post("controller/devProcess.php",{
+        flag: 'getLeaf',
+        id: id
+      },function(data){
+        var addHtml = "";
+        for (var i = 0; i < data.length; i++){
+          addHtml += 
+            "<tr class='open "+data[i].id+" open-"+id+"' style='border: 1px solid #ddd'>"+
+            "  <td><span class='glyphicon glyphicon-unchecked chosen' chosen='"+data[i].id+"'></span></td>"+
+            "  <td>"+data[i].codeManu+"</td>"+
+            "  <td><a href='using.php?id="+data[i].id+"'>"+data[i].name+"</a></td>"+
+            "  <td>"+data[i].spec+"</td>"+
+            "  <td>"+data[i].unit+"</td>"+
+            "  <td>"+data[i].factory+data[i].depart+"</td>"+
+            "  <td>"+data[i].status+"</td>"+
+            "  <td>"+data[i].loc+"</td><td></td>"+
+            "</tr>";
+        }
+        $rootTr.after(addHtml);
+      },'json');
+    }else{
+      $(obj).removeClass(flagIcon).addClass("glyphicon glyphicon-resize-small");
+      $(".open-"+id).detach();
+    }
+}
+
 // 插入根设备弹出框
 $("th > .glyphicon-import").click(function(){
   var allow = $.inArray('1',session.funcid);
@@ -742,70 +537,18 @@ $("th > .glyphicon-import").click(function(){
   }
 })
 
-    function getDevByDpt(id){
-      location.href="usingList.php?dpt="+id;
-    }
+//所有弹出框
+$(function () 
+  { $("[data-toggle='popover']").popover();
+});
 
-      //所有弹出框
-    $(function () 
-      { $("[data-toggle='popover']").popover();
-      });
-
-    //时间选择器
-      $(".datetime").datetimepicker({
-        format: 'yyyy-mm-dd', language: "zh-CN", autoclose: true,minView:2,
-      });
+//时间选择器
+$(".datetime").datetimepicker({
+  format: 'yyyy-mm-dd', language: "zh-CN", autoclose: true,minView:2,
+});
 
 
-    //树形导航
-    $(function () {
-      $('.tree li:has(ul)').addClass('parent_li');
-      // 设置部门初始状态为折叠不显示
-      $('.tree .badge').parent().find(' > ul > li').hide();
-      $(".comp:eq(1)").find(' > ul > li').hide();
 
-      // 如果根据分厂选择设备列表
-      var idFct="<?php if (!empty($idFct)) {echo "$idFct";}else{echo " ";}?>";
-      if (idFct!=" ") {
-        var $fctChos=$(".tree li.parent_li > span[fct="+idFct+"]");
-        var $kids=$fctChos.parent('li.parent_li').find(' > ul > li');
-        var $bros=$fctChos.parent().siblings();
-        var $comp=$fctChos.parents(".comp");
-        // $comp.css("background","pink");
-        $comp.siblings().find(' > ul > li').hide();
-        $comp.find(' > ul > li').show();
-        $kids.show();
-        $bros.hide();
-      }
-
-      // 根据部门选择设备列表
-      var idDpt="<?php if (!empty($idDpt)) {echo "$idDpt";}else{echo "n";}?>";
-      if (idDpt!="n") {
-        var $dptChos=$("li[dpt="+idDpt+"]");
-        var $comp=$dptChos.parents(".comp");
-
-        var $fctBros=$dptChos.parents("li.parent_li").siblings();
-        var $bros=$dptChos.parents("li.parent_li").find(' > ul > li');
-        $comp.siblings().find(' > ul > li').hide();
-        $comp.find(' > ul > li').show();
-        $fctBros.hide();
-        $bros.show();
-      }
-
-      $('.tree li.parent_li > span').on('click', function (e) {
-          var children = $(this).parent('li.parent_li').find(' > ul > li');
-          if (children.is(":visible")) {
-               $(this).parent().siblings().show();
-              children.hide('fast');
-              $(this).attr('title', 'Expand this branch').find(' > i').addClass('icon-plus-sign').removeClass('icon-minus-sign');
-          } else {
-              $(this).parent().siblings().hide();
-              children.show('fast');
-              $(this).attr('title', 'Collapse this branch').find(' > i').addClass('icon-minus-sign').removeClass('icon-plus-sign');
-          }
-          e.stopPropagation();
-      });
-    });
 
     // 分厂设备列表
     $(".glyphicon-map-marker").click(function(){

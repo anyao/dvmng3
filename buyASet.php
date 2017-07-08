@@ -210,8 +210,6 @@ $uid=$_SESSION['uid'];
 </div>
 
 <script type="text/javascript">
-
-
 var i = 2;
 $("#addBtn").click(function(){
   var $addHtml = 

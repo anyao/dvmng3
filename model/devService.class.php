@@ -16,26 +16,45 @@ class devService{
 
 	function getPaging($paging){	
 		$sqlHelper=new sqlHelper();
-		$sql1="SELECT device.id,code,name,state,insp,rep,dateInstall,dateEnd,class,depart.depart,factory.depart as factory
-			   from device 
-			   left join 
-			   (select time as insp,devid from insplist where id in (select max(id) from insplist group by devid)) as insptime
-			   on device.id=insptime.devid
-			   left join 
-			   (select time as rep,devid from replist where id in (select max(id) from replist group by devid)) as replist
-			   on device.id=replist.devid
-			   left join depart 
-			   on device.depart=depart.id
+		$sql1="SELECT buy.id,codeManu,name,spec,status.status,depart.depart,factory.depart factory,loc,unit
+			   from buy
+			   left join depart
+			   on depart.id=buy.takeDpt
 			   left join depart factory
-			   on factory.id=depart.fid
-			   where device.pid=0 
-			   and state in ('正常','停用')
-			   and depart.id $this->authDpt
-			   order by device.id
+			   on depart.fid=factory.id
+			   left join status
+			   on status.id=buy.status
+			   where(
+				(unit != '套' and buy.pid is not null and buy.status > 3 ) or
+				buy.id in (
+					SELECT pid from buy where pid is not null and buy.status > 3 
+			 	) 
+			   ) and
+			   takeDpt {$this->authDpt}
 			   limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
-		$sql2="SELECT count(*) from device where pid='0' and state in ('正常','停用') AND depart ".$this->authDpt;
+		$sql2 = "SELECT count(*) 
+				 from buy 
+				 where takeDpt {$this->authDpt}
+			   	 and buy.pid is not null";
 		$sqlHelper->dqlPaging($sql1,$sql2,$paging);
 		$sqlHelper->close_connect();	
+	}
+
+	function getLeaf($pid){
+		$sqlHelper = new sqlHelper();
+		$sql = "SELECT buy.id,codeManu,name,spec,status.status,depart.depart,factory.depart factory,loc,unit
+			    from buy
+			    left join depart
+			    on depart.id=buy.takeDpt
+			    left join depart factory
+			    on depart.fid=factory.id
+			    left join status
+			    on status.id=buy.status
+			    where buy.status > 3 
+			    and buy.pid=$pid";
+		$res = $sqlHelper->dql_arr($sql);
+		$sqlHelper->close_connect();
+		return $res;
 	}
 
 	// 搜索所有部门

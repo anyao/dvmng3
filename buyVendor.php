@@ -1,4 +1,5 @@
 <link rel="stylesheet" href="bootstrap/css/fileinput.css">
+<link rel="stylesheet" href="bootstrap/css/choose.css" type="text/css">
 <link rel="stylesheet" href="tp/datetimepicker.css">
 <link rel="stylesheet" href="bootstrap/css/metroStyle/metroStyle.css">
 <link rel="stylesheet" href="bootstrap/css/bootstrap.css">

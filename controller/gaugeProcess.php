@@ -138,14 +138,6 @@ if (!empty($_REQUEST['flag'])) {
 		}
 	}
 
-	// // 获取单个备件的入场检定信息
-	// else if ($flag == "getCkInfo") {
-	// 	$sprId = $_GET['sprId'];
-	// 	$res = $gaugeService->getCkInfo($sprId);
-	// 	echo "$res";
-	// 	exit();
-	// }
-
 	// 查看库存入库、领取、再领取的时间
 	else if ($flag == "getStoreInfo") {
 		$id = $_GET['id'];
@@ -161,41 +153,6 @@ if (!empty($_REQUEST['flag'])) {
 		$res = $gaugeService->getChkInfo($id);
 		echo json_encode($res, JSON_UNESCAPED_UNICODE);
 		die;
-	}
-
-	else if ($flag == "useAset") {
-		$para = $_POST['para'];
-		$dateInstall = $_POST['dateInstall'];
-		$number = $_POST['number'];
-		$id = $_POST['id'];
-		$aSet = array_values($_POST['aSet']);
-		// 添加父设备并获取其添加后id用于之后子节点的添加
-		$fid = $gaugeService->transSpr($id,$number,'正常',0,$dateInstall);
-		for ($i=0; $i < count($aSet); $i++) { 
-			$aSet[$i] = json_decode(urldecode($aSet[$i]), true);
-			$v = array_column($aSet[$i],'value');
-			for ($k=0; $k < count($v); $k++) { 
-				$v[$k] = $gaugeService->unescape($v[$k]);
-			}
-			$aSet[$i] = array_combine(array_column($aSet[$i], 'name'), $v);
-			$sid = $gaugeService->asetSon($id,$aSet[$i]['number'],'正常',$fid,$dateInstall,$aSet[$i]['no'],$aSet[$i]['name']);
-			$res[] = $gaugeService->useDtl($sid,$para);
-		}
-		echo '{"url":"using","devid":'.$fid.'}';
-		die;
-	}
-
-	else if ($flag == "endSpr") {
-		$id = $_GET['id'];
-		$installtime = date("Y-m-d");
-		$res = $gaugeService->endSpr($id,$installtime);
-		if ($res != 0) {
-			header("location: ./../buyInstall.php");
-			exit();
-		}else{
-			echo "操作失败。";
-			exit();
-		}
 	}
 
 	else if ($flag == "installXls") {
@@ -221,28 +178,6 @@ if (!empty($_REQUEST['flag'])) {
 			echo "操作失败。";
 			exit();
 		}
-	}
-
-	else if ($flag == "flowInfo") {
-		$id =$_GET['id'];
-		$res = $gaugeService->getFlowInfo($id);
-		echo "$res";
-		exit();
-	}
-
-	else if($flag == "seeSpr"){
-		$sprId = $_GET['sprId'];
-		$res = $gaugeService->seeSpr($sprId);
-		echo "$res";
-		exit();
-	}
-
-	else if ($flag == "getCkInfo") {
-		$checkTime = $_GET['checktime'];
-		$sprid = $_GET['sprid'];
-		$res = $gaugeService->getCkInfo($checkTime,$sprid);
-		echo "$res";
-		exit();
 	}
 
 	else if($flag == "file2Arr"){
