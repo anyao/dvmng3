@@ -124,9 +124,7 @@ class sqlHelper{
 
 	}
 
-
-	//关闭连接
-	public function close_connect(){
+	function __destruct(){
 		mysql_close($this->conn);
 	}
 } 

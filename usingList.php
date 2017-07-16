@@ -1,5 +1,6 @@
 <?php 
 require_once "model/cookie.php";
+require_once 'model/sqlHelper.class.php';
 require_once 'model/devService.class.php';
 require_once 'model/dptService.class.php';
 require_once 'model/checkService.class.php';
@@ -7,10 +8,12 @@ require_once 'model/paging.class.php';
 checkValidate();
 $user = $_SESSION['user'];
 
-$devService = new devService;
-$dptService = new dptService;
-$checkService = new checkService;
-$paging=new paging();
+$sqlHelper = new sqlHelper;
+$devService = new devService($sqlHelper);
+$dptService = new dptService($sqlHelper);
+$checkService = new checkService($sqlHelper);
+
+$paging=new paging;
 $paging->pageNow=1;
 $paging->pageSize=50;
 

@@ -1,22 +1,20 @@
 <?php  
-require_once 'sqlHelper.class.php';
-require_once 'paging.class.php';
 class checkService{
-	public $authDpt = "";
-	function __construct(){
+	private $authDpt = "";
+	private $sqlHelper;
+	function __construct($sqlHelper){
 		if ($_SESSION['user'] == 'admin') {
 			$this->authDpt = "";
 		}else{
 			$arrDpt = implode(",",$_SESSION['dptid']);
 			$this->authDpt = " in($arrDpt) ";
 		}
+		$this->sqlHelper = $sqlHelper;
 	}
 
 	function getTypeAll(){
-		$sqlHelper = new sqlHelper();
 		$sql = "SELECT id,name from check_type";
-		$res = $sqlHelper->dql_arr($sql);
-		$sqlHelper->close_connect();
+		$res = $this->sqlHelper->dql_arr($sql);
 		return $res;
 	}
 
@@ -26,29 +24,24 @@ class checkService{
 		$arr['info'] = $arr['res'] == 1 ? 'null' : "'{$arr['info']}'"; 
 		$arr['status'] = $arr['res'] == 2 ? $arr['status'] : 'null';
 		$arr['class'] = $arr['res'] == 3 ? "'{$arr['class']}'" : 'null';
-		$sqlHelper = new sqlHelper();
 		$sql = "INSERT INTO `check` (devid,type,res,info,user,time,downClass,chgStatus) 
 				values ({$arr['devid']}, {$arr['type']}, {$arr['res']}, {$arr['info']}, {$arr['user']}, '{$arr['time']}', {$arr['class']}, {$arr['status']})";
-		$res = $sqlHelper->dml($sql);
-		$sqlHelper->close_connect();
+		$res = $this->sqlHelper->dml($sql);
 		$this->setValid($arr['devid']);
 		return $res;
 	}
 
 	function setValid($devid){
-		$sqlHelper = new sqlHelper;
 		$sql = "UPDATE buy set 
 					valid=date_add(
 						( SELECT time from `check` where devid = $devid order by id desc limit 0,1 ),
 						interval circle MONTH
 					) 
 				where id = $devid";
-		$res = $sqlHelper->dml($sql);
-		$sqlHelper->close_connect();
+		$res = $this->sqlHelper->dml($sql);
 	}
 
 	function getCheckByDev($id){
-		$sqlHelper = new sqlHelper();
 		$sql = "SELECT `check`.id,check_type.name type,res,info,user.name user,time,
 				status.status,chgStatus,downClass
 				from `check`
@@ -60,16 +53,13 @@ class checkService{
 				on status.id = `check`.chgStatus
 				where `check`.devid=$id
 				order by `check`.id desc";
-		$res = $sqlHelper->dql_arr($sql);
-		$sqlHelper->close_connect();
+		$res = $this->sqlHelper->dql_arr($sql);
 		return $res;
 	}
 
 	function getXlsChk($idStr){
-		$sqlHelper = new sqlHelper();
 		$sql = "SELECT devid,time,res from `check` where devid in ($idStr)";
-		$res = $sqlHelper->dql_arr($sql);
-		$sqlHelper->close_connect();
+		$res = $this->sqlHelper->dql_arr($sql);
 		return $res;
 	}
 

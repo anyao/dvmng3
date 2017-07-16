@@ -1,46 +1,20 @@
-<div class="row" id="message">
- <div class='col-md-12' >
-          <div class='alert alert-warning' id='mesSee'>
-             <a href=javascript:void(0) class='close' data-dismiss='alert'>&times;</a>
-             当前有 <strong><a href='repMis.php'>n</a></strong> 个检定任务。
-          </div>
-        </div>
-<?php
-include_once "model/repairService.class.php";
-$messageService=new repairService();
-$countSee=$messageService->getMisCount();
- // $today=time();
- // $arrNow=$repairService->getMisNow($today);
- // $countNow=count($arrNow);
- if ($countSee!=0) {
-   echo "<div class='col-md-12' >
-          <div class='alert alert-warning' id='mesSee'>
-             <a href=javascript:void(0) class='close' data-dismiss='alert'>&times;</a>
-             <strong>您有 <span>$countSee</span> 项新的维修任务！</strong><a href='repMis.php'>点击查看</a>。
-          </div>
-        </div>";
- }
-
-
- // if ($countNow!=0) {
- //   $jsonNow=json_encode($arrNow,JSON_UNESCAPED_UNICODE);
- //   for ($i=0; $i < $countNow; $i++) { 
- //    if($arrNow[$i]['today']!=1){
- //    
- //    
- //      $time=date("H:i",strtotime($arrNow[$i]['time']));
- //      echo "<div class='col-md-12'>
- //            <div class='alert alert-warning' id='mesToday-{$arrNow[$i]['id']}'>
- //               <a href=javascript:void(0) class='close' data-dismiss='alert'>&times;</a>
- //               <strong>您今天 <span>$time</span> 有维修任务！</strong><a href=javascript:getMis({$arrNow[$i]['id']},'today')>点击查看</a>。
- //            </div>
- //          </div>";
- //    }
- //   }
- // }
-
+<?php  
+require_once './model/msgService.class.php';
+$msgService = new msgService($sqlHelper);
+$validNum = $msgService->getCountValid();
 ?>
-</div>
+
+<?php if ($validNum != 0): ?>
+  <div class="row" id="message">
+   <div class='col-md-12' >
+      <div class='alert alert-warning' id='mesSee'>
+         <a href=javascript:void(0) class='close' data-dismiss='alert'>&times;</a>
+         <strong>当前有 <?=$validNum?> 个检定任务。</strong><a href='checkMis.php'>点击查看</a>
+      </div>
+    </div>
+  </div>
+<?php endif ?>
+
 
 <!-- 查看当前用户具体信息 -->
 <div class="modal fade" id="chgPwd" role="dialog">
@@ -99,46 +73,47 @@ $countSee=$messageService->getMisCount();
     </div>
   </div>
 </div>
+
 <script type="text/javascript">
-  // function chgPwd(){
-  //   $('#chgPwd').modal({
-  //       keyboard: true
-  //   });
-  // }
+  function chgPwd(){
+    $('#chgPwd').modal({
+        keyboard: true
+    });
+  }
 
-  // $("#yesChgPwd").click(function(){
-  //   var f = true;
-  //   $("#chgPwd input").each(function(){
-  //     if ($(this).val() == "") {
-  //       f = "has_null";
-  //       return;
-  //     }
-  //   });
+  $("#yesChgPwd").click(function(){
+    var f = true;
+    $("#chgPwd input").each(function(){
+      if ($(this).val() == "") {
+        f = "has_null";
+        return;
+      }
+    });
 
-  //   if ($("#chgPwd input[name=new]").val() != $("#chgPwd input[name=newAgain]").val()) {
-  //     f = "dif_new";
-  //   }
+    if ($("#chgPwd input[name=new]").val() != $("#chgPwd input[name=newAgain]").val()) {
+      f = "dif_new";
+    }
 
-  //   switch (f){
-  //     case "has_null":
-  //       $('#failAdd').modal({
-  //           keyboard: true
-  //       });
-  //       break;
-  //     case "dif_new":
-  //       $('#same_new').modal({
-  //           keyboard: true
-  //       });
-  //       break;
-  //     default:
-  //      $.get("controller/userProcess.php",{
-  //       flag: "chgPwd",
-  //       new: $("#chgPwd input[name=new]").val(),
-  //       previous: $("#chgPwd input[name=pre]").val()
-  //      },function(data){
-  //        if (data == "suc") 
-  //         $('#chgPwd').modal('hide');
-  //      },'text');
-  //   }
-  // });
+    switch (f){
+      case "has_null":
+        $('#failAdd').modal({
+            keyboard: true
+        });
+        break;
+      case "dif_new":
+        $('#same_new').modal({
+            keyboard: true
+        });
+        break;
+      default:
+       $.get("controller/userProcess.php",{
+        flag: "chgPwd",
+        new: $("#chgPwd input[name=new]").val(),
+        previous: $("#chgPwd input[name=pre]").val()
+       },function(data){
+         if (data == "suc") 
+          $('#chgPwd').modal('hide');
+       },'text');
+    }
+  });
 </script>

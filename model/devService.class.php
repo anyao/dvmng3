@@ -1,12 +1,10 @@
 <?php
-require_once 'sqlHelper.class.php';
-require_once 'paging.class.php';
 require_once "./../Classes/PHPExcel.php";
 require_once "./../Classes/PHPExcel/Writer/Excel5.php";
 class devService{
 	private $authDpt = "";
 	private $sqlHelper;
-	function __construct(){
+	function __construct($sqlHelper){
 		if ($_SESSION['user'] == 'admin') {
 			$this->authDpt = "";
 		}else{
@@ -14,14 +12,10 @@ class devService{
 			$this->authDpt = " in($arrDpt) ";
 		}
 
-		$this->sqlHelper = new sqlHelper;
+		$this->sqlHelper = $sqlHelper;
 	}
 
-	function __destruct(){
-		$this->sqlHelper->close_connect();
-	}
-
-	function getPaging($paging){	
+	public function getPaging($paging){	
 		$sql1="SELECT buy.id,codeManu,name,spec,status.status,depart.depart,factory.depart factory,loc,unit
 			   from buy
 			   left join depart
@@ -52,7 +46,7 @@ class devService{
 		$this->sqlHelper->dqlPaging($sql1,$sql2,$paging);	
 	}
 
-	function getLeaf($pid){
+	public function getLeaf($pid){
 		$sql = "SELECT buy.id,codeManu,name,spec,status.status,depart.depart,factory.depart factory,loc,unit
 			    from buy
 			    left join depart
@@ -68,7 +62,7 @@ class devService{
 	}
 
 	// 需改为insert into set
-	function addDev($name, $spec, $codeManu, $accuracy, $status, $scale, $certi, $unit, $checkDpt, $outComp, $checkNxt, $valid, $circle, $track, $takeDpt, $pid, $useTime, $storeTime,$category,$class){
+	public function addDev($name, $spec, $codeManu, $accuracy, $status, $scale, $certi, $unit, $checkDpt, $outComp, $checkNxt, $valid, $circle, $track, $takeDpt, $pid, $useTime, $storeTime,$category,$class){
 		$storeTime = $status == 4 ? 'null' : "'".date("Y-m-d")."'";
 		$useTime = $status == 5 ? 'null' : "'".date("Y-m-d")."'";
 		if (empty($pid)) {
@@ -83,19 +77,19 @@ class devService{
 		return $res;
 	}
 
-	function getCategory(){
+	public function getCategory(){
 		$sql = "SELECT name,no from category";
 		$res = $this->sqlHelper->dql_arr($sql);	
 		return json_encode($res, JSON_UNESCAPED_UNICODE);
 	}
 
-	function getStatus(){
+	public function getStatus(){
 		$sql = "SELECT id,status from status where id > 3";
 		$res = $this->sqlHelper->dql_arr($sql);	
 		return $res;
 	}
 
-	function findDev($status, $name, $spec, $paging){
+	public function findDev($status, $name, $spec, $paging){
 		$sql1="SELECT buy.id,codeManu,name,spec,status.status,depart.depart,factory.depart factory,loc,unit
 			   from buy
 			   left join depart
@@ -127,7 +121,7 @@ class devService{
 	}
 
 	// 根据id获取设备信息
-	function getDevById($id){
+	public function getDevById($id){
 		$sql = "SELECT buy.name,spec,accuracy,scale,codeManu,supplier,loc,circle,valid,unit,track,
 				status.status, status.id statusid,stopTime,category.name,useTime,class,
 				CONCAT(tkFct.depart,tkDpt.depart) take,takeDpt,checkComp,
@@ -150,7 +144,7 @@ class devService{
 		return $res;
 	}
 
-	function uptDev($arr, $id){
+	public function uptDev($arr, $id){
 		$_arr = [];
 		foreach ($arr as $k => $v) {
 			array_push($_arr, $v == '' ? "$k = null" : "$k = '{$v}'");
@@ -160,14 +154,14 @@ class devService{
 		return $res;
 	}
 
-	function logStatus($status, $devid){
+	public function logStatus($status, $devid){
 		$time = date("Y-m-d");
 		$user = $_SESSION['uid'];
 		$sql = "INSERT INTO status_log(status, created_at, user, devid)  values ($status, '{$time}', $user, $devid)";
 		$this->sqlHelper->dml($sql);
 	}
 
-	function getStatusLogById($devid){
+	public function getStatusLogById($devid){
 		$sql = "SELECT status.status,created_at,user.name user
 				from status_log 
 				left join status
@@ -180,14 +174,13 @@ class devService{
 		return $res;
 	}
 
-	function delDevById($id){
+	public function delDevById($id){
 		$sql = "DELETE from buy where id=$id or pid=$id";
 		$res = $this->sqlHelper->dml($sql);
 		return $res;
 	}
 
-	// 计算安装到现在一共有多少天（可能还会改成年）
-	function timediff($begin_time,$end_time ){
+	private function timediff($begin_time,$end_time ){
 		if (empty($end_time)) {
 			$end_time=date('Y-m-d');
 		}
@@ -207,7 +200,7 @@ class devService{
 		}
 	}
 
-	function listStyle($res, $check, $uDpt){
+	public function listStyle($res, $check, $uDpt){
 		// Create new PHPExcel object
 		$objPHPExcel = new PHPExcel();
 
@@ -368,7 +361,7 @@ class devService{
 		exit;
 	}
 
-	function getXlsDev($idStr){
+	public function getXlsDev($idStr){
 		$sql = "SELECT buy.id,buy.name,spec,accuracy,scale,codeManu,supplier,loc,circle,valid,stopTime,takeTime,
 				factory.depart takeFct,status.status,checkDpt,checkComp,class
 				from buy 
@@ -383,28 +376,10 @@ class devService{
 		return $res;
 	}
 
-	function groupClass($dev){
+	private function groupClass($dev){
 		return implode("、", array_unique(array_column($dev, 'class')));
 	}
 
-	function getCountValid(){
-		$sqlHelper = new sqlHelper;
-		$sql = "SELECT count(*) count
-				from buy 
-				where (
-			    (
-			    	unit != '套' and buy.pid is null and buy.status > 3 ) or
-					buy.id in (
-					 	SELECT pid from buy where pid is not null and buy.status > 3 
-				  	) 
-			    ) and
-			    takeDpt {$this->authDpt} and
-			    valid <= NOW()";
-		$res = $this->sqlHelper->dql($sql);
-		return $res['count'];
-	}
-
-	
 
 }
 ?>

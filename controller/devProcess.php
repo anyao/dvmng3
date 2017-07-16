@@ -1,11 +1,14 @@
 <?php
+require_once '../model/sqlHelper.class.php';
 require_once '../model/devService.class.php';
 require_once '../model/checkService.class.php';
 require_once '../model/userService.class.php';
 header("content-type:text/html;charset=utf-8");
-$devService=new devService;
-$chkService = new checkService;
-$userService = new userService;
+$sqlHelper = new sqlHelper;
+$devService=new devService($sqlHelper);
+$chkService = new checkService($sqlHelper);
+$userService = new userService($sqlHelper);
+
 if (!empty($_REQUEST['flag'])) {
 	$flag=$_REQUEST['flag'];
 	if($flag=="addDev"){ 
