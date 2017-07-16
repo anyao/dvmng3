@@ -2,16 +2,17 @@
 require_once "model/cookie.php";
 require_once 'model/devService.class.php';
 require_once 'model/dptService.class.php';
+require_once 'model/checkService.class.php';
 require_once 'model/paging.class.php';
 checkValidate();
 $user = $_SESSION['user'];
 
-$devService = new devService();
-$dptService = new dptService();
-
+$devService = new devService;
+$dptService = new dptService;
+$checkService = new checkService;
 $paging=new paging();
 $paging->pageNow=1;
-$paging->pageSize=10;
+$paging->pageSize=50;
 
 $paging->gotoUrl="usingList.php";
 if (!empty($_GET['pageNow'])) {
@@ -19,46 +20,14 @@ if (!empty($_GET['pageNow'])) {
 }
 
 
-if (empty($_REQUEST['flag']) && empty($_GET['fct']) && empty($_GET['dpt'])) {
+if (empty($_REQUEST['flag'])) {
   $devService->getPaging($paging);
-}else if(!empty($_GET['fct'])){
-  $idFct=$_GET['fct'];
-  $devService->getDevByFct($idFct,$paging);
-}else if (!empty($_GET['dpt'])) {
-  $idDpt=$_GET['dpt'];
-  $devService->getDevByDpt($idDpt,$paging);
 }else{
-    if(empty($_POST['sector'])){
-      $depart='';
-    }else{
-      $depart=$_POST['sector'];
-    }
+    $status = $_POST['status'];
+    $name = $_POST['name'];
+    $spec = $_POST['spec'];
 
-    if(empty($_POST['office'])){
-      $office='';
-    }else{
-      $office=$_POST['office'];
-    }
-
-    if(empty($_POST['factory'])){
-      $factory='';
-    }else{
-      $factory=$_POST['factory'];
-    }
-
-    if(empty($_POST['keyword'])){
-      $keyword='';
-    }else{
-      $keyword=$_POST['keyword'];
-    }
-
-    if(empty($_POST['devid'])){
-      $devid='';
-    }else{
-      $devid=$_POST['devid'];
-    }
-
-    $devService->findDev($depart,$factory,$keyword,$devid,$office,$paging); 
+    $devService->findDev($status, $name, $spec, $paging); 
 }
 
 ?>
@@ -88,6 +57,7 @@ if (empty($_REQUEST['flag']) && empty($_GET['fct']) && empty($_GET['dpt'])) {
   }
   #takeAll > span{
     display: none;
+    cursor: pointer;
   }
 
   .page-header{
@@ -115,6 +85,20 @@ if (empty($_REQUEST['flag']) && empty($_GET['fct']) && empty($_GET['dpt'])) {
 
   div[comp=outComp]{
     display: none;
+  }
+
+  input[name=category]{
+    width: 101% !important;
+    border-top-left-radius:0px !important;
+    border-bottom-left-radius:0px !important;
+  }
+
+  .glyphicon-search{
+    cursor:pointer;
+  }
+
+  .del-auth{
+    display: <?=in_array(1, $_SESSION['funcid']) || $user == 'admin' ? 'inline-cell' : 'none' ?>;
   }
 </style>
 <?php include 'buyVendor.php'; ?>
@@ -179,18 +163,19 @@ if (empty($_REQUEST['flag']) && empty($_GET['fct']) && empty($_GET['dpt'])) {
     <div class="col-md-10">
       <div class="page-header">
           <h4>　所有在用设备
-            <span class="glyphicon glyphicon-search"></span>
+            <span class="glyphicon glyphicon-search" ></span>
           </h4>
       </div>
       <table class="table table-striped table-hover">
         <thead><tr>
           <th id="takeAll">
             <span class="glyphicon glyphicon-download-alt"></span> 
-            <span class="glyphicon glyphicon-edit" style="margin-left: 5px"></span>
+            <span class="glyphicon glyphicon-thumbs-up" style="margin-left: 5px"></span>
           </th>
           <th>出厂编号</th><th>设备名称</th><th>规格型号</th><th>单位</th>
           <th>所在分厂部门</th><th>状态</th><th>安装地点</th>
-          <th><a class="glyphicon glyphicon-plus" href="javascript: addDev('root');" ></a></th>
+          <th style="width:4%"><a class="glyphicon glyphicon-plus" href="javascript: addDev('root');"></a></th>
+          <th style="width:4%" class="del-auth"></th>
         </tr></thead>
         <tbody class="tablebody">  
         <?php
@@ -215,6 +200,7 @@ if (empty($_REQUEST['flag']) && empty($_GET['fct']) && empty($_GET['dpt'])) {
               {$status}
               <td>{$row['loc']}</td>
               {$addLeaf}
+              <td><a class='glyphicon glyphicon-trash del-auth' href='javascript:delDev({$row['id']});'></a></td>
             </tr>";
           }
         ?>  
@@ -230,7 +216,73 @@ if (empty($_REQUEST['flag']) && empty($_GET['fct']) && empty($_GET['dpt'])) {
   </div>
 </div>
 
-<!-- 根设备 -->
+<!-- 搜索备件检定记录-->
+<div class="modal fade" id="searchForm">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">搜索</h4>
+      </div>
+      <form class="form-horizontal" method="post">
+        <div class="modal-body">
+          <div class="form-group">
+              <label class="col-sm-3 control-label">运行状态：</label>
+              <div class="col-sm-8">
+                <select class="form-control" name="status">
+                  <?php  
+                    $status = $devService->getStatus();
+                    for ($i=0; $i < count($status); $i++) { 
+                      echo "<option value='{$status[$i]['id']}'>{$status[$i]['status']}</option>";
+                    }
+                  ?>
+                </select>
+              </div>
+            </div> 
+            <div class="form-group">
+              <label class="col-sm-3 control-label">备件名称：</label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" name="name">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-3 control-label">规格型号：</label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" name="spec">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <input type="hidden" name="flag" value="findDev">
+            <button class="btn btn-primary" id="yesFind">确认</button>
+          </div>
+        </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="delModal">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">删除</h4>
+      </div>
+      <form class="form-horizontal" action="./controller/devProcess.php" method="post">
+        <div class="modal-body">
+          <br>确定要删除？<br>(若成套设备，子设备也会相应删除)<br><br>
+        </div>
+        <div class="modal-footer">
+          <input type="hidden" name="flag" value="delDev">
+          <input type="hidden" name="id">
+          <button class="btn btn-primary">确认</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- 设备添加 -->
 <div class="modal fade" id="addForm">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
@@ -272,27 +324,42 @@ if (empty($_REQUEST['flag']) && empty($_GET['fct']) && empty($_GET['dpt'])) {
                 <input class="form-control" name="scale" type="text">
               </div> 
               <div class="input-group">
+                <span class="input-group-addon">单　　位</span>
+                <input class="form-control" name="unit" type="text">
+              </div> 
+              <div class="input-group">
+                <span class="input-group-addon">分　　类</span>
+                <input type="text" class="form-control" name="category">
+                <div class="input-group-btn">
+                  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                   <span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                  </ul>
+                </div>
+              </div>
+              <div class="input-group">
                 <span class="input-group-addon">证书结论</span>
                 <input class="form-control" name="certi" type="text">
               </div>  
               <div class="input-group">
-                <span class="input-group-addon">单&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;位</span>
-                <input class="form-control" name="unit" type="text">
-              </div> 
-              <div class="input-group">
-                <span class="input-group-addon">检定单位</span>
-                <select class="form-control" name="checkDpt" dpt="checkDpt">
-                  <option value="199">计量室</option>
-                  <option value="<?= $_SESSION['udptid']?>">使用部门</option>
-                  <option value="isOut">外检单位</option>
+                <span class="input-group-addon">溯源方式</span>
+                <select class="form-control" name="track">
+                  <option value="检定">检定</option>
+                  <option value="校准">校准</option>
+                  <option value="测试">测试</option>
                 </select>
               </div>
-              <div class="input-group" comp="outComp">
-                <span class="input-group-addon">外检公司</span>
-                <input class="form-control" name="outComp" type="text">
-              </div> 
             </div>
             <div class="col-md-4">
+              <div class="input-group">
+                <span class="input-group-addon">管理类别</span>
+                <select class="form-control" name="class">
+                  <option value="A">A</option>
+                  <option value="B">B</option>
+                  <option value="C">C</option>
+                </select>
+              </div>
               <div class="input-group">
                 <span class="input-group-addon">检定日期</span>
                 <input class="form-control datetime" name="checkNxt" readonly="" type="text">
@@ -311,13 +378,17 @@ if (empty($_REQUEST['flag']) && empty($_GET['fct']) && empty($_GET['dpt'])) {
                 </span>
               </div> 
               <div class="input-group">
-                <span class="input-group-addon">溯源方式</span>
-                <select class="form-control" name="track">
-                  <option value="检定">检定</option>
-                  <option value="校准">校准</option>
-                  <option value="测试">测试</option>
+                <span class="input-group-addon">检定单位</span>
+                <select class="form-control" name="checkDpt" dpt="checkDpt">
+                  <option value="199">计量室</option>
+                  <option value="isTake">使用部门</option>
+                  <option value="isOut">外检单位</option>
                 </select>
               </div>
+              <div class="input-group" comp="outComp">
+                <span class="input-group-addon">外检公司</span>
+                <input class="form-control" name="outComp" type="text">
+              </div> 
             </div>    
           </div>
           <div class="row ztree-row">
@@ -335,50 +406,112 @@ if (empty($_REQUEST['flag']) && empty($_GET['fct']) && empty($_GET['dpt'])) {
         <div class="modal-footer">
           <input type="hidden" name="depart">
           <input type="hidden" name="pid">
+          <input type="hidden" name="cateid">
           <input type="hidden" name="flag" value="addDev">
+          <span style="display:none;color:red" id="failRadio">领取部门必须选择唯一。</span>
           <button class="btn btn-primary" id="yesAdd">确定</button>
+        </div>
       </form> 
     </div>
   </div>
 </div>  
 
-<div class="modal fade"  id="failRadio" >
-  <div class="modal-dialog modal-sm" role="document">
+<div class="modal fade" id="passCheck">
+  <div class="modal-dialog" role="document">
     <div class="modal-content">
-         <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
-         </div>
-         <div class="modal-body"><br/>
-            <div class="loginModal">领取部门必须选择唯一。</div><br/>
-         </div>
-         <div class="modal-footer">  
-          <button class="btn btn-primary" data-dismiss="modal">关闭</button>
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">删除</h4>
+      </div>
+      <form class="form-horizontal" action="./controller/checkProcess.php" method="post">
+        <div class="modal-body"> 
+          <div class="form-group">
+            <label class="col-sm-3 control-label">检定日期：</label>
+            <div class="col-sm-8">
+              <input type="text" class="form-control datetime" name="time" readonly>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-3 control-label">检定类型：</label>
+            <div class="col-sm-8">
+              <select class="form-control" name="type">
+                <?php  
+                  $chkType = $checkService->getTypeAll();
+                  for ($i=1; $i < count($chkType); $i++) { 
+                    echo "<option value='{$chkType[$i]['id']}'>{$chkType[$i]['name']}</option>";
+                  }
+                ?>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-3 control-label">检定结果：</label>
+            <div class="col-sm-8">
+              <select class="form-control" name="res" readonly>
+                <option value="1">合格</option>
+              </select>
+            </div>
+          </div>
         </div>
+        <div class="modal-footer">
+          <input type="hidden" name="flag" value="passCheck">
+          <input type="hidden" name="id">
+          <span style="color:red; display:none" id="failPass">日期必填。</span>
+          <button class="btn btn-primary" id="yesPass">批量检定合格</button>
+        </div>
+      </form>
     </div>
   </div>
-</div> 
-
-<!-- 添加不完整提示框 -->
-<div class="modal fade"  id="failAdd">
-  <div class="modal-dialog modal-sm" role="document" >
-    <div class="modal-content">
-         <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
-         </div>
-         <div class="modal-body"><br/>
-            <div class="loginModal">您需要添加的设备信息不完整，请补充。</div><br/>
-         </div>
-         <div class="modal-footer">  
-          <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
-        </div>
-    </div>
-  </div>
-</div> 
+</div>
 
 <?php include 'devJs.php';?>
 <script type="text/javascript">
+$("#yesPass").click(function(){
+  var allow_submit = true;
+  if ($("#passCheck input[name=time]").val() == "") {
+    allow_submit = false;
+    $("#failPass").show();
+  }
+  return allow_submit;
+});
+
+$("#takeAll .glyphicon-thumbs-up").click(function(){
+  var str = takeAll();
+  $("#passCheck input[name=id]").val(str);
+  $('#passCheck').modal({
+    keyboard: true
+  });
+})
+
+$("#takeAll .glyphicon-download-alt").click(function(){
+  var str = takeAll();
+  location.href = "./controller/devProcess.php?flag=xlsDev&id="+str;
+});
+
+function takeAll(){
+  var str = "";
+  $(".glyphicon-check").each(function(){
+    str += $(this).attr('chosen') + ",";
+  });
+  return str;
+}
+
+function delDev(id){
+  $("#delModal input[name=id]").val(id);
+  $("#delModal").modal({
+    keyboard: true
+  });
+}
+
+// 搜索
+$(".glyphicon-search").click(function(){
+  $('#searchForm').modal({
+    keyboard: true
+  });
+});
+
 // 树形部门结构基础配置
-var setting = {
+var settingModal = {
     view: {
         selectedMulti: false,
         showIcon: false
@@ -387,6 +520,18 @@ var setting = {
         enable: true,
         chkStyle:"radio",
         radioType:'all',
+    },
+    data: {
+        simpleData: {
+            enable: true
+        }
+    }
+};
+
+var setting = {
+    view: {
+        selectedMulti: false,
+        showIcon: false
     },
     data: {
         simpleData: {
@@ -429,6 +574,18 @@ $("#addForm .glyphicon-minus").parents("button").click(function(){
   }
 });
 
+$("#addForm input[name=category]").bsSuggest({
+    allowNoKeyword: false,
+    showBtn: false,
+    indexId:1,
+    data: {
+         'value':<?= $devService->getCategory() ?>
+    }
+}).on('onSetSelectValue', function (e, keyword, data) {
+   $("#addForm input[name=cateid]").val($(this).attr("data-id"));
+   $(this).parents("form").find("input[name=inspDpt]").val(dptid);
+});
+
 // 确认添加
 $("#yesAdd").click(function(){
   var allow_submit = true;
@@ -438,21 +595,19 @@ $("#yesAdd").click(function(){
   var len = nodesPy.length + nodesZp.length + nodesGp.length;
   if (len > 1 || len == 0) {
     allow_submit = false;
-    $("#failRadio").modal({
-     keyboard:true
-    });
-  }else
+    $("#failRadio").show();
+  }else{
     var nodes = $.extend(nodesPy,nodesZp,nodesGp);
-  // 领取部门编号
-  $("#addForm input[name=depart]").val(nodes[0].id);
+    $("#addForm input[name=depart]").val(nodes[0].id);
+  }
   return allow_submit;
 });
 
 // 添加设备
 function addDev(path){
-  $.fn.zTree.init($("#tree-py"), setting, dptTree.py);
-  $.fn.zTree.init($("#tree-zp"), setting, dptTree.zp);
-  $.fn.zTree.init($("#tree-gp"), setting, dptTree.gp);
+  $.fn.zTree.init($("#tree-py"), settingModal, dptTree.py);
+  $.fn.zTree.init($("#tree-zp"), settingModal, dptTree.zp);
+  $.fn.zTree.init($("#tree-gp"), settingModal, dptTree.gp);
   treePy = $.fn.zTree.getZTreeObj("tree-py");
   treeZp = $.fn.zTree.getZTreeObj("tree-zp");
   treeGp = $.fn.zTree.getZTreeObj("tree-gp");
@@ -510,6 +665,7 @@ function getLeaf(obj,id){
             "  <td>"+data[i].factory+data[i].depart+"</td>"+
             "  <td>"+data[i].status+"</td>"+
             "  <td>"+data[i].loc+"</td><td></td>"+
+            "  <td><a class='glyphicon glyphicon-trash del-auth' href='javascript:delDev("+id+")'></a></td>"+
             "</tr>";
         }
         $rootTr.after(addHtml);
@@ -519,23 +675,6 @@ function getLeaf(obj,id){
       $(".open-"+id).detach();
     }
 }
-
-// 插入根设备弹出框
-$("th > .glyphicon-import").click(function(){
-  var allow = $.inArray('1',session.funcid);
-  if (user == "admin") {
-    allow = 0;
-  }
-  if (allow == -1) {
-      $('#failAuth').modal({
-        keyboard: true
-      });
-  }else{
-      $('#prtAdd').modal({
-        keyboard: true
-      });
-  }
-})
 
 //所有弹出框
 $(function () 
@@ -548,310 +687,6 @@ $(".datetime").datetimepicker({
 });
 
 
-
-
-    // 分厂设备列表
-    $(".glyphicon-map-marker").click(function(){
-      var $markerPa=$(this).parent();
-      var fctid=$markerPa.attr("fct");
-      // alert(fctid);
-      location.href="usingList.php?fct="+fctid;
-    });
-
-    //删除提示框 made it
-    $(document).on("click","span.glyphicon-trash",trash);
-    function trash(){
-      var allow = $.inArray('2',session.funcid);
-      if (user == "admin") {
-        allow =0;
-      }
-      var id=$(this).attr("id");
-      if (allow == -1) {
-            $('#failAuth').modal({
-              keyboard: true
-            });
-        }else{
-           $('#devDel').modal({
-              keyboard: true
-            });
-            $("#del").click(function() {
-            $.get("controller/devProcess.php",{
-              pid:id,
-              flag:"findSon"
-            },function(data,success){
-              var count=data;
-              if (count!=0) {
-                $('#devDel').modal('hide');
-                $('#failDel').modal({
-                  keyboard: true
-                });
-              }else{
-                // alert("failure");
-                location.href="controller/devProcess.php?flag=delDev&id="+id;
-              }
-            },"text");   
-          });
-        }
-    }
-
-    // 添加新设备信息弹出框
-    $(document).on("click",".tablebody .glyphicon-import,.list-group-item .glyphicon-import",addSon);
-    function addSon(){
-      var allow = $.inArray('1',session.funcid);
-      if (user == "admin") {
-        allow =0;
-      }
-       var $id=$(this).attr("id");
-       if (allow == -1) {
-            $('#failAuth').modal({
-              keyboard: true
-            });
-        }else{
-           $("#cldAdd input[name=pid]").val($id);
-           $('#cldAdd').modal({
-              keyboard: true
-           });
-        }
-    }
-
-
-    // 添加父设备信息不完整时，弹出提示框
-    $("#addPrt").click(function(){
-     var allow_submit = true;
-     $("#prtAdd .notNull").each(function(){
-        if($(this).val()==""){
-          allow_submit = false;
-        }
-     });
-
-     // 负责人列表为空时，也不可提交
-     var forLiable = $("#prtAdd #forLiable input").length;
-     if (forLiable == 0) {
-        allow_submit = false;
-     }
-
-     // 重新选择设备类别
-     var idType=$("#prtAdd input[name=class]").attr("data-id");
-      if(typeof(idType)=="undefined"||idType==""){
-          allow_submit=false;
-      }
-
-      if (allow_submit == false) {
-        $('#failAdd').modal({
-              keyboard: true
-          });
-      }
-      return allow_submit;
-    });
-    
-    // 添加子设备确认添加按钮
-    $("#addCld").click(function(){
-      // 添加新设备信息不完整时，弹出提示框
-      var allow_submit = true;
-      $("#cldAdd .notNull").each(function(){
-        if ($(this).val()=="") {
-          $('#failAdd').modal({
-              keyboard: true
-          });
-          allow_submit = false;
-        }
-      }); 
-      var idType=$("#cldAdd input[name=class]").attr("data-id");
-      if(typeof(idType)=="undefined"||idType==""){
-          $('#failParaInfo').modal({
-                keyboard: true
-          });
-          allow_submit=false;
-      }
-      return allow_submit;
-   });
-
-
-    // 设备根节点打开其下新节点
-    $(document).on("click","a[name=openChild]",child_click);
-    function child_click(){
-      // 获取该设备的id值
-      var $id=$(this).attr("value");
-      // 获取该设备的tr节点
-      var $parent=$(this).parents("tr");
-      // 获取下一个设备tr节点的class
-      var $nextTr=$parent.next();
-      var $parentNext=$nextTr.attr("class");
-      var $addHtml="<tr class='child-list'>"+
-                      "<td colspan='12' style='padding:0'>"+
-                        "<div id='Prt-"+$id+"'></div>"+
-                      "</td>"+
-                    "</tr>";
-      if ($parentNext=="child-list") {
-        // 新设备列表显示状态，触发应让其消失
-        $(this).removeClass('glyphicon glyphicon-minus')
-             .addClass('glyphicon glyphicon-plus');
-        $($nextTr).detach();
-      }else{
-        // 新设备列表未加载状态，触发应让其显示
-        $(this).removeClass('glyphicon glyphicon-plus')
-             .addClass('glyphicon glyphicon-minus');
-        $parent.after($addHtml);
-        $.get("controller/devProcess.php",{
-          flag:"addSon",
-          pid:$id
-        },function(data,success){
-          var jsonDataTree = transData(eval(data), 'tags', 'pid', 'nodes'); 
-          var data=JSON.stringify(jsonDataTree); 
-          $('#Prt-'+$id+'').treeview({
-            enableLinks: true,
-            showBorder: false,
-            levels: 1,
-            showTags: true,
-            data: data
-         });
-        },"text");    
-      }
-    }
-    
-
-
-    // 添加子设备时，设备类别搜索建议
-    $("#cldAdd input[name=class]").bsSuggest({
-        allowNoKeyword: false,
-        showBtn: false,
-        indexId:1,
-        // indexKey: 1,
-        data: {
-             'value':<?php 
-              $allType=$devService->getTypeSon();
-              echo "$allType";
-              ?>,
-        }
-    }).on('onDataRequestSuccess', function (e, result) {
-        console.log('onDataRequestSuccess: ', result);
-    }).on('onSetSelectValue', function (e, keyword, data) {
-        console.log('onSetSelectValue: ', keyword, data);
-        var idType=$(this).attr("data-id");
-        $.get("controller/devProcess.php",{
-          flag:'getPara',
-          id:idType
-        },function(data,success){
-         var addHtml="";
-         for (var i = 0; i < data.length; i++) {
-            addHtml+="<div class='col-md-6'>"+
-                    "  <div class='form-group'>"+
-                    "    <label class='col-sm-3 control-label'>"+data[i].name+"：</label>"+
-                    "    <div class='col-sm-8'>"+
-                    "      <input type='text' class='form-control' name='paraId["+data[i].id+"]'>"+
-                    "    </div>"+
-                    "  </div>"+
-                    "</div>";
-         }
-         $("#cldPara").empty();
-         $("#cldPara").append(addHtml);
-        },'json');
-         
-    }).on('onUnsetSelectValue', function (e) {
-        console.log("onUnsetSelectValue");
-    });
-
-    // 添加父设备时，设备类别搜索建议
-    $("#prtAdd input[name=class]").bsSuggest({
-        allowNoKeyword: false,
-        showBtn: false,
-        indexId:1,
-        // indexKey: 1,
-        data: {
-             'value':<?php 
-              $allType=$devService->getTypePrt();
-              echo "$allType";
-              ?>,
-        }
-    }).on('onDataRequestSuccess', function (e, result) {
-        console.log('onDataRequestSuccess: ', result);
-    }).on('onSetSelectValue', function (e, keyword, data) {
-       console.log('onSetSelectValue: ', keyword, data);
-    }).on('onUnsetSelectValue', function (e) {
-        console.log("onUnsetSelectValue");
-    });
-
-    
-
-    // 分厂搜索提示，并根据所选调用部门搜索函数
-    $("input[name=nameFct]").bsSuggest({
-        allowNoKeyword: false,
-        showBtn: false,
-        indexId:1,
-        // indexKey: 1,
-        data: {
-             'value':<?php 
-              $allFct=$devService->getFctAll();
-              echo "$allFct";
-              ?>,
-        }
-    }).on('onDataRequestSuccess', function (e, result) {
-        console.log('onDataRequestSuccess: ', result);
-    }).on('onSetSelectValue', function (e, keyword, data) {
-       console.log('onSetSelectValue: ', keyword, data);
-       var fct=$(this).attr("data-id");
-       $(this).parents("form").find("input[name=factory]").val(fct);
-       var $depart=$(this).parents("form").find("input[name=nameDepart]"); 
-       $.get("controller/devProcess.php",{
-        flag:'getDptAll',
-        idFct:fct
-       },function(data,success){
-        var departAll=data;
-
-        $depart.removeAttr("readonly");
-         // 部门搜索提示
-        $depart.bsSuggest({
-            allowNoKeyword: false,
-            // showBtn: false,
-            indexId:1,
-            // indexKey: 1,
-            data: {
-                 'value':departAll,
-            }
-        }).on('onDataRequestSuccess', function (e, result) {
-            console.log('onDataRequestSuccess: ', result);
-        }).on('onSetSelectValue', function (e, keyword, data) {
-           console.log('onSetSelectValue: ', keyword, data);
-           var idDepart=$(this).attr("data-id");
-           $(this).parents("form").find("input[name=depart]").val(idDepart);
-        }).on('onUnsetSelectValue', function (e) {
-            console.log("onUnsetSelectValue");
-        });
-       },"json")
-    }).on('onUnsetSelectValue', function (e) {
-        console.log("onUnsetSelectValue");
-    });
-
-
-// 添加父设备时，负责人搜索建议
-    $("#prtAdd input[name=theLiable]").bsSuggest({
-        allowNoKeyword: false,
-        showBtn: false,
-        indexId:1,
-        // indexKey: 1,
-        data: {
-             'value':<?php 
-              $allLiable=$devService->getLiable();
-              echo "$allLiable";
-              ?>,
-        }
-    }).on('onDataRequestSuccess', function (e, result) {
-        console.log('onDataRequestSuccess: ', result);
-    }).on('onSetSelectValue', function (e, keyword, data) {
-       console.log('onSetSelectValue: ', keyword, data);
-       var nameLiable = $(this).val();
-       var idLiable = $(this).attr("data-id");
-       var addHtml="<span class='badge'>"+nameLiable+" <a href='javascript:void(0);' class='glyphicon glyphicon-remove' style='color: #f5f5f5;text-decoration: none'></a><input type='hidden' name='liable[]' value="+idLiable+"></span> "
-        $("#prtAdd #forLiable").append(addHtml);
-        $(this).val("");
-    }).on('onUnsetSelectValue', function (e) {
-        console.log("onUnsetSelectValue");
-    });
-
-     $(document).on("click",".glyphicon-remove",delDeved)
-      function delDeved(){
-        $(this).parents("span").detach();
-      }
    </script>
 
   </body>

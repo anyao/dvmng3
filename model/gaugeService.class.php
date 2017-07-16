@@ -2,9 +2,8 @@
 header("content-type:text/html;charset=utf-8");
 require_once 'sqlHelper.class.php';
 require_once 'paging.class.php';
-require_once 'classifyBuild.php';
-include "./../Classes/PHPExcel.php";
-include "./../Classes/PHPExcel/Writer/Excel5.php";
+require_once "./../Classes/PHPExcel.php";
+require_once "./../Classes/PHPExcel/Writer/Excel5.php";
 class gaugeService{
 	public $authDpt = "";
 	public $dataCheck = [];
@@ -15,14 +14,6 @@ class gaugeService{
 			$arrDpt = implode(",",$_SESSION['dptid']);
 			$this->authDpt = " in($arrDpt) ";
 		}
-	}
-
-	function delBuy($id){
-		$sqlHelper = new sqlHelper();
-		$sql = "delete from gauge_spr_bsc where id = $id";
-		$res = $sqlHelper->dml($sql);
-		$sqlHelper->close_connect();
-		return $res;
 	}
 
 	// 备件申报入厂检定列表
@@ -216,17 +207,14 @@ class gaugeService{
 		return mysql_insert_id();
 	}
 
-	function addCheck($id, $codeManu, $accuracy, $scale, $certi, $track, $checkNxt, $valid, $circle, $checkDpt, $outComp, $pid, $path){
+	function addCheck($id, $codeManu, $accuracy, $scale, $certi, $track, $checkNxt, $valid, $circle, $checkDpt, $outComp, $pid, $path, $class){
 		$sqlHelper = new sqlHelper();
 		$checkTime = date("Y-m-d");
 		$checkUser = $_SESSION['user'];
-		if ($checkDpt == "isOut") 
-			$dpt = " checkComp = '{$outComp}' ";
-		else
-			$dpt = " checkDpt = $checkDpt ";
 		$sql = "UPDATE buy SET 
 				codeManu = '{$codeManu}',
 				accuracy = '{$accuracy}',
+				class = '{$class}',
 				scale = '{$scale}',
 				certi = '{$certi}',
 				track = '{$track}',
@@ -238,6 +226,8 @@ class gaugeService{
 				status = 2,
 				pid = $pid,
 				path = '{$path}',
+				checkDpt = '{$checkDpt}',
+				outComp = '{$outComp}'
 				{$dpt} where id = $id";
 		$res = $sqlHelper->dml($sql);
 		$sqlHelper->close_connect();

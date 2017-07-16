@@ -150,7 +150,7 @@ $uid=$_SESSION['uid'];
           </div>
           <div class="col-md-6">
             <div class="input-group">
-              <span class="input-group-addon">单&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;位</span>
+              <span class="input-group-addon">单　　位</span>
               <input class="form-control" name="spr[<?=$i?>][unit]" type="text">
             </div> 
             <div class="input-group">
@@ -182,7 +182,7 @@ $uid=$_SESSION['uid'];
               <span class="input-group-addon">检定单位</span>
               <select class="form-control" name="spr[<?=$i?>][checkDpt]" dpt="checkDpt">
                 <option value="199">计量室</option>
-                <option value="<?= $_SESSION['udptid']?>">使用部门</option>
+                <option value="isTake">使用部门</option>
                 <option value="isOut">外检单位</option>
               </select>
             </div>
@@ -278,7 +278,7 @@ $("#addBtn").click(function(){
   '          <span class="input-group-addon">检定单位</span>'+
   '          <select class="form-control" name="spr['+i+'][checkDpt]" dpt="checkDpt">'+
   '            <option value="199">计量室</option>'+
-  '            <option value="<?=$_SESSION['udptid']?>">使用部门</option>'+
+  '            <option value="isTake">使用部门</option>'+
   '            <option value="isOut">外检单位</option>'+
   '          </select>'+
   '        </div>'+

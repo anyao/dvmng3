@@ -39,6 +39,19 @@ class userService{
 		$sqlHelper->close_connect();
 	}
 
+	function getDpt(){
+		$sqlHelper = new sqlHelper;
+		$sql = "SELECT depart.depart,num 
+				from depart
+				left join dpt_num
+				on depart.id = dpt_num.depart
+				where depart.id = {$_SESSION['udptid']}";
+		$res = $sqlHelper->dql($sql);
+		$sqlHelper->close_connect();
+		return $res;
+	}
+
+
 	// 查询当前用户所在分厂
 	function getFct($uid){
 		$sqlHelper=new sqlHelper();

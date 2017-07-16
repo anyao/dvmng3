@@ -74,13 +74,13 @@ $gaugeService->buyCheck($paging);
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-        <li class="active"><a href="<?php echo (in_array(7, $_SESSION['funcid']) || $_SESSION['user'] == 'admin') ? "buyCheck.php" : "buyInstall.php"; ?>">备件申报</a></li>
+        <li class="active"><a href="<?= (in_array(7, $_SESSION['funcid']) || $_SESSION['user'] == 'admin') ? "buyCheck.php" : "buyInstall.php"; ?>">备件申报</a></li>
         <li class="dropdown">
           <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">设备档案 <span class="caret"></span></a>
           <ul class="dropdown-menu">
             <li><a href="usingList.php">在用设备</a></li>
             <li><a href="spareList.php">备品备件</a></li>
-            <li style="display: <?php echo (!in_array(4, $_SESSION['funcid'])  && $_SESSION['user'] != 'admin') ? "none" : "inline";?>"><a href='devPara.php' >属性参数</a></li>
+            <li style="display: <?= (!in_array(4, $_SESSION['funcid'])  && $_SESSION['user'] != 'admin') ? "none" : "inline";?>"><a href='devPara.php' >属性参数</a></li>
           </ul>
         </li>
         <li class="dropdown">
@@ -101,9 +101,9 @@ $gaugeService->buyCheck($paging);
         </li>
       </ul>
        <ul class="nav navbar-nav navbar-right">
-        <li style="display: <?php echo (!in_array(10, $_SESSION['funcid'])  && $_SESSION['user'] != 'admin') ? "none" : "inline";?>"><a href='dptUser.php'>用户管理</a></li>
+        <li style="display: <?= (!in_array(10, $_SESSION['funcid'])  && $_SESSION['user'] != 'admin') ? "none" : "inline";?>"><a href='dptUser.php'>用户管理</a></li>
         <li class="dropdown">
-        <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button"><?php echo $user;?> <span class="caret"></span></a>
+        <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button"><?= $user;?> <span class="caret"></span></a>
           <ul class="dropdown-menu">
             <li><a href="javascript:chgPwd();">更改密码</a></li>
             <li><a href="login.php">注销</a></li>
@@ -152,6 +152,14 @@ $gaugeService->buyCheck($paging);
             </div>
             <div class="col-md-6">
               <div class="input-group">
+                <span class="input-group-addon">管理类别</span>
+                <select class="form-control" name="class">
+                  <option value="A">A</option>
+                  <option value="B">B</option>
+                  <option value="C">C</option>
+                </select>
+              </div>  
+              <div class="input-group">
                 <span class="input-group-addon">检定日期</span>
                 <input class="form-control datetime" name="checkNxt" readonly="" type="text">
               </div>  
@@ -172,7 +180,7 @@ $gaugeService->buyCheck($paging);
                 <span class="input-group-addon">检定单位</span>
                 <select class="form-control" name="checkDpt">
                   <option value="199">计量室</option>
-                  <option value="<?php echo $_SESSION['udptid']?>">使用部门</option>
+                  <option value="isTake">使用部门</option>
                   <option value="isOut">外检单位</option>
                 </select>
               </div>

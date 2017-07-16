@@ -2,7 +2,7 @@
     position: relative;
     left: 15px;
     top:10px;
-    font-size: 30px !important;
+    font-size: 25px !important;
 }
 
 .printview{
@@ -44,29 +44,6 @@
 	font-weight: 600;
 }
 
-.printview-second{
-    margin-left: 17px;
-}
-
-.printview-second:first-child{
-    margin-top:20px;
-}
-
-.printview-second:first-child > .row > .col-md-4{
-    padding-right: 3px
-}
-
-.chart{
-    width: 495px;
-	/*height: 370px;*/
-	border-radius: 6px;
-	background-color: #F5F5F5;
-	box-shadow: 1px 2px 3px #778899;
-	-moz-box-shadow: 1px 2px 3px #778899;
-	padding-top:18px; 
-	margin: 0 0 0 25px;
-}
-
 .graph{
 	
 	height: 370px;
@@ -78,22 +55,19 @@
 }
 
 .detail{
-	margin-left: 60px;
-	/*width: 700px;*/
-	height:300px;
-	border-radius: 6px;
-	border:1px solid #A9A9A9; 
-	padding:10px 25px 10px 25px;
+    margin-left: 60px;
+    height:275px;
+    border-radius: 6px;
+    border:1px solid #A9A9A9; 
+    padding:18px 30px !important;
+    margin-top:6px
 }
 
-.detail > h4{
-    margin-bottom: 15px;
+.detail .input-group{
+    margin: 11px 0px !important;
 }
 
-.detail > .row > .col-md-6 > .input-group{
-    margin-bottom: 20px;
-}
-
+/*
 .detail > .form-horizontal > .row > .col-md-6 > .input-group { 
 	margin-bottom: 20px;
 }
@@ -109,58 +83,10 @@
 .detail-info > .col-md-2> .input-group{
     margin:10px 0px 20px 0px;
 }
+*/
 
 
-
-.badge_a {
-    background-color: rgba(8,31,52,0.9);
-    border-radius: 10px;
-    color: #f5f5f5;
-    display: inline-block;
-    font-size: 12px;
-    font-weight: bold;
-    line-height: 1;
-    min-width: 10px;
-    padding: 3px 7px;
-    text-align: center;
-    vertical-align: middle;
-    white-space: nowrap;
-    cursor: pointer
-}
-
-.badge_b {
-    background-color: #799DAD;
-    border-radius: 10px;
-    color: #f5f5f5;
-    display: inline-block;
-    font-size: 12px;
-    font-weight: bold;
-    line-height: 1;
-    min-width: 10px;
-    padding: 3px 7px;
-    text-align: center;
-    vertical-align: middle;
-    white-space: nowrap;
-    cursor: pointer
-}
-
-.badge_d,.badge_e,.badge_c{
-    background-color: rgba(8,31,52,0.9);
-    border-radius: 10px;
-    color: #f5f5f5;
-    display: inline-block;
-    font-size: 12px;
-    font-weight: bold;
-    line-height: 1;
-    min-width: 10px;
-    padding: 3px 7px;
-    text-align: center;
-    vertical-align: middle;
-    white-space: nowrap;
-    cursor: pointer
-}
-
-
+/*
 
 .badge-add{
     background-color: #799DAD;
@@ -190,9 +116,7 @@
  padding-right: 5px
 }
 
-/*.detail-btn .col-md-6:nth(2)-child{
- padding-left: 5px
-}*/
+
 
 .detail-btn .col-md-6 .input-group{
     width:100%;
@@ -204,7 +128,6 @@
 }
 
 .using-btn{
-    /*margin-left: 10px; */
     width:150px !important;
 }
 
@@ -227,4 +150,4 @@
 }
 
 
-
+*/
