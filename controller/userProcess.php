@@ -1,7 +1,9 @@
 <?php
 header("content-type:text/html;charset=utf-8");
+require_once "../model/sqlHelper.class.php";
 require_once '../model/userService.class.php';
-$userService=new userService();
+$sqlHelper = new sqlHelper;
+$userService=new userService($sqlHelper);
 if (!empty($_REQUEST['flag'])) {
 	$flag = $_REQUEST['flag'];
 	if ($flag == "login") {

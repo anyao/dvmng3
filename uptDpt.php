@@ -68,9 +68,10 @@ $user=$_SESSION['user'];
 <body role="document">
 <?php 
 	include "message.php";
-
+  include_once "model/sqlHelper.class.php";
 	require_once "model/dptService.class.php";
-	$dptService=new dptService();
+  $sqlHelper = new sqlHelper;
+	$dptService=new dptService($sqlHelper);
 
   $id=$_GET['id']; 
   $info=$dptService->getDptOne($id);

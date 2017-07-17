@@ -1,14 +1,17 @@
 <?php 
 require_once "model/cookie.php";
 require_once 'model/paging.class.php';
+require_once "model/sqlHelper.class.php";
 require_once 'model/gaugeService.class.php';
 require_once "./model/devService.class.php";
 checkValidate();
-$user=$_SESSION['user'];
+$user = $_SESSION['user'];
 
-$devService = new devService();
+$sqlHelper = new sqlHelper;
+$paging=new paging;
+$devService = new devService($sqlHelper);
+$gaugeService = new gaugeService($sqlHelper);
 
-$paging=new paging();
 $paging->pageNow=1;
 $paging->pageSize=18;
 $paging->gotoUrl="buyInstall.php";
@@ -16,7 +19,6 @@ if (!empty($_GET['pageNow'])) {
   $paging->pageNow=$_GET['pageNow'];
 }
 
-$gaugeService = new gaugeService();
 $gaugeService->buyInstall($paging);
 ?>
 <!DOCTYPE html>

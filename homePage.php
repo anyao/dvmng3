@@ -1,12 +1,13 @@
 <?php 
 require_once "model/cookie.php";
+require_once "model/sqlHelper.class.php";
 require_once "model/devService.class.php";
 require_once "model/dptService.class.php";
 checkValidate();
 $user=$_SESSION['user'];
-
-$devService=new devService();
-$dptService=new dptService();
+$sqlHelper = new sqlHelper;
+$devService=new devService($sqlHelper);
+$dptService=new dptService($sqlHelper);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -622,8 +623,8 @@ $(".jum-caption input[name=keyword]").bsSuggest({
         indexKey: 1, //data.value 的第几个数据，作为input输入框的内容
         data: {
             'value':<?php 
-              $allRoot=$devService->getRootAll();
-              echo "$allRoot";
+              // $allRoot=$devService->getRootAll();
+              // echo "$allRoot";
             ?>,
             'defaults':'未找到相关内容'
         }

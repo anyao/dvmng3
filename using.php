@@ -1,15 +1,17 @@
 <?php 
 require_once "model/cookie.php";
+require_once "model/sqlHelper.class.php";
 require_once 'model/devService.class.php';
 require_once 'model/dptService.class.php';
 require_once 'model/checkService.class.php';
 checkValidate();
 $user=$_SESSION['user'];
-$checkService = new checkService();
-$dptService = new dptService();
+$sqlHelper = new sqlHelper;
+$checkService = new checkService($sqlHelper);
+$dptService = new dptService($sqlHelper);
+$devService = new devService($sqlHelper);
 
 $id = $_GET['id'];
-$devService = new devService();
 $res = $devService->getDevById($id);
 ?>
 <!DOCTYPE html>

@@ -1,7 +1,9 @@
 <?php
+require_once "../model/sqlHelper.class.php";
 require_once "../model/spareService.class.php";
 header("content-type:text/html;charset=utf-8");
-$spareService=new spareService;
+$sqlHelper = new sqlHelper;
+$spareService=new spareService($sqlHelper);
 if(!empty($_REQUEST['flag'])){
 	$flag=$_REQUEST['flag'];
 	// 添加备用设备

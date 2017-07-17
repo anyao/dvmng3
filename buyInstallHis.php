@@ -1,19 +1,20 @@
 <?php 
 require_once "model/cookie.php";
 require_once 'model/paging.class.php';
+require_once "model/sqlHelper.class.php";
 require_once 'model/gaugeService.class.php';
 checkValidate();
 $user=$_SESSION['user'];
 
-$paging=new paging();
+$paging=new paging;
 $paging->pageNow=1;
 $paging->pageSize=18;
 $paging->gotoUrl="buyInstallHis.php";
 if (!empty($_GET['pageNow'])) {
   $paging->pageNow=$_GET['pageNow'];
 }
-
-$gaugeService = new gaugeService();
+$sqlHelper = new sqlHelper;
+$gaugeService = new gaugeService($sqlHelper);
 // 是否为搜索结果
 if (empty($_POST['flag'])) {
   $gaugeService->buyInstallHis($paging);

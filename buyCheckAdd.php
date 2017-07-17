@@ -1,11 +1,13 @@
 <?php 
 require_once "model/cookie.php";
+require_once "model/sqlHelper.class.php";
+require_once "model/gaugeService.class.php";
 checkValidate();
 $user=$_SESSION['user'];
 $uid=$_SESSION['uid'];
 
-require_once "model/gaugeService.class.php";
-$gaugeService=new gaugeService();
+$sqlHelper = new sqlHelper;
+$gaugeService=new gaugeService($sqlHelper);
 
 ?>
 <!DOCTYPE html>

@@ -1,9 +1,11 @@
 <?php  
+require_once "../model/sqlHelper.class.php";
 require_once '../model/checkService.class.php';
 require_once '../model/devService.class.php';
 header("content-type:text/html;charset=utf-8");
-$checkService = new checkService;
-$devService = new devService;
+$sqlHelper = new sqlHelper;
+$checkService = new checkService($sqlHelper);
+$devService = new devService($sqlHelper);
 
 if (!empty($_REQUEST['flag'])) {
 	$flag=$_REQUEST['flag'];

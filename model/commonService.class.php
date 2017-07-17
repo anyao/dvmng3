@@ -1,5 +1,16 @@
 <?php  
 class CommonService{
+	public static function autoload(){
+		spl_autoload_register(function ($class_name) {
+		    if (file_exists("./model/".$class_name.".class.php")) 
+				include './model/'.$class_name.'.class.php';
+			else{
+				echo "没有找到相关的类文件<br>";
+				return false;
+			}
+		});
+	}
+
 	public static function getAuth(){
 		if ($_SESSION['user'] == 'admin') 
 			$authDpt = "";
@@ -8,6 +19,22 @@ class CommonService{
 			$authDpt = " in($arrDpt) ";
 		}
 		return $authDpt;
+	}
+
+	public static function getCookieval($key){
+		if (empty($_COOKIE[$key])) {
+			return "";
+		}else{
+			return $_COOKIE[$key];
+		}
+	}
+
+	//验证是否登录，若未登录则返回登录页面
+	public static function checkValidate(){
+		if(empty($_SESSION['user'])){
+			header("location:./login.php");
+			exit();
+		}	
 	}
 }
 ?>

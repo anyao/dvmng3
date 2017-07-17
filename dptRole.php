@@ -1,10 +1,12 @@
 <?php 
 require_once "model/cookie.php";
+require_once "model/sqlHelper.class.php";
+require_once "model/dptService.class.php";
 checkValidate();
 $user=$_SESSION['user'];
 
-require_once "model/dptService.class.php";
-$dptService=new dptService();
+$sqlHelper = new sqlHelper;
+$dptService=new dptService($sqlHelper);
 $res = $dptService->getRoleFunc();
 ?>
 <!DOCTYPE html>

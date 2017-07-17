@@ -1,24 +1,22 @@
 <?php 
-header("content-type:text/html;charset=utf-8");
-require_once 'sqlHelper.class.php';
-require_once 'paging.class.php';
 require_once "./../Classes/PHPExcel.php";
 require_once "./../Classes/PHPExcel/Writer/Excel5.php";
 class gaugeService{
 	public $authDpt = "";
 	public $dataCheck = [];
-	function __construct(){
+	private $sqlHelper;
+	function __construct($sqlHelper){
 		if ($_SESSION['user'] == 'admin') {
 			$this->authDpt = " ";
 		}else{
 			$arrDpt = implode(",",$_SESSION['dptid']);
 			$this->authDpt = " in($arrDpt) ";
 		}
+		$this->sqlHelper = $sqlHelper;
 	}
 
 	// 备件申报入厂检定列表
 	function buyCheckHis($paging){
-		$sqlHelper = new sqlHelper();
 		$sql1 = "SELECT buy.id id,checkTime,codeManu,buy.name,spec,wareTime,unit,category.name category,supplier,codeWare
 				 FROM buy
 				 left join category
@@ -26,25 +24,21 @@ class gaugeService{
 				 where status=2 and pid is null
 				 limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
 		$sql2 = "SELECT count(*) from buy where status=2 and pid is null ";
-		$res = $sqlHelper->dqlPaging($sql1,$sql2,$paging);
-		$sqlHelper->close_connect();
+		$res = $this->sqlHelper->dqlPaging($sql1,$sql2,$paging);
 	}
 
 	function getLeaf($id, $status){
-		$sqlHelper = new sqlHelper();
 		$sql = "SELECT buy.id id,checkTime,codeManu,buy.name,spec,wareTime,unit,category.name category,supplier,codeWare
 			    FROM buy
 			    left join category
 			    on buy.category = category.no
 			    where pid = $id and status = $status";
-		$res = $sqlHelper->dql_arr($sql);
-		$sqlHelper->close_connect();
+		$res = $this->sqlHelper->dql_arr($sql);
 		return $res;
 	}
 
 		// 备件申报入厂检定列表
 	function buyCheck($paging){
-		$sqlHelper = new sqlHelper();
 		$sql1 = "SELECT buy.id id,wareTime,buy.name,spec,codeWare,unit,category.name category,codeWare 
 				 FROM buy
 				 left join category
@@ -52,8 +46,7 @@ class gaugeService{
 				 where status=1
 				 limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
 		$sql2 = "SELECT count(*) from buy where status=1";
-		$res = $sqlHelper->dqlPaging($sql1,$sql2,$paging);
-		$sqlHelper->close_connect();
+		$res = $this->sqlHelper->dqlPaging($sql1,$sql2,$paging);
 	}
 
 	public function findWhere($code, $name, $spec){
@@ -80,7 +73,6 @@ class gaugeService{
 		elseif (!empty($check_from) && empty($check_to)) 
 			$where .= " AND checkTime between '{$check_from}' and ".date("Y-m-d");
 
-		$sqlHelper = new sqlHelper();
 		$sql1 = "SELECT buy.id id,checkTime,codeManu,buy.name,spec,wareTime,unit,category.name category,supplier,codeWare
 				 FROM buy
 				 left join category
@@ -88,8 +80,7 @@ class gaugeService{
 				 where status=2 AND $where AND $dtl
 				 limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
 		$sql2 = "SELECT count(*) from buy where status=2  AND $where AND $dtl";
-		$res = $sqlHelper->dqlPaging($sql1,$sql2,$paging);
-		$sqlHelper->close_connect();
+		$res = $this->sqlHelper->dqlPaging($sql1,$sql2,$paging);
 	}
 
 	function buyInstallFind($install_from, $install_to, $codeWare, $name, $spec, $paging){
@@ -105,7 +96,6 @@ class gaugeService{
 			$where .= " AND (useTime between '{$install_from}' and ".date("Y-m-d")
 						."OR storeTime between '{$install_from}' and ".date("Y-m-d").")";
 
-		$sqlHelper = new sqlHelper();
 		$sql1 = "SELECT storeTime, useTime, depart.depart, factory.depart factory, name, codeManu, spec, status, loc, buy.id
 				 from buy 
 				 left join depart
@@ -120,12 +110,10 @@ class gaugeService{
 				 from buy
 				 where status in(4,5) AND $where AND $dtl
 				 AND takeDpt {$this->authDpt}";
-		$res = $sqlHelper->dqlPaging($sql1,$sql2,$paging);
-		$sqlHelper->close_connect();
+		$res = $this->sqlHelper->dqlPaging($sql1,$sql2,$paging);
 	}
 
 	function buyInstall($paging){
-		$sqlHelper = new sqlHelper();
 		$sql1 = "SELECT buy.id id,checkTime,codeManu,buy.name,spec,unit,category.name category,codeWare
 				 FROM buy
 				 left join category
@@ -155,21 +143,18 @@ class gaugeService{
 					 	) 
 				 )
 				 AND takeDpt {$this->authDpt}";
-		$res = $sqlHelper->dqlPaging($sql1,$sql2,$paging);
-		$sqlHelper->close_connect();
+		$res = $this->sqlHelper->dqlPaging($sql1,$sql2,$paging);
 	}
 
 	function takeSpr($sprid, $dptid){
-		$sqlHelper = new sqlHelper();
 		$takeUser = $_SESSION['user'];
 		$takeTime = date("Y-m-d");
 		$sql = "UPDATE buy set takeUser='{$takeUser}',takeDpt=$dptid,takeTime='{$takeTime}',status=3 where id in($sprid) or pid = $sprid";
-		$res = $sqlHelper->dml($sql);
+		$res = $this->sqlHelper->dml($sql);
 		return $res;
 	}
 
 	function addInfo($data){
-		$sqlHelper = new sqlHelper();
 		$sql = "INSERT INTO  buy(wareTime,codeWare,name,spec,unit,category,supplier,wareId,status) VALUES";
 		for ($i=0; $i < count($data); $i++) { 
 			$arr = $data[$i];
@@ -178,37 +163,30 @@ class gaugeService{
 			}
 		}
 		$sql = substr($sql, 0, -1); 
-		$res = $sqlHelper->dml($sql);
-		$sqlHelper->close_connect();
+		$res = $this->sqlHelper->dml($sql);
 		return $res;
 	}
 
 	function delInfo($id){
-		$sqlHelper = new sqlHelper();
 		$sql = "DELETE FROM buy where id = $id";
-		$res = $sqlHelper->dml($sql);
-		$sqlHelper->close_connect();
+		$res = $this->sqlHelper->dml($sql);
 		return $res;
 	} 
 
 	function chgStatus($id){
-		$sqlHelper = new sqlHelper();
 		$sql = "UPDATE buy set status=2 where id = $id";
-		$res = $sqlHelper->dml($sql);
-		$sqlHelper->close_connect();
+		$res = $this->sqlHelper->dml($sql);
 		return $res;
 	}
 
 	function cloneCheck($id, $name, $spec, $unit){
-		$sqlHelper = new sqlHelper();
 		$sql = "INSERT INTO buy(wareTime,codeWare,name,spec,unit,category,supplier,wareId,status) 
 				SELECT wareTime,codeWare,'{$name}','{$spec}','{$unit}',category,supplier,wareId,status FROM buy where id = $id";
-		$res = $sqlHelper->dml($sql);
+		$res = $this->sqlHelper->dml($sql);
 		return mysql_insert_id();
 	}
 
 	function addCheck($id, $codeManu, $accuracy, $scale, $certi, $track, $checkNxt, $valid, $circle, $checkDpt, $outComp, $pid, $path, $class){
-		$sqlHelper = new sqlHelper();
 		$checkTime = date("Y-m-d");
 		$checkUser = $_SESSION['user'];
 		$sql = "UPDATE buy SET 
@@ -229,39 +207,32 @@ class gaugeService{
 				checkDpt = '{$checkDpt}',
 				outComp = '{$outComp}'
 				{$dpt} where id = $id";
-		$res = $sqlHelper->dml($sql);
-		$sqlHelper->close_connect();
+		$res = $this->sqlHelper->dml($sql);
 		return $res;
 	}
 
 	function getChk($id){
-		$sqlHelper = new sqlHelper();
 		$sql = "SELECT codeManu,accuracy,scale,certi,track,checkNxt,valid,circle,checkComp,checkDpt FROM buy where id = $id";
-		$res = $sqlHelper->dql($sql);
-		$sqlHelper->close_connect();
+		$res = $this->sqlHelper->dql($sql);
 		return $res;
 	}
 
 	function useSpr($id, $loc){
 		$useTime = date("Y-m-d");
-		$sqlHelper = new sqlHelper();
 		$sql = "UPDATE buy set loc='{$loc}', useTime='{$useTime}', status=4 where id=$id";
-		$res = $sqlHelper->dml($sql);
-		$sqlHelper->close_connect();
+		$res = $this->sqlHelper->dml($sql);
 		return $res; 
 	}
  	
  	function storeSpr($id){
  		$storeTime = date("Y-m-d");
- 		$sqlHelper = new sqlHelper();
+
  		$sql = "UPDATE buy set status=5, storeTime='{$storeTime}' where id=$id";
- 		$res = $sqlHelper->dml($sql);
-		$sqlHelper->close_connect();
+ 		$res = $this->sqlHelper->dml($sql);
 		return $res; 
  	}
 
 	function buyInstallHis($paging){
-		$sqlHelper = new sqlHelper();
 		$sql1 = "SELECT storeTime, useTime, depart.depart, factory.depart factory, name, codeManu, spec, status, loc, buy.id
 				 from buy 
 				 left join depart
@@ -276,12 +247,10 @@ class gaugeService{
 				 from buy
 				 where status in(4,5) 
 				 AND takeDpt {$this->authDpt}";
-		$res = $sqlHelper->dqlPaging($sql1,$sql2,$paging);
-		$sqlHelper->close_connect();
+		$res = $this->sqlHelper->dqlPaging($sql1,$sql2,$paging);
 	}
 
 	function getXls($id){
-		$sqlHelper = new sqlHelper();
 		$sql = "SELECT buy.name, buy.takeDpt dptid, depart.depart, factory.depart, spec, loc, codeManu, scale
 				FROM buy
 				LEFT JOIN depart
@@ -289,12 +258,11 @@ class gaugeService{
 				LEFT JOIN depart factory 
 				on factory.id= depart.fid
 				where buy.id=$id";
-		$res = $sqlHelper->dql($sql);
+		$res = $this->sqlHelper->dql($sql);
 
 		$sql = "SELECT num from dpt_num where depart={$res['dptid']}";
-		$cljl = $sqlHelper->dql($sql);
+		$cljl = $this->sqlHelper->dql($sql);
 		$res['CLJL'] = $cljl['num'];
-		$sqlHelper->close_connect();
 		return $res;
 	}
 

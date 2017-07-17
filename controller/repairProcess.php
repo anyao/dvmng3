@@ -1,7 +1,9 @@
 <?php 
+require_once "../model/sqlHelper.class.php";
 require_once '../model/repairService.class.php';
 header("content-type:text/html;charset=utf-8");
-$repairService=new repairService();
+$sqlHelper = new sqlHelper;
+$repairService=new repairService($sqlHelper);
 if (!empty($_REQUEST['flag'])) {
 	$flag=$_REQUEST['flag'];
 	// 维修任务----查看新任务置标志位

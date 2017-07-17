@@ -1,14 +1,19 @@
 <?php 
 require_once "model/cookie.php";
+require_once "model/sqlHelper.class.php";
+require_once "model/dptService.class.php";
 checkValidate();
 $user=$_SESSION['user'];
+$sqlHelper = new sqlHelper;
+$dptService=new dptService($sqlHelper);
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1
+">
 <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 <meta name="description" content="普阳钢铁设备管理系统">
 <meta name="author" content="安瑶">
@@ -51,12 +56,7 @@ $user=$_SESSION['user'];
 <script src="bootstrap/js/jquery.ztree.excheck.min.js"></script>
 </head>
 <body role="document">
-<?php 
-	include "message.php";
-
-	require_once "model/dptService.class.php";
-	$dptService=new dptService();
-?>
+<?php	include "message.php";?>
 
 <nav class="navbar navbar-inverse">
   <div class="container">

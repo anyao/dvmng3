@@ -1,10 +1,12 @@
 <?php
+require_once "../model/sqlHelper.class.php";
 require_once '../model/inspectService.class.php';
 require_once '../model/devService.class.php';
 require_once '../model/repairService.class.php';
 header("content-type:text/html;charset=utf-8");
-$devService=new devService();
-$inspectService=new inspectService();
+$sqlHelper = new sqlHelper;
+$devService=new devService($sqlHelper);
+$inspectService=new inspectService($sqlHelper);
 if (!empty($_REQUEST['flag'])) {
 	$flag=$_REQUEST['flag'];
 
@@ -155,7 +157,7 @@ if (!empty($_REQUEST['flag'])) {
 
 				$repairMan=$_POST['repairMan'];
 				// $repairTime=$_POST['repairTime'];
-				$repairService=new repairService();
+				$repairService=new repairService($sqlHelper);
 				$repMis=$repairService->addMis($devid,$info,$repairMan);
 				if ($repMis==0) {
 					echo "fail";

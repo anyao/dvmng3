@@ -1,7 +1,9 @@
 <script type="text/javascript">
 <?php 
-include "./model/dptService.class.php";
-$dptService = new dptService();
+include_once "./model/dptService.class.php";
+include_once "model/sqlHelper.class.php";
+$sqlHelper = new sqlHelper;
+$dptService = new dptService($sqlHelper);
 $dptAll = $dptService->getDpt();
 ?>
 
