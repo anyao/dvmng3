@@ -1,10 +1,7 @@
 <?php 
-require_once "model/cookie.php";
-require_once "model/sqlHelper.class.php";
-require_once 'model/devService.class.php';
-require_once 'model/dptService.class.php';
-require_once 'model/checkService.class.php';
-checkValidate();
+include_once "./model/commonService.class.php";
+CommonService::checkValidate();
+CommonService::autoload();
 $user=$_SESSION['user'];
 $sqlHelper = new sqlHelper;
 $checkService = new checkService($sqlHelper);

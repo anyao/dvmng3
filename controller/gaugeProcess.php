@@ -1,9 +1,6 @@
 <?php  
-require_once "../model/sqlHelper.class.php";
-require_once '../model/gaugeService.class.php';
-require_once '../model/userService.class.php';
-include "../phpExcel/PHPExcel/IOFactory.php";
-header("content-type:text/html;charset=utf-8");
+require_once "../model/commonService.class.php";
+CommonService::autoloadController();
 $sqlHelper = new sqlHelper;
 $gaugeService=new gaugeService($sqlHelper);
 if (!empty($_REQUEST['flag'])) {

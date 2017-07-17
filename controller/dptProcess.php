@@ -1,7 +1,6 @@
 <?php 
-require_once "../model/sqlHelper.class.php";
-require_once '../model/dptService.class.php';
-header("content-type:text/html;charset=utf-8");
+require_once "../model/commonService.class.php";
+CommonService::autoloadController();
 if (!empty($_REQUEST['flag'])) {
 	$flag=$_REQUEST['flag'];
 	$sqlHelper = new sqlHelper;

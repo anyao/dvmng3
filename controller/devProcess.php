@@ -1,9 +1,6 @@
 <?php
-require_once '../model/sqlHelper.class.php';
-require_once '../model/devService.class.php';
-require_once '../model/checkService.class.php';
-require_once '../model/userService.class.php';
-header("content-type:text/html;charset=utf-8");
+require_once "../model/commonService.class.php";
+CommonService::autoloadController();
 $sqlHelper = new sqlHelper;
 $devService=new devService($sqlHelper);
 $chkService = new checkService($sqlHelper);
@@ -46,12 +43,13 @@ if (!empty($_REQUEST['flag'])) {
 	else if($flag=="uptDev"){
 		$arr = $_POST;
 		$id = $arr['id'];
+		$ostatus = $arr['ostatus'];
 		unset($arr['flag'], $arr['take'], $arr['id'], $arr['ostatus']);
 		// 更新信息
 		$res = $devService->uptDev($arr, $id);
 
 		// 修改时状态改变
-		if ($arr['status'] != $arr['ostatus']) 
+		if ($arr['status'] != $ostatus) 
 		 $devService->logStatus($arr['status'], $id);
 
 		if ($res !== false) 

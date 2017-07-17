@@ -1,5 +1,4 @@
 <?php  
-require_once 'commonService.class.php';
 class msgService{
 	private $authDpt;
 	private $sqlHelper;

@@ -1,6 +1,4 @@
 <?php  
-require_once "model/sqlHelper.class.php";
-require_once './model/msgService.class.php';
 $msgService = new msgService($sqlHelper);
 $validNum = $msgService->getCountValid();
 ?>

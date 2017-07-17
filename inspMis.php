@@ -1,6 +1,7 @@
 <?php 
-require_once "model/cookie.php";
-checkValidate();
+include_once "./model/commonService.class.php";
+CommonService::checkValidate();
+CommonService::autoload();
 $user=$_SESSION['user'];
 
 require_once "./model/dptService.class.php";

@@ -3,7 +3,18 @@ class CommonService{
 	public static function autoload(){
 		spl_autoload_register(function ($class_name) {
 		    if (file_exists("./model/".$class_name.".class.php")) 
-				include './model/'.$class_name.'.class.php';
+				include_once './model/'.$class_name.'.class.php';
+			else{
+				echo "没有找到相关的类文件<br>";
+				return false;
+			}
+		});
+	}
+
+	public static function autoloadController(){
+		spl_autoload_register(function ($class_name) {
+		    if (file_exists("./../model/".$class_name.".class.php")) 
+				include_once './../model/'.$class_name.'.class.php';
 			else{
 				echo "没有找到相关的类文件<br>";
 				return false;

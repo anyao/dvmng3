@@ -1,8 +1,6 @@
 <?php  
-require_once "../model/sqlHelper.class.php";
-require_once '../model/checkService.class.php';
-require_once '../model/devService.class.php';
-header("content-type:text/html;charset=utf-8");
+require_once "../model/commonService.class.php";
+CommonService::autoloadController();
 $sqlHelper = new sqlHelper;
 $checkService = new checkService($sqlHelper);
 $devService = new devService($sqlHelper);

@@ -1,7 +1,6 @@
 <?php
-header("content-type:text/html;charset=utf-8");
-require_once "../model/sqlHelper.class.php";
-require_once '../model/userService.class.php';
+require_once "../model/commonService.class.php";
+CommonService::autoloadController();
 $sqlHelper = new sqlHelper;
 $userService=new userService($sqlHelper);
 if (!empty($_REQUEST['flag'])) {

@@ -5,13 +5,7 @@ class devService{
 	private $authDpt = "";
 	private $sqlHelper;
 	function __construct($sqlHelper){
-		if ($_SESSION['user'] == 'admin') {
-			$this->authDpt = "";
-		}else{
-			$arrDpt = implode(",",$_SESSION['dptid']);
-			$this->authDpt = " in($arrDpt) ";
-		}
-
+		$this->authDpt = CommonService::getAuth();
 		$this->sqlHelper = $sqlHelper;
 	}
 

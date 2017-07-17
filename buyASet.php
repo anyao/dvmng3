@@ -1,6 +1,8 @@
 <?php 
-require_once "model/cookie.php";
-checkValidate();
+include_once "./model/commonService.class.php";
+CommonService::autoload();
+CommonService::checkValidate();
+$sqlHelper = new sqlHelper;
 $user=$_SESSION['user'];
 $uid=$_SESSION['uid'];
 
@@ -57,7 +59,9 @@ $uid=$_SESSION['uid'];
 <?php include "buyVendor.php"; ?>
 </head>
 <body role="document">
-<?php include "message.php";?>
+<?php 
+include "message.php";
+?>
 <nav class="navbar navbar-inverse">
   <div class="container">
     <div class="navbar-header">

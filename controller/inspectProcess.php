@@ -1,9 +1,6 @@
 <?php
-require_once "../model/sqlHelper.class.php";
-require_once '../model/inspectService.class.php';
-require_once '../model/devService.class.php';
-require_once '../model/repairService.class.php';
-header("content-type:text/html;charset=utf-8");
+require_once "../model/commonService.class.php";
+CommonService::autoloadController();
 $sqlHelper = new sqlHelper;
 $devService=new devService($sqlHelper);
 $inspectService=new inspectService($sqlHelper);
