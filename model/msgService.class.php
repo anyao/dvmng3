@@ -9,15 +9,10 @@ class msgService{
 	public function getCountValid(){
 		$sql = "SELECT count(*) count
 				from buy 
-				where (
-			    (
-			    	unit != '套' and buy.pid is null and buy.status > 3 ) or
-					buy.id in (
-					 	SELECT pid from buy where pid is not null and buy.status > 3 
-				  	) 
-			    ) and
-			    takeDpt {$this->authDpt} and
-			    valid <= NOW()";
+				where codeManu is not null
+				and valid <= NOW()
+				and takeDpt {$this->authDpt}
+				and status > 3";
 		$res = $this->sqlHelper->dql($sql);
 		return $res['count'];
 	}

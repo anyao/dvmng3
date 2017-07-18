@@ -37,5 +37,12 @@ if (!empty($_REQUEST['flag'])) {
 			header("location: ./../usingList.php");
 	}
 
+	else if ($flag == "xlsPlan") {
+		$devid = explode(",",$_GET['devid']);
+		array_pop($devid);
+		$arr = $checkService->getXlsPlan($devid);
+		$res = $checkService->listStylePlan($arr);
+	}
+
 }
 ?>

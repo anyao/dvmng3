@@ -1,4 +1,5 @@
 <?php 
+header("content-type:text/html;charset=utf-8");
 require_once "./../Classes/PHPExcel.php";
 require_once "./../Classes/PHPExcel/Writer/Excel5.php";
 class gaugeService{
@@ -360,6 +361,53 @@ class gaugeService{
 	  $objWriter->save('php://output');
 	  exit;
 	}
+
+	function unsetNull($arr){
+		for ($i=17; $i < count($arr)-1; $i++) { 
+			foreach ($arr[$i] as $k => $v) {
+				if ($v == null) {
+					unset($arr[$i][$k]);
+				}
+			}
+		}
+		array_pop($arr);
+		return $arr;
+	}
+
+	function array_columns($input, $columnKey, $indexKey = null){  
+      $result = array();  
+       if(!is_array($input))  
+             return $result;  
+      $isFetchAll = false;  
+      foreach($input as $item){  
+        if(is_array($columnKey)) {  
+           if(empty($columnKey))  
+                $isFetchAll = true;  
+           if(!empty($columnKey) || $isFetchAll){  
+                $tempItem = '';  
+                if(!$isFetchAll){  
+                    foreach($columnKey as $colKey){  
+                         if(isset ($item[$colKey]))  
+                              $tempItem[$colKey] = $item[$colKey];  
+                    }  
+                }else  
+                	$tempItem = $item;  
+                	if(null !== $indexKey && isset($item[$indexKey]) && !is_array($item[$indexKey]))  
+                      $result[$item[$indexKey]] = $tempItem;  
+                 	else  
+                       $result[] = $tempItem;  
+          }  
+        }else{  
+           if(isset ($item[$columnKey])){  
+             if(null !== $indexKey && isset($item[$indexKey]) && !is_array($item[$indexKey]))  
+                  $result[$item[$indexKey]] = $item[$columnKey];  
+             else  
+                   $result[] = $item[$columnKey];  
+          }  
+        }  
+      }  
+      return $result;  
+	}  
 
 }
 ?>

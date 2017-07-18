@@ -22,7 +22,7 @@ if (!empty($_REQUEST['flag'])) {
 
 	else if ($flag == "addInfo") {
 		$data = json_decode($_POST['data'], true);
-		$res = $gaugeService->addCheck($data);
+		$res = $gaugeService->addInfo($data);
 		header("location: ./../buyCheck.php");
 		die;
 	}

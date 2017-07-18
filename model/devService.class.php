@@ -1,6 +1,7 @@
 <?php
 require_once "./../Classes/PHPExcel.php";
 require_once "./../Classes/PHPExcel/Writer/Excel5.php";
+header("content-type:text/html;charset=utf-8");
 class devService{
 	private $authDpt = "";
 	private $sqlHelper;
@@ -174,24 +175,20 @@ class devService{
 		return $res;
 	}
 
-	private function timediff($begin_time,$end_time ){
-		if (empty($end_time)) {
-			$end_time=date('Y-m-d');
-		}
-		if ( $begin_time < $end_time ) {
+	public function getDuration($end_time){
+		$begin_time = date('Y-m-d');
+		if ( $begin_time <= $end_time ) {
 			$starttime = strtotime("$begin_time");
 			$endtime = strtotime("$end_time");
 		} else {
-			$starttime = strtotime("$end_time");
-			$endtime = strtotime("$begin_time");
+			return ['需检修', '推迟'];
 		}
 		$timediff = $endtime - $starttime;
 		$days = intval( $timediff / 86400 );
-		if($days>365){
-			return array(round($days/365,2),"年");
-		}else{	
-			return array($days,"天");
-		}
+		if($days>365)
+			return [round($days/365,2), "年"];
+		else
+			return [$days, "天"];
 	}
 
 	public function listStyle($res, $check, $uDpt){
@@ -372,6 +369,32 @@ class devService{
 
 	private function groupClass($dev){
 		return implode("、", array_unique(array_column($dev, 'class')));
+	}
+
+	public function getChkPaging($paging){
+		$sql1 = "SELECT buy.id,codeManu,buy.name,spec,circle,valid,loc,
+				factory.depart factory,depart.depart,
+				status.status
+				from buy
+				left join depart
+				on buy.takeDpt = depart.id
+				left join depart factory
+				on depart.fid = factory.id
+				left join status
+				on status.id = buy.status
+				where codeManu is not null
+				and valid <= NOW()
+				and takeDpt {$this->authDpt}
+				and buy.status > 3
+				order by valid
+				limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
+		$sql2 = "SELECT count(*) 
+				 from buy 
+				 where codeManu is not null
+				 and valid <= NOW()
+				 and takeDpt {$this->authDpt}
+				 and buy.status > 3";
+		$this->sqlHelper->dqlPaging($sql1,$sql2,$paging);
 	}
 
 

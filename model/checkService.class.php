@@ -58,12 +58,22 @@ class checkService{
 		return $res;
 	}
 
-	function trimXls(Array $check){
+	function trimXls($check){
 		$_check = [];
 		foreach ($check as $k => $v) 
 			$_check[$v['devid']][] = $v;
 		return $_check;
 	}
+
+	function listStylePlan($arr){
+
+	}
+
+	function getXlsPlan($devid){
+		
+	}
+
+
 
 }
 ?>

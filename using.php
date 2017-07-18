@@ -98,10 +98,11 @@ $res = $devService->getDevById($id);
       </div>
     </div>
     <div class="printview" style="margin-left: 20px">
-      <h5>下次检修 / 天</h5>
+      <?php $dur = $devService->getDuration($res['valid']); ?>
+      <h5>下次检修 / <?=$dur[1]?></h5>
       <div class="row">
       <div class="col-md-4"><span class="glyphicon glyphicon-wrench"></span></div>
-      <div class="col-md-5">改</div>
+      <div class="state col-md-6"><?=$dur[0]?></div>
       </div>
     </div>
   </div>
@@ -149,7 +150,7 @@ $res = $devService->getDevById($id);
         </div>
         <div class="input-group">
           <span class="input-group-addon">有效日期</span>
-          <input type="text" class="form-control datetime" name="valid" value="<?=$res['valid']?>" readonly>
+          <input type="text" class="form-control" name="valid" value="<?=$res['valid']?>" readonly>
         </div> 
         <div class="input-group">
           <span class="input-group-addon">使用单位</span>
@@ -289,7 +290,6 @@ $res = $devService->getDevById($id);
     </div>
   </div>
 </div>
-
 <!-- 状态改变日志 -->
 <div class="modal fade" id="statusLogModal">
   <div class="modal-dialog" role="document">
@@ -462,7 +462,7 @@ function getStatusLog(){
 
 // 可修改时需要加载的附件
 function vendorUpt(){
-  $("#infoForm input[name!=hidden], #infoForm select[name=checkDpt]").not(".datetime,input[name=take],input[name=checkComp]").removeAttr('readonly');
+  $("#infoForm input[name!=hidden], #infoForm select[name=checkDpt]").not(".datetime,input[name=take],input[name=checkComp],input[name=valid]").removeAttr('readonly');
   $("#infoForm select").removeAttr('disabled');
   if ($("#infoForm select[name=checkDpt]").val() == 'isOut') 
     $("#infoForm input[name=checkComp]").removeAttr('readonly');

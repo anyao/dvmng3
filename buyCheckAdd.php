@@ -146,6 +146,8 @@ $(function(){
         if ($.inArray(key, ['AP', 'P', 'S']) == -1) 
           $addHtml += "<td>"+data.response[i][key]+"</td>" ;
       }
+      if (data.response[i]['R'] == undefined)
+         $addHtml += "<td></td>";
       $addHtml += "</tr>";
     }
     $("tbody").append($addHtml);
