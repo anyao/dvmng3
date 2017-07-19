@@ -202,7 +202,7 @@ class devService{
 		// 内容
 		// 表头
 		$objPHPExcel->setActiveSheetIndex(0)
-			->setCellValue('A1', $uDpt['depart'].'测量设备（'.self::groupClass($res).'类）台账')
+			->setCellValue('A1', '测量设备管理台账')
 			->setCellValue('A2', 'CLJL-'.$uDpt['num'].'-05')
 			->setCellValue('A3', '序号')
 			->setCellValue('B3', '设备名称')
