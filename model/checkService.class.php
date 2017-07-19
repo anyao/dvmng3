@@ -186,7 +186,8 @@ class checkService{
 	}
 
 	function getXlsPlan($devid){
-		
+		// $sql = "SELECT buy.id,class,buy.name,spec,accuracy,scale,codeManu,supplier,loc,
+		// 		factory.depart factory,circle,checkDpt,checkComp,"
 	}
 
 
