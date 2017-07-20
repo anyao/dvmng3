@@ -2,7 +2,8 @@
 require_once "../model/commonService.class.php";
 CommonService::autoloadController();
 $sqlHelper = new sqlHelper;
-$gaugeService=new gaugeService($sqlHelper);
+$gaugeService = new gaugeService($sqlHelper);
+$checkService = new checkService($sqlHelper);
 if (!empty($_REQUEST['flag'])) {
 	$flag=$_REQUEST['flag'];
 	if($flag == "file2Arr"){
@@ -36,20 +37,19 @@ if (!empty($_REQUEST['flag'])) {
 
 	else if ($flag == "addCheck") {
 		$id = $_POST['id'];
-		$codeManu = $_POST['codeManu'];
-		$accuracy = $_POST['accuracy'];
-		$scale = $_POST['scale'];
-		$certi = $_POST['certi'];
-		$track = $_POST['track'];
-		$checkNxt = $_POST['checkNxt'];
-		$valid = $_POST['valid'];
-		$circle = $_POST['circle'];
-		$checkDpt = $_POST['checkDpt'];
-		$outComp = $_POST['outComp'];
-		$class = $_POST['class'];
+		
+		$info = $_POST['info'];
+		$info['valid'] = date('Y-m-d',strtotime($chk['time']." +".$info['circle']." month"));
 
-		$res = $gaugeService->addCheck($id, $codeManu, $accuracy, $scale, $certi, $track, $checkNxt, $valid, $circle, $checkDpt, $outComp, $pid, $path, $class);
-		if ($res !== false) 
+		$chk = $_POST['chk'];
+		$chk['res'] = 1; 
+		$chk['devid'] = $id;
+		$chk['type'] = 1;
+
+		$resInfo = $gaugeService->addBas($info, $id);
+		$resChk = $checkService->addCheck($chk);
+
+		if (!in_array(false, [$resInfo, $resChk])) 
 			header("location:./../buyCheck.php");
 	}
 

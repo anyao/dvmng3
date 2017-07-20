@@ -26,6 +26,14 @@ class checkService{
 		return $res;
 	}
 
+	function addCheck($arr){
+		//  [checkTime] => 2017-07-20 [track] => 检定 [res] => 1 [devid] => 592 [type] => 1 
+		$_arr = ["user = '{$_SESSION['uid']}'"];
+		$sql = "INSERT INTO `check` set ".CommonService::sqlTgther($_arr, $arr);
+		$res = $this->sqlHelper->dml($sql);
+		return $res;
+	}
+
 	function setValid($devid){
 		$sql = "UPDATE buy set 
 					valid=date_add(

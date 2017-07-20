@@ -124,59 +124,57 @@ $gaugeService->buyCheck($paging);
           <div class="row">
             <div class="col-md-6">
               <div class="input-group">
-                <span class="input-group-addon">出厂编号</span>
-                <input class="form-control" name="codeManu" type="text">
-              </div> 
-              <div class="input-group">
-                <span class="input-group-addon">精度等级</span>
-                <input class="form-control" name="accuracy" type="text">
-              </div> 
-              <div class="input-group">
-                <span class="input-group-addon">量　　程</span>
-                <input class="form-control" name="scale" type="text">
-              </div> 
-              <div class="input-group">
-                <span class="input-group-addon">证书结论</span>
-                <input class="form-control" name="certi" type="text">
-              </div>  
-              <div class="input-group">
-                <span class="input-group-addon">溯源方式</span>
-                <select class="form-control" name="track">
-                  <option value="检定">检定</option>
-                  <option value="校准">校准</option>
-                  <option value="测试">测试</option>
-                </select>
-              </div> 
-            </div>
-            <div class="col-md-6">
-              <div class="input-group">
                 <span class="input-group-addon">管理类别</span>
-                <select class="form-control" name="class">
+                <select class="form-control" name="info[class]">
                   <option value="A">A</option>
                   <option value="B">B</option>
                   <option value="C">C</option>
                 </select>
               </div>  
               <div class="input-group">
-                <span class="input-group-addon">检定日期</span>
-                <input class="form-control datetime" name="checkNxt" readonly="" type="text">
-              </div>  
+                <span class="input-group-addon">出厂编号</span>
+                <input class="form-control" name="info[codeManu]" type="text">
+              </div> 
               <div class="input-group">
-                <span class="input-group-addon">有效日期</span>
-                <input class="form-control datetime" name="valid" readonly="" type="text">
+                <span class="input-group-addon">精度等级</span>
+                <input class="form-control" name="info[accuracy]" type="text">
+                <span class="input-group-btn">
+                  <button class="btn btn-default">级</button>
+                </span>
+              </div> 
+              <div class="input-group">
+                <span class="input-group-addon">量　　程</span>
+                <input class="form-control" name="info[scale]" type="text">
+              </div> 
+              <div class="input-group">
+                <span class="input-group-addon">测量装置</span>
+                <input class="form-control" name="info[equip]" type="text">
+              </div> 
+              <div class="input-group">
+                <span class="input-group-addon">用　　途</span>
+                <select class="form-control" name="info[usage]">
+                  <option value="质检">质检</option>
+                  <option value="经营">经营</option>
+                  <option value="控制">控制</option>
+                  <option value="安全">安全</option>
+                  <option value="环保">环保</option>
+                  <option value="能源">能源</option>
+                </select>
               </div>
+            </div>
+            <div class="col-md-6">
               <div class="input-group">
                 <span class="input-group-addon">检定周期</span>
-                <input class="form-control" name="circle" value="6" readonly="readonly" type="text">
+                <input class="form-control" name="info[circle]" value="6" readonly="readonly" type="text">
                 <span class="input-group-btn">
                   <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-minus"></span></button>
                   <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-plus"></span></button>
                   <button class="btn btn-default">月</button>
                 </span>
-              </div> 
+              </div>  
               <div class="input-group">
                 <span class="input-group-addon">检定单位</span>
-                <select class="form-control" name="checkDpt">
+                <select class="form-control" name="info[checkDpt]" id="checkDpt">
                   <option value="199">计量室</option>
                   <option value="isTake">使用部门</option>
                   <option value="isOut">外检单位</option>
@@ -184,14 +182,30 @@ $gaugeService->buyCheck($paging);
               </div>
               <div class="input-group" id="outComp">
                 <span class="input-group-addon">外检公司</span>
-                <input class="form-control" name="outComp" type="text">
+                <input class="form-control" name="info[checkComp]" type="text">
+              </div> 
+              <div class="input-group">
+                <span class="input-group-addon">检定日期</span>
+                <input class="form-control datetime" name="chk[time]" readonly="" type="text">
               </div>  
+              <div class="input-group">
+                <span class="input-group-addon">溯源方式</span>
+                <select class="form-control" name="chk[track]">
+                  <option value="检定">检定</option>
+                  <option value="校准">校准</option>
+                </select>
+              </div> 
+              <div class="input-group">
+                <span class="input-group-addon">证书结论</span>
+                <input class="form-control" name="chk[res]" value="合格" type="text" readonly>
+              </div> 
             </div>
           </div>
         </div>
         <div class="modal-footer">
           <input type="hidden" name="flag" value="addCheck">
           <input type="hidden" name="id">
+          <span id="failAdd" style="color: red;display:none">信息填写不完整。</span>
           <button class="btn btn-primary" id='yesAddInfo'>录入</button>
         </div>
       </form>
@@ -266,7 +280,7 @@ $gaugeService->buyCheck($paging);
 <?php  include "./buyJs.php";?>
 <script type="text/javascript">
 // 外检input框显示
-$("select[name=checkDpt]").click(function(){
+$("#checkDpt").click(function(){
   if ($(this).val() == "isOut") 
     $("#outComp").show().css("display", "table");
   else
@@ -315,15 +329,12 @@ $(".glyphicon-minus").parents("button").click(function(){
 $("#yesAddInfo").click(function(){
   var allow_submit = true;
 
-  $("#addInfo .form-control[name!=outComp]").each(function(){
-    if ($(this).val() == "" || ($(this).val() == 'isOut' && $("input[name=outComp]").val() == "")) {
-      $("#failAdd").modal({
-        keyboard:true
-      });
+  $("#addInfo .form-control").not("#outComp input").each(function(){
+    if ($(this).val() == "" || ($(this).val() == 'isOut' && $("#outComp input").val() == "")) {
+      $("#failAdd").show();
       allow_submit = false;
     }
   });
-
   return allow_submit;
 });
 
@@ -351,10 +362,12 @@ function sprCheck(id, unit){
   $("#addInfo input[name=id]").val(id);
   if (unit == '套') 
     location.href = "./buyASet.php?id="+id;
-  else
+  else{
+    $("#failAdd").hide();
     $("#addInfo").modal({
       keyboard:true
     });
+  }
 }
 
 $("#yesDelInfo").click(function(){

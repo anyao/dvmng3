@@ -202,7 +202,14 @@ class gaugeService{
 				path = '{$path}',
 				checkDpt = '{$checkDpt}',
 				outComp = '{$outComp}'
-				{$dpt} where id = $id";
+				where id = $id";
+		$res = $this->sqlHelper->dml($sql);
+		return $res;
+	}
+
+	function addBas($info, $id){
+		$_arr = ['status = 2'];
+		$sql = "UPDATE buy set ".CommonService::sqlTgther($_arr, $info)." WHERE id = $id";
 		$res = $this->sqlHelper->dml($sql);
 		return $res;
 	}

@@ -47,5 +47,12 @@ class CommonService{
 			exit();
 		}	
 	}
+
+	public static function sqlTgther($_arr, $arr){
+		foreach ($arr as $k => $v) {
+			array_push($_arr, $v == '' ? "`$k` = null" : "`$k` = '{$v}'");
+		}
+		return implode(',',$_arr);
+	}
 }
 ?>
