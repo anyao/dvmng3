@@ -54,15 +54,25 @@ if (!empty($_REQUEST['flag'])) {
 	}
 
 	else if ($flag == "addCheckAset") {
-		$spr = $_POST['spr'];
 		$pid = $_POST['pid'];
+		$path = '-'.$pid;
+		$spr = $_POST['spr'];
 		for ($i=0; $i < count($spr); $i++) { 
-			$id = $gaugeService->cloneCheck($pid, $spr[$i]['name'], $spr[$i]['spec'], $spr[$i]['unit']);
-			$res = $gaugeService->addCheck($id, $spr[$i]['codeManu'], $spr[$i]['accuracy'], $spr[$i]['scale'], $spr[$i]['certi'], $spr[$i]['track'], $spr[$i]['checkNxt'], $spr[$i]['valid'], $spr[$i]['circle'], $spr[$i]['checkDpt'], $spr[$i]['outComp'], $pid, '-'.$pid);
+			$info = $spr[$i]['info'];
+			$info['valid'] = date('Y-m-d',strtotime($chk['time']." +".$info['circle']." month"));
+			$info['pid'] = $pid;
+			$info['path'] = $path;
+			$id = $gaugeService->cloneCheck($pid, $info['name'], $info['spec'], $info['unit']);
+			
+			$chk = $spr[$i]['chk'];
+			$chk['res'] = 1; 
+			$chk['devid'] = $id;
+			$chk['type'] = 1;
+			$gaugeService->addBas($info, $id);
+			$checkService->addCheck($chk);
 		}
-		$pStatus = $gaugeService->chgStatus($pid);
-		if (!in_array(0, $spr) && $pStatus)
-			header("location:./../buyCheck.php");
+		$gaugeService->chgStatus($pid);
+		header("location:./../buyCheck.php");
 	}
 
 	else if ($flag == "getChk") {

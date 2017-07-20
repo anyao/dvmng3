@@ -124,78 +124,98 @@ include "message.php";
         <div class="row bas-remove">
           <span class="glyphicon glyphicon-remove-circle"></span>
           </div>
-        <div class="row">
-          <div class="col-md-6">
-            <div class="input-group">
-              <span class="input-group-addon">备件名称</span>
-              <input class="form-control" name="spr[<?=$i?>][name]" type="text">
-            </div> 
-            <div class="input-group">
-              <span class="input-group-addon">规格型号</span>
-              <input class="form-control" name="spr[<?=$i?>][spec]" type="text">
-            </div> 
-            <div class="input-group">
-              <span class="input-group-addon">出厂编号</span>
-              <input class="form-control" name="spr[<?=$i?>][codeManu]" type="text">
-            </div> 
-            <div class="input-group">
-              <span class="input-group-addon">精度等级</span>
-              <input class="form-control" name="spr[<?=$i?>][accuracy]" type="text">
-            </div> 
-            <div class="input-group">
-              <span class="input-group-addon">量　　程</span>
-              <input class="form-control" name="spr[<?=$i?>][scale]" type="text">
-            </div> 
-            <div class="input-group">
-              <span class="input-group-addon">证书结论</span>
-              <input class="form-control" name="spr[<?=$i?>][certi]" type="text">
-            </div>  
-             
+          <div class="row">
+            <div class="col-md-6">
+              <div class="input-group">
+                <span class="input-group-addon">管理类别</span>
+                <select class="form-control" name="spr[<?=$i?>][info][class]">
+                  <option value="A">A</option>
+                  <option value="B">B</option>
+                  <option value="C">C</option>
+                </select>
+              </div>  
+              <div class="input-group">
+                <span class="input-group-addon">设备名称</span>
+                <input class="form-control" name="spr[<?=$i?>][info][name]" type="text">
+              </div> 
+              <div class="input-group">
+                <span class="input-group-addon">出厂编号</span>
+                <input class="form-control" name="spr[<?=$i?>][info][codeManu]" type="text">
+              </div> 
+              <div class="input-group">
+                <span class="input-group-addon">精度等级</span>
+                <input class="form-control" name="spr[<?=$i?>][info][accuracy]" type="text">
+                <span class="input-group-btn">
+                  <button class="btn btn-default">级</button>
+                </span>
+              </div> 
+              <div class="input-group">
+                <span class="input-group-addon">量　　程</span>
+                <input class="form-control" name="spr[<?=$i?>][info][scale]" type="text">
+              </div> 
+              <div class="input-group">
+                <span class="input-group-addon">测量装置</span>
+                <input class="form-control" name="spr[<?=$i?>][info][equip]" type="text">
+              </div> 
+              <div class="input-group">
+                <span class="input-group-addon">用　　途</span>
+                <select class="form-control" name="spr[<?=$i?>][info][usage]">
+                  <option value="质检">质检</option>
+                  <option value="经营">经营</option>
+                  <option value="控制">控制</option>
+                  <option value="安全">安全</option>
+                  <option value="环保">环保</option>
+                  <option value="能源">能源</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="input-group">
+                <span class="input-group-addon">规格型号</span>
+                <input class="form-control" name="spr[<?=$i?>][info][spec]" type="text">
+              </div>
+              <div class="input-group">
+                <span class="input-group-addon">单　　位</span>
+                <input class="form-control" name="spr[<?=$i?>][info][unit]" type="text">
+              </div>
+              <div class="input-group">
+                <span class="input-group-addon">检定周期</span>
+                <input class="form-control" name="spr[<?=$i?>][info][circle]" value="6" readonly="readonly" type="text">
+                <span class="input-group-btn">
+                  <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-minus"></span></button>
+                  <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-plus"></span></button>
+                  <button class="btn btn-default">月</button>
+                </span>
+              </div>  
+              <div class="input-group">
+                <span class="input-group-addon">检定单位</span>
+                <select class="form-control" name="spr[<?=$i?>][info][checkDpt]" dpt="checkDpt">
+                  <option value="199">计量室</option>
+                  <option value="isTake">使用部门</option>
+                  <option value="isOut">外检单位</option>
+                </select>
+              </div>
+              <div class="input-group" comp="outComp">
+                <span class="input-group-addon">外检公司</span>
+                <input class="form-control" name="spr[<?=$i?>][info][checkComp]" type="text">
+              </div> 
+              <div class="input-group">
+                <span class="input-group-addon">检定日期</span>
+                <input class="form-control datetime" name="spr[<?=$i?>][chk][time]" readonly="" type="text">
+              </div>  
+              <div class="input-group">
+                <span class="input-group-addon">溯源方式</span>
+                <select class="form-control" name="spr[<?=$i?>][chk][track]">
+                  <option value="检定">检定</option>
+                  <option value="校准">校准</option>
+                </select>
+              </div> 
+              <div class="input-group">
+                <span class="input-group-addon">证书结论</span>
+                <input class="form-control" name="spr[<?=$i?>][chk][res]" value="合格" type="text" readonly>
+              </div> 
+            </div>
           </div>
-          <div class="col-md-6">
-            <div class="input-group">
-              <span class="input-group-addon">单　　位</span>
-              <input class="form-control" name="spr[<?=$i?>][unit]" type="text">
-            </div> 
-            <div class="input-group">
-              <span class="input-group-addon">溯源方式</span>
-              <select class="form-control" name="spr[<?=$i?>][track]">
-                <option value="检定">检定</option>
-                <option value="校准">校准</option>
-                <option value="测试">测试</option>
-              </select>
-            </div>
-            <div class="input-group">
-              <span class="input-group-addon">检定日期</span>
-              <input class="form-control datetime" name="spr[<?=$i?>][checkNxt]" readonly="" type="text">
-            </div>  
-            <div class="input-group">
-              <span class="input-group-addon">有效日期</span>
-              <input class="form-control datetime" name="spr[<?=$i?>][valid]" readonly="" type="text">
-            </div>
-            <div class="input-group">
-              <span class="input-group-addon">检定周期</span>
-              <input class="form-control" name="spr[<?=$i?>][circle]" value="6" readonly="readonly" type="text">
-              <span class="input-group-btn">
-                <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-minus"></span></button>
-                <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-plus"></span></button>
-                <button class="btn btn-default">月</button>
-              </span>
-            </div> 
-            <div class="input-group">
-              <span class="input-group-addon">检定单位</span>
-              <select class="form-control" name="spr[<?=$i?>][checkDpt]" dpt="checkDpt">
-                <option value="199">计量室</option>
-                <option value="isTake">使用部门</option>
-                <option value="isOut">外检单位</option>
-              </select>
-            </div>
-            <div class="input-group" comp="outComp">
-              <span class="input-group-addon">外检公司</span>
-              <input class="form-control" name="spr[<?=$i?>][outComp]" type="text">
-            </div>  
-          </div>    
-        </div>
       </div>
       
     <?php }?>
@@ -221,78 +241,99 @@ $("#addBtn").click(function(){
   '    <div class="row bas-remove">'+
   '      <span class="glyphicon glyphicon-remove-circle"></span>'+
   '      </div>'+
-  '    <div class="row">'+
-  '      <div class="col-md-6">'+
-  '        <div class="input-group">'+
-  '          <span class="input-group-addon">备件名称</span>'+
-  '          <input class="form-control" name="spr['+i+'][name]" type="text">'+
-  '        </div> '+
-  '        <div class="input-group">'+
-  '          <span class="input-group-addon">规格型号</span>'+
-  '          <input class="form-control" name="spr['+i+'][spec]" type="text">'+
-  '        </div> '+
-  '        <div class="input-group">'+
-  '          <span class="input-group-addon">出厂编号</span>'+
-  '          <input class="form-control" name="spr['+i+'][codeManu]" type="text">'+
-  '        </div> '+
-  '        <div class="input-group">'+
-  '          <span class="input-group-addon">精度等级</span>'+
-  '          <input class="form-control" name="spr['+i+'][accuracy]" type="text">'+
-  '        </div> '+
-  '        <div class="input-group">'+
-  '          <span class="input-group-addon">量　　程</span>'+
-  '          <input class="form-control" name="spr['+i+'][scale]" type="text">'+
-  '        </div> '+
-  '        <div class="input-group">'+
-  '          <span class="input-group-addon">证书结论</span>'+
-  '          <input class="form-control" name="spr['+i+'][certi]" type="text">'+
-  '        </div>  '+
-  '      </div>'+
-  '      <div class="col-md-6">'+
-  '      <div class="input-group">'+
-  '        <span class="input-group-addon">单&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;位</span>'+
-  '        <input class="form-control" name="spr['+i+'][unit]" type="text">'+
-  '      </div> '+
-  '        <div class="input-group">'+
-  '          <span class="input-group-addon">溯源方式</span>'+
-  '          <select class="form-control" name="spr['+i+'][track]">'+
-  '            <option value="检定">检定</option>'+
-  '            <option value="校准">校准</option>'+
-  '            <option value="测试">测试</option>'+
-  '          </select>'+
-  '        </div> '+
-  '        <div class="input-group">'+
-  '          <span class="input-group-addon">检定日期</span>'+
-  '          <input class="form-control datetime" name="spr['+i+'][checkNxt]" readonly="" type="text">'+
-  '        </div>  '+
-  '        <div class="input-group">'+
-  '          <span class="input-group-addon">有效日期</span>'+
-  '          <input class="form-control datetime" name="spr['+i+'][valid]" readonly="" type="text">'+
-  '        </div>'+
-  '        <div class="input-group">'+
-  '          <span class="input-group-addon">检定周期</span>'+
-  '          <input class="form-control" name="spr['+i+'][circle]" value="6" readonly="readonly" type="text">'+
-  '          <span class="input-group-btn">'+
-  '            <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-minus"></span></button>'+
-  '            <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-plus"></span></button>'+
-  '            <button class="btn btn-default">月</button>'+
-  '          </span>'+
-  '        </div> '+
-  '        <div class="input-group">'+
-  '          <span class="input-group-addon">检定单位</span>'+
-  '          <select class="form-control" name="spr['+i+'][checkDpt]" dpt="checkDpt">'+
-  '            <option value="199">计量室</option>'+
-  '            <option value="isTake">使用部门</option>'+
-  '            <option value="isOut">外检单位</option>'+
-  '          </select>'+
-  '        </div>'+
-  '        <div class="input-group" comp="outComp">'+
-  '          <span class="input-group-addon">外检公司</span>'+
-  '          <input class="form-control" name="spr['+i+'][outComp]" type="text">'+
-  '        </div>'+
-  '      </div> '+
-  '    </div>'+
-  '  </div>';
+  '       <div class="row">'+
+  '         <div class="col-md-6">'+
+  '           <div class="input-group">'+
+  '             <span class="input-group-addon">管理类别</span>'+
+  '             <select class="form-control" name="spr['+i+'][info][class]">'+
+  '               <option value="A">A</option>'+
+  '               <option value="B">B</option>'+
+  '               <option value="C">C</option>'+
+  '             </select>'+
+  '           </div>  '+
+  '           <div class="input-group">'+
+  '             <span class="input-group-addon">设备名称</span>'+
+  '             <input class="form-control" name="spr['+i+'][info][name]" type="text">'+
+  '           </div> '+
+  '           <div class="input-group">'+
+  '             <span class="input-group-addon">出厂编号</span>'+
+  '             <input class="form-control" name="spr['+i+'][info][codeManu]" type="text">'+
+  '           </div> '+
+  '           <div class="input-group">'+
+  '             <span class="input-group-addon">精度等级</span>'+
+  '             <input class="form-control" name="spr['+i+'][info][accuracy]" type="text">'+
+  '             <span class="input-group-btn">'+
+  '               <button class="btn btn-default">级</button>'+
+  '             </span>'+
+  '           </div> '+
+  '           <div class="input-group">'+
+  '             <span class="input-group-addon">量　　程</span>'+
+  '             <input class="form-control" name="spr['+i+'][info][scale]" type="text">'+
+  '           </div> '+
+  '           <div class="input-group">'+
+  '             <span class="input-group-addon">测量装置</span>'+
+  '             <input class="form-control" name="spr['+i+'][info][equip]" type="text">'+
+  '           </div> '+
+  '           <div class="input-group">'+
+  '             <span class="input-group-addon">用　　途</span>'+
+  '             <select class="form-control" name="spr['+i+'][info][usage]">'+
+  '               <option value="质检">质检</option>'+
+  '               <option value="经营">经营</option>'+
+  '               <option value="控制">控制</option>'+
+  '               <option value="安全">安全</option>'+
+  '               <option value="环保">环保</option>'+
+  '               <option value="能源">能源</option>'+
+  '             </select>'+
+  '           </div>'+
+  '         </div>'+
+  '         <div class="col-md-6">'+
+  '           <div class="input-group">'+
+  '             <span class="input-group-addon">规格型号</span>'+
+  '             <input class="form-control" name="spr['+i+'][info][spec]" type="text">'+
+  '           </div> '+
+  '           <div class="input-group">'+
+  '             <span class="input-group-addon">单　　位</span>'+
+  '             <input class="form-control" name="spr['+i+'][info][unit]" type="text">'+
+  '           </div> '+
+  '           <div class="input-group">'+
+  '             <span class="input-group-addon">检定周期</span>'+
+  '             <input class="form-control" name="spr['+i+'][info][circle]" value="6" readonly="readonly" type="text">'+
+  '             <span class="input-group-btn">'+
+  '               <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-minus"></span></button>'+
+  '               <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-plus"></span></button>'+
+  '               <button class="btn btn-default">月</button>'+
+  '             </span>'+
+  '           </div>  '+
+  '           <div class="input-group">'+
+  '             <span class="input-group-addon">检定单位</span>'+
+  '             <select class="form-control" name="spr['+i+'][info][checkDpt]" dpt="checkDpt">'+
+  '               <option value="199">计量室</option>'+
+  '               <option value="isTake">使用部门</option>'+
+  '               <option value="isOut">外检单位</option>'+
+  '             </select>'+
+  '           </div>'+
+  '           <div class="input-group" comp="outComp">'+
+  '             <span class="input-group-addon">外检公司</span>'+
+  '             <input class="form-control" name="spr['+i+'][info][checkComp]" type="text">'+
+  '           </div> '+
+  '           <div class="input-group">'+
+  '             <span class="input-group-addon">检定日期</span>'+
+  '             <input class="form-control datetime" name="spr['+i+'][chk][time]" readonly="" type="text">'+
+  '           </div>  '+
+  '           <div class="input-group">'+
+  '             <span class="input-group-addon">溯源方式</span>'+
+  '             <select class="form-control" name="spr['+i+'][chk][track]">'+
+  '               <option value="检定">检定</option>'+
+  '               <option value="校准">校准</option>'+
+  '             </select>'+
+  '           </div> '+
+  '           <div class="input-group">'+
+  '             <span class="input-group-addon">证书结论</span>'+
+  '             <input class="form-control" name="spr['+i+'][chk][res]" value="合格" type="text" readonly>'+
+  '           </div> '+
+  '         </div>'+
+  '       </div>'+
+  '</div>';
   ++i;
   $("#addArea").append($addHtml);
 });
@@ -312,7 +353,6 @@ $(document).on('click', 'select[dpt=checkDpt]', function() {
     $(this).parents(".input-group").next().css("display", "table");
   else
     $(this).parents(".input-group").next().hide();
-    $("div[comp=outComp]");
 });
 
 // 检定周期加
