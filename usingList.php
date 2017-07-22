@@ -22,11 +22,9 @@ if (!empty($_GET['pageNow'])) {
 if (empty($_REQUEST['flag'])) {
   $devService->getPaging($paging);
 }else{
-    $status = $_POST['status'];
-    $name = $_POST['name'];
-    $spec = $_POST['spec'];
+    $data = $_POST['data'];
 
-    $devService->findDev($status, $name, $spec, $paging); 
+    $devService->findDev($data, $paging); 
 }
 
 ?>
@@ -50,7 +48,6 @@ if (empty($_REQUEST['flag'])) {
   }
 
   #takeAll{
-    padding-left:0px;
     padding-right: 0px;
     width:5%;
   }
@@ -169,7 +166,6 @@ if (empty($_REQUEST['flag'])) {
         <thead><tr>
           <th id="takeAll">
             <span class="glyphicon glyphicon-download-alt"></span> 
-            <span class="glyphicon glyphicon-thumbs-up" style="margin-left: 5px"></span>
           </th>
           <th>出厂编号</th><th>设备名称</th><th>规格型号</th><th>单位</th>
           <th>所在分厂部门</th><th>状态</th><th>安装地点</th>
@@ -178,6 +174,9 @@ if (empty($_REQUEST['flag'])) {
         </tr></thead>
         <tbody class="tablebody">  
         <?php
+          if (count($paging->res_array) == 0) {
+              echo "<tr><td colspan=12>未找到相关设备。</td></tr>";
+            }
           for ($i=0; $i < count($paging->res_array); $i++) { 
             $row=$paging->res_array[$i]; 
             if ($row['unit'] == "套") {
@@ -228,7 +227,7 @@ if (empty($_REQUEST['flag'])) {
           <div class="form-group">
               <label class="col-sm-3 control-label">运行状态：</label>
               <div class="col-sm-8">
-                <select class="form-control" name="status">
+                <select class="form-control" name="data[status]">
                   <?php  
                     $status = $devService->getStatus();
                     for ($i=0; $i < count($status); $i++) { 
@@ -241,13 +240,19 @@ if (empty($_REQUEST['flag'])) {
             <div class="form-group">
               <label class="col-sm-3 control-label">备件名称：</label>
               <div class="col-sm-8">
-                <input type="text" class="form-control" name="name">
+                <input type="text" class="form-control" name="data[name]">
               </div>
             </div>
             <div class="form-group">
               <label class="col-sm-3 control-label">规格型号：</label>
               <div class="col-sm-8">
-                <input type="text" class="form-control" name="spec">
+                <input type="text" class="form-control" name="data[spec]">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-3 control-label">出厂编号：</label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" name="data[codeManu]">
               </div>
             </div>
           </div>
@@ -435,54 +440,6 @@ if (empty($_REQUEST['flag'])) {
   </div>
 </div>  
 
-<div class="modal fade" id="passCheck">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">删除</h4>
-      </div>
-      <form class="form-horizontal" action="./controller/checkProcess.php" method="post">
-        <div class="modal-body"> 
-          <div class="form-group">
-            <label class="col-sm-3 control-label">检定日期：</label>
-            <div class="col-sm-8">
-              <input type="text" class="form-control datetime" name="time" readonly>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="col-sm-3 control-label">检定类型：</label>
-            <div class="col-sm-8">
-              <select class="form-control" name="type">
-                <?php  
-                  $chkType = $checkService->getTypeAll();
-                  for ($i=1; $i < count($chkType); $i++) { 
-                    echo "<option value='{$chkType[$i]['id']}'>{$chkType[$i]['name']}</option>";
-                  }
-                ?>
-              </select>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="col-sm-3 control-label">检定结果：</label>
-            <div class="col-sm-8">
-              <select class="form-control" name="res" readonly>
-                <option value="1">合格</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <input type="hidden" name="flag" value="passCheck">
-          <input type="hidden" name="id">
-          <span style="color:red; display:none" id="failPass">日期必填。</span>
-          <button class="btn btn-primary" id="yesPass">批量检定合格</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
 <?php include 'devJs.php';?>
 <script type="text/javascript">
 $("#yesPass").click(function(){
@@ -493,14 +450,6 @@ $("#yesPass").click(function(){
   }
   return allow_submit;
 });
-
-$("#takeAll .glyphicon-thumbs-up").click(function(){
-  var str = takeAll();
-  $("#passCheck input[name=id]").val(str);
-  $('#passCheck').modal({
-    keyboard: true
-  });
-})
 
 $("#takeAll .glyphicon-download-alt").click(function(){
   var str = takeAll();

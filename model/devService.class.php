@@ -74,7 +74,14 @@ class devService{
 		return $res;
 	}
 
-	public function findDev($status, $name, $spec, $paging){
+	public function findDev($arr, $paging){
+		// name,status,spec,codeManu
+		$_arr = [];
+		foreach ($arr as $k => $v) {
+			if ($v != "") 
+				array_push($_arr, "buy.`$k` like '%{$v}%'");
+		}
+		$where = implode(" and ", $_arr);
 		$sql1="SELECT buy.id,codeManu,name,spec,status.status,depart.depart,factory.depart factory,loc,unit
 			   from buy
 			   left join depart
