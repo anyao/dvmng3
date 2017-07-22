@@ -117,22 +117,59 @@ tbody .glyphicon{
   </div>
 </div>
 
-<div class="modal fade" id="useModal">
-  <div class="modal-dialog modal-sm" role="document">
+<div class="modal fade" id="confirmChk">
+  <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">安装地点</h4>
+        <h4 class="modal-title">计量确认</h4>
       </div>
       <form class="form-horizontal" method="post" action="./controller/gaugeProcess.php">
         <div class="modal-body">
           <div class="form-group">
-            <input type="text" class="form-control" name="loc">
+            <label class="col-sm-3 control-label">运行状态：</label>
+            <div class="col-sm-8">
+              <select class="form-control" name="bas[status]">
+                <option value="4">使用</option>
+                <option value="14">备用</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-3 control-label">安装地点：</label>
+            <div class="col-sm-8">
+              <input type="text" class="form-control" name="bas[loc]">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-3 control-label">测量范围：</label>
+            <div class="col-sm-8">
+              <input type="text" class="form-control" name="yesChk[scale]">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-3 control-label">允许误差：</label>
+            <div class="col-sm-8">
+              <div class="input-group">
+                <input class="form-control" name="yesChk[error]" type="text">
+                <span class="input-group-btn">
+                  <button class="btn btn-default">级</button>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-3 control-label">分度值：</label>
+            <div class="col-sm-8">
+              <input type="text" class="form-control" name="yesChk[interval]">
+            </div>
           </div>
         </div>
         <div class="modal-footer">
-          <input type="hidden" name="flag" value="useSpr">
-          <input type="hidden" name="id">
+          <input type="hidden" name="flag" value="confirmChk">
+          <input type="hidden" name="yesChk[chkid]" id="chkid">
+          <input type="hidden" name="devid">
+          <span class="failAdd" style="color:red;display:none">信息填写不完整。</span>
           <button class="btn btn-primary" id="yesUse">确定</button>
         </div>
         </form>
@@ -151,8 +188,7 @@ tbody .glyphicon{
           <tr>
             <th style="width: 4%"></th>
             <th>检定日期</th><th>出厂编号</th><th>名称</th><th>规格</th>
-            <th>单位</th><th>存货分类</th><th>存货编码</th>
-            <th style="width:4%"></th><th style="width:4%"></th>
+            <th>单位</th><th>存货分类</th><th style="width:4%"></th>
           </tr>
         </thead>
       <tbody class="tablebody">
@@ -164,23 +200,20 @@ tbody .glyphicon{
           if ($row['unit'] == "套") {
             $leaf = "<td><a href='javascript:void(0);' onclick=\"getLeaf(this, {$row['id']});\" class='glyphicon glyphicon-resize-small' id='test'></a></td>";
             $use = "<td></td>";
-            $store = "<td></td>";
           }else{
             $leaf = "<td></td>";
-            $use = "<td><a href='javascript:use({$row['id']});' class='glyphicon glyphicon-play-circle'></a></td>";
-            $store = "<td><a href='javascript:store({$row['id']});' class='glyphicon glyphicon-briefcase'></a></td>";
+            $use = "<td><a href='javascript:use({$row['id']},{$row['chkid']});' class='glyphicon glyphicon-thumbs-up'></a></td>";
           }
           echo 
           "<tr>
-          {$leaf}
-          <td>{$row['checkTime']}</td>
-          <td>{$row['codeManu']}</td>
-          <td><a href='javascript:flowInfo({$row['id']})'>{$row['name']}</td>
-          <td>{$row['spec']}</td>
-          <td>{$row['unit']}</td>
-          <td>{$row['category']}</td>
-          <td>{$row['codeWare']}</td>
-          {$use}{$store}
+            {$leaf}
+            <td>{$row['checkTime']}</td>
+            <td>{$row['codeManu']}</td>
+            <td><a href='javascript:flowInfo({$row['id']})'>{$row['name']}</td>
+            <td>{$row['spec']}</td>
+            <td>{$row['unit']}</td>
+            <td>{$row['category']}</td>
+            {$use}
           </tr>";
         } ?>
       <?php endif ?> 
@@ -221,9 +254,7 @@ function getLeaf(obj,id){
               "<td>" + data[i].spec + "</td>" +
               "<td>" + data[i].unit + "</td>" +
               "<td>" + data[i].category + "</td>" +
-              "<td>" + data[i].codeWare + "</td>" +
-              "<td><a href='javascript:use(" + data[i].id + ");' class='glyphicon glyphicon-play-circle'></a></td>"+
-              "<td><a href='javascript:store(" + data[i].id + ");' class='glyphicon glyphicon-briefcase'></a></td>"+
+              "<td><a href='javascript:use("+data[i].id+","+data[i].chkid+");' class='glyphicon glyphicon-thumbs-up'></a></td>"
            "</tr>";
         }
         $rootTr.after(addHtml);
@@ -234,17 +265,23 @@ function getLeaf(obj,id){
     }
 }
 
-function use(id){
-  $("#useModal input[name=id]").val(id);
-  $("#useModal").modal({
+function use(id, chkid){
+  $("#confirmChk input[name=devid]").val(id);
+  $("#chkid").val(chkid);
+  $("#confirmChk").modal({
     keyboard:true
   });
 }
 
 $("#yesUse").click(function(){
-  var allow_submit = true, isNull = $("#useModal input[name=loc]").val();
-  if (isNull == "") 
-    allow_submit =false;
+  var allow_submit = true;
+  $("#confirmChk input[type=text]").each(function(){
+    if($(this).val()==""){
+      allow_submit =false;
+      $("#confirmChk .failAdd").show();
+      return false;
+    }
+  });
   return allow_submit;
 });
 

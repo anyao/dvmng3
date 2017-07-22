@@ -9,34 +9,12 @@ $userService = new userService($sqlHelper);
 if (!empty($_REQUEST['flag'])) {
 	$flag=$_REQUEST['flag'];
 	if($flag=="addDev"){ 
-		$name = $_POST['name'];
-		$spec = $_POST['spec'];
-		$codeManu = $_POST['codeManu'];
-		$accuracy = $_POST['accuracy'];
-		$scale = $_POST['scale'];
-		$certi = $_POST['certi'];
-		$unit = $_POST['unit'];
-		$checkNxt = $_POST['checkNxt'];
-		$valid = $_POST['valid'];
-		$circle = $_POST['circle'];
-		$track = $_POST['track'];
-		$takeDpt = $_POST['depart'];
-		$class = $_POST['class'];
-		
-		$category = $_POST['cateid'];
-
-		$pid = $_POST['pid'];
-
-		$checkDpt = $_POST['checkDpt'];
-		$outComp = $_POST['outComp'];
-		
-		$status = $_POST['status'];
-		
-
-		$res = $devService->addDev($name, $spec, $codeManu, $accuracy, $status, $scale, $certi, $unit, $checkDpt, $outComp, $checkNxt, $valid, $circle, $track, $takeDpt, $pid, $useTime, $storeTime,$category,$class);
-
-		if ($res !== false) 
-			header("location: ./../usingList.php");
+		$arr = $_POST;
+		unset($arr['flag'], $arr['catename']);
+		$arr['useTime'] = $arr['status'] == 4 ? "" : $arr['useTime'];
+		$arr['path'] = $arr['pid'] != "" ? "-".$arr['pid'] : "";
+		$devService->addDev($arr);
+		header("location: ./../usingList.php");
 	}
 
 	// 修改设备信息 made it
@@ -82,7 +60,6 @@ if (!empty($_REQUEST['flag'])) {
 		$idStr = substr($_GET['id'], 0, -1);
 		$bas = $devService->getXlsDev($idStr); 
 		$check = $chkService->getXlsChk($idStr);
-		$check = $chkService->trimXls($check);
 		$userDpt = $userService->getDpt();
 		$devService->listStyle($bas, $check, $userDpt);
 	}

@@ -38,9 +38,9 @@
             </div>
           </div>
           <div class="form-group">
-            <label class="col-sm-4 control-label">存货编码：</label>
+            <label class="col-sm-4 control-label">出厂编号：</label>
             <div class="col-sm-6">
-              <input type="text" class="form-control" name="codeWare">
+              <input type="text" class="form-control" name="codeManu">
             </div>
           </div>
           <div class="form-group">
@@ -87,9 +87,9 @@
             </div>
           </div>
           <div class="form-group">
-            <label class="col-sm-4 control-label">存货编码：</label>
+            <label class="col-sm-4 control-label">出厂编号：</label>
             <div class="col-sm-6">
-              <input type="text" class="form-control" name="codeWare">
+              <input type="text" class="form-control" name="codeManu">
             </div>
           </div>
           <div class="form-group">

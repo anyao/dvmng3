@@ -86,7 +86,7 @@ if (empty($_REQUEST['flag'])) {
     display: none;
   }
 
-  input[name=category]{
+  input[name=catename]{
     width: 101% !important;
     border-top-left-radius:0px !important;
     border-bottom-left-radius:0px !important;
@@ -294,64 +294,6 @@ if (empty($_REQUEST['flag'])) {
           <div class="row">
             <div class="col-md-4">
               <div class="input-group">
-                <span class="input-group-addon">备件名称</span>
-                <input class="form-control" name="name" type="text">
-              </div> 
-              <div class="input-group">
-                <span class="input-group-addon">规格型号</span>
-                <input class="form-control" name="spec" type="text">
-              </div> 
-              <div class="input-group">
-                <span class="input-group-addon">出厂编号</span>
-                <input class="form-control" name="codeManu" type="text">
-              </div> 
-              <div class="input-group">
-                <span class="input-group-addon">精度等级</span>
-                <input class="form-control" name="accuracy" type="text">
-              </div> 
-              <div class="input-group">
-                <span class="input-group-addon">运行状态</span>
-                <select class="form-control" name="status">
-                  <option value="4">在用</option>
-                  <option value="5">封存</option>
-                </select>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="input-group">
-                <span class="input-group-addon">量　　程</span>
-                <input class="form-control" name="scale" type="text">
-              </div> 
-              <div class="input-group">
-                <span class="input-group-addon">单　　位</span>
-                <input class="form-control" name="unit" type="text">
-              </div> 
-              <div class="input-group">
-                <span class="input-group-addon">分　　类</span>
-                <input type="text" class="form-control" name="category">
-                <div class="input-group-btn">
-                  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                   <span class="caret"></span>
-                  </button>
-                  <ul class="dropdown-menu dropdown-menu-right" role="menu">
-                  </ul>
-                </div>
-              </div>
-              <div class="input-group">
-                <span class="input-group-addon">证书结论</span>
-                <input class="form-control" name="certi" type="text">
-              </div>  
-              <div class="input-group">
-                <span class="input-group-addon">溯源方式</span>
-                <select class="form-control" name="track">
-                  <option value="检定">检定</option>
-                  <option value="校准">校准</option>
-                  <option value="测试">测试</option>
-                </select>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="input-group">
                 <span class="input-group-addon">管理类别</span>
                 <select class="form-control" name="class">
                   <option value="A">A</option>
@@ -360,12 +302,71 @@ if (empty($_REQUEST['flag'])) {
                 </select>
               </div>
               <div class="input-group">
-                <span class="input-group-addon">检定日期</span>
-                <input class="form-control datetime" name="checkNxt" readonly="" type="text">
+                <span class="input-group-addon">备件名称</span>
+                <input class="form-control" name="name" type="text">
+              </div> 
+              <div class="input-group">
+                <span class="input-group-addon">规格型号</span>
+                <input class="form-control" name="spec" type="text">
+              </div> 
+              <div class="input-group">
+                <span class="input-group-addon">精度等级</span>
+                <input class="form-control" name="accuracy" type="text">
+                <span class="input-group-addon">级</span>
+              </div>
+              <div class="input-group">
+                <span class="input-group-addon">量　　程</span>
+                <input class="form-control" name="scale" type="text">
+              </div> 
+              <div class="input-group">
+                <span class="input-group-addon">出厂编号</span>
+                <input class="form-control" name="codeManu" type="text">
+              </div>  
+            </div>
+            <div class="col-md-4">
+              <div class="input-group">
+                <span class="input-group-addon">制造厂商</span>
+                <input class="form-control" name="supplier" type="text">
+              </div> 
+              <div class="input-group">
+                <span class="input-group-addon">安装地点</span>
+                <input class="form-control" name="loc" type="text">
               </div>  
               <div class="input-group">
-                <span class="input-group-addon">有效日期</span>
-                <input class="form-control datetime" name="valid" readonly="" type="text">
+                <span class="input-group-addon">运行状态</span>
+                <select class="form-control" name="status">
+                  <?php  
+                      $status = $devService->getStatus();
+                      for ($i=0; $i < count($status); $i++) { 
+                        echo "<option value='{$status[$i]['id']}'>{$status[$i]['status']}</option>";
+                      }
+                    ?>
+                </select>
+              </div>
+              <div class="input-group">
+                <span class="input-group-addon">启用日期</span>
+                <input class="form-control datetime" name="useTime" readonly="" type="text">
+              </div>
+              <div class="input-group">
+                <span class="input-group-addon">新增日期</span>
+                <input class="form-control datetime" name="takeTime" readonly="" type="text">
+              </div>
+              <div class="input-group">
+                <span class="input-group-addon">测量装置</span>
+                <input class="form-control" name="equip" type="text">
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="input-group">
+                <span class="input-group-addon">用　　途</span>
+                <select class="form-control" name="usage">
+                  <option value="质检">质检</option>
+                  <option value="经营">经营</option>
+                  <option value="控制">控制</option>
+                  <option value="安全">安全</option>
+                  <option value="环保">环保</option>
+                  <option value="能源">能源</option>
+                </select>
               </div>
               <div class="input-group">
                 <span class="input-group-addon">检定周期</span>
@@ -377,6 +378,25 @@ if (empty($_REQUEST['flag'])) {
                 </span>
               </div> 
               <div class="input-group">
+                <span class="input-group-addon">单　　位</span>
+                <input class="form-control" name="unit" type="text">
+              </div> 
+              <div class="input-group">
+                <span class="input-group-addon">分　　类</span>
+                <input type="text" class="form-control" name="catename">
+                <div class="input-group-btn">
+                  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                   <span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                  </ul>
+                </div>
+              </div>
+              <div class="input-group">
+                <span class="input-group-addon">有效日期</span>
+                <input class="form-control datetime" name="valid" readonly="" type="text">
+              </div>
+              <div class="input-group">
                 <span class="input-group-addon">检定单位</span>
                 <select class="form-control" name="checkDpt" dpt="checkDpt">
                   <option value="199">计量室</option>
@@ -386,7 +406,7 @@ if (empty($_REQUEST['flag'])) {
               </div>
               <div class="input-group" comp="outComp">
                 <span class="input-group-addon">外检公司</span>
-                <input class="form-control" name="outComp" type="text">
+                <input class="form-control" name="checkComp" type="text">
               </div> 
             </div>    
           </div>
@@ -403,9 +423,9 @@ if (empty($_REQUEST['flag'])) {
           </div>
         </div>
         <div class="modal-footer">
-          <input type="hidden" name="depart">
+          <input type="hidden" name="takeDpt">
           <input type="hidden" name="pid">
-          <input type="hidden" name="cateid">
+          <input type="hidden" name="category">
           <input type="hidden" name="flag" value="addDev">
           <span style="display:none;color:red" id="failRadio">领取部门必须选择唯一。</span>
           <button class="btn btn-primary" id="yesAdd">确定</button>
@@ -573,7 +593,7 @@ $("#addForm .glyphicon-minus").parents("button").click(function(){
   }
 });
 
-$("#addForm input[name=category]").bsSuggest({
+$("#addForm input[name=catename]").bsSuggest({
     allowNoKeyword: false,
     showBtn: false,
     indexId:1,
@@ -581,7 +601,7 @@ $("#addForm input[name=category]").bsSuggest({
          'value':<?= $devService->getCategory() ?>
     }
 }).on('onSetSelectValue', function (e, keyword, data) {
-   $("#addForm input[name=cateid]").val($(this).attr("data-id"));
+   $("#addForm input[name=category]").val($(this).attr("data-id"));
    $(this).parents("form").find("input[name=inspDpt]").val(dptid);
 });
 
@@ -597,7 +617,7 @@ $("#yesAdd").click(function(){
     $("#failRadio").show();
   }else{
     var nodes = $.extend(nodesPy,nodesZp,nodesGp);
-    $("#addForm input[name=depart]").val(nodes[0].id);
+    $("#addForm input[name=takeDpt]").val(nodes[0].id);
   }
   return allow_submit;
 });

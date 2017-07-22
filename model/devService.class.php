@@ -56,20 +56,10 @@ class devService{
 		return $res;
 	}
 
-	// 需改为insert into set
-	public function addDev($name, $spec, $codeManu, $accuracy, $status, $scale, $certi, $unit, $checkDpt, $outComp, $checkNxt, $valid, $circle, $track, $takeDpt, $pid, $useTime, $storeTime,$category,$class){
-		$storeTime = $status == 4 ? 'null' : "'".date("Y-m-d")."'";
-		$useTime = $status == 5 ? 'null' : "'".date("Y-m-d")."'";
-		if (empty($pid)) {
-			$pid = 'null';
-			$path ='null';
-		}else
-			$path = "'-".$pid."'";
-
-		$sql = "INSERT into buy(name,spec,codeManu,accuracy,status,scale,certi,unit,checkDpt,checkComp,checkNxt,valid,circle,track,takeDpt,pid,path,useTime,storeTime,category,class) 
-				values ('$name', '$spec', '$codeManu', '$accuracy', $status, '$scale', '$certi', '$unit', $checkDpt, '$outComp', '$checkNxt', '$valid', $circle, '$track', $takeDpt, $pid, $path, $useTime, $storeTime,$category,'{$class}')";
-		$res = $this->sqlHelper->dml($sql);	
-		return $res;
+	public function addDev($arr){
+		$_arr = [];
+		$sql = "INSERT INTO buy set ".CommonService::sqlTgther($_arr, $arr);
+		$this->sqlHelper->dml($sql);
 	}
 
 	public function getCategory(){
@@ -197,32 +187,29 @@ class devService{
 
 		// 合并单元格
 		$objPHPExcel->setActiveSheetIndex(0)
-		->mergeCells('A1:P1')->mergeCells('A2:P2');
+		->mergeCells('A1:AC1')->mergeCells('X2:Y2')->mergeCells('O3:T3');
+		// A34:N34合并单元格
+		for ($i='A'; $i !='O' ; $i++) { 
+			$objPHPExcel->setActiveSheetIndex(0)->mergeCells($i.'3:'.$i.'4');
+		}
 
 		// 内容
 		// 表头
 		$objPHPExcel->setActiveSheetIndex(0)
-			->setCellValue('A1', '测量设备管理台账')
-			->setCellValue('A2', 'CLJL-'.$uDpt['num'].'-05')
-			->setCellValue('A3', '序号')
-			->setCellValue('B3', '设备名称')
-			->setCellValue('C3', '规格型号')
-			->setCellValue('D3', '精度等级')
-			->setCellValue('E3', '量程')
-			->setCellValue('F3', '出厂编号')
-			->setCellValue('G3', '制造厂')
-			->setCellValue('H3', '检测点')
-			->setCellValue('I3', '间隔')
-			->setCellValue('J3', '有效日期')
-			->setCellValue('K3', '使用单位')
-			->setCellValue('L3', '检定单位')
-			->setCellValue('M3', '现状')
-			->setCellValue('N3', '(停)用日期')
-			->setCellValue('O3', '类别标志')
-			->setCellValue('P3', '新增时间');
+			->setCellValue('A1', '测量设备管理台账')->setCellValue('X2', 'CLJL-'.$uDpt['num'].'-05')->setCellValue('A3', '序号')
+			->setCellValue('B3', '管理类别')->setCellValue('C3', '设备名称')->setCellValue('D3', '规格型号')
+			->setCellValue('E3', '精度等级')->setCellValue('F3', '量程')->setCellValue('G3', '出厂编号')
+			->setCellValue('H3', '制造厂')->setCellValue('I3', '安装地点')->setCellValue('J3', '使用单位')
+			->setCellValue('K3', '现状')->setCellValue('L3', '启(停)用日期')->setCellValue('M3', '新增时间')
+			->setCellValue('N3', '测量装置名称及编号')->setCellValue('O3', '用途')->setCellValue('U3', '检定周期(月)')
+			->setCellValue('V3', '检定单位')->setCellValue('W3', '检定日期')->setCellValue('X3', '有效日期')
+			->setCellValue('Y3', '实际完成日期')->setCellValue('Z3', '溯源方式')->setCellValue('AA3', '证书结论')
+			->setCellValue('AB3', '确认日期')->setCellValue('AC3', '确认结论')->setCellValue('O4', '质检')
+			->setCellValue('P4', '经营')->setCellValue('Q4', '控制')->setCellValue('R4', '安全')
+			->setCellValue('S4', '环保')->setCellValue('T4', '能源');
 
 		for ($i=0; $i < count($res); $i++) { 
-			$r = $i + 4;
+			$r = $i + 5;
 			$rid = $i + 1;
 			$row = $res[$i];
 			// 检定单位
@@ -238,27 +225,49 @@ class devService{
 					break;
 			}
 
+			switch ($row['usage']) {
+				case '质检':
+					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('O'.$r, '*');
+					break;
+				case '经营':
+					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('P'.$r, '*');
+					break;
+				case '控制':
+					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('Q'.$r, '*');
+					break;
+				case '安全':
+					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('R'.$r, '*');
+					break;
+				case '环保':
+					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('S'.$r, '*');
+					break;
+				case '能源':
+					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('T'.$r, '*');
+					break;
+			}
+
+
 			// 设备基本信息
 			$objPHPExcel->setActiveSheetIndex(0)
 				->setCellValue('A'.$r, $rid)
-				->setCellValue('B'.$r, $row['name'])
-				->setCellValue('C'.$r, $row['spec'])
-				->setCellValue('D'.$r, $row['accuracy'])
-				->setCellValue('E'.$r, $row['scale'])
-				->setCellValue('F'.$r, $row['codeManu'])
-				->setCellValue('G'.$r, $row['supplier'])
-				->setCellValue('H'.$r, $row['loc'])
-				->setCellValue('I'.$r, $row['circle']."月")
-				->setCellValue('J'.$r, $row['valid'])
-				->setCellValue('K'.$r, $row['takeFct'])
-				->setCellValue('L'.$r, $row['checkDpt'])
-				->setCellValue('M'.$r, $row['status'])
-				->setCellValue('N'.$r, $row['stopTime'])
-				->setCellValue('O'.$r, $row['class'])
-				->setCellValue('P'.$r, $row['takeTime']);
+				->setCellValue('B'.$r, $row['class']."类")
+				->setCellValue('C'.$r, $row['name'])
+				->setCellValue('D'.$r, $row['spec'])
+				->setCellValue('E'.$r, $row['accuracy'])
+				->setCellValue('F'.$r, $row['scale'])
+				->setCellValue('G'.$r, $row['codeManu'])
+				->setCellValue('H'.$r, $row['supplier'])
+				->setCellValue('I'.$r, $row['loc'])
+				->setCellValue('J'.$r, $row['takeFct'])
+				->setCellValue('K'.$r, $row['status'])
+				->setCellValue('M'.$r, $row['takeTime'])
+				->setCellValue('N'.$r, $row['equip'])
+				->setCellValue('U'.$r, $row['circle']."个月")
+				->setCellValue('V'.$r, $row['checkDpt']);
+
 
 			// 检定历史
-			$col = 'Q';
+			$col = 'W';
 			if(isset($check[$row['id']]))
 				for ($k=0; $k < count($check[$row['id']]); $k++) { 
 					$chk = $check[$row['id']][$k];
@@ -273,47 +282,101 @@ class devService{
 							$chk['res'] = '降级';
 							break;
 					}
+					$checkNxt = date('Y-m-d',strtotime($chk['valid']."+ 1 day"));
 					$objPHPExcel->setActiveSheetIndex(0)
-					    ->setCellValue($col++.$r, $chk['time'])->setCellValue($col++.$r, $chk['res']);
+					    ->setCellValue($col++.$r, $checkNxt)->setCellValue($col++.$r, $chk['valid'])
+					    ->setCellValue($col++.$r, $chk['checkTime'])->setCellValue($col++.$r, $chk['track'])
+					    ->setCellValue($col++.$r, $chk['res'])->setCellValue($col++.$r, $chk['confirmTime'])
+					    ->setCellValue($col++.$r, $chk['chkRes']);
 				}
 		}
 
 		$lastRow = $objPHPExcel->getActiveSheet()->getHighestRow();
 		$lastColumn = $objPHPExcel->getActiveSheet()->getHighestColumn();
-
-		// 检定历史的表头
-		for ($i= 'Q'; $i != $lastColumn; $i+2) { 
-			$c = $i++;
-	        $objPHPExcel->setActiveSheetIndex(0)
-	            ->setCellValue($i."3", "确认日期")->setCellValue($c."3", "检定结果");    
-	    }
 		
+		$indexLastColumn = PHPExcel_Cell::columnIndexFromString($lastColumn);
+		$UIndex = PHPExcel_Cell::columnIndexFromString('T');
+		for ($i=$UIndex; $i <= $indexLastColumn; $i++) { 
+			$objPHPExcel->setActiveSheetIndex(0)->mergeCellsByColumnAndRow($i, 3, $i, 4);
+		}
+
 		// 列宽
-		$objPHPExcel->getActiveSheet()->getDefaultColumnDimension()->setWidth(12)->setAutoSize(true);
-		$objPHPExcel->getActiveSheet()->getColumnDimension('A')->setWidth(5.64);
+		$objPHPExcel->getActiveSheet()->getDefaultColumnDimension()->setWidth(10)->setAutoSize(true);
+		$objPHPExcel->getActiveSheet()->getColumnDimension('A')->setWidth(5);
+		$objPHPExcel->getActiveSheet()->getColumnDimension('B')->setWidth(5);
+		$objPHPExcel->getActiveSheet()->getColumnDimension('E')->setWidth(5);
+		for ($i='C'; $i != 'J' ; $i++) { 
+			if ($i != 'E') 
+				$objPHPExcel->getActiveSheet()->getColumnDimension($i)->setWidth(14);
+		}
+		for ($i='O'; $i != 'U' ; $i++) { 
+			$objPHPExcel->getActiveSheet()->getColumnDimension($i)->setWidth(5);
+		}
+
+		// 自动换行
+		$objPHPExcel->getActiveSheet()->getStyle('A3:'.$lastColumn.$lastRow)->getAlignment()->setWrapText(true);
 
 		// 自动换行
 		$objPHPExcel->getActiveSheet()->getStyle('A4:'.$lastColumn.$lastRow)->getAlignment()->setWrapText(true);
 
 		// 行高
 		$objPHPExcel->getActiveSheet()->getDefaultRowDimension()->setRowHeight(-1);
-
-		for ($i=1; $i < 4; $i++) 
-			$objPHPExcel->getActiveSheet()->getRowDimension($i)->setRowHeight(14.25);
+		$objPHPExcel->getActiveSheet()->getRowDimension('1')->setRowHeight(47.25);
+		$objPHPExcel->getActiveSheet()->getRowDimension('3')->setRowHeight(41.25);
+		$objPHPExcel->getActiveSheet()->getRowDimension('4')->setRowHeight(27.75);
 
 
 		// 字体
 		$objPHPExcel->getActiveSheet()->getStyle('A1:'.$lastColumn.$lastRow)->getFont()->setSize(10);
 
 		// 字体颜色
-		$fontArray = [
+		$A1FontStyle = [
 			'bold' => true,
 			'color' => [
 				'argb' => PHPExcel_Style_Color::COLOR_RED
 			],
+			'size' => 18,
 		];
-		$objPHPExcel->getActiveSheet()->getStyle('A1')->getFont()->applyFromArray($fontArray);
-		$objPHPExcel->getActiveSheet()->getStyle('A3:'.$lastColumn.'3')->getFont()->applyFromArray($fontArray);
+		$objPHPExcel->getActiveSheet()->getStyle('A1')->getFont()->applyFromArray($A1FontStyle);
+		$objPHPExcel->getActiveSheet()->getStyle('X2')->getFont()->setBold(true);
+		// $objPHPExcel->getActiveSheet()->getStyle('A3:'.$lastColumn.'3')->getFont()->applyFromArray($fontArray);
+
+		$A3FontStyle = [
+			'fill' => [
+				'type' => PHPExcel_Style_Fill::FILL_SOLID,
+				'color' => array('rgb' => 'D8E4BC'),
+			],
+		];
+		$U3FontStyle = [
+			'fill' => [
+				'type' => PHPExcel_Style_Fill::FILL_SOLID,
+				'color' => array('rgb' => 'CCFFFF'),
+			],
+		];
+		$Z3FontStyle = [
+			'fill' => [
+				'type' => PHPExcel_Style_Fill::FILL_SOLID,
+				'color' => array('rgb' => 'FFCC99'),
+			],
+		];
+
+		$objPHPExcel->getActiveSheet()->getStyle('A3:T4')->applyFromArray($A3FontStyle);
+		$objPHPExcel->getActiveSheet()->getStyle('U3:V3')->applyFromArray($U3FontStyle);
+		// $objPHPExcel->getActiveSheet()->getStyle('Z3:AC3')->applyFromArray($Z3FontStyle);
+
+		// 检定历史的表头
+		$wIndex = PHPExcel_Cell::columnIndexFromString('V');
+		for ($i= $wIndex; $i != $indexLastColumn; $i+7) { 
+			$c = $i + 2;
+			$e = $i + 6;
+			$objPHPExcel->setActiveSheetIndex(0)->getStyleByColumnAndRow($i, 3, $i+2, 3)->applyFromArray($U3FontStyle);
+			$objPHPExcel->setActiveSheetIndex(0)->getStyleByColumnAndRow($c, 3, $e, 3)->applyFromArray($Z3FontStyle);
+	        $objPHPExcel->setActiveSheetIndex(0)
+	        	->setCellValueByColumnAndRow($i++, 3, "检定日期")->setCellValueByColumnAndRow($i++, 3, "有效日期")
+	        	->setCellValueByColumnAndRow($i++, 3, "实际完成日期")->setCellValueByColumnAndRow($i++, 3, "溯源方式")
+	        	->setCellValueByColumnAndRow($i++, 3, "证书结论")->setCellValueByColumnAndRow($i++, 3, "确认日期")
+	        	->setCellValueByColumnAndRow($i++, 3, "确认结论");
+	    }
 
 		//居中
 		$objPHPExcel->setActiveSheetIndex(0)->getStyle('A1:'.$lastColumn.$lastRow)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER)->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER );
@@ -336,7 +399,7 @@ class devService{
 
 		// Redirect output to a client’s web browser (Excel5)
 		header('Content-Type: application/vnd.ms-excel');
-		header('Content-Disposition: attachment;filename='.$uDpt['depart'].'测量设备（'.self::groupClass($res).'类）.xls');
+		header('Content-Disposition: attachment;filename=test.xls');
 		header('Cache-Control: max-age=0');
 		// If you're serving to IE 9, then the following may be needed
 		header('Cache-Control: max-age=1');
@@ -353,7 +416,7 @@ class devService{
 	}
 
 	public function getXlsDev($idStr){
-		$sql = "SELECT buy.id,buy.name,spec,accuracy,scale,codeManu,supplier,loc,circle,valid,stopTime,takeTime,
+		$sql = "SELECT buy.id,buy.name,spec,accuracy,scale,codeManu,supplier,loc,circle,valid,stopTime,takeTime,equip,`usage`,
 				factory.depart takeFct,status.status,checkDpt,checkComp,class
 				from buy 
 				left join status

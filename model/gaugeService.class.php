@@ -13,22 +13,36 @@ class gaugeService{
 
 	// 备件申报入厂检定列表
 	function buyCheckHis($paging){
-		$sql1 = "SELECT buy.id id,checkTime,codeManu,buy.name,spec,wareTime,unit,category.name category,supplier,codeWare
+		$sql1 = "SELECT buy.id,codeManu,buy.name,spec,unit,category.name category,supplier,codeWare,`check`.time checkTime
 				 FROM buy
 				 left join category
 				 on buy.category = category.no
-				 where status=2 and pid is null
+				 left join	(
+					select * from `check` where type=1
+				 ) `check`
+				 on `check`.devid = buy.id
+				 where status=2 
+				 and(
+				  (unit != '套' and buy.pid is null) or
+				  buy.id in (
+					SELECT pid from buy where pid is not null
+			 	  ) 
+			 	 )
 				 limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
 		$sql2 = "SELECT count(*) from buy where status=2 and pid is null ";
 		$res = $this->sqlHelper->dqlPaging($sql1,$sql2,$paging);
 	}
 
 	function getLeaf($id, $status){
-		$sql = "SELECT buy.id id,checkTime,codeManu,buy.name,spec,wareTime,unit,category.name category,supplier,codeWare
+		$sql = "SELECT buy.id,codeManu,takeTime,buy.name,spec,unit,category.name category,supplier,codeWare,`check`.time checkTime,	`check`.id chkid
 			    FROM buy
 			    left join category
 			    on buy.category = category.no
-			    where pid = $id and status = $status";
+			    left join `check`
+			    on `check`.devid = buy.id
+			    where pid = $id 
+			    and status = $status
+			    and type = 1";
 		$res = $this->sqlHelper->dql_arr($sql);
 		return $res;
 	}
@@ -48,7 +62,7 @@ class gaugeService{
 	public function findWhere($code, $name, $spec){
 		$where = " 1 = 1 ";
 		if (!empty($code)) 
-			$where .= " AND codeWare= '{$code}' ";
+			$where .= " AND codeManu= '{$code}' ";
 
 		if (!empty($name)) 
 			$where .= " AND buy.name LIKE '%{$name}%' ";
@@ -59,8 +73,8 @@ class gaugeService{
 		return $where;
 	}
  
-	function buyCheckFind($check_from, $check_to, $codeWare, $name, $spec, $paging){
-		$dtl = $this->findWhere($codeWare,$name,$spec);
+	function buyCheckFind($check_from, $check_to, $codeManu, $name, $spec, $paging){
+		$dtl = $this->findWhere($codeManu,$name,$spec);
 		$where = " 1 = 1 ";
 		if (!empty($check_from) && !empty($check_to)) 
 			$where .= " AND checkTime between '{$check_from}' and '{$check_to}' ";
@@ -69,30 +83,31 @@ class gaugeService{
 		elseif (!empty($check_from) && empty($check_to)) 
 			$where .= " AND checkTime between '{$check_from}' and ".date("Y-m-d");
 
-		$sql1 = "SELECT buy.id id,checkTime,codeManu,buy.name,spec,wareTime,unit,category.name category,supplier,codeWare
+		$sql1 = "SELECT buy.id id,`check`.time checkTime,codeManu,buy.name,spec,unit,category.name category,supplier
 				 FROM buy
 				 left join category
 				 on buy.category = category.no
+				 left join	(
+					select * from `check` where type=1
+				 ) `check`
+				 on `check`.devid = buy.id
 				 where status=2 AND $where AND $dtl
 				 limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
 		$sql2 = "SELECT count(*) from buy where status=2  AND $where AND $dtl";
 		$res = $this->sqlHelper->dqlPaging($sql1,$sql2,$paging);
 	}
 
-	function buyInstallFind($install_from, $install_to, $codeWare, $name, $spec, $paging){
-		$dtl = $this->findWhere($codeWare,$name,$spec);
+	function buyInstallFind($take_from, $install_to, $codeManu, $name, $spec, $paging){
+		$dtl = $this->findWhere($codeManu,$name,$spec);
 		$where = " 1 = 1 ";
-		if (!empty($install_from) && !empty($install_to)) 
-			$where .= " AND (useTime between '{$install_from}' and '{$install_to}' OR 
-							 storeTime between '{$install_from}' and '{$install_to}')";
-		elseif (empty($install_from) && !empty($install_to)) 
-			$where .= " AND (useTime < '{$install_to}' 
-							OR storeTime < '{$install_to}')";
-		elseif (!empty($install_from) && empty($install_to)) 
-			$where .= " AND (useTime between '{$install_from}' and ".date("Y-m-d")
-						."OR storeTime between '{$install_from}' and ".date("Y-m-d").")";
+		if (!empty($take_from) && !empty($install_to)) 
+			$where .= " AND (takeTime between '{$take_from}' and '{$install_to}'";
+		elseif (empty($take_from) && !empty($install_to)) 
+			$where .= " AND (takeTime < '{$install_to}'";
+		elseif (!empty($take_from) && empty($install_to)) 
+			$where .= " AND (takeTime between '{$take_from}' and ".date("Y-m-d");
 
-		$sql1 = "SELECT storeTime, useTime, depart.depart, factory.depart factory, name, codeManu, spec, status, loc, buy.id
+		$sql1 = "SELECT  takeTime, depart.depart, factory.depart factory, name, codeManu, spec, status, loc, buy.id
 				 from buy 
 				 left join depart
 				 on depart.id = buy.takeDpt
@@ -110,10 +125,15 @@ class gaugeService{
 	}
 
 	function buyInstall($paging){
-		$sql1 = "SELECT buy.id id,checkTime,codeManu,buy.name,spec,unit,category.name category,codeWare
+		$sql1 = "SELECT buy.id id,takeTime,codeManu,buy.name,spec,unit,category.name category,
+				 `check`.id chkid, `check`.time checkTime
 				 FROM buy
 				 left join category
 				 on buy.category = category.no
+				 left join (
+					SELECT id,time,devid from `check` where type=1
+				 ) `check`
+				 on `check`.devid=buy.id
 				 where (
 					 (
 					 	status=3 
@@ -145,7 +165,7 @@ class gaugeService{
 	function takeSpr($sprid, $dptid){
 		$takeUser = $_SESSION['user'];
 		$takeTime = date("Y-m-d");
-		$sql = "UPDATE buy set takeUser='{$takeUser}',takeDpt=$dptid,takeTime='{$takeTime}',status=3 where id in($sprid) or pid = $sprid";
+		$sql = "UPDATE buy set takeUser='{$takeUser}',takeDpt=$dptid,takeTime='{$takeTime}',status=3 where id in($sprid) or pid in ($sprid)";
 		$res = $this->sqlHelper->dml($sql);
 		return $res;
 	}
@@ -207,8 +227,8 @@ class gaugeService{
 		return $res;
 	}
 
-	function addBas($info, $id){
-		$_arr = ['status = 2'];
+	function setBas($info, $id, $status){
+		$_arr = ['status ='.$status];
 		$sql = "UPDATE buy set ".CommonService::sqlTgther($_arr, $info)." WHERE id = $id";
 		$res = $this->sqlHelper->dml($sql);
 		return $res;
@@ -226,29 +246,21 @@ class gaugeService{
 		$res = $this->sqlHelper->dml($sql);
 		return $res; 
 	}
- 	
- 	function storeSpr($id){
- 		$storeTime = date("Y-m-d");
-
- 		$sql = "UPDATE buy set status=5, storeTime='{$storeTime}' where id=$id";
- 		$res = $this->sqlHelper->dml($sql);
-		return $res; 
- 	}
 
 	function buyInstallHis($paging){
-		$sql1 = "SELECT storeTime, useTime, depart.depart, factory.depart factory, name, codeManu, spec, status, loc, buy.id
+		$sql1 = "SELECT takeTime, depart.depart, factory.depart factory, name, codeManu, spec, status, loc, buy.id
 				 from buy 
 				 left join depart
 				 on depart.id = buy.takeDpt
 				 left join depart factory
 				 on depart.fid = factory.id
-				 where status in(4,5) 
+				 where status in(4,14) 
 				 AND takeDpt {$this->authDpt}
 				 order by buy.id  desc
 				 limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
 		$sql2 = "SELECT count(*)
 				 from buy
-				 where status in(4,5) 
+				 where status in(4,14) 
 				 AND takeDpt {$this->authDpt}";
 		$res = $this->sqlHelper->dqlPaging($sql1,$sql2,$paging);
 	}
@@ -353,7 +365,7 @@ class gaugeService{
 
 	  // Redirect output to a client’s web browser (Excel5)
 	  header('Content-Type: application/vnd.ms-excel');
-	  header('Content-Disposition: attachment;filename='.$res['date'].".xls");
+	  header('Content-Disposition: attachment;filename='.$res['codeManu']."安装验收.xls");
 	  header('Cache-Control: max-age=0');
 	  // If you're serving to IE 9, then the following may be needed
 	  header('Cache-Control: max-age=1');

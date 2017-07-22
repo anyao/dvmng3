@@ -61,12 +61,16 @@ class checkService{
 	}
 
 	function getXlsChk($idStr){
-		$sql = "SELECT devid,time,res from `check` where devid in ($idStr)";
+		$sql = "SELECT devid,`check`.time checkTime,res,valid,track,chkRes,confirm.time confirmTime
+				from `check`
+				left join confirm 
+				on `check`.id = confirm.chkid
+				where devid in ($idStr)";
 		$res = $this->sqlHelper->dql_arr($sql);
-		return $res;
+		return $this->trimXls($res);
 	}
 
-	function trimXls($check){
+	private function trimXls($check){
 		$_check = [];
 		foreach ($check as $k => $v) 
 			$_check[$v['devid']][] = $v;

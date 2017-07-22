@@ -17,13 +17,13 @@ $gaugeService = new gaugeService($sqlHelper);
 if (empty($_POST['flag'])) {
   $gaugeService->buyInstallHis($paging);
 }else if ($_POST['flag'] == 'findInstall') {
-  $install_from = $_POST['check_from'];
-  $install_to = $_POST['check_to'];
-  $codeWare = $_POST['codeWare'];
+  $install_from = $_POST['take_from'];
+  $install_to = $_POST['take_to'];
+  $codeManu = $_POST['codeManu'];
   $name = $_POST['name'];
   $spec = $_POST['spec'];
 
-  $gaugeService->buyCheckFind($install_from, $install_to, $codeWare, $name, $spec, $paging);
+  $gaugeService->buyInstallFind($take_from, $take_to, $codeManu, $name, $spec, $paging);
 }
 ?>
 <!DOCTYPE html>
@@ -116,14 +116,14 @@ if (empty($_POST['flag'])) {
         <div class="modal-body">
           <div class="input-group">
             <span class="input-group-addon">使用方式</span>
-            <select class="form-control" name="status">
+            <select class="form-control" name="info[status]" upt="status">
               <option value="4">使用</option>
-              <option value="5">备用</option>
+              <option value="14">备用</option>
             </select>
           </div>
           <div class="input-group">
             <span class="input-group-addon">安装地点</span>
-            <input class="form-control" name="loc" type="text">
+            <input class="form-control" name="info[loc]" type="text" upt="loc">
           </div>  
         </div>
         <div class="modal-footer">
@@ -146,7 +146,7 @@ if (empty($_POST['flag'])) {
         <thead>
           <tr>
             <th></th>
-            <th>使用时间</th><th>设备名称</th><th>规格型号</th><th>出厂编号</th><th>使用部门</th><th>安装地点</th>
+            <th>领取时间</th><th>设备名称</th><th>规格型号</th><th>出厂编号</th><th>使用部门</th><th>安装地点</th>
             <th style="width:4%">
               <span class='glyphicon glyphicon-save' id='downXls' style='cursor:pointer;display:none'></span>
             </th>
@@ -162,16 +162,14 @@ if (empty($_POST['flag'])) {
               $row = $paging->res_array[$i];
             if ($row['status'] == 4) {
               $icon = "<td><span class='glyphicon glyphicon-play-circle'></span></td>";
-              $time = $row['useTime'];
               $down = "<td><a href='./controller/gaugeProcess.php?flag=getXls&id={$row['id']}' class='glyphicon glyphicon-save'></a></td>";
             }else{
               $icon = "<td><span class='glyphicon glyphicon-briefcase'></span></td>";
-              $time = $row['storeTime'];
               $down = "<td></td>";
             }
             echo
               "<tr>{$icon}
-              <td>$time</td>
+              <td>{$row['takeTime']}</td>
               <td>{$row['name']}</td>
               <td>{$row['spec']}</td>
               <td>{$row['codeManu']}</td>
@@ -197,16 +195,16 @@ if (empty($_POST['flag'])) {
 <?php  include "./buyJs.php";?>
 <script type="text/javascript">
 function uptStatus(status){
-  if (status == 5)
-    $("#uptModal input[name=loc]").parents(".input-group").hide();
-  else
-    $("#uptModal input[name=loc]").parents(".input-group").show();
+  if (status == 14){
+    $("#uptModal input[upt=loc]").val("").parents(".input-group").hide();
+  }else
+    $("#uptModal input[upt=loc]").parents(".input-group").show();
 }
 
 function uptInstall(id, status, loc){
-  $("#uptModal input[name=id]").val(id);
-  $("#uptModal select[name=status]").val(status);
-  $("#uptModal input[name=loc]").val(loc);
+  $("#uptModal input[name=id").val(id);
+  $("#uptModal select[upt=status]").val(status);
+  $("#uptModal input[upt=loc]").val(loc);
   uptStatus(status);
   $("#uptModal").modal({
     keyboard:true

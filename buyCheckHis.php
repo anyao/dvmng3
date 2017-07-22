@@ -19,11 +19,11 @@ if (empty($_POST['flag'])) {
 }else if ($_POST['flag'] == 'findCheck') {
   $check_from = $_POST['check_from'];
   $check_to = $_POST['check_to'];
-  $codeWare = $_POST['codeWare'];
+  $codeManu = $_POST['codeManu'];
   $name = $_POST['name'];
   $spec = $_POST['spec'];
 
-  $gaugeService->buyInstallFind($check_from, $check_to, $codeWare, $name, $spec, $paging);
+  $gaugeService->buyCheckFind($check_from, $check_to, $codeManu, $name, $spec, $paging);
 }
 ?>
 <!DOCTYPE html>
@@ -38,35 +38,35 @@ if (empty($_POST['flag'])) {
 <link rel="icon" href="img/favicon.ico">
 <title>入厂检定历史记录-仪表管理</title>
 <style type="text/css">
-.glyphicon-unchecked, .glyphicon-check{
-  display: inline !important;
-}
+  .glyphicon-unchecked, .glyphicon-check{
+    display: inline !important;
+  }
 
-#takeAll{
-  display:none;
-  cursor: pointer;
-}
+  #takeAll{
+    display:none;
+    cursor: pointer;
+  }
 
-.glyphicon-search{
-  float: right;
-  margin-right: 15px;
-}
+  .glyphicon-search{
+    float: right;
+    margin-right: 15px;
+  }
 
-#uptCheck .input-group{
-  margin: 12px 0;
-}
+  #uptCheck .input-group{
+    margin: 12px 0;
+  }
 
-#uptCheck .modal-body{
-  padding: 0 25px !important;
-}
+  #uptCheck .modal-body{
+    padding: 0 25px !important;
+  }
 
-#outComp{
-  display: none;
-}
+  #outComp{
+    display: none;
+  }
 
-.glyphicon-resize-small, .glyphicon-resize-full{
-  display: inline !important;
-}
+  .glyphicon-resize-small, .glyphicon-resize-full{
+    display: inline !important;
+  }
 </style>
 <?php include "./buyVendor.php"; ?>
 </head>
@@ -148,9 +148,9 @@ if (empty($_POST['flag'])) {
             </div>
           </div>
           <div class="form-group">
-            <label class="col-sm-4 control-label">存货编码：</label>
+            <label class="col-sm-4 control-label">出厂编号：</label>
             <div class="col-sm-6">
-              <input type="text" class="form-control" name="codeWare">
+              <input type="text" class="form-control" name="codeManu">
             </div>
           </div>
           <div class="form-group">
@@ -279,9 +279,9 @@ if (empty($_POST['flag'])) {
     <table class="table table-striped table-hover">
       <thead>
         <tr><th><span class='glyphicon glyphicon-log-out' id="takeAll" ></span></th>
-            <th style="width: 8%">检定日期</th><th style="width: 8%">出厂编号</th><th>名称</th><th>规格</th><th>入库日期</th><th>单位</th>
+            <th style="width: 8%">检定日期</th><th style="width: 8%">出厂编号</th><th>名称</th><th>规格</th>
             <th>存货分类</th><th>供应商</th><th>存货编码</th>
-            <th style="width:4%"></th><th style="width:4%"></th><th style="width:4%"></th>
+            <th style="width:3%"></th><th style="width:3%"></th><th style="width:3%"></th>
         </tr>
       </thead>
       <tbody class="tablebody">
@@ -299,18 +299,16 @@ if (empty($_POST['flag'])) {
           if ($row['unit'] == "套") {
             $uptCheck ="<td></td>";
             $leaf = "<td><a href='javascript:void(0);' onclick=\"getLeaf(this, {$row['id']});\" class='glyphicon glyphicon-resize-small'></a></td>";
-          }
-          else
+          }else{
             $leaf = "<td></td>";
+          }
           echo
           "<tr>
               <td><span class='glyphicon glyphicon-unchecked' chosen='{$row['id']}'></span></td>
               <td>{$row['checkTime']}</td>
               <td>{$row['codeManu']}</td>
-              <td><a href='javascript:flowInfo({$row['id']})'>{$row['name']}</td>
+              <td>{$row['name']}</td>
               <td>{$row['spec']}</td>
-              <td>{$row['wareTime']}</td>
-              <td>{$row['unit']}</td>
               <td>{$row['category']}</td>
               <td>{$row['supplier']}</td>
               <td>{$row['codeWare']}</td>
@@ -409,8 +407,6 @@ function getLeaf(obj,id){
               "<td>" + data[i].codeManu + "</td>" +
               "<td>" + data[i].name + "</td>" +
               "<td>" + data[i].spec + "</td>" +
-              "<td>" + data[i].wareTime + "</td>" +
-              "<td>" + data[i].unit + "</td>" +
               "<td>" + data[i].category + "</td>" +
               "<td>" + data[i].supplier + "</td>" +
               "<td>" + data[i].codeWare + "</td>" +

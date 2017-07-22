@@ -4,6 +4,7 @@ CommonService::autoloadController();
 $sqlHelper = new sqlHelper;
 $gaugeService = new gaugeService($sqlHelper);
 $checkService = new checkService($sqlHelper);
+$confirmService = new confirmService($sqlHelper);
 if (!empty($_REQUEST['flag'])) {
 	$flag=$_REQUEST['flag'];
 	if($flag == "file2Arr"){
@@ -45,12 +46,12 @@ if (!empty($_REQUEST['flag'])) {
 		$chk['res'] = 1; 
 		$chk['devid'] = $id;
 		$chk['type'] = 1;
-
-		$resInfo = $gaugeService->addBas($info, $id);
+		// $chk['valid'] = date('Y-m-d',strtotime($chk['time']." +".$info['circle']." month"));
+		
+		$resInfo = $gaugeService->setBas($info, $id, 2);
 		$resChk = $checkService->addCheck($chk);
 
-		if (!in_array(false, [$resInfo, $resChk])) 
-			header("location:./../buyCheck.php");
+		header("location:./../buyCheck.php");
 	}
 
 	else if ($flag == "addCheckAset") {
@@ -59,16 +60,17 @@ if (!empty($_REQUEST['flag'])) {
 		$spr = $_POST['spr'];
 		for ($i=0; $i < count($spr); $i++) { 
 			$info = $spr[$i]['info'];
+			$chk = $spr[$i]['chk'];
+
 			$info['valid'] = date('Y-m-d',strtotime($chk['time']." +".$info['circle']." month"));
 			$info['pid'] = $pid;
 			$info['path'] = $path;
 			$id = $gaugeService->cloneCheck($pid, $info['name'], $info['spec'], $info['unit']);
 			
-			$chk = $spr[$i]['chk'];
 			$chk['res'] = 1; 
 			$chk['devid'] = $id;
 			$chk['type'] = 1;
-			$gaugeService->addBas($info, $id);
+			$gaugeService->setBas($info, $id, 2);
 			$checkService->addCheck($chk);
 		}
 		$gaugeService->chgStatus($pid);
@@ -84,9 +86,8 @@ if (!empty($_REQUEST['flag'])) {
 	else if ($flag ==  "takeSpr") {
     	$dptid = $_POST['dptId'];
 		$sprid = substr($_POST['arrId'], 0, -1);
-		$res = $gaugeService->takeSpr($sprid, $dptid);
-		if ($res !== false) 
-			header("location:./../buyCheckHis.php");
+		$gaugeService->takeSpr($sprid, $dptid);
+		header("location:./../buyCheckHis.php");
 	}
 
 	else if ($flag == "useSpr") {
@@ -95,6 +96,18 @@ if (!empty($_REQUEST['flag'])) {
 		$res = $gaugeService->useSpr($id, $loc);
 		if ($res !== false) 
 			header("location: ./../buyInstall.php");
+	}
+
+	else if($flag == 'confirmChk'){
+		$bas = $_POST['bas'];
+		$bas['useTime'] = $bas['status'] == 4 ? date("Y-m-d") : '';
+
+		$yesChk = $_POST['yesChk'];
+		$devid = $_POST['devid'];
+		$yesChk['chkRes'] = '合格';
+		$gaugeService->setBas($bas, $devid, $bas['status']);
+		$confirmService->addConfirm($yesChk);
+		header("location:./../buyInstall.php");
 	}
 
 
@@ -106,16 +119,10 @@ if (!empty($_REQUEST['flag'])) {
 	}
 
 	else if ($flag == "uptInstall") {
+		$bas = $_POST['info'];
 		$id = $_POST['id'];
-		$status = $_POST['status'];
-		$loc = $status == 4 ? $_POST['loc'] : "";
-		if ($status == 4)
-			$res = $gaugeService->useSpr($id, $loc);
-		else
-			$res = $gaugeService->storeSpr($id);
-
-		if ($res !== false) 
-			header("location: ./../buyInstallHis.php");
+		$gaugeService->setBas($bas, $id, $bas['status']);
+		header("location: ./../buyInstallHis.php");
 	}
 
 	else if ($flag == "getXls") {
