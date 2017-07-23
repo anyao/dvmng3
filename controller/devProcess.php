@@ -28,10 +28,9 @@ if (!empty($_REQUEST['flag'])) {
 
 		// 修改时状态改变
 		if ($arr['status'] != $ostatus) 
-		 $devService->logStatus($arr['status'], $id);
+		$devService->logStatus($arr['status'], $id);
 
-		if ($res !== false) 
-			header("location: ./../using.php?id=".$id);
+		header("location: ./../using.php?id=".$id);
 	}
 
 	else if ($flag == "getStatusLog") {

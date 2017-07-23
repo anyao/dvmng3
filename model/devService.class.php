@@ -114,8 +114,8 @@ class devService{
 
 	// 根据id获取设备信息
 	public function getDevById($id){
-		$sql = "SELECT buy.name,spec,accuracy,scale,codeManu,supplier,loc,circle,valid,unit,track,
-				status.status, status.id statusid,stopTime,category.name,useTime,class,
+		$sql = "SELECT buy.name,spec,accuracy,scale,codeManu,supplier,loc,circle,valid,unit,
+				status.status, status.id statusid,stopTime,category.name,useTime,class,`usage`,equip,
 				CONCAT(tkFct.depart,tkDpt.depart) take,takeDpt,checkComp,
 				CONCAT(chkFct.depart,chkDpt.depart) `check`,checkDpt
 				from buy
@@ -138,12 +138,8 @@ class devService{
 
 	public function uptDev($arr, $id){
 		$_arr = [];
-		foreach ($arr as $k => $v) {
-			array_push($_arr, $v == '' ? "$k = null" : "$k = '{$v}'");
-		}
-		$sql = "UPDATE buy set ".implode(", ", $_arr)." where id = $id";
-		$res = $this->sqlHelper->dml($sql);
-		return $res;
+		$sql = "UPDATE buy set ".CommonService::sqlTgther($_arr, $arr)." where id = $id";
+		$this->sqlHelper->dml($sql);
 	}
 
 	public function logStatus($status, $devid){
@@ -466,6 +462,7 @@ class devService{
 				 and buy.status > 3";
 		$this->sqlHelper->dqlPaging($sql1,$sql2,$paging);
 	}
+
 
 
 }

@@ -162,10 +162,11 @@ $res = $devService->getDevById($id);
   </div>
 </div>
 <div class="row">
-  <div class="col-md-7 detail" style="margin-left: 20px;height:500px;">
+  <div class="col-md-7 detail" style="margin-left: 20px;height:540px;width:64%">
     <table class="table table-striped table-hover">
       <thead><tr>
-        <th>检定 • 类型</th><th>时间</th><th>结果</th><th>执行人</th><th style='width:40%'>备注</th>
+        <th>检定类型</th><th>有效日期</th><th>实际完成</th><th>溯源方式</th>
+        <th>结果</th><th>备注</th><th style="width:5%"></th>
       </tr></thead>
       <tbody style="overflow-y: scroll">
       <?php
@@ -179,26 +180,31 @@ $res = $devService->getDevById($id);
               $check[$i]['res'] = '维修';
               $check[$i]['info'] = "状态:".$check[$i]['status']." 注:".$check[$i]['info'];
               break;
-            default:
+            case 3:
               $check[$i]['res'] = '调整';
               $check[$i]['info'] = "等级:".$check[$i]['downClass']." 注:".$check[$i]['info'];
               break;
           } 
+          
           if ($check[$i]['info'] == "") 
-            $check[$i]['info'] = '无';          
+            $check[$i]['info'] = '无'; 
+          $confirm = $check[$i]['count']==0 ? "<td><span class='glyphicon glyphicon-ok'></span></td>" : "<td></td>";
+              
           echo 
           "<tr><td>{$check[$i]['type']}</td>
-              <td>{$check[$i]['time']}</td>
+              <td>{$check[$i]['valid']}</td>
+              <td>{$check[$i]['checkTime']}</td>
+              <td>{$check[$i]['track']}</td>
               <td>{$check[$i]['res']}</td>
-              <td>{$check[$i]['user']}</td>
               <td>{$check[$i]['info']}</td>
+              {$confirm}
           </tr>";
         }
         ?>
       </tbody>
     </table> 
   </div>
-  <div class="col-md-4 detail" style="margin-left:40px;height:500px">
+  <div class="col-md-4 detail" style="margin-left:25px;height:540px;width:28.9%">
     <div class="row">
       <div class="input-group">
         <span class="input-group-addon">使用时间</span>
@@ -225,8 +231,19 @@ $res = $devService->getDevById($id);
         <input type="text" class="form-control" name="unit" value="<?=$res['unit'] ?>" readonly>
       </div>
       <div class="input-group">
-        <span class="input-group-addon">溯源方式</span>
-        <input type="text" class="form-control" name="track" value="<?=$res['track'] ?>" readonly>
+        <span class="input-group-addon">测量装置</span>
+        <input type="text" class="form-control" name="equip" value="<?=$res['equip'] ?>" readonly>
+      </div>
+      <div class="input-group">
+        <span class="input-group-addon">用　　途</span>
+        <select class="form-control" name="usage" disabled>
+          <option value="质检" <?=$res['usage']=='质检' ? 'selected' : null?>>质检</option>
+          <option value="经营" <?=$res['usage']=='经营' ? 'selected' : null?>>经营</option>
+          <option value="控制" <?=$res['usage']=='控制' ? 'selected' : null?>>控制</option>
+          <option value="安全" <?=$res['usage']=='安全' ? 'selected' : null?>>安全</option>
+          <option value="环保" <?=$res['usage']=='环保' ? 'selected' : null?>>环保</option>
+          <option value="能源" <?=$res['usage']=='能源' ? 'selected' : null?>>能源</option>
+        </select>
       </div>
       <div class="input-group">
         <span class="input-group-addon">管理类别</span>
@@ -338,6 +355,15 @@ $res = $devService->getDevById($id);
                     echo "<option value='{$chkType[$i]['id']}'>{$chkType[$i]['name']}</option>";
                   }
                 ?>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-3 control-label">溯源方式：</label>
+            <div class="col-sm-8">
+              <select class="form-control" name="track">
+                <option value="检定">检定</option>
+                <option value="校准">校准</option>
               </select>
             </div>
           </div>

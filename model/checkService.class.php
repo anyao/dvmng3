@@ -45,8 +45,8 @@ class checkService{
 	}
 
 	function getCheckByDev($id){
-		$sql = "SELECT `check`.id,check_type.name type,res,info,user.name user,time,
-				status.status,chgStatus,downClass
+		$sql = "SELECT `check`.id,check_type.name type,res,info,`check`.time checkTime,valid,track,
+				status.status,chgStatus,downClass,confirm.id confirmid,count(confirm.id) count
 				from `check`
 				left join check_type
 				on check_type.id = `check`.type
@@ -54,6 +54,8 @@ class checkService{
 				on user.id = `check`.user
 				left join status
 				on status.id = `check`.chgStatus
+				left join confirm 
+				on confirm.chkid = `check`.id
 				where `check`.devid=$id
 				order by `check`.id desc";
 		$res = $this->sqlHelper->dql_arr($sql);
