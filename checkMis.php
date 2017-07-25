@@ -20,14 +20,13 @@ if (!empty($_GET['pageNow'])) {
 
 
 if (empty($_REQUEST['flag'])) 
-  $devService->getChkPaging($paging);
+  $checkService->getMisPaging($paging);
 else{
-    // $status = $_POST['status'];
-    // $name = $_POST['name'];
-    // $spec = $_POST['spec'];
-
-    // $devService->findDev($status, $name, $spec, $paging); 
+  // [status] => 4, [name] => 差压变送器, [codeManu] => 30112S16, [takeDpt] => 1,2,3,198,
+  $arr = $_POST['data'];
+  $checkService->findMisPaging($arr, $paging);
 }
+
 
 ?>
 <!DOCTYPE html>
@@ -80,6 +79,10 @@ else{
 
   #downClass{
     display: none;
+  }
+
+  #searchForm .ztree-row{
+    overflow-y: scroll
   }
 
 </style>
@@ -149,6 +152,9 @@ else{
         </tr></thead>
         <tbody class="tablebody">  
         <?php
+          if (count($paging->res_array) == 0) {
+            echo "<tr><td colspan=12>未找到相关设备。</td></tr>";
+          }
           for ($i=0; $i < count($paging->res_array); $i++) { 
             $row=$paging->res_array[$i]; 
             echo "<tr>
@@ -374,7 +380,6 @@ else{
   </div>
 </div>
 
-
 <!-- 搜索备件检定记录-->
 <div class="modal fade" id="searchForm">
   <div class="modal-dialog" role="document">
@@ -385,10 +390,11 @@ else{
       </div>
       <form class="form-horizontal" method="post">
         <div class="modal-body">
-          <div class="form-group">
+          <div class="row">
+            <div class="form-group">
               <label class="col-sm-3 control-label">运行状态：</label>
               <div class="col-sm-8">
-                <select class="form-control" name="status">
+                <select class="form-control" name="data[status]">
                   <?php  
                     $status = $devService->getStatus();
                     for ($i=0; $i < count($status); $i++) { 
@@ -401,27 +407,85 @@ else{
             <div class="form-group">
               <label class="col-sm-3 control-label">备件名称：</label>
               <div class="col-sm-8">
-                <input type="text" class="form-control" name="name">
+                <input type="text" class="form-control" name="data[name]">
               </div>
             </div>
             <div class="form-group">
-              <label class="col-sm-3 control-label">规格型号：</label>
+              <label class="col-sm-3 control-label">出厂编号：</label>
               <div class="col-sm-8">
-                <input type="text" class="form-control" name="spec">
+                <input type="text" class="form-control" name="data[codeManu]">
               </div>
             </div>
           </div>
-          <div class="modal-footer">
-            <input type="hidden" name="flag" value="findDev">
-            <button class="btn btn-primary" id="yesFind">确认</button>
+          <div class="row ztree-row">
+            <div class="col-md-4">
+              <ul id="tree-py" class="ztree"></ul>
+            </div>
+            <div class="col-md-4">
+              <ul id="tree-zp" class="ztree"></ul>
+            </div>
+            <div class="col-md-4">
+              <ul id="tree-gp" class="ztree"></ul>
+            </div>
           </div>
-        </form>
+        </div>
+        <div class="modal-footer">
+          <input type="hidden" name="data[takeDpt]" id="dpt">
+          <input type="hidden" name="flag" value="findPlan">
+          <span style="color: red;display:none" id="failSearch">搜索条件至少填写一个。</span>
+          <button class="btn btn-primary" id="yesFind">确认</button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
 
 <?php include 'devJs.php';?>
 <script type="text/javascript">
+$("#yesFind").click(function(){
+  var allow_submit = true;
+  var nodesPy = treePy.getCheckedNodes(true);
+  var nodesZp = treeZp.getCheckedNodes(true);
+  var nodesGp = treeGp.getCheckedNodes(true);
+  var nodes = $.extend(nodesPy,nodesZp,nodesGp);
+  var dpt = "";
+  $.each(nodes, function(i, n) {
+    dpt += n.id+",";
+  });
+  $("#dpt").val(dpt);
+  if ($.inArray("",$("input").val()) != -1) {
+    allow_submit = false;
+    $("#failSearch").show();
+  }
+  return allow_submit;
+});
+
+
+// 树形部门结构基础配置
+var settingModal = {
+    view: {
+        selectedMulti: false,
+        showIcon: false
+    },
+    check: {
+        enable: true,
+        chkStyle:"checkbox",
+        radioType:'all',
+    },
+    data: {
+        simpleData: {
+            enable: true
+        }
+    }
+};
+
+var zTree = <?= $dptService->getDptForRole('1,2,3') ?>,
+dptTree = {
+  py: <?= $dptService->getDptForRole(1) ?>, 
+  zp: <?= $dptService->getDptForRole(2) ?>, 
+  gp: <?= $dptService->getDptForRole(3) ?>
+};
+
 function noCheck(id){
   $("#noModal input[name=id]").val(id);
   if($("#chkres").val() == 3)
@@ -482,6 +546,13 @@ function takeAll(){
 
 // 搜索
 $(".glyphicon-search").click(function(){
+  $.fn.zTree.init($("#tree-py"), settingModal, dptTree.py);
+  $.fn.zTree.init($("#tree-zp"), settingModal, dptTree.zp);
+  $.fn.zTree.init($("#tree-gp"), settingModal, dptTree.gp);
+  treePy = $.fn.zTree.getZTreeObj("tree-py");
+  treeZp = $.fn.zTree.getZTreeObj("tree-zp");
+  treeGp = $.fn.zTree.getZTreeObj("tree-gp");
+  $("#searchForm .ztree-row").height(0.3 * $(window).height());
   $('#searchForm').modal({
     keyboard: true
   });

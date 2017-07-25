@@ -437,32 +437,6 @@ class devService{
 		return implode("、", array_unique(array_column($dev, 'class')));
 	}
 
-	public function getChkPaging($paging){
-		$sql1 = "SELECT buy.id,codeManu,buy.name,spec,circle,valid,loc,
-				factory.depart factory,depart.depart,
-				status.status
-				from buy
-				left join depart
-				on buy.takeDpt = depart.id
-				left join depart factory
-				on depart.fid = factory.id
-				left join status
-				on status.id = buy.status
-				where codeManu is not null
-				and valid <= NOW()
-				and takeDpt {$this->authDpt}
-				and buy.status > 3
-				order by valid
-				limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
-		$sql2 = "SELECT count(*) 
-				 from buy 
-				 where codeManu is not null
-				 and valid <= NOW()
-				 and takeDpt {$this->authDpt}
-				 and buy.status > 3";
-		$this->sqlHelper->dqlPaging($sql1,$sql2,$paging);
-	}
-
 
 
 }

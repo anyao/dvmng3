@@ -70,5 +70,7 @@ if (!empty($_REQUEST['flag'])) {
 		$res = $checkService->listStylePlan($arr, $userDpt);
 	}
 
+	
+
 }
 ?>
