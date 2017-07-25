@@ -54,5 +54,11 @@ class CommonService{
 		}
 		return implode(',',$_arr);
 	}
+
+	public static function dump($arr){
+		echo "<pre>";
+		print_R($arr);
+		die;
+	}
 }
 ?>

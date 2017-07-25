@@ -11,7 +11,7 @@ $checkService = new checkService($sqlHelper);
 
 $paging=new paging;
 $paging->pageNow=1;
-$paging->pageSize=50;
+$paging->pageSize=21;
 
 $paging->gotoUrl="usingList.php";
 if (!empty($_GET['pageNow'])) {

@@ -4,6 +4,7 @@ CommonService::autoloadController();
 $sqlHelper = new sqlHelper;
 $checkService = new checkService($sqlHelper);
 $devService = new devService($sqlHelper);
+$userService = new userService($sqlHelper);
 
 if (!empty($_REQUEST['flag'])) {
 	$flag=$_REQUEST['flag'];
@@ -26,22 +27,47 @@ if (!empty($_REQUEST['flag'])) {
 			header("location: ./../using.php?id=".$arr['devid']);
 	}
 
-	elseif ($flag == "passCheck") {
-		$arr = $_POST;
-		$idList = explode(",", substr($arr['id'], 0, -1));
-		foreach ($idList as $v) {
-			$arr['devid'] = $v;
-			$res[] = $checkService->checkOne($arr);
+	elseif ($flag == "noCheck") {
+		$chk = $_POST['chk'];
+		$devid = $_POST['id'];
+		switch ($chk['res']) {
+			case 3:
+				// 降级
+				$devService->uptDev(['class'=>'downClass'], $devid);
+				break;
+			default:
+				// 封存 | 维修
+				$chk['downClass'] = "";
+				$chk['chgStatus'] = $chk['res'] == 2 ? 8 : 13;
+				$chk['devid'] = $devid;
+				$devService->uptDev(['status' => $chk['chgStatus']],$devid);
+				$devService->logStatus($chk['chgStatus'], $devid);
+				break;
 		}
-		if (!in_array(false, $res)) 
-			header("location: ./../usingList.php");
+		$checkService->addCheck($chk);
+		$checkService->setValid($devid, $chk['time']);
+		header("location: ./../checkMis.php");
+	}
+
+	elseif ($flag == "yesCheck") {
+		$id = $_POST['id'];
+		$chk = $_POST['chk'];
+
+		$idList = explode(",", substr($id, 0, -1));
+		foreach ($idList as $v) {
+			$chk['devid'] = $v;
+			$chk['valid'] = $checkService->getValid($chk['devid']);
+			$checkService->addCheck($chk);
+			$checkService->setValid($v, $chk['time']);
+		}
+		header("location: ./../checkMis.php");
 	}
 
 	else if ($flag == "xlsPlan") {
-		$devid = explode(",",$_GET['devid']);
-		array_pop($devid);
-		$arr = $checkService->getXlsPlan($devid);
-		$res = $checkService->listStylePlan($arr);
+		$idStr = substr($_GET['devid'], 0, -1);
+		$userDpt = $userService->getDpt();
+		$arr = $checkService->getXlsPlan($idStr);
+		$res = $checkService->listStylePlan($arr, $userDpt);
 	}
 
 }

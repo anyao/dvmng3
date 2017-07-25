@@ -34,14 +34,20 @@ class checkService{
 		return $res;
 	}
 
-	function setValid($devid){
+	function setValid($devid, $checkTime){
 		$sql = "UPDATE buy set 
-					valid=date_add(
-						( SELECT time from `check` where devid = $devid order by id desc limit 0,1 ),
+					valid = date_add(
+						'{$checkTime}',
 						interval circle MONTH
 					) 
 				where id = $devid";
 		$res = $this->sqlHelper->dml($sql);
+	}
+
+	function getValid($devid){
+		$sql = "SELECT valid from buy where id = $devid";
+		$res = $this->sqlHelper->dql($sql);
+		return $res['valid']; 
 	}
 
 	function getCheckByDev($id){
@@ -79,14 +85,14 @@ class checkService{
 		return $_check;
 	}
 
-	function listStylePlan($arr){
+	function listStylePlan($res, $userDpt){
 		// Create new PHPExcel object
 		$objPHPExcel = new PHPExcel();
 
 		// 内容
 		$objPHPExcel->setActiveSheetIndex(0)
-		->setCellValue('A1', '测量设备(      )周检计划')
-		->setCellValue('N2', 'CLJL-部门号-06')
+		->setCellValue('A1', '测量设备( '.$this->groupClass($res).'类 )周检计划')
+		->setCellValue('N2', 'CLJL-'.$userDpt['num'].'-06')
 		->setCellValue('A3', '序号')
 		->setCellValue('B3', '管理类别')
 		->setCellValue('C3', '设备名称')
@@ -103,6 +109,63 @@ class checkService{
 		->setCellValue('N3', '有效日期')
 		->setCellValue('O3', '实际完成日期')
 		->setCellValue('P3', '溯源方式');
+
+		for ($i=0; $i < count($res); $i++) { 
+			$r = $i + 4;
+			$rid = $i + 1;
+			$row = $res[$i];
+			// 检定单位
+			switch ($row['checkDpt']) {
+				case '199':
+					$row['checkDpt'] = '计量室';
+					break;
+				case 'isUse':
+					$row['checkDpt'] = $row['takeFct'];
+					break;
+				case 'isOut':
+					$row['checkDpt'] = $row['checkComp'];
+					break;
+			}
+
+			switch ($row['usage']) {
+				case '质检':
+					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('O'.$r, '*');
+					break;
+				case '经营':
+					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('P'.$r, '*');
+					break;
+				case '控制':
+					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('Q'.$r, '*');
+					break;
+				case '安全':
+					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('R'.$r, '*');
+					break;
+				case '环保':
+					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('S'.$r, '*');
+					break;
+				case '能源':
+					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('T'.$r, '*');
+					break;
+			}
+
+
+			// 设备基本信息
+			$objPHPExcel->setActiveSheetIndex(0)
+				->setCellValue('A'.$r, $rid)
+				->setCellValue('B'.$r, $row['class']."类")
+				->setCellValue('C'.$r, $row['name'])
+				->setCellValue('D'.$r, $row['spec'])
+				->setCellValue('E'.$r, $row['accuracy'])
+				->setCellValue('F'.$r, $row['scale'])
+				->setCellValue('G'.$r, $row['codeManu'])
+				->setCellValue('H'.$r, $row['supplier'])
+				->setCellValue('I'.$r, $row['loc'])
+				->setCellValue('J'.$r, $row['takeFct'])
+				->setCellValue('K'.$r, $row['circle']."个月")
+				->setCellValue('L'.$r, $row['checkDpt'])
+				->setCellValue('M'.$r, $row['checkNxt'])
+				->setCellValue('N'.$r, $row['valid']);
+		}
 
 		$lastRow = $objPHPExcel->getActiveSheet()->getHighestRow();
 		$lastColumn = $objPHPExcel->getActiveSheet()->getHighestColumn();
@@ -199,12 +262,22 @@ class checkService{
 		exit;
 	}
 
-	function getXlsPlan($devid){
-		// $sql = "SELECT buy.id,class,buy.name,spec,accuracy,scale,codeManu,supplier,loc,
-		// 		factory.depart factory,circle,checkDpt,checkComp,"
+	function getXlsPlan($idStr){
+		$sql = "SELECT buy.id,class,buy.name,spec,accuracy,scale,codeManu,supplier,loc,circle,valid,
+				date_add(valid, interval 1 day) checkNxt,factory.depart takeFct,checkComp,checkDpt
+				from buy 
+				left join depart
+				on buy.takeDpt = depart.id
+				left join depart factory
+				on factory.id = depart.fid
+				where buy.id in ({$idStr})";
+		$res = $this->sqlHelper->dql_arr($sql);
+		return $res;
 	}
 
-
+	private function groupClass($dev){
+		return implode("、", array_unique(array_column($dev, 'class')));
+	}
 
 }
 ?>
