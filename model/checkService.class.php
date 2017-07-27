@@ -344,5 +344,33 @@ class checkService{
 		$this->sqlHelper->dqlPaging($sql1,$sql2,$paging);
 	}
 
+	public function getChkPaging($paging){
+		$sql1 = "SELECT `check`.id,`check`.time,codeManu,loc,`check`.res,`check`.devid,
+				status.status,buy.name,factory.depart takeFct,
+				confirm.scale,confirm.error,confirm.`interval`,chkRes
+				from `check`
+				left join buy
+				on buy.id = `check`.devid
+				left join status
+				on buy.status = status.id
+				left join depart
+				on depart.id = buy.takeDpt
+				left join depart factory
+				on factory.id = depart.fid
+				left join confirm
+				on confirm.chkid = `check`.id
+				where takeDpt {$this->authDpt}
+				and buy.status > 3
+				order by `check`.id desc
+				limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
+		$sql2 = "SELECT count(*) 
+				from `check`
+				left join buy
+				on buy.id = `check`.devid
+				where takeDpt {$this->authDpt}
+				and buy.status > 3";
+		$this->sqlHelper->dqlPaging($sql1,$sql2,$paging);
+	}
+
 }
 ?>

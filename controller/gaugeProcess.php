@@ -106,6 +106,7 @@ if (!empty($_REQUEST['flag'])) {
 		$devid = $_POST['devid'];
 		$yesChk['chkRes'] = '合格';
 		$gaugeService->setBas($bas, $devid, $bas['status']);
+		$yesChk['time'] = date("Y-m-d");
 		$confirmService->addConfirm($yesChk);
 		header("location:./../buyInstall.php");
 	}

@@ -39,10 +39,12 @@ class userService{
 	}
 
 	function getDpt(){
-		$sql = "SELECT depart.depart,num 
+		$sql = "SELECT depart.depart,num,factory.depart factory
 				from depart
 				left join dpt_num
 				on depart.id = dpt_num.depart
+				left join depart factory
+				on factory.id = depart.fid
 				where depart.id = {$_SESSION['udptid']}";
 		$res = $this->sqlHelper->dql($sql);
 		return $res;

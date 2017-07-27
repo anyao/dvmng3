@@ -521,7 +521,6 @@ $("#addForm").on('click', 'select[dpt=checkDpt]', function() {
     $(this).parents(".input-group").next().css("display", "table");
   else
     $(this).parents(".input-group").next().hide();
-    $("div[comp=outComp]");
 });
 
 // 检定周期加

@@ -107,8 +107,8 @@ else{
         <li class="dropdown active">
           <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">检定记录 <span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="inspStd.php">周检计划</a></li>
-            <li><a href="inspMis.php">检定记录</a></li>
+            <li><a href="checkMis.php">周检计划</a></li>
+            <li><a href="checkList.php">检定记录</a></li>
           </ul>
         </li>
 
@@ -209,10 +209,16 @@ else{
           <div class="form-group">
             <label class="col-sm-3 control-label">溯源方式：</label>
             <div class="col-sm-8">
-              <select class="form-control" name="chk[track]">
+              <select class="form-control" name="chk[track]" id="track">
                 <option value="检定">检定</option>
                 <option value="校准">校准</option>
               </select>
+            </div>
+          </div>
+          <div class="form-group" id="conclu">
+            <label class="col-sm-3 control-label">证书结论：</label>
+            <div class="col-sm-8">
+              <input type="text" class="form-control" name="chk[conclu]">
             </div>
           </div>
           <div class="form-group">
@@ -442,6 +448,19 @@ else{
 
 <?php include 'devJs.php';?>
 <script type="text/javascript">
+// 校准的证书结论显示
+$("#yesModal").on('click', '#track', function() {
+  showConclu();
+});
+
+$(function(){ showConclu();});
+function showConclu(){
+  if ($("#track").val() == "检定") 
+    $("#conclu").hide();
+  else
+    $("#conclu").show();
+}
+
 $("#yesFind").click(function(){
   var allow_submit = true;
   var nodesPy = treePy.getCheckedNodes(true);
@@ -453,10 +472,13 @@ $("#yesFind").click(function(){
     dpt += n.id+",";
   });
   $("#dpt").val(dpt);
-  if ($.inArray("",$("input").val()) != -1) {
+  // if ($.inArray("",$("#searchForm input").val()) != -1) {
+  // }
+  $("#searchForm input").each(function(){
+    if ($(this).val() == "") 
     allow_submit = false;
     $("#failSearch").show();
-  }
+  })
   return allow_submit;
 });
 

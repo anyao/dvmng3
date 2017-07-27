@@ -34,7 +34,10 @@ $res = $devService->getDevById($id);
   #chgStatus,#downClass{
     display: none;
   }
-
+  
+  .glyphicon-thumbs-up{
+    display: inline !important;
+  }
 </style>
 <?php include "./buyVendor.php"; ?>
 </head>
@@ -188,7 +191,7 @@ $res = $devService->getDevById($id);
           
           if ($check[$i]['info'] == "") 
             $check[$i]['info'] = '无'; 
-          $confirm = $check[$i]['count']==0 ? "<td><span class='glyphicon glyphicon-thumbs-up'></span></td>" : "<td></td>";
+          $confirm = $check[$i]['count']==0 ? "<td><a class='glyphicon glyphicon-thumbs-up' href='javascript:addConfirm({$check[$i]['id']});'></a></td>" : "<td></td>";
               
           echo 
           "<tr><td>{$check[$i]['type']}</td>
@@ -329,7 +332,72 @@ $res = $devService->getDevById($id);
   </div>
 </div>
 
+<div class="modal fade" id="addModal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">计量确认</h4>
+      </div>
+      <form class="form-horizontal" action="./controller/confirmProcess.php" method="post">
+        <div class="modal-body"> 
+          <div class="form-group">
+            <label class="col-sm-3 control-label">检定日期：</label>
+            <div class="col-sm-8">
+              <input type="text" class="form-control datetime" name="cfr[time]" readonly>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-3 control-label">测量范围：</label>
+            <div class="col-sm-8">
+              <input type="text" class="form-control" name="cfr[scale]">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-3 control-label">允许误差：</label>
+            <div class="col-sm-8">
+              <div class="input-group">
+                <input type="text" class="form-control" name="cfr[error]">
+                <span class="input-group-addon">级</span>
+              </div> 
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-3 control-label">分度值：</label>
+            <div class="col-sm-8">
+              <input type="text" class="form-control" name="cfr[interval]">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-3 control-label">验证结果：</label>
+            <div class="col-sm-8">
+              <select class="form-control" name="cfr[chkRes]">
+                <option value="合格">合格</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <input type="hidden" name="flag" value="addConfirm">
+          <input type="hidden" name="cfr[chkid]" class="chkid">
+          <input type="hidden" name="goto" value="using">
+          <input type="hidden" name="devid" value="<?=$id?>">
+          <span style="color:red; display:none" id="failAdd">信息不完整。</span>
+          <button class="btn btn-primary" id="yesAdd">确定</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <script type="text/javascript">
+function addConfirm(id){
+  $("#addModal .chkid").val(id);
+  $('#addModal').modal({
+    keyboard: true
+  });
+}
+
 function getStatusLog(){
   $.post('./controller/devProcess.php', {
     flag: 'getStatusLog', 

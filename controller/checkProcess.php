@@ -8,26 +8,27 @@ $userService = new userService($sqlHelper);
 
 if (!empty($_REQUEST['flag'])) {
 	$flag=$_REQUEST['flag'];
-	if($flag=="checkOne"){ 
-		$arr = $_POST;
-		unset($arr['flag']);
-		// check记录的添加
-		$res = $checkService->checkOne($arr);
+	// if($flag=="checkOne"){ 
+	// 	$arr = $_POST;
+	// 	unset($arr['flag']);
+	// 	// check记录的添加
+	// 	$res = $checkService->checkOne($arr);
 
-		// 不合格时做相应调整
-		if ($arr['res'] == 2) {
-			// 检定结果为维修，① 更改状态；② 添加statusLog记录
-			$statusChange = $devService->uptDev(["status" => $arr['status']], $arr['devid']);
-			$statusLog = $devService->logStatus($arr['status'], $arr['devid']);
-		}else if ($arr['res'] == 3) {
-			$classDown = $devService->uptDev(["class" => $arr['class']], $arr['devid']);
-		}
+	// 	// 不合格时做相应调整
+	// 	if ($arr['res'] == 2) {
+	// 		// 检定结果为维修，① 更改状态；② 添加statusLog记录
+	// 		$statusChange = $devService->uptDev(["status" => $arr['status']], $arr['devid']);
+	// 		$statusLog = $devService->logStatus($arr['status'], $arr['devid']);
+	// 	}else if ($arr['res'] == 3) {
+	// 		$classDown = $devService->uptDev(["class" => $arr['class']], $arr['devid']);
+	// 	}
 
-		if ($res !== false) 
-			header("location: ./../using.php?id=".$arr['devid']);
-	}
+	// 	if ($res !== false) 
+	// 		header("location: ./../using.php?id=".$arr['devid']);
+	// }
 
-	elseif ($flag == "noCheck") {
+	// else
+	if ($flag == "noCheck") {
 		$chk = $_POST['chk'];
 		$devid = $_POST['id'];
 		switch ($chk['res']) {
@@ -69,6 +70,8 @@ if (!empty($_REQUEST['flag'])) {
 		$arr = $checkService->getXlsPlan($idStr);
 		$res = $checkService->listStylePlan($arr, $userDpt);
 	}
+
+	
 
 	
 
