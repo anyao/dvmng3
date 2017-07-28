@@ -331,41 +331,41 @@ else{
                         过载
                     </label>
                     <label class="checkbox-inline">
-                      <input type="checkbox" name="chk[reason3]" value="1">
+                      <input type="checkbox" name="chk[reason6]" value="1">
                         误操作
                     </label>
                     <label class="checkbox-inline">
-                      <input type="checkbox" name="chk[reason4]" value="1">
+                      <input type="checkbox" name="chk[reason9]" value="1">
                         其它
                     </label>
                   </div>
                   <div class="checkbox">
                     <label>
-                      <input type="checkbox" name="chk[reason5]" value="1">
+                      <input type="checkbox" name="chk[reason3]" value="1">
                         可能使其预期用途无效的故障
                     </label>
                   </div>
                   <div class="checkbox">
                     <label>
-                      <input type="checkbox" name="chk[reason6]" value="1">
+                      <input type="checkbox" name="chk[reason4]" value="1">
                         产生不正确的测量结果
                     </label>
                   </div>
                   <div class="checkbox">
                     <label>
-                      <input type="checkbox" name="chk[reason7]" value="1">
+                      <input type="checkbox" name="chk[reason5]" value="1">
                         超过规定的计量确认间隔
                     </label>
                   </div>
                   <div class="checkbox">
                     <label>
-                      <input type="checkbox" name="chk[reason8]" value="1">
+                      <input type="checkbox" name="chk[reason7]" value="1">
                         封印或保护装置损坏或破裂
                     </label>
                   </div>
                   <div class="checkbox">
                     <label>
-                      <input type="checkbox" name="chk[reason9]" value="1">
+                      <input type="checkbox" name="chk[reason8]" value="1">
                         暴露在已有可能影响其预期用途的影响量中(如电磁场、灰尘)
                     </label>
                   </div>

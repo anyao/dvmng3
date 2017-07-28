@@ -22,6 +22,13 @@ if (!empty($_REQUEST['flag'])) {
 		$idStr = substr($_GET['chkid'], 0, -1);
 		$userDpt = $userService->getDpt();
 		$arr = $confirmService->getXlsCfr($idStr);
-		$res = $confirmService->listStyleConfirm($arr, $userDpt);
+		$confirmService->listStyleConfirm($arr, $userDpt);
+	}
+
+	else if ($flag == "xlsUnqual") {
+		$chkid = $_GET['chkid'];
+		$userDpt = $userService->getDpt();
+		$arr = $confirmService->getXlsUnqual($chkid);
+		$confirmService->listStyleUnqual($arr, $userDpt);
 	}
 }

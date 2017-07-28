@@ -305,6 +305,47 @@ class checkService{
 		$this->sqlHelper->dqlPaging($sql1,$sql2,$paging);
 	}
 
+	public function findCheckPaging($arr,$paging){
+		$status = empty($arr['status']) ? "" : "buy.status = {$arr['status']}";
+		$name = empty($arr['name']) ? "" : "buy.name like '%{$arr['name']}'%";
+		$codeManu = empty($arr['codeManu']) ? "" : "codeManu = '{$arr['codeManu']}'";
+		$takeDpt = empty($arr['takeDpt']) ? "" : "takeDpt in (".substr($arr['takeDpt'], 0, -1).")";
+		$_arr = array_filter([$status, $name, $codeManu, $takeDpt]);
+		$sql1 = "SELECT `check`.id,`check`.time,codeManu,loc,`check`.res,`check`.devid,
+				status.status,buy.name,factory.depart takeFct,
+				confirm.scale,confirm.error,confirm.`interval`,chkRes
+				from `check`
+				left join buy
+				on buy.id = `check`.devid
+				left join status
+				on buy.status = status.id
+				left join depart
+				on depart.id = buy.takeDpt
+				left join depart factory
+				on factory.id = depart.fid
+				left join confirm
+				on confirm.chkid = `check`.id
+				where (
+					codeManu is not null
+					takeDpt {$this->authDpt}
+					and buy.status > 3
+				) and (
+					".implode(" and ", $_arr)."
+				)
+				order by `check`.id desc
+				limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
+		$sql2 = "SELECT count(*)
+				from buy
+				where (
+					codeManu is not null
+					takeDpt {$this->authDpt}
+					and buy.status > 3
+				) and (
+					".implode(" and ", $_arr)."
+				)";
+		$this->sqlHelper->dqlPaging($sql1,$sql2,$paging);
+	}
+
 	public function findMisPaging($arr, $paging){
 		// [status] => 4 [name] => 差压变送器 [codeManu] => 30112S16 [takeDpt] => 1,2,3,198,
 		$status = empty($arr['status']) ? "" : "buy.status = {$arr['status']}";

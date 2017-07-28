@@ -23,68 +23,68 @@ if (empty($_REQUEST['flag']))
   $checkService->getChkPaging($paging);
 else{
   $arr = $_POST['data'];
-  $checkService->findMisPaging($arr, $paging);
+  $checkService->findCheckPaging($arr, $paging);
 }
 
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="普阳钢铁设备管理系统">
-<meta name="author" content="安瑶">
-<link rel="icon" href="img/favicon.ico">
-<title>检定记录-设备管理系统</title>
-<style type="text/css">
-  .glyphicon-check, .glyphicon-unchecked,.glyphicon-thumbs-up,.glyphicon-option-horizontal{
-    display:inline !important;
-  }
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="普阳钢铁设备管理系统">
+  <meta name="author" content="安瑶">
+  <link rel="icon" href="img/favicon.ico">
+  <title>检定记录-设备管理系统</title>
+  <style type="text/css">
+    .glyphicon-check, .glyphicon-unchecked,.glyphicon-thumbs-up,.glyphicon-option-horizontal{
+      display:inline !important;
+    }
 
-  #confirmList{
-    padding-left:0px;
-    padding-right: 0px;
-    width:5%;
-    display: none;
-    cursor: pointer;
-  }
-  .page-header{
-    margin-bottom: 0px !important
-  }
+    #confirmList{
+      padding-left:0px;
+      padding-right: 0px;
+      width:5%;
+      display: none;
+      cursor: pointer;
+    }
+    .page-header{
+      margin-bottom: 0px !important
+    }
 
-  .page-header > h4 > span{
-    float: right;
-    padding-right: 25px
-  }
+    .page-header > h4 > span{
+      float: right;
+      padding-right: 25px
+    }
 
-  .glyphicon-search{
-    cursor:pointer;
-  }
+    .glyphicon-search{
+      cursor:pointer;
+    }
 
-  a.glyphicon-remove{
-    display:inline !important;
-  }
-  
-  span.glyphicon-ok{
-    display:none;
-    cursor: pointer;
-  }
+    a.glyphicon-remove{
+      display:inline !important;
+    }
+    
+    span.glyphicon-ok{
+      display:none;
+      cursor: pointer;
+    }
 
-  #noModal .control-label{
-    padding-left: 0px
-  }
+    #noModal .control-label{
+      padding-left: 0px
+    }
 
-  #downClass{
-    display: none;
-  }
+    #downClass{
+      display: none;
+    }
 
-  #searchForm .ztree-row{
-    overflow-y: scroll
-  }
+    #searchForm .ztree-row{
+      overflow-y: scroll
+    }
 
-</style>
-<?php include 'buyVendor.php'; ?>
+  </style>
+  <?php include 'buyVendor.php'; ?>
 </head>
 <body role="document">
 <nav class="navbar navbar-inverse">
@@ -155,8 +155,6 @@ else{
           }
           for ($i=0; $i < count($paging->res_array); $i++) { 
             $row=$paging->res_array[$i]; 
-            // [time] => 2017-07-20 [codeManu] => S4S923722642 [loc] => location [res] => 1 [status] => 在用 
-            // [name] => 耐震压力表 [takeFct] => 新区竖炉 [scale] => 0～10MPa [error] => 0.5 [interval] => 0.01MPa
             if (!empty($row['chkRes'])) {
               $request = "{$row['scale']} / {$row['error']} / {$row['interval']}";
               $confirm = "<td style='text-align:center'>{$row['chkRes']}</td>";
@@ -168,7 +166,7 @@ else{
             }else{
               $request = "检定不合格";
               $confirm = "<td style='text-align:center'>
-                            <a class='glyphicon glyphicon-option-horizontal' href=''></a>
+                            <a class='glyphicon glyphicon-option-horizontal' href='./controller/confirmProcess.php?flag=xlsUnqual&chkid={$row['id']}'></a>
                           </td>";
             }
 
@@ -318,7 +316,7 @@ else{
         </div>
         <div class="modal-footer">
           <input type="hidden" name="data[takeDpt]" id="dpt">
-          <input type="hidden" name="flag" value="findPlan">
+          <input type="hidden" name="flag" value="findCheck">
           <span style="color: red;display:none" id="failSearch">搜索条件至少填写一个。</span>
           <button class="btn btn-primary" id="yesFind">确认</button>
         </div>
