@@ -5,7 +5,6 @@ CommonService::autoload();
 $user = $_SESSION['user'];
 
 $sqlHelper = new sqlHelper;
-$devService = new devService($sqlHelper);
 $dptService = new dptService($sqlHelper);
 $repairService = new repairService($sqlHelper);
 
@@ -34,7 +33,7 @@ else{
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="普阳钢铁设备管理系统">
   <meta name="author" content="安瑶">
-  <link rel="icon" href="img/favicon.ico">
+  <link rel="icon" href="bootstrap/img/favicon.ico">
   <title>维修记录-设备管理系统</title>
   <style type="text/css">
     .glyphicon-check, .glyphicon-unchecked,.glyphicon-thumbs-up,.glyphicon-option-horizontal{
@@ -95,26 +94,24 @@ else{
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="homePage.php">设备管理系统</a>
+      <a class="navbar-brand" href="usingList.php">设备管理系统</a>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li><a href="<?= (in_array(7, $_SESSION['funcid']) || $_SESSION['user'] == 'admin') ? "buyCheck.php" : "buyInstall.php"; ?>">备件申报</a></li>
         <li><a href="usingList.php">设备台账</a></li>
-        <li class="dropdown active">
+        <li class="dropdown">
           <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">检定记录 <span class="caret"></span></a>
           <ul class="dropdown-menu">
             <li><a href="checkMis.php">周检计划</a></li>
-            <li><a href="checkList.php">检定记录</a></li>
+            <li><a href="checkList.php">巡检计划</a></li>
           </ul>
         </li>
-
-        <li class="dropdown">
-          <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">维修保养 <span class="caret"></span></a>
+        <li class="dropdown active">
+          <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">维修调整 <span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="repPlan.php">检修计划</a></li>
-            <li><a href="repMis.php">维修/保养任务</a></li>
-            <li><a href="repList.php">维修记录</a></li>
+            <li><a href="repairMis.php">维修任务</a></li>
+            <li><a href="repairList.php">维修记录</a></li>
           </ul>
         </li>
       </ul>
@@ -128,9 +125,9 @@ else{
           </ul>
         </li>
       </ul>
-    </div>
+    </div><!--/.nav-collapse -->
   </div>
-</nav> 
+</nav>
 
 <div class="container">
   <div class="row">
@@ -174,69 +171,6 @@ else{
   </div>
 </div>
 
-<div class="modal fade" id="addModal">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">计量确认</h4>
-      </div>
-      <form class="form-horizontal" action="./controller/confirmProcess.php" method="post">
-        <div class="modal-body"> 
-          <div class="form-group">
-            <label class="col-sm-3 control-label">出厂编号：</label>
-            <div class="col-sm-8">
-              <input type="text" class="form-control" name="codeManu" readonly>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="col-sm-3 control-label">检定日期：</label>
-            <div class="col-sm-8">
-              <input type="text" class="form-control datetime" name="cfr[time]" readonly>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="col-sm-3 control-label">测量范围：</label>
-            <div class="col-sm-8">
-              <input type="text" class="form-control" name="cfr[scale]">
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="col-sm-3 control-label">允许误差：</label>
-            <div class="col-sm-8">
-              <div class="input-group">
-                <input type="text" class="form-control" name="cfr[error]">
-                <span class="input-group-addon">级</span>
-              </div> 
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="col-sm-3 control-label">分度值：</label>
-            <div class="col-sm-8">
-              <input type="text" class="form-control" name="cfr[interval]">
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="col-sm-3 control-label">验证结果：</label>
-            <div class="col-sm-8">
-              <select class="form-control" name="cfr[chkRes]">
-                <option value="合格">合格</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <input type="hidden" name="flag" value="addConfirm">
-          <input type="hidden" name="cfr[chkid]" class="chkid">
-          <input type="hidden" name="goto" value="checkList">
-          <span style="color:red; display:none" id="failAdd">信息不完整。</span>
-          <button class="btn btn-primary" id="yesAdd">确定</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
 <!-- 搜索备件检定记录-->
 <div class="modal fade" id="searchForm">
   <div class="modal-dialog" role="document">
@@ -247,20 +181,7 @@ else{
       </div>
       <form class="form-horizontal" method="post">
         <div class="modal-body">
-          <div class="row">
-            <div class="form-group">
-              <label class="col-sm-3 control-label">运行状态：</label>
-              <div class="col-sm-8">
-                <select class="form-control" name="data[status]">
-                  <?php  
-                    $status = $devService->getStatus();
-                    for ($i=0; $i < count($status); $i++) { 
-                      echo "<option value='{$status[$i]['id']}'>{$status[$i]['status']}</option>";
-                    }
-                  ?>
-                </select>
-              </div>
-            </div> 
+          <div class="row"> 
             <div class="form-group">
               <label class="col-sm-3 control-label">备件名称：</label>
               <div class="col-sm-8">
@@ -288,7 +209,7 @@ else{
         </div>
         <div class="modal-footer">
           <input type="hidden" name="data[takeDpt]" id="dpt">
-          <input type="hidden" name="flag" value="findCheck">
+          <input type="hidden" name="flag" value="findRepair">
           <span style="color: red;display:none" id="failSearch">搜索条件至少填写一个。</span>
           <button class="btn btn-primary" id="yesFind">确认</button>
         </div>

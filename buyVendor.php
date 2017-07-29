@@ -1,7 +1,7 @@
 <link rel="stylesheet" type="text/css" href="bootstrap/css/printview.css">
 <link rel="stylesheet" href="bootstrap/css/fileinput.css">
 <link rel="stylesheet" href="bootstrap/css/choose.css" type="text/css">
-<link rel="stylesheet" href="tp/datetimepicker.css">
+<link rel="stylesheet" href="bootstrap/tp/datetimepicker.css">
 <link rel="stylesheet" href="bootstrap/css/metroStyle/metroStyle.css">
 <link rel="stylesheet" href="bootstrap/css/bootstrap.css">
 
@@ -13,8 +13,8 @@
 
 <script src="bootstrap/js/jquery.js"></script>
 <script src="bootstrap/js/bootstrap.js"></script>
-<script src="tp/bootstrap-datetimepicker.js"></script>
-<script src="tp/bootstrap-datetimepicker.zh-CN.js"></script>
+<script src="bootstrap/tp/bootstrap-datetimepicker.js"></script>
+<script src="bootstrap/tp/bootstrap-datetimepicker.zh-CN.js"></script>
 <script src="bootstrap/js/bootstrap-suggest.js"></script>
 <script src="bootstrap/js/fileinput.js"></script>
 <script src="bootstrap/js/zh.js"></script>

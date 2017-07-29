@@ -4,6 +4,20 @@ $dptService = new dptService($sqlHelper);
 $dptAll = $dptService->getDpt();
 ?>
 
+$(function(){
+	if ($(".page-count").parent().height() < $(window).height()) 
+		$(".page-count").css({"position": "fixed", "width" : "40%"});
+});
+//所有弹出框
+$(function () 
+  { $("[data-toggle='popover']").popover();
+});
+
+//时间选择器
+$(".datetime").datetimepicker({
+  format: 'yyyy-mm-dd', language: "zh-CN", autoclose: true,minView:2,
+});
+
 var session = <?= json_encode($_SESSION,JSON_UNESCAPED_UNICODE);?>;
 $("#yesFind").click(function(){
   var allow_submit = true;

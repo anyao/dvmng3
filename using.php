@@ -19,7 +19,7 @@ $res = $devService->getDevById($id);
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="普阳钢铁设备管理系统">
 <meta name="author" content="安瑶">
-<link rel="icon" href="img/favicon.ico">
+<link rel="icon" href="bootstrap/img/favicon.ico">
 <title>设备具体信息-设备管理系统</title>
 <style type="text/css">
   #uptInfo{
@@ -52,26 +52,24 @@ $res = $devService->getDevById($id);
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="homePage.php">设备管理系统</a>
+      <a class="navbar-brand" href="usingList.php">设备管理系统</a>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li><a href="<?= (in_array(7, $_SESSION['funcid']) || $_SESSION['user'] == 'admin') ? "buyCheck.php" : "buyInstall.php"; ?>">备件申报</a></li>
         <li class="active"><a href="usingList.php">设备台账</a></li>
         <li class="dropdown">
-          <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">日常巡检 <span class="caret"></span></a>
+          <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">检定记录 <span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="inspStd.php">巡检标准</a></li>
-            <li><a href="inspMis.php">巡检计划</a></li>
-            <li><a href="inspList.php">巡检记录</a></li>
+            <li><a href="checkMis.php">周检计划</a></li>
+            <li><a href="checkList.php">巡检计划</a></li>
           </ul>
         </li>
         <li class="dropdown">
-          <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">维修保养 <span class="caret"></span></a>
+          <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">维修调整 <span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="repPlan.php">检修计划</a></li>
-            <li><a href="repMis.php">维修/保养任务</a></li>
-            <li><a href="repList.php">维修记录</a></li>
+            <li><a href="repairMis.php">维修任务</a></li>
+            <li><a href="repairList.php">维修记录</a></li>
           </ul>
         </li>
       </ul>

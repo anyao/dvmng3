@@ -16,7 +16,7 @@ $uid=$_SESSION['uid'];
 <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 <meta name="description" content="普阳钢铁设备管理系统">
 <meta name="author" content="安瑶">
-<link rel="icon" href="img/favicon.ico">
+<link rel="icon" href="bootstrap/img/favicon.ico">
 <title>备件导入-仪表管理</title>
 <style type="text/css">
   .basic{
@@ -62,7 +62,7 @@ $uid=$_SESSION['uid'];
 <?php 
 include "message.php";
 ?>
-<nav class="navbar navbar-inverse">
+<nav class="navbar navbar-inverse navbar-fixed-top">
   <div class="container">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -71,38 +71,29 @@ include "message.php";
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="homePage.php">设备管理系统</a>
+      <a class="navbar-brand" href="usingList.php">设备管理系统</a>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li class="active"><a href="<?= (in_array(7, $_SESSION['funcid']) || $_SESSION['user'] == 'admin') ? "buyCheck.php" : "buyInstall.php"; ?>">备件申报</a></li>
+        <li><a href="usingList.php">设备台账</a></li>
         <li class="dropdown">
-          <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">设备档案 <span class="caret"></span></a>
+          <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">检定记录 <span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="usingList.php">在用设备</a></li>
-            <li><a href="spareList.php">备品备件</a></li>
-            <li style="display: <?= (!in_array(4, $_SESSION['funcid'])  && $_SESSION['user'] != 'admin') ? "none" : "inline";?>"><a href='devPara.php' >属性参数</a></li>
+            <li><a href="checkMis.php">检定任务</a></li>
+            <li><a href="checkList.php">检定历史</a></li>
           </ul>
         </li>
         <li class="dropdown">
-          <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">日常巡检 <span class="caret"></span></a>
+          <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">维修调整 <span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="inspStd.php">巡检标准</a></li>
-            <li><a href="inspMis.php">巡检计划</a></li>
-            <li><a href="inspList.php">巡检记录</a></li>
-          </ul>
-        </li>
-        <li class="dropdown">
-          <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">维修保养 <span class="caret"></span></a>
-          <ul class="dropdown-menu">
-            <li><a href="repPlan.php">检修计划</a></li>
-            <li><a href="repMis.php">维修/保养任务</a></li>
-            <li><a href="repList.php">维修记录</a></li>
+            <li><a href="repairMis.php">维修任务</a></li>
+            <li><a href="repairList.php">维修历史</a></li>
           </ul>
         </li>
       </ul>
        <ul class="nav navbar-nav navbar-right">
-        <li style="display: <?= (!in_array(10, $_SESSION['funcid'])  && $_SESSION['user'] != 'admin') ? "none" : "inline";?>"><a href='dptUser.php'>用户管理</a></li>
+        <li style="display: <?=(in_array(10, $_SESSION['funcid']) || $_SESSION['user'] == 'admin') ? "inline" : "none";?>"><a href='dptUser.php'>用户管理</a></li>
         <li class="dropdown">
         <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button"><?= $user;?> <span class="caret"></span></a>
           <ul class="dropdown-menu">
@@ -340,11 +331,6 @@ $("#addBtn").click(function(){
 
 $("#addArea").on("click", ".bas-remove span", function(){
   $(this).parents(".basic").remove();
-});
-
-//时间选择器
-$(".datetime").datetimepicker({
-  format: 'yyyy-mm-dd', language: "zh-CN", autoclose: true,minView:2
 });
 
 // 外检input框显示

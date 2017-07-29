@@ -10,7 +10,7 @@ session_destroy();
     <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
     <meta name="description" content="">
     <meta name="author" content="安瑶">
-    <link rel="icon" href="img/favicon.ico">
+    <link rel="icon" href="bootstrap/img/favicon.ico">
 
     <title>登录-设备管理系统</title>
     
@@ -155,7 +155,7 @@ $("#yesLogin").click(function(){
       switch (data){
         case '3':
           // 用户存在且密码正确
-          location.href='./homePage.php';
+          location.href='./usingList.php';
           break;
         case '2':
           // 用户存在但密码不正确

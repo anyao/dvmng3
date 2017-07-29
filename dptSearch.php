@@ -16,7 +16,7 @@ $dptService=new dptService($sqlHelper);
 <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 <meta name="description" content="普阳钢铁设备管理系统">
 <meta name="author" content="安瑶">
-<link rel="icon" href="img/favicon.ico">
+<link rel="icon" href="bootstrap/img/favicon.ico">
 
 <title>用户搜索-设备管理系统</title>
 
@@ -56,7 +56,6 @@ $dptService=new dptService($sqlHelper);
 </head>
 <body role="document">
 <?php	include "message.php";?>
-
 <nav class="navbar navbar-inverse">
   <div class="container">
     <div class="navbar-header">
@@ -66,75 +65,37 @@ $dptService=new dptService($sqlHelper);
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="homePage.php">设备管理系统</a>
+      <a class="navbar-brand" href="usingList.php">设备管理系统</a>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-        <li><a href="homePage.php">首页</a></li>
+        <li><a href="<?= (in_array(7, $_SESSION['funcid']) || $_SESSION['user'] == 'admin') ? "buyCheck.php" : "buyInstall.php"; ?>">备件申报</a></li>
+        <li><a href="usingList.php">设备台账</a></li>
         <li class="dropdown">
-          <a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown" role="button">设备购置 <span class="caret"></span></a>
+          <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">检定记录 <span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="buyGauge.php">仪表备件申报</a></li>
+            <li><a href="checkMis.php">周检计划</a></li>
+            <li><a href="checkList.php">巡检计划</a></li>
           </ul>
         </li>
         <li class="dropdown">
-          <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">设备档案 <span class="caret"></span></a>
+          <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">维修调整 <span class="caret"></span></a>
           <ul class="dropdown-menu">
-          <li><a href="usingList.php">在用设备</a></li>
-           <?php if (!in_array(4,$_SESSION['funcid'])  && $_SESSION['user'] != 'admin') {
-                        echo "<li role='separator' class='divider'></li><li>";
-                      } 
-                ?>
-                <li><a href="spareList.php">备品备件</a></li>
-                
-                <?php if (in_array(4,$_SESSION['funcid']) || $_SESSION['user'] == 'admin') {
-                        echo "<li role='separator' class='divider'></li><li><a href='devPara.php'>属性参数</a></li>";
-                      } 
-                ?>
-          
-        </ul>
-        </li>
-        <li class="dropdown">
-          <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">日常巡检 <span class="caret"></span></a>
-          <ul class="dropdown-menu">
-            <li><a href="inspStd.php">巡检标准</a></li>
-            <li><a href="inspMis.php">巡检计划</a></li>
-            <li class="divider">&nbsp;</li>
-            <li><a href="inspList.php">巡检记录</a></li>
-          </ul>
-        </li>
-        <li class="dropdown">
-          <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">维修保养 <span class="caret"></span></a>
-          <ul class="dropdown-menu">
-            <li><a href="repPlan.php">检修计划</a></li>
-            <li><a href="repMis.php">维修/保养任务</a></li>
-            <li class="divider">&nbsp;</li>
-            <li><a href="repList.php">维修记录</a></li>
+            <li><a href="repairMis.php">维修任务</a></li>
+            <li><a href="repairList.php">维修记录</a></li>
           </ul>
         </li>
       </ul>
        <ul class="nav navbar-nav navbar-right">
-		    <?php if (in_array(10,$_SESSION['funcid']) || $_SESSION['user'] == 'admin') {
-                      echo "<li class='active'><a href='dptUser.php'>用户管理</a></li>";
-                    } 
-             ?>
-
+        <li class="active" style="display: <?=(!in_array(10, $_SESSION['funcid']) && $_SESSION['user'] != 'admin') ? "none" : "inline"?>"><a href='dptUser.php'>用户管理</a></li>
         <li class="dropdown">
-        <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button"><?php 
-              if (empty($user)) {
-                echo "用户信息";
-              }else{
-                echo "$user";
-              } 
-            ?> <span class="caret"></span></a>
+        <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button"><?=$user?> <span class="caret"></span></a>
           <ul class="dropdown-menu">
             <li><a href="javascript:chgPwd();">更改密码</a></li>
-            <li class="divider">&nbsp;</li>
             <li><a href="login.php">注销</a></li>
           </ul>
-         </li>
+        </li>
       </ul>
-
     </div><!--/.nav-collapse -->
   </div>
 </nav>

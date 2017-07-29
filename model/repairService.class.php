@@ -67,7 +67,6 @@ class repairService{
 	}
 
 	public function findMisPaging($arr, $paging){
-		// [name] => 差压变送器 [codeManu] => 30112S16 [takeDpt] => 1,2,3,198,
 		$name = empty($arr['name']) ? "" : "buy.name like '%{$arr['name']}'%";
 		$codeManu = empty($arr['codeManu']) ? "" : "codeManu = '{$arr['codeManu']}'";
 		$takeDpt = empty($arr['takeDpt']) ? "" : "takeDpt in (".substr($arr['takeDpt'], 0, -1).")";
@@ -117,6 +116,39 @@ class repairService{
 				on buy.id=repair.devid
 				where codeManu is not null
 				and takeDpt {$this->authDpt}";
+		$this->sqlHelper->dqlPaging($sql1,$sql2,$paging);
+	}
+
+	public function findRepPaging($arr, $paging){
+		$name = empty($arr['name']) ? "" : "buy.name like '%{$arr['name']}'%";
+		$codeManu = empty($arr['codeManu']) ? "" : "codeManu = '{$arr['codeManu']}'";
+		$takeDpt = empty($arr['takeDpt']) ? "" : "takeDpt in (".substr($arr['takeDpt'], 0, -1).")";
+		$_arr = array_filter([$name, $codeManu, $takeDpt]);
+		$sql1 = "SELECT repair.id,buy.name,spec,codeManu,loc,device,repair,surface,repair.time,
+				factory.depart factory
+				from repair
+				left join buy
+				on buy.id = repair.devid
+				left join depart
+				on buy.takeDpt = depart.id
+				left join depart factory
+				on factory.id = depart.fid
+				where (
+					codeManu is not null
+					and takeDpt {$this->authDpt}
+				) and (
+				".implode(" and ", $_arr)."
+				)
+				limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
+		$sql2 = "SELECT count(*) 
+				 from repair
+				 left join buy
+				 on buy.id = repair.devid
+				 where (
+						codeManu is not null
+					and takeDpt {$this->authDpt}
+				) and (
+				".implode(" and ", $_arr).")";
 		$this->sqlHelper->dqlPaging($sql1,$sql2,$paging);
 	}
 

@@ -34,7 +34,7 @@ else{
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="普阳钢铁设备管理系统">
   <meta name="author" content="安瑶">
-  <link rel="icon" href="img/favicon.ico">
+  <link rel="icon" href="bootstrap/img/favicon.ico">
   <title>维修任务-设备管理系统</title>
   <style type="text/css">
     .glyphicon-check, .glyphicon-unchecked, .glyphicon-cog{
@@ -87,7 +87,7 @@ else{
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="homePage.php">设备管理系统</a>
+      <a class="navbar-brand" href="usingList.php">设备管理系统</a>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
@@ -97,14 +97,13 @@ else{
           <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">检定记录 <span class="caret"></span></a>
           <ul class="dropdown-menu">
             <li><a href="checkMis.php">周检计划</a></li>
-            <li><a href="checkList.php">检定记录</a></li>
+            <li><a href="checkList.php">巡检计划</a></li>
           </ul>
         </li>
-
         <li class="dropdown active">
           <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">维修调整 <span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="repairMis.php">需维修设备</a></li>
+            <li><a href="repairMis.php">维修任务</a></li>
             <li><a href="repairList.php">维修记录</a></li>
           </ul>
         </li>
