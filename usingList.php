@@ -11,7 +11,7 @@ $checkService = new checkService($sqlHelper);
 
 $paging=new paging;
 $paging->pageNow=1;
-$paging->pageSize=21;
+$paging->pageSize=40;
 
 $paging->gotoUrl="usingList.php";
 if (!empty($_GET['pageNow'])) {
@@ -591,6 +591,7 @@ function addDev(path){
 }
 
 $(function(){
+  // alert($(document).height());
   $(".col-md-2").height(0.9 * $(window).height());
   $.fn.zTree.init($("#tree"), setting, zTree);
   tree = $.fn.zTree.getZTreeObj("tree");

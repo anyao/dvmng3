@@ -5,26 +5,26 @@ CommonService::autoload();
 $user = $_SESSION['user'];
 
 $sqlHelper = new sqlHelper;
+$devService = new devService($sqlHelper);
 $dptService = new dptService($sqlHelper);
 $repairService = new repairService($sqlHelper);
-$checkService = new checkService($sqlHelper);
 
 $paging=new paging;
 $paging->pageNow=1;
 $paging->pageSize=50;
 
-$paging->gotoUrl="repairMis.php";
+$paging->gotoUrl="repairList.php";
 if (!empty($_GET['pageNow'])) {
   $paging->pageNow=$_GET['pageNow'];
 }
 
-
 if (empty($_REQUEST['flag'])) 
-  $repairService->getMisPaging($paging);
+  $repairService->getRepPaging($paging);
 else{
   $arr = $_POST['data'];
-  $repairService->findMisPaging($arr, $paging);
+  $repairService->findRepPaging($arr, $paging);
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -35,13 +35,13 @@ else{
   <meta name="description" content="普阳钢铁设备管理系统">
   <meta name="author" content="安瑶">
   <link rel="icon" href="img/favicon.ico">
-  <title>维修任务-设备管理系统</title>
+  <title>维修记录-设备管理系统</title>
   <style type="text/css">
-    .glyphicon-check, .glyphicon-unchecked, .glyphicon-cog{
+    .glyphicon-check, .glyphicon-unchecked,.glyphicon-thumbs-up,.glyphicon-option-horizontal{
       display:inline !important;
     }
 
-    #checkPlan{
+    #repList{
       padding-left:0px;
       padding-right: 0px;
       width:5%;
@@ -70,6 +70,14 @@ else{
       cursor: pointer;
     }
 
+    #noModal .control-label{
+      padding-left: 0px
+    }
+
+    #downClass{
+      display: none;
+    }
+
     #searchForm .ztree-row{
       overflow-y: scroll
     }
@@ -93,7 +101,7 @@ else{
       <ul class="nav navbar-nav">
         <li><a href="<?= (in_array(7, $_SESSION['funcid']) || $_SESSION['user'] == 'admin') ? "buyCheck.php" : "buyInstall.php"; ?>">备件申报</a></li>
         <li><a href="usingList.php">设备台账</a></li>
-        <li class="dropdown">
+        <li class="dropdown active">
           <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">检定记录 <span class="caret"></span></a>
           <ul class="dropdown-menu">
             <li><a href="checkMis.php">周检计划</a></li>
@@ -101,11 +109,12 @@ else{
           </ul>
         </li>
 
-        <li class="dropdown active">
-          <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">维修调整 <span class="caret"></span></a>
+        <li class="dropdown">
+          <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">维修保养 <span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="repairMis.php">需维修设备</a></li>
-            <li><a href="repairList.php">维修记录</a></li>
+            <li><a href="repPlan.php">检修计划</a></li>
+            <li><a href="repMis.php">维修/保养任务</a></li>
+            <li><a href="repList.php">维修记录</a></li>
           </ul>
         </li>
       </ul>
@@ -119,48 +128,43 @@ else{
           </ul>
         </li>
       </ul>
-    </div><!--/.nav-collapse -->
+    </div>
   </div>
-</nav>
+</nav> 
 
 <div class="container">
   <div class="row">
     <div class="col-md-12">
       <div class="page-header">
-          <h4>　维修任务
+          <h4>　维修记录
             <span class="glyphicon glyphicon-search" ></span>
           </h4>
       </div>
       <table class="table table-striped table-hover">
         <thead><tr>
-          <th>设备名称</th><th>型号规格</th><th>出厂编号</th>
-          <th>安装地点</th><th>所在分厂部门</th>
-          <th style="width:40%">设备状况</th>
-          <th style="width:4%"></th>
+          <th><span class="glyphicon glyphicon-download-alt" id="repList"></span></th>
+          <th>设备名称</th><th>出厂编号</th><th>安装地点</th>
+          <th>设备情况</th><th>维护调整情况</th><th>外观腐蚀情况</th><th>维护日期</th>
+          <th style="width:3%"></th>
         </tr></thead>
         <tbody class="tablebody">  
         <?php
           if (count($paging->res_array) == 0) {
-            echo "<tr><td colspan=12>未找到相关设备。</td></tr>";
+            echo "<tr><td colspan=12>未找到相关记录。</td></tr>";
           }
           for ($i=0; $i < count($paging->res_array); $i++) { 
             $row=$paging->res_array[$i]; 
-            // [id] => 562 [name] => 耐震压力表 [spec] => Y-100AZ/1.6MPA [codeManu] => S4S923722642 [loc] => location [factory] => 新区竖炉
-            $reason = "";
-            for ($j=1; $j < 10; $j++) { 
-              if ($row['reason'.$j] == 1) {
-                $reason .= $repairService->unqualReason($j)." | ";
-              }
-            }
             echo "<tr>
-                  <td><a href='using.php?id={$row['id']}'>{$row['name']}</a></td>
-                  <td>{$row['spec']}</td>
-	                <td>{$row['codeManu']}</td>
-                  <td>{$row['loc']}</td>
-	                <td>{$row['factory']}</td>
-                  <td>$reason</td>
-                  <td><a class='glyphicon glyphicon-cog' href='javascript:addRepair({$row['id']},\"{$row['codeManu']}\");'></a></td>
-	              </tr>";
+                  <td><span class='glyphicon glyphicon-unchecked chosen' chosen='{$row['id']}'></span></td>
+                  <td><a href='using.php?id={$row['devid']}'>{$row['name']}</a></td>
+                  <td>{$row['codeManu']}</td>
+                  <td>{$row['factory']}{$row['loc']}</td>
+                  <td>{$row['time']}</td>
+                  <td>{$row['device']}</td>
+                  <td>{$row['repair']}</td>
+                  <td>{$row['surface']}</td>
+                  <td><a class='glyphicon glyphicon-trash' href='javascript:del({$row['id']});'></a></td>
+                </tr>";
           }
         ?>  
         </tbody>
@@ -170,51 +174,62 @@ else{
   </div>
 </div>
 
-<!-- 批量合格 -->
 <div class="modal fade" id="addModal">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">检定合格</h4>
+        <h4 class="modal-title">计量确认</h4>
       </div>
-      <form class="form-horizontal" action="./controller/repairProcess.php" method="post">
+      <form class="form-horizontal" action="./controller/confirmProcess.php" method="post">
         <div class="modal-body"> 
           <div class="form-group">
-            <label class="col-sm-3 control-label">设备名称：</label>
+            <label class="col-sm-3 control-label">出厂编号：</label>
             <div class="col-sm-8">
               <input type="text" class="form-control" name="codeManu" readonly>
             </div>
           </div>
           <div class="form-group">
-            <label class="col-sm-3 control-label">维修日期：</label>
+            <label class="col-sm-3 control-label">检定日期：</label>
             <div class="col-sm-8">
-              <input type="text" class="form-control datetime" name="repair[time]" readonly>
+              <input type="text" class="form-control datetime" name="cfr[time]" readonly>
             </div>
           </div>
           <div class="form-group">
-            <label class="col-sm-3 control-label">设备状况：</label>
+            <label class="col-sm-3 control-label">测量范围：</label>
             <div class="col-sm-8">
-              <textarea class="form-control" rows="3" name="repair[device]"></textarea>
+              <input type="text" class="form-control" name="cfr[scale]">
             </div>
           </div>
           <div class="form-group">
-            <label class="col-sm-3 control-label">维护调整情况：</label>
+            <label class="col-sm-3 control-label">允许误差：</label>
             <div class="col-sm-8">
-              <textarea class="form-control" rows="3" name="repair[repair]"></textarea>
+              <div class="input-group">
+                <input type="text" class="form-control" name="cfr[error]">
+                <span class="input-group-addon">级</span>
+              </div> 
             </div>
           </div>
           <div class="form-group">
-            <label class="col-sm-3 control-label">外观腐蚀情况：</label>
+            <label class="col-sm-3 control-label">分度值：</label>
             <div class="col-sm-8">
-              <textarea class="form-control" rows="3" name="repair[surface]"></textarea>
+              <input type="text" class="form-control" name="cfr[interval]">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-3 control-label">验证结果：</label>
+            <div class="col-sm-8">
+              <select class="form-control" name="cfr[chkRes]">
+                <option value="合格">合格</option>
+              </select>
             </div>
           </div>
         </div>
         <div class="modal-footer">
-          <input type="hidden" name="flag" value="addRepair">
-          <input type="hidden" name="repair[devid]" id="devid">
-          <span style="color:red; display:none" id="failAdd">日期必填。</span>
+          <input type="hidden" name="flag" value="addConfirm">
+          <input type="hidden" name="cfr[chkid]" class="chkid">
+          <input type="hidden" name="goto" value="checkList">
+          <span style="color:red; display:none" id="failAdd">信息不完整。</span>
           <button class="btn btn-primary" id="yesAdd">确定</button>
         </div>
       </form>
@@ -233,6 +248,19 @@ else{
       <form class="form-horizontal" method="post">
         <div class="modal-body">
           <div class="row">
+            <div class="form-group">
+              <label class="col-sm-3 control-label">运行状态：</label>
+              <div class="col-sm-8">
+                <select class="form-control" name="data[status]">
+                  <?php  
+                    $status = $devService->getStatus();
+                    for ($i=0; $i < count($status); $i++) { 
+                      echo "<option value='{$status[$i]['id']}'>{$status[$i]['status']}</option>";
+                    }
+                  ?>
+                </select>
+              </div>
+            </div> 
             <div class="form-group">
               <label class="col-sm-3 control-label">备件名称：</label>
               <div class="col-sm-8">
@@ -260,7 +288,7 @@ else{
         </div>
         <div class="modal-footer">
           <input type="hidden" name="data[takeDpt]" id="dpt">
-          <input type="hidden" name="flag" value="findMis">
+          <input type="hidden" name="flag" value="findCheck">
           <span style="color: red;display:none" id="failSearch">搜索条件至少填写一个。</span>
           <button class="btn btn-primary" id="yesFind">确认</button>
         </div>
@@ -271,19 +299,6 @@ else{
 
 <?php include 'devJs.php';?>
 <script type="text/javascript">
-// 校准的证书结论显示
-$("#addModal").on('click', '#track', function() {
-  showConclu();
-});
-
-$(function(){ showConclu();});
-function showConclu(){
-  if ($("#track").val() == "检定") 
-    $("#conclu").hide();
-  else
-    $("#conclu").show();
-}
-
 $("#yesFind").click(function(){
   var allow_submit = true;
   var nodesPy = treePy.getCheckedNodes(true);
@@ -295,16 +310,12 @@ $("#yesFind").click(function(){
     dpt += n.id+",";
   });
   $("#dpt").val(dpt);
-  // if ($.inArray("",$("#searchForm input").val()) != -1) {
-  // }
-  $("#searchForm input").each(function(){
-    if ($(this).val() == "") 
+  if ($.inArray("",$("input").val()) != -1) {
     allow_submit = false;
     $("#failSearch").show();
-  })
+  }
   return allow_submit;
 });
-
 
 // 树形部门结构基础配置
 var settingModal = {
@@ -331,33 +342,18 @@ dptTree = {
   gp: <?= $dptService->getDptForRole(3) ?>
 };
 
-
-// 检定记录不合格备注显示input
-$("#chkres").click(function(){
-  if($(this).val() == 3)
-    $("#downClass").show();
-  else
-    $("#downClass").hide();
+$("#repList").click(function(){
+  var str = takeAll();
+  location.href = "./controller/repairProcess.php?flag=xlsRep&id="+str;
 });
 
-function addRepair(id, code){
-  $("#addModal #devid").val(id);
-  $("#addModal input[name=codeManu]").val(code);
-  $('#addModal').modal({
-    keyboard: true
+function takeAll(){
+  var str = "";
+  $(".glyphicon-check").each(function(){
+    str += $(this).attr('chosen') + ",";
   });
+  return str;
 }
-
-$("#yesAdd").click(function(){
-  var allow_submit = true;
-  $("#addModal textarea, #addModal .datetime").each(function(){
-    if ($(this).val == "") {
-      allow_submit = false;
-      $("#failAdd").show();
-    }
-    return allow_submit;
-  })
-});
 
 // 搜索
 $(".glyphicon-search").click(function(){
@@ -373,14 +369,16 @@ $(".glyphicon-search").click(function(){
   });
 });
 
-//所有弹出框
-$(function () 
-  { $("[data-toggle='popover']").popover();
-});
-
-//时间选择器
-$(".datetime").datetimepicker({
-  format: 'yyyy-mm-dd', language: "zh-CN", autoclose: true,minView:2,
+// 多选
+$(".tablebody").on("click","span.chosen",function checked(){
+    $(this).toggleClass("glyphicon glyphicon-unchecked chosen");
+    $(this).toggleClass("glyphicon glyphicon-check chosen");
+    var isChosen = $(".glyphicon-check").length;
+    if (isChosen != 0) {
+      $("#repList").show();
+    }else{
+      $("#repList").hide();
+    }
 });
    </script>
   </body>

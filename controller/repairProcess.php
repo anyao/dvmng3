@@ -2,9 +2,8 @@
 require_once "../model/commonService.class.php";
 CommonService::autoloadController();
 $sqlHelper = new sqlHelper;
-// $checkService = new checkService($sqlHelper);
 $devService = new devService($sqlHelper);
-// $userService = new userService($sqlHelper);
+$userService = new userService($sqlHelper);
 $repairService = new repairService($sqlHelper);
 
 if (!empty($_REQUEST['flag'])) {
@@ -18,6 +17,14 @@ if (!empty($_REQUEST['flag'])) {
 		$devService->uptDev(['status' => 11], $repair['devid']);
 		$devService->logStatus(11, $repair['devid']);
 	}
+
+	else if ($flag == "xlsRep") {
+		$idStr = substr($_GET['id'], 0, -1);
+		$userDpt = $userService->getDpt();
+		$arr = $repairService->getXlsRep($idStr);
+		$res = $repairService->listStyle($arr, $userDpt);
+	}
+
 	header("location:".$_SERVER['HTTP_REFERER']);
 
 }

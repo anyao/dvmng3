@@ -6890,9 +6890,8 @@ button.close {
 }
 
 .page-count{
-  position:fixed;
   bottom:12px;
-  width:40%;
+  padding-bottom:15px;
   text-align: center;
   margin-left: -15px;
 }
