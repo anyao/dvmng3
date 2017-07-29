@@ -47,7 +47,7 @@ if (!empty($_REQUEST['flag'])) {
 		}
 		$checkService->addCheck($chk);
 		$checkService->setValid($devid, $chk['time']);
-		header("location: ./../checkMis.php");
+		header("location:".$_SERVER['HTTP_REFERER']);
 	}
 
 	elseif ($flag == "yesCheck") {
@@ -56,12 +56,17 @@ if (!empty($_REQUEST['flag'])) {
 
 		$idList = explode(",", substr($id, 0, -1));
 		foreach ($idList as $v) {
+			$chk['chgStatus'] = 4;
 			$chk['devid'] = $v;
 			$chk['valid'] = $checkService->getValid($chk['devid']);
 			$checkService->addCheck($chk);
+
+			$devService->uptDev(['status' => 4], $chk['devid']);
+			$devService->logStatus(4, $chk['devid']);
+
 			$checkService->setValid($v, $chk['time']);
 		}
-		header("location: ./../checkMis.php");
+		header("location:".$_SERVER['HTTP_REFERER']);
 	}
 
 	else if ($flag == "xlsPlan") {

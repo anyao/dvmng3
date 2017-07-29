@@ -291,7 +291,7 @@ class checkService{
 				left join status
 				on status.id = buy.status
 				where codeManu is not null
-				and valid <= NOW()
+				and (valid <= NOW() or buy.status = 11 )
 				and takeDpt {$this->authDpt}
 				and buy.status > 3
 				order by valid

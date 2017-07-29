@@ -210,7 +210,6 @@ class confirmService{
 			->setCellValue('A9', '处理结果')
 			->setCellValue('D10', '日期：'.$res['time']);
 
-		// [name] => 耐震压力表,[factory] => 新区竖炉,[spec] => Y-100AZ/1.6MPA,[loc] => location,[codeManu] => S4S923722642,[scale] => 0～2.5kPa,[when] => 检定校准,[reason1] => 1,[reason2] => 1,[reason3] => 1,[reason4] => 1,[reason5] => 1,[reason6] => 1,[reason7] => 1,[reason8] => 1,[reason9] => 1,[res] => 2
 		$objPHPExcel->setActiveSheetIndex(0)
 			->setCellValue('B3', $res['name'])
 			->setCellValue('E3', $res['factory'])	
