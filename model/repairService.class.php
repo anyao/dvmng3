@@ -98,7 +98,7 @@ class repairService{
 	}
 
 	public function getRepPaging($paging){
-		$sql1 = "SELECT repair.id,buy.name,spec,codeManu,loc,device,repair,surface,repair.time,
+		$sql1 = "SELECT repair.id,buy.name,spec,codeManu,loc,device,repair,surface,repair.time,repair.devid,
 				factory.depart factory
 				from repair
 				left join buy
@@ -262,6 +262,10 @@ class repairService{
 		exit;
 	}
 
+	public function delRepair($id){
+		$sql = "DELETE from repair where id = $id";
+		$this->sqlHelper->dml($sql);
+	}
 
 }
 ?>

@@ -160,7 +160,7 @@ else{
                   <td>{$row['device']}</td>
                   <td>{$row['repair']}</td>
                   <td>{$row['surface']}</td>
-                  <td><a class='glyphicon glyphicon-trash' href='javascript:del({$row['id']});'></a></td>
+                  <td><a class='glyphicon glyphicon-trash' href='javascript:del({$row['id']}, {$row['devid']});'></a></td>
                 </tr>";
           }
         ?>  
@@ -218,8 +218,37 @@ else{
   </div>
 </div>
 
+<div class="modal fade" id="delModal">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">删除</h4>
+      </div>
+      <form class="form-horizontal" action="./controller/repairProcess.php" method="post">
+        <div class="modal-body">
+          <br>确定要删除该条记录？<br><br>
+        </div>
+        <div class="modal-footer">
+          <input type="hidden" name="flag" value="delRepair">
+          <input type="hidden" name="id">
+          <input type="hidden" name="devid">
+          <button class="btn btn-primary">确定</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <?php include 'devJs.php';?>
 <script type="text/javascript">
+function del(id, devid){
+  $("#delModal input[name=id]").val(id);
+  $("#delModal input[name=devid]").val(devid);
+  $("#delModal").modal({
+    keyboard: true
+  });
+}
 $("#yesFind").click(function(){
   var allow_submit = true;
   var nodesPy = treePy.getCheckedNodes(true);

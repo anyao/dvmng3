@@ -25,6 +25,17 @@ if (!empty($_REQUEST['flag'])) {
 		$res = $repairService->listStyle($arr, $userDpt);
 	}
 
+	else if ($flag == "delRepair") {
+		$id = $_POST['id'];
+		$devid = $_POST['devid'];
+		// 删除维修记录
+		$repairService->delRepair($id);
+		// 修改设备状态
+		$devService->uptDev(['status'=>8], $devid);
+		// 增加status_log记录
+		$devService->logStatus(8, $devid);
+	}
+
 	header("location:".$_SERVER['HTTP_REFERER']);
 
 }
