@@ -1,6 +1,6 @@
 <?php
-include_once "./../bootstrap/Classes/PHPExcel.php";
-include_once "./../bootstrap/Classes/PHPExcel/Writer/Excel5.php";
+include_once "Classes/PHPExcel.php";
+include_once "Classes/PHPExcel/Writer/Excel5.php";
 header("content-type:text/html;charset=utf-8");
 class devService{
 	private $authDpt = "";
@@ -74,14 +74,20 @@ class devService{
 		return $res;
 	}
 
-	public function findDev($arr, $paging){
+	public function findDev($arr, $dptid, $paging){
 		// name,status,spec,codeManu
+		$whereDpt = is_null($dptid) ? "takeDpt {$this->authDpt}" : "takeDpt = $dptid";
 		$_arr = [];
-		foreach ($arr as $k => $v) {
-			if ($v != "") 
-				array_push($_arr, "buy.`$k` like '%{$v}%'");
+		if (!empty($arr)){
+			foreach ($arr as $k => $v) {
+				if ($v != "") 
+					array_push($_arr, "buy.`$k` like '%{$v}%'");
+			}
+			$where = implode(" and ", $_arr);
+		}else{
+			$where = "1 = 1";
 		}
-		$where = implode(" and ", $_arr);
+
 		$sql1="SELECT buy.id,codeManu,name,spec,status.status,depart.depart,factory.depart factory,loc,unit
 			   from buy
 			   left join depart
@@ -96,8 +102,7 @@ class devService{
 				buy.id in (
 					SELECT pid from buy where pid is not null
 			 	) 
-			   ) and
-			   takeDpt {$this->authDpt}
+			   ) and $whereDpt
 			   limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
 		$sql2 = "SELECT count(*) 
 				 from buy 
@@ -107,8 +112,7 @@ class devService{
 				  buy.id in (
 					SELECT pid from buy where pid is not null
 			 	  ) 
-			     ) and
-			     takeDpt {$this->authDpt}";
+			     ) and $whereDpt ";
 		$this->sqlHelper->dqlPaging($sql1,$sql2,$paging);	
 	}
 

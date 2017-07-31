@@ -66,6 +66,15 @@ class dptService{
         return $res;
 	}
 
+	function getDptForUsing($dptid){
+		$sql = "SELECT depart as name,id,pid as pId
+			   from depart
+			   where id in ($dptid)";
+		$res=$this->sqlHelper->dql_arr($sql);
+        $res=json_encode($res,JSON_UNESCAPED_UNICODE);
+        return $res;
+	}
+
 	function getRoleFunc(){
 		$sql = "SELECT staff_func.title func,fid,staff_role.title role,rid
 				from staff_func

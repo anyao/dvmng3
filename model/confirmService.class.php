@@ -1,6 +1,6 @@
 <?php
-require_once "./../bootstrap/Classes/PHPExcel.php";
-require_once "./../bootstrap/Classes/PHPExcel/Writer/Excel5.php";
+include_once "Classes/PHPExcel.php";
+include_once "Classes/PHPExcel/Writer/Excel5.php";
 header("content-type:text/html;charset=utf-8");
 class confirmService{
 	private $authDpt = "";

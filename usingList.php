@@ -21,10 +21,11 @@ if (!empty($_GET['pageNow'])) {
 
 if (empty($_REQUEST['flag'])) {
   $devService->getPaging($paging);
-}else{
-    $data = $_POST['data'];
-
-    $devService->findDev($data, $paging); 
+}else{ 
+    // $_POST['data'] = !is_array($_POST['data']) ? json_decode($_POST['data'], true) : $_POST['data']
+    $data = !is_array($_POST['data']) ? json_decode($_POST['data'], true) : $_POST['data'];
+    $dptid = $_POST['dptid'];
+    $devService->findDev($data, $dptid,$paging); 
 }
 
 ?>
@@ -496,10 +497,40 @@ var setting = {
         simpleData: {
             enable: true
         }
+    },
+    callback: {
+      onClick: zTreeOnClick
     }
 };
 
-var zTree = <?= $dptService->getDptForRole('1,2,3') ?>,
+$.extend({
+    StandardPost:function(url,args){
+        var body = $(document.body),
+            form = $("<form method='post'></form>"),
+            input;
+        form.attr({"action":url});
+        $.each(args,function(key,value){
+            input = $("<input type='hidden'>");
+            input.attr({"name":key});
+            input.val(value);
+            form.append(input);
+        });
+
+        form.appendTo(document.body);
+        form.submit();
+        document.body.removeChild(form[0]);
+    }
+});
+
+function zTreeOnClick(event, treeId, treeNode) {
+  $.StandardPost('./usingList.php', {
+    flag: 'findDev', 
+    dptid: treeNode.id,
+    <?= isset($_POST['data']) ? "data :'".json_encode($data, JSON_UNESCAPED_UNICODE)."'" : null?>
+  })
+};
+
+var zTree = <?= $dptService->getDptForUsing(implode(",", $_SESSION['dptid'])) ?>,
 dptTree = {
   py: <?= $dptService->getDptForRole(1) ?>, 
   zp: <?= $dptService->getDptForRole(2) ?>, 
@@ -586,6 +617,14 @@ $(function(){
   $(".col-md-2").height(0.9 * $(window).height());
   $.fn.zTree.init($("#tree"), setting, zTree);
   tree = $.fn.zTree.getZTreeObj("tree");
+  var dptid = <?= isset($_POST['dptid']) ? $_POST['dptid'] : null?>;
+  if (dptid != null) {
+    var node = tree.getNodeByParam("id", dptid, null);
+    for (var i = 0; i < node.getPath().length; i++) {
+      tree.expandNode(node.getPath()[i], true, false, true);
+    }
+    tree.selectNode(node);
+  }
 });
 
 // 多选
@@ -634,17 +673,6 @@ function getLeaf(obj,id){
       $(".open-"+id).detach();
     }
 }
-
-//所有弹出框
-$(function () 
-  { $("[data-toggle='popover']").popover();
-});
-
-//时间选择器
-$(".datetime").datetimepicker({
-  format: 'yyyy-mm-dd', language: "zh-CN", autoclose: true,minView:2,
-});
-
 
    </script>
 
