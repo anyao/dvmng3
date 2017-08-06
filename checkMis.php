@@ -77,14 +77,9 @@ else{
     padding-left: 0px
   }
 
-  #downClass{
-    display: none;
-  }
-
   #searchForm .ztree-row{
     overflow-y: scroll
   }
-
 </style>
 <?php include 'buyVendor.php'; ?>
 </head>
@@ -108,14 +103,17 @@ else{
           <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">检定记录 <span class="caret"></span></a>
           <ul class="dropdown-menu">
             <li><a href="checkMis.php">周检计划</a></li>
-            <li><a href="checkList.php">巡检计划</a></li>
+            <li><a href="checkList.php">检定记录</a></li>
+            <li ><a href="checkXls.php">表格模板</a></li>
           </ul>
         </li>
         <li class="dropdown">
           <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">维修调整 <span class="caret"></span></a>
           <ul class="dropdown-menu">
             <li><a href="repairMis.php">维修任务</a></li>
-            <li><a href="repairList.php">维修记录</a></li>
+            <li style="display: <?=(!in_array(7, $_SESSION['funcid']) && $_SESSION['user'] != 'admin') ? "none" : "inline"?>">
+              <a href="repairList.php">维修记录</a>
+            </li>
           </ul>
         </li>
       </ul>
@@ -247,16 +245,6 @@ else{
               <input type="text" class="form-control" name="codeManu" readonly>
             </div>
           </div>
-          <div class="form-group" id="downClass">
-            <label class="col-sm-4 control-label">管理类别：</label>
-            <div class="col-sm-8">
-              <select class="form-control" name="chk[downClass]">
-                  <option value="A">A</option>
-                  <option value="B">B</option>
-                  <option value="C">C</option>
-                </select>
-            </div>
-          </div>
           <div class="form-group">
             <label class="col-sm-3 control-label">检定日期：</label>
             <div class="col-sm-8">
@@ -294,6 +282,16 @@ else{
                 <option value="3">降级</option>
                 <option value="4">封存</option>
               </select>
+            </div>
+          </div>
+          <div class="form-group" id="downClass">
+            <label class="col-sm-3 control-label">管理类别：</label>
+            <div class="col-sm-8">
+              <select class="form-control" name="chk[downClass]" disabled>
+                  <option value="A">A</option>
+                  <option value="B">B</option>
+                  <option value="C">C</option>
+                </select>
             </div>
           </div>
           <div class="form-group" id="conclu">
@@ -520,16 +518,6 @@ $(".tablebody").on("click","span.chosen",function checked(){
     }else{
       $("#checkPlan, #yesCheck").hide();
     }
-});
-
-//所有弹出框
-$(function () 
-  { $("[data-toggle='popover']").popover();
-});
-
-//时间选择器
-$(".datetime").datetimepicker({
-  format: 'yyyy-mm-dd', language: "zh-CN", autoclose: true,minView:2,
 });
    </script>
   </body>

@@ -76,6 +76,11 @@ if (!empty($_REQUEST['flag'])) {
 		$res = $checkService->listStylePlan($arr, $userDpt);
 	}
 
+	else if ($flag == "downXls") {
+		$filename = $_GET['filename'];
+		$checkService->downXls($filename);
+	}
+
 	
 
 	

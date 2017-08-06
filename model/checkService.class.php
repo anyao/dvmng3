@@ -433,5 +433,34 @@ class checkService{
 		$this->sqlHelper->dqlPaging($sql1,$sql2,$paging);
 	}
 
+	public function downXls($filename){
+		$file_name = $filename.".xlsx";     //下载文件名    
+		$file_dir = dirname(__file__)."/xls/"; //下载文件存放目录    
+		//检查文件是否存在    
+		if (!file_exists ($file_dir.$file_name)) {    
+		    echo "文件找不到";    
+		    exit ();    
+		} else {    
+		    header("Content-Type: application/force-download");//强制下载
+			//给下载的内容指定一个名字
+			header("Content-Disposition: attachment; filename=".$this->getXlsName($filename).".xlsx"); 
+			readfile($file_dir.$file_name); 
+		}    
+	}
+
+	private function getXlsName($filename){
+		switch ($filename) {
+			case 1:
+				return "弹性元件式一般压力表检定记录"; 
+			case 2:
+				return "电流电压表检定记录"; 
+			case 3:
+				return "流量积算仪检定记录"; 
+			case 4:
+				return "数字指示仪检定记录"; 
+			case 5:
+				return "压力（差压）变送器检定记录"; 
+		}
+	}
 }
 ?>
