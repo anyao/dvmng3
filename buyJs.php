@@ -4,6 +4,32 @@ $dptService = new dptService($sqlHelper);
 $dptAll = $dptService->getDpt();
 ?>
 
+// 外检input框显示
+$("#checkDpt").click(function(){
+  if ($(this).val() == "isOut") 
+    $("#outComp").show().css("display", "table");
+  else
+    $("#outComp").hide();
+})
+
+// 检定周期加
+$(".glyphicon-plus").parents("button").click(function(){
+  var $circle = $(this).parents(".input-group").find("input[type=text]");
+  var num = parseInt($circle.val());
+  num++;
+  $circle.val(num);
+});
+
+// 检定周期减
+$(".glyphicon-minus").parents("button").click(function(){
+  var $circle = $(this).parents(".input-group").find("input[type=text]");
+  var num = parseInt($circle.val());
+  if (num != 1) {
+    num--;
+    $circle.val(num);
+  }
+});
+
 $(function(){
 	if ($(".page-count").parent().height() < $(window).height()) 
 		$(".page-count").css({"position": "fixed", "width" : "40%"});

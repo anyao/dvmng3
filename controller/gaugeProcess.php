@@ -22,12 +22,12 @@ if (!empty($_REQUEST['flag'])) {
 		die;
 	}
 
-	else if ($flag == "addInfo") {
-		$data = json_decode($_POST['data'], true);
-		$res = $gaugeService->addInfo($data);
-		header("location: ./../buyCheck.php");
-		die;
-	}
+	// else if ($flag == "addInfo") {
+	// 	$data = json_decode($_POST['data'], true);
+	// 	$res = $gaugeService->addInfo($data);
+	// 	header("location: ./../buyCheck.php");
+	// 	die;
+	// }
 
 	else if ($flag == "delInfo") {
 		$id = $_POST['id'];
@@ -37,12 +37,12 @@ if (!empty($_REQUEST['flag'])) {
 	}
 
 	else if ($flag == "addCheck") {
+		$chk = $_POST['chk'];
 		$id = $_POST['id'];
 		
 		$info = $_POST['info'];
-		$info['valid'] = date('Y-m-d',strtotime($chk['time']." +".$info['circle']." month"));
-
-		$chk = $_POST['chk'];
+		$info['valid'] = date('Y-m-d',strtotime($chk['time']." +".$info['circle']." month - 1 days"));
+		
 		$chk['res'] = 1; 
 		$chk['devid'] = $id;
 		$chk['type'] = 1;
@@ -54,6 +54,22 @@ if (!empty($_REQUEST['flag'])) {
 		header("location:./../buyCheck.php");
 	}
 
+	else if ($flag == "uptCheck") {
+		$chk = $_POST['chk'];
+		$info = $_POST['info'];
+		$devid = $_POST['devid'];
+		$chkid = $_POST['chkid'];
+
+		$info['valid'] = date('Y-m-d',strtotime($chk['time']." +".$info['circle']." month - 1 days"));
+
+		$chk['devid'] = $devid;
+		$chk['type'] = 1;
+
+		$resInfo = $gaugeService->setBas($info, $devid, 2);
+		$resUptChk = $checkService->uptChkById($chk, $chkid);
+		header("location:".$_SERVER['HTTP_REFERER']);
+	}
+
 	else if ($flag == "addCheckAset") {
 		$pid = $_POST['pid'];
 		$path = '-'.$pid;
@@ -62,7 +78,7 @@ if (!empty($_REQUEST['flag'])) {
 			$info = $spr[$i]['info'];
 			$chk = $spr[$i]['chk'];
 
-			$info['valid'] = date('Y-m-d',strtotime($chk['time']." +".$info['circle']." month"));
+			$info['valid'] = date('Y-m-d',strtotime($chk['time']." +".$info['circle']." month - 1 days"));
 			$info['pid'] = $pid;
 			$info['path'] = $path;
 			$id = $gaugeService->cloneCheck($pid, $info['name'], $info['spec'], $info['unit']);
@@ -78,8 +94,9 @@ if (!empty($_REQUEST['flag'])) {
 	}
 
 	else if ($flag == "getChk") {
-		$id = $_POST['id'];
-		$res = $gaugeService->getChk($id);
+		$devid = $_POST['devid'];
+		$chkid = $_POST['chkid'];
+		$res = $gaugeService->getChk($devid, $chkid);
 		echo json_encode($res, JSON_UNESCAPED_UNICODE);
 	}
 
@@ -140,6 +157,19 @@ if (!empty($_REQUEST['flag'])) {
 		$res = $gaugeService->getLeaf($id, $status);
 		echo json_encode($res, JSON_UNESCAPED_UNICODE);
 		die;
+	}
+
+	else if ($flag == "xlsFirstCheck") {
+		$devid = substr($_GET['devid'], 0, -1);
+		$chkid = substr($_GET['chkid'], 0, -1);
+		$devService = new devService($sqlHelper);
+		$bas = $devService->getXlsDev($devid); 
+
+		$check = $checkService->getXlsFirstChk($chkid);
+
+		$userService = new userService($sqlHelper);
+		$userDpt = $userService->getDpt();
+		$devService->listStyle($bas, $check, $userDpt);
 	}
 
 }

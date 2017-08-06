@@ -434,6 +434,7 @@ if (empty($_REQUEST['flag'])) {
 
 <?php include 'devJs.php';?>
 <script type="text/javascript">
+
 $("#yesPass").click(function(){
   var allow_submit = true;
   if ($("#passCheck input[name=time]").val() == "") {
@@ -617,8 +618,8 @@ $(function(){
   $(".col-md-2").height(0.9 * $(window).height());
   $.fn.zTree.init($("#tree"), setting, zTree);
   tree = $.fn.zTree.getZTreeObj("tree");
-  var dptid = <?= isset($_POST['dptid']) ? $_POST['dptid'] : null?>;
-  if (dptid != null) {
+  var dptid = '<?= isset($_POST['dptid']) ? $_POST['dptid'] : ""?>';
+  if (dptid.length > 0) {
     var node = tree.getNodeByParam("id", dptid, null);
     for (var i = 0; i < node.getPath().length; i++) {
       tree.expandNode(node.getPath()[i], true, false, true);

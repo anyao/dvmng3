@@ -67,9 +67,10 @@ class dptService{
 	}
 
 	function getDptForUsing($dptid){
+		$where  = $_SESSION['user'] == "admin" ? "" : "where id in ($dptid)";
 		$sql = "SELECT depart as name,id,pid as pId
 			   from depart
-			   where id in ($dptid)";
+			   $where";
 		$res=$this->sqlHelper->dql_arr($sql);
         $res=json_encode($res,JSON_UNESCAPED_UNICODE);
         return $res;

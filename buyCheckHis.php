@@ -42,7 +42,7 @@ if (empty($_POST['flag'])) {
     display: inline !important;
   }
 
-  #takeAll{
+  #takeAll, #downAll{
     display:none;
     cursor: pointer;
   }
@@ -171,73 +171,98 @@ if (empty($_POST['flag'])) {
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">修改入厂检定信息</h4>
+        <h4 class="modal-title">入厂检定</h4>
       </div>
       <form action="./controller/gaugeProcess.php" method="post">
         <div class="modal-body">
           <div class="row">
             <div class="col-md-6">
               <div class="input-group">
+                <span class="input-group-addon">管理类别</span>
+                <select class="form-control" name="info[class]" data="class">
+                  <option value="A">A</option>
+                  <option value="B">B</option>
+                  <option value="C">C</option>
+                </select>
+              </div>  
+              <div class="input-group">
                 <span class="input-group-addon">出厂编号</span>
-                <input class="form-control" name="codeManu" type="text">
+                <input class="form-control" name="info[codeManu]" data="codeManu" type="text">
               </div> 
               <div class="input-group">
                 <span class="input-group-addon">精度等级</span>
-                <input class="form-control" name="accuracy" type="text">
+                <input class="form-control" name="info[accuracy]" data="accuracy" type="text">
+                <span class="input-group-btn">
+                  <button class="btn btn-default">级</button>
+                </span>
               </div> 
               <div class="input-group">
                 <span class="input-group-addon">量　　程</span>
-                <input class="form-control" name="scale" type="text">
+                <input class="form-control" name="info[scale]" data="scale" type="text">
               </div> 
               <div class="input-group">
-                <span class="input-group-addon">证书结论</span>
-                <input class="form-control" name="certi" type="text">
-              </div>  
+                <span class="input-group-addon">测量装置</span>
+                <input class="form-control" name="info[equip]" data="equip" type="text">
+              </div> 
               <div class="input-group">
-                <span class="input-group-addon">溯源方式</span>
-                <select class="form-control" name="track">
-                  <option value="检定">检定</option>
-                  <option value="校准">校准</option>
-                  <option value="测试">测试</option>
+                <span class="input-group-addon">用　　途</span>
+                <select class="form-control" name="info[usage]" data="usage">
+                  <option value="质检">质检</option>
+                  <option value="经营">经营</option>
+                  <option value="控制">控制</option>
+                  <option value="安全">安全</option>
+                  <option value="环保">环保</option>
+                  <option value="能源">能源</option>
                 </select>
-              </div> 
+              </div>
             </div>
             <div class="col-md-6">
               <div class="input-group">
-                <span class="input-group-addon">检定日期</span>
-                <input class="form-control datetime" name="checkNxt" readonly="" type="text">
-              </div>  
-              <div class="input-group">
-                <span class="input-group-addon">有效日期</span>
-                <input class="form-control datetime" name="valid" readonly="" type="text">
-              </div>
-              <div class="input-group">
                 <span class="input-group-addon">检定周期</span>
-                <input class="form-control" name="circle" value="6" readonly="readonly" type="text">
+                <input class="form-control" name="info[circle]" data="circle" value="6" readonly="readonly" type="text">
                 <span class="input-group-btn">
                   <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-minus"></span></button>
                   <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-plus"></span></button>
                   <button class="btn btn-default">月</button>
                 </span>
-              </div> 
+              </div>  
               <div class="input-group">
                 <span class="input-group-addon">检定单位</span>
-                <select class="form-control" name="checkDpt">
+                <select class="form-control" name="info[checkDpt]" data="checkdpt" id="checkDpt">
                   <option value="199">计量室</option>
-                  <option value="<?php echo $_SESSION['udptid']?>">使用部门</option>
+                  <option value="isTake">使用部门</option>
                   <option value="isOut">外检单位</option>
                 </select>
               </div>
               <div class="input-group" id="outComp">
                 <span class="input-group-addon">外检公司</span>
-                <input class="form-control" name="outComp" type="text">
+                <input class="form-control" name="info[checkComp]" data="checkComp" type="text">
+              </div> 
+              <div class="input-group">
+                <span class="input-group-addon">检定日期</span>
+                <input class="form-control datetime" name="chk[time]" data="time" readonly="" type="text">
               </div>  
+              <div class="input-group">
+                <span class="input-group-addon">溯源方式</span>
+                <select class="form-control" name="chk[track]" data="track">
+                  <option value="检定">检定</option>
+                  <option value="校准">校准</option>
+                </select>
+              </div> 
+              <div class="input-group">
+                <span class="input-group-addon">证书结论</span>
+                 <select class="form-control" name="chk[res]" data="res">
+                  <option value="1">合格</option>
+                </select>
+              </div> 
             </div>
           </div>
         </div>
         <div class="modal-footer">
-          <input type="hidden" name="flag" value="addCheck">
-          <input type="hidden" name="id">
+          <input type="hidden" name="flag" value="uptCheck">
+          <input type="hidden" name="devid">
+          <input type="hidden" name="chkid">
+          <span id="failAdd" style="color: red;display:none">信息填写不完整。</span>
           <button class="btn btn-default" type="button" id='delCheck'>删除</button>
           <button class="btn btn-primary" id='yesUpt'>修改</button>
         </div>
@@ -269,10 +294,12 @@ if (empty($_POST['flag'])) {
     </div>
     <table class="table table-striped table-hover">
       <thead>
-        <tr><th><span class='glyphicon glyphicon-log-out' id="takeAll" ></span></th>
+        <tr>
+            <th><span id="downAll" class="glyphicon glyphicon-download-alt"></span></th>
             <th style="width: 8%">检定日期</th><th style="width: 8%">出厂编号</th><th>名称</th><th>规格</th>
             <th>存货分类</th><th>供应商</th><th>存货编码</th>
-            <th style="width:3%"></th><th style="width:3%"></th><th style="width:3%"></th>
+            <th style="width:3%"></th><th style="width:3%"></th>
+            <th style="width:3%"><span class='glyphicon glyphicon-log-out' id="takeAll"></span></th>
         </tr>
       </thead>
       <tbody class="tablebody">
@@ -283,7 +310,7 @@ if (empty($_POST['flag'])) {
         for ($i=0; $i < count($paging->res_array); $i++) { 
           $row = $paging->res_array[$i];
           if (in_array(7, $_SESSION['funcid'])  || $_SESSION['user'] == 'admin') 
-            $uptCheck = "<td><a href='javascript:uptCheck({$row['id']});' class='glyphicon glyphicon-pencil'></a></td>";
+            $uptCheck = "<td><a href='javascript:uptCheck({$row['id']}, {$row['chkid']});' class='glyphicon glyphicon-pencil'></a></td>";
           else
             $uptCheck ="<td></td>";
 
@@ -295,7 +322,7 @@ if (empty($_POST['flag'])) {
           }
           echo
           "<tr>
-              <td><span class='glyphicon glyphicon-unchecked' chosen='{$row['id']}'></span></td>
+              <td><span class='glyphicon glyphicon-unchecked' chosen='{$row['id']}' chked='{$row['chkid']}'></span></td>
               <td>{$row['checkTime']}</td>
               <td>{$row['codeManu']}</td>
               <td>{$row['name']}</td>
@@ -388,7 +415,7 @@ function getLeaf(obj,id){
         var addHtml = "";
         for (var i = 0; i < data.length; i++){
           if(allow_enter != -1)
-            $uptCheck = "<td><a href='javascript:uptCheck(" + data[i].id + ");' class='glyphicon glyphicon-pencil'></a></td>";
+            $uptCheck = "<td><a href='javascript:uptCheck(" + data[i].id + ","+data[i].chkid+");' class='glyphicon glyphicon-pencil'></a></td>";
           else
             $uptCheck = "<td></td>";
           addHtml += 
@@ -486,11 +513,11 @@ $("#yesTake").click(function(){
 });
 
 // 外检input框显示
-$("select[name=checkDpt]").click(function(){
+$("#checkDpt").click(function(){
   if ($(this).val() == "isOut") 
     $("#outComp").show().css("display", "table");
   else
-    $("#outComp").hide();
+    $("#outComp").hide().find("input").val("");
 });
 
 $("#delCheck").click(function(){
@@ -507,25 +534,20 @@ $("#yesDelInfo").click(function(){
   }, 'text');
 })
 
-function uptCheck(id){
-  $.post("./controller/gaugeProcess.php",{flag: "getChk", id: id}, function(data){
-    if (data.checkComp != null) {
-      $("#outComp").show().css("display", "table").find("input").val(data.checkComp);
-      $("select[name=checkDpt]").val("isOut");
-    }else if (data.checkDpt == 199) {
+function uptCheck(devid,chkid){
+  $.post("./controller/gaugeProcess.php",{flag: "getChk", devid: devid, chkid: chkid}, function(data){
+    if (data.checkdpt == "isOut") 
+      $("#outComp").show().css("display", "table");
+    else
       $("#outComp").hide();
-      $("select[name=checkDpt]").val(199);
-    }else{
-      $("#outComp").hide();
-      $("select[name=checkDpt]").val(session.udptid);
-    }
 
-    $("#uptCheck input[name=id]").val(id);
-    $("#yesDelInfo").attr("delid", id);
-    for(var key in data){
-      $("#uptCheck input[name="+key+"]").val(data[key]);
-    }
+    $("#uptCheck input[name=devid]").val(devid);
+    $("#uptCheck input[name=chkid]").val(chkid);
+    $("#yesDelInfo").attr("delid", devid);
 
+    $.each(data,function(k, v){
+      $("#uptCheck .form-control[data="+k+"]").val(v);
+    });
     $('#uptCheck').modal({
       keyboard: false
     });
@@ -535,16 +557,10 @@ function uptCheck(id){
 // 确定添加检定信息到mysql中
 $("#yesUpt").click(function(){
   var allow_submit = true;
-
-  $("#uptCheck .form-control[name!=outComp]").each(function(){
-    if ($(this).val() == "" || ($(this).val() == 'isOut' && $("input[name=out Comp]").val() == "")) {
-      $("#failAdd").modal({
-        keyboard:true
-      });
+  if ($("#uptCheck .form-control[data==takedpt]").val() == "isOut" && $("#uptCheck .form-control[data!=checkComp]").val() == "") {
+      $("#failAdd").show();
       allow_submit = false;
-    }
-  });
-
+  }
   return allow_submit;
 });
 
@@ -560,20 +576,31 @@ $(".tablebody").on("click","tr>td:first-child>span",function checked(){
     $(this).toggleClass("glyphicon glyphicon-check");
     var isChosen = $(".glyphicon-check").length;
     if (isChosen != 0) {
-      $("#takeAll").show();
+      $("#takeAll, #downAll").show();
     }else{
-      $("#takeAll").hide();
+      $("#takeAll, #downAll").hide();
     }
 });
 
 $("#takeAll").click(function(){
-  var str = "";
-  $(".glyphicon-check").each(function(){
-    str += $(this).attr('chosen') + ",";
-  });
+  var str = getChked('chosen');
   $("#takeSpr input[name=arrId]").val(str);
   takeSpr();
 });
+
+$("#downAll").click(function(){
+  var devstr = getChked('chosen');
+  var chkstr = getChked('chked');
+  location.href = "./controller/gaugeProcess.php?flag=xlsFirstCheck&devid="+devstr+"&chkid="+chkstr;
+});
+
+function getChked(attr){
+  var str = "";
+  $(".glyphicon-check").each(function(){
+    str += $(this).attr(attr) + ",";
+  });
+  return str;
+}
 
 function takeOne(id){
   $("#takeSpr input[name=arrId]").val(id+",");

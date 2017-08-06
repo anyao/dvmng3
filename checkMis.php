@@ -209,24 +209,17 @@ else{
             <div class="col-sm-8">
               <select class="form-control" name="chk[track]" id="track">
                 <option value="检定">检定</option>
-                <option value="校准">校准</option>
               </select>
-            </div>
-          </div>
-          <div class="form-group" id="conclu">
-            <label class="col-sm-3 control-label">证书结论：</label>
-            <div class="col-sm-8">
-              <input type="text" class="form-control" name="chk[conclu]">
             </div>
           </div>
           <div class="form-group">
             <label class="col-sm-3 control-label">检定结果：</label>
             <div class="col-sm-8">
-              <select class="form-control" name="chk[res]" readonly>
+              <select class="form-control" name="chk[res]">
                 <option value="1">合格</option>
               </select>
             </div>
-          </div>
+          </div>   
         </div>
         <div class="modal-footer">
           <input type="hidden" name="flag" value="yesCheck">
@@ -238,6 +231,74 @@ else{
     </div>
   </div>
 </div>
+
+<div class="modal fade" id="noModalnotdone">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">批量检定</h4>
+      </div>
+      <form class="form-horizontal" action="./controller/checkProcess.php" method="post">
+        <div class="modal-body"> 
+          <div class="form-group">
+            <label class="col-sm-3 control-label">检定日期：</label>
+            <div class="col-sm-8">
+              <input type="text" class="form-control datetime" name="chk[time]" readonly>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-3 control-label">检定类型：</label>
+            <div class="col-sm-8">
+              <select class="form-control" name="chk[type]" id="chkType">
+                <?php  
+                  $chkType = $checkService->getTypeAll();
+                  for ($i=1; $i < count($chkType); $i++) { 
+                    echo "<option value='{$chkType[$i]['id']}'>{$chkType[$i]['name']}</option>";
+                  }
+                ?>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-3 control-label">溯源方式：</label>
+            <div class="col-sm-8">
+              <select class="form-control" name="chk[track]" id="track">
+                <option value="检定">检定</option>
+                <option value="校准">校准</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-3 control-label">检定结果：</label>
+            <div class="col-sm-8">
+              <select class="form-control" name="chk[res]">
+                <option value="1">合格</option>
+                <option value="2">维修</option>
+                <option value="3">降级</option>
+                <option value="4">封存</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group" id="conclu">
+            <label class="col-sm-3 control-label">校准结果：</label>
+            <div class="col-sm-8">
+              <input type="text" class="form-control" name="chk[conclu]">
+            </div>
+          </div>
+          
+        </div>
+        <div class="modal-footer">
+          <input type="hidden" name="flag" value="yesCheck">
+          <input type="hidden" name="id">
+          <span style="color:red; display:none" id="failPass">日期必填。</span>
+          <button class="btn btn-primary" id="yesPass">批量检定合格</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 
 <!-- 个别仪表不合格 -->
 <div class="modal fade" id="noModal">
@@ -472,11 +533,11 @@ $("#yesFind").click(function(){
   $("#dpt").val(dpt);
   // if ($.inArray("",$("#searchForm input").val()) != -1) {
   // }
-  $("#searchForm input").each(function(){
-    if ($(this).val() == "") 
-    allow_submit = false;
-    $("#failSearch").show();
-  })
+  // $("#searchForm input").each(function(){
+  //   if ($(this).val() == "") 
+  //   allow_submit = false;
+  //   $("#failSearch").show();
+  // })
   return allow_submit;
 });
 

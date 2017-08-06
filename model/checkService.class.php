@@ -34,12 +34,21 @@ class checkService{
 		return $res;
 	}
 
+	function uptChkById($arr, $chkid){
+		$_arr = ["user = '{$_SESSION['uid']}'"];
+		$sql = "UPDATE `check` set ".CommonService::sqlTgther($_arr, $arr)."WHERE id = $chkid";
+		$res = $this->sqlHelper->dml($sql);
+		return $res;
+	}
 	function setValid($devid, $checkTime){
 		$sql = "UPDATE buy set 
-					valid = date_add(
-						'{$checkTime}',
-						interval circle MONTH
-					) 
+					valid = date_sub(
+								date_add(
+									'{$checkTime}',
+									interval circle MONTH
+								),
+								interval 1 DAY
+							)
 				where id = $devid";
 		$res = $this->sqlHelper->dml($sql);
 	}
@@ -74,6 +83,16 @@ class checkService{
 				left join confirm 
 				on `check`.id = confirm.chkid
 				where devid in ($idStr)";
+		$res = $this->sqlHelper->dql_arr($sql);
+		return $this->trimXls($res);
+	}
+
+	function getXlsFirstChk($idStr){
+		$sql = "SELECT devid,`check`.time checkTime,res,valid,track,chkRes,confirm.time confirmTime
+				from `check`
+				left join confirm 
+				on `check`.id = confirm.chkid
+				where `check`.id in ({$idStr})";
 		$res = $this->sqlHelper->dql_arr($sql);
 		return $this->trimXls($res);
 	}
@@ -280,7 +299,7 @@ class checkService{
 	}
 
 	public function getMisPaging($paging){
-		$sql1 = "SELECT buy.id,codeManu,buy.name,spec,circle,valid,loc,
+		$sql1 = "SELECT buy.id,codeManu,buy.name,spec,circle,valid,loc,class,
 				factory.depart factory,depart.depart,
 				status.status
 				from buy
@@ -349,11 +368,11 @@ class checkService{
 	public function findMisPaging($arr, $paging){
 		// [status] => 4 [name] => 差压变送器 [codeManu] => 30112S16 [takeDpt] => 1,2,3,198,
 		$status = empty($arr['status']) ? "" : "buy.status = {$arr['status']}";
-		$name = empty($arr['name']) ? "" : "buy.name like '%{$arr['name']}'%";
+		$name = empty($arr['name']) ? "" : "buy.name like '%{$arr['name']}%'";
 		$codeManu = empty($arr['codeManu']) ? "" : "codeManu = '{$arr['codeManu']}'";
 		$takeDpt = empty($arr['takeDpt']) ? "" : "takeDpt in (".substr($arr['takeDpt'], 0, -1).")";
 		$_arr = array_filter([$status, $name, $codeManu, $takeDpt]);
-		$sql1 = "SELECT buy.id,codeManu,buy.name,spec,circle,valid,loc,
+		$sql1 = "SELECT buy.id,codeManu,buy.name,spec,circle,valid,loc,class,
 				factory.depart factory,depart.depart,
 				status.status
 				from buy
@@ -373,6 +392,7 @@ class checkService{
 				)
 				order by valid
 				limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
+			// echo "$sql1"; die;
 		$sql2 = "SELECT count(*) 
 				 from buy 
 				 where (

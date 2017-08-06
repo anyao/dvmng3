@@ -13,7 +13,8 @@ class gaugeService{
 
 	// 备件申报入厂检定列表
 	function buyCheckHis($paging){
-		$sql1 = "SELECT buy.id,codeManu,buy.name,spec,unit,category.name category,supplier,codeWare,`check`.time checkTime
+		$sql1 = "SELECT buy.id,codeManu,buy.name,spec,unit,category.name category,supplier,codeWare,
+				`check`.time checkTime,`check`.id chkid
 				 FROM buy
 				 left join category
 				 on buy.category = category.no
@@ -34,7 +35,8 @@ class gaugeService{
 	}
 
 	function getLeaf($id, $status){
-		$sql = "SELECT buy.id,codeManu,takeTime,buy.name,spec,unit,category.name category,supplier,codeWare,`check`.time checkTime,	`check`.id chkid
+		$sql = "SELECT buy.id,codeManu,takeTime,buy.name,spec,unit,category.name category,supplier,codeWare,
+				`check`.time checkTime,	`check`.id chkid
 			    FROM buy
 			    left join category
 			    on buy.category = category.no
@@ -77,13 +79,13 @@ class gaugeService{
 		$dtl = $this->findWhere($codeManu,$name,$spec);
 		$where = " 1 = 1 ";
 		if (!empty($check_from) && !empty($check_to)) 
-			$where .= " AND checkTime between '{$check_from}' and '{$check_to}' ";
+			$where .= " AND `check`.time between '{$check_from}' and '{$check_to}' ";
 		elseif (empty($check_from) && !empty($check_to)) 
-			$where .= " AND checkTime < '{$check_to}' ";
+			$where .= " AND `check`.time < '{$check_to}' ";
 		elseif (!empty($check_from) && empty($check_to)) 
-			$where .= " AND checkTime between '{$check_from}' and ".date("Y-m-d");
+			$where .= " AND `check`.time between '{$check_from}' and ".date("Y-m-d");
 
-		$sql1 = "SELECT buy.id id,`check`.time checkTime,codeManu,buy.name,spec,unit,category.name category,supplier
+		$sql1 = "SELECT buy.id id,`check`.time checkTime,codeManu,buy.name,spec,unit,category.name category,supplier,codeWare
 				 FROM buy
 				 left join category
 				 on buy.category = category.no
@@ -93,7 +95,11 @@ class gaugeService{
 				 on `check`.devid = buy.id
 				 where status=2 AND $where AND $dtl
 				 limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
-		$sql2 = "SELECT count(*) from buy where status=2  AND $where AND $dtl";
+		$sql2 = "SELECT count(*) 
+				 from buy 
+				 left join `check`
+				 on buy.id = `check`.devid
+				 where status=2  AND $where AND $dtl";
 		$res = $this->sqlHelper->dqlPaging($sql1,$sql2,$paging);
 	}
 
@@ -234,8 +240,13 @@ class gaugeService{
 		return $res;
 	}
 
-	function getChk($id){
-		$sql = "SELECT codeManu,accuracy,scale,certi,track,checkNxt,valid,circle,checkComp,checkDpt FROM buy where id = $id";
+	function getChk($devid, $chkid){
+		$sql = "SELECT class,codeManu,accuracy,scale,equip,`usage`,circle,checkComp,checkdpt,track,`check`.time
+				from buy
+				left join `check`
+				on buy.id = `check`.devid
+				where buy.id = $devid 
+				and `check`.id = $chkid";
 		$res = $this->sqlHelper->dql($sql);
 		return $res;
 	}
