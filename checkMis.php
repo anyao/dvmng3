@@ -64,7 +64,7 @@ else{
     cursor:pointer;
   }
 
-  a.glyphicon-remove{
+  a.glyphicon-eye-open{
     display:inline !important;
   }
   
@@ -154,7 +154,7 @@ else{
             echo "<tr><td colspan=12>未找到相关设备。</td></tr>";
           }
           for ($i=0; $i < count($paging->res_array); $i++) { 
-            $row=$paging->res_array[$i]; 
+            $row=$paging->res_array[$i];
             echo "<tr>
 	                <td><span class='glyphicon glyphicon-unchecked chosen' chosen='{$row['id']}'></span></td>
 	                <td>{$row['codeManu']}</td>
@@ -164,7 +164,7 @@ else{
 	                <td>{$row['loc']}</td>
                   <td>{$row['valid']}</td>
 	                <td>{$row['status']}</td>
-                  <td><a class='glyphicon glyphicon-remove' href='javascript:noCheck({$row['id']});'></a></td>
+                  <td><a class='glyphicon glyphicon-eye-open' href='javascript:checkOne({$row['id']},\"{$row['codeManu']}\",\"{$row['class']}\");'></a></td>
 	              </tr>";
           }
         ?>  
@@ -219,7 +219,7 @@ else{
                 <option value="1">合格</option>
               </select>
             </div>
-          </div>   
+          </div>
         </div>
         <div class="modal-footer">
           <input type="hidden" name="flag" value="yesCheck">
@@ -232,15 +232,31 @@ else{
   </div>
 </div>
 
-<div class="modal fade" id="noModalnotdone">
+<div class="modal fade" id="checkOneModal">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">批量检定</h4>
+        <h4 class="modal-title">检定 / 校准</h4>
       </div>
       <form class="form-horizontal" action="./controller/checkProcess.php" method="post">
         <div class="modal-body"> 
+          <div class="form-group">
+            <label class="col-sm-3 control-label">出厂编号：</label>
+            <div class="col-sm-8">
+              <input type="text" class="form-control" name="codeManu" readonly>
+            </div>
+          </div>
+          <div class="form-group" id="downClass">
+            <label class="col-sm-4 control-label">管理类别：</label>
+            <div class="col-sm-8">
+              <select class="form-control" name="chk[downClass]">
+                  <option value="A">A</option>
+                  <option value="B">B</option>
+                  <option value="C">C</option>
+                </select>
+            </div>
+          </div>
           <div class="form-group">
             <label class="col-sm-3 control-label">检定日期：</label>
             <div class="col-sm-8">
@@ -289,156 +305,10 @@ else{
           
         </div>
         <div class="modal-footer">
-          <input type="hidden" name="flag" value="yesCheck">
-          <input type="hidden" name="id">
+          <input type="hidden" name="flag" value="checkOne">
+          <input type="hidden" name="devid">
           <span style="color:red; display:none" id="failPass">日期必填。</span>
           <button class="btn btn-primary" id="yesPass">批量检定合格</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-
-<!-- 个别仪表不合格 -->
-<div class="modal fade" id="noModal">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">不合格记录</h4>
-      </div>
-      <form class="form-horizontal" action="./controller/checkProcess.php" method="post">
-        <div class="modal-body"> 
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-group">
-                <label class="col-sm-4 control-label">检定日期：</label>
-                <div class="col-sm-8">
-                  <input type="text" class="form-control datetime" name="chk[time]" readonly>
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="col-sm-4 control-label">检定类型：</label>
-                <div class="col-sm-8">
-                  <select class="form-control" name="chk[type]" id="chkType">
-                    <?php  
-                      $chkType = $checkService->getTypeAll();
-                      for ($i=1; $i < count($chkType); $i++) { 
-                        echo "<option value='{$chkType[$i]['id']}'>{$chkType[$i]['name']}</option>";
-                      }
-                    ?>
-                  </select>
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="col-sm-4 control-label">溯源方式：</label>
-                <div class="col-sm-8">
-                  <select class="form-control" name="chk[track]">
-                    <option value="检定">检定</option>
-                    <option value="校准">校准</option>
-                  </select>
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="col-sm-4 control-label">发现场所：</label>
-                <div class="col-sm-8">
-                   <select class="form-control" name="chk[when]">
-                    <option value="检定校准">检定校准</option>
-                    <option value="使用中">使用中</option>
-                  </select>
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="col-sm-4 control-label">处理结果：</label>
-                <div class="col-sm-8">
-                  <textarea class="form-control" rows="4" name="chk[info]"></textarea>
-                </div>
-              </div> 
-            </div>
-            <div class="col-md-6" style="margin-left: -30px">
-              <div class="form-group">
-                <label class="col-sm-4 control-label">处理方式：</label>
-                <div class="col-sm-8">
-                   <select class="form-control" name="chk[res]" id="chkres">
-                    <option value="2">修理后再校准</option>
-                    <option value="3">判定降级或限制使用</option>
-                    <option value="4">直接封存</option>
-                  </select>
-                </div>
-              </div>
-              <div class="form-group" id="downClass">
-                <label class="col-sm-4 control-label">管理类别：</label>
-                <div class="col-sm-8">
-                  <select class="form-control" name="chk[downClass]">
-                      <option value="A">A</option>
-                      <option value="B">B</option>
-                      <option value="C">C</option>
-                    </select>
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="col-sm-4 control-label">不合格原因：</label>
-                <div class="col-sm-8">
-                  <div class="checkbox">
-                    <label class="checkbox-inline">
-                      <input type="checkbox" name="chk[reason1]" value="1">
-                      损坏
-                    </label>
-                    <label class="checkbox-inline">
-                      <input type="checkbox" name="chk[reason2]" value="1">
-                        过载
-                    </label>
-                    <label class="checkbox-inline">
-                      <input type="checkbox" name="chk[reason6]" value="1">
-                        误操作
-                    </label>
-                    <label class="checkbox-inline">
-                      <input type="checkbox" name="chk[reason9]" value="1">
-                        其它
-                    </label>
-                  </div>
-                  <div class="checkbox">
-                    <label>
-                      <input type="checkbox" name="chk[reason3]" value="1">
-                        可能使其预期用途无效的故障
-                    </label>
-                  </div>
-                  <div class="checkbox">
-                    <label>
-                      <input type="checkbox" name="chk[reason4]" value="1">
-                        产生不正确的测量结果
-                    </label>
-                  </div>
-                  <div class="checkbox">
-                    <label>
-                      <input type="checkbox" name="chk[reason5]" value="1">
-                        超过规定的计量确认间隔
-                    </label>
-                  </div>
-                  <div class="checkbox">
-                    <label>
-                      <input type="checkbox" name="chk[reason7]" value="1">
-                        封印或保护装置损坏或破裂
-                    </label>
-                  </div>
-                  <div class="checkbox">
-                    <label>
-                      <input type="checkbox" name="chk[reason8]" value="1">
-                        暴露在已有可能影响其预期用途的影响量中(如电磁场、灰尘)
-                    </label>
-                  </div>
-                </div>
-              </div>
-              
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <input type="hidden" name="flag" value="noCheck">
-          <input type="hidden" name="id">
-          <span style="color:red; display:none" id="failNoCheck">信息不完整。</span>
-          <button class="btn btn-primary" id="yesNoCheck">确定</button>
         </div>
       </form>
     </div>
@@ -567,13 +437,14 @@ dptTree = {
   gp: <?= $dptService->getDptForRole(3) ?>
 };
 
-function noCheck(id){
-  $("#noModal input[name=id]").val(id);
-  if($("#chkres").val() == 3)
-    $("#downClass").show();
-  else
-    $("#downClass").hide();
-  $('#noModal').modal({
+function checkOne(devid,code,clas){
+  $("#checkOneModal input[name=devid]").val(devid);
+  $("#checkOneModal input[name=codeManu]").val(code);
+  // // if($("#chkres").val() == 3)
+  // //   $("#downClass").show();
+  // // else
+  // //   $("#downClass").hide();
+  $('#checkOneModal').modal({
     keyboard: true
   });
 }
