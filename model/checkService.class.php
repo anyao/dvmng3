@@ -13,23 +13,17 @@ class checkService{
 		return $res;
 	}
 
-	function checkOne($arr){
-		// [0] => time [1] => type [2] => res [3] => info [4] => class [5] => status [6] => devid
-		$arr['user'] = $_SESSION['uid'];
-		$arr['info'] = $arr['res'] == 1 ? 'null' : "'{$arr['info']}'"; 
-		$arr['status'] = $arr['res'] == 2 ? $arr['status'] : 'null';
-		$arr['class'] = $arr['res'] == 3 ? "'{$arr['class']}'" : 'null';
-		$sql = "INSERT INTO `check` (devid,type,res,info,user,time,downClass,chgStatus) 
-				values ({$arr['devid']}, {$arr['type']}, {$arr['res']}, {$arr['info']}, {$arr['user']}, '{$arr['time']}', {$arr['class']}, {$arr['status']})";
-		$res = $this->sqlHelper->dml($sql);
-		$this->setValid($arr['devid']);
-		return $res;
-	}
-
 	function addCheck($arr){
 		//  [checkTime] => 2017-07-20 [track] => 检定 [res] => 1 [devid] => 592 [type] => 1 
 		$_arr = ["user = '{$_SESSION['uid']}'"];
 		$sql = "INSERT INTO `check` set ".CommonService::sqlTgther($_arr, $arr);
+		$res = $this->sqlHelper->dml($sql);
+		return $res;
+	}
+
+	function uptCheck($arr, $id){
+		$_arr = ["user = '{$_SESSION['uid']}'"];
+		$sql = "UPDATE `check` set ".CommonService::sqlTgther($_arr, $arr)."WHERE id = $id";
 		$res = $this->sqlHelper->dml($sql);
 		return $res;
 	}
@@ -60,8 +54,8 @@ class checkService{
 	}
 
 	function getCheckByDev($id){
-		$sql = "SELECT `check`.id,check_type.name type,res,info,`check`.time checkTime,valid,track,
-				status.status,chgStatus,downClass,confirm.id confirmid,count(confirm.id) count
+		$sql = "SELECT `check`.id,check_type.name type,res,`check`.time checkTime,valid,track,conclu,
+				status.status,chgStatus,downAccu,confirm.scale,confirm.error,confirm.`interval`,chkRes
 				from `check`
 				left join check_type
 				on check_type.id = `check`.type
@@ -78,7 +72,7 @@ class checkService{
 	}
 
 	function getXlsChk($idStr){
-		$sql = "SELECT devid,`check`.time checkTime,res,valid,track,chkRes,confirm.time confirmTime
+		$sql = "SELECT devid,`check`.time checkTime,res,valid,track,chkRes,confirm.time confirmTime,`check`.conclu
 				from `check`
 				left join confirm 
 				on `check`.id = confirm.chkid
@@ -299,7 +293,7 @@ class checkService{
 	}
 
 	public function getMisPaging($paging){
-		$sql1 = "SELECT buy.id,codeManu,buy.name,spec,circle,valid,loc,class,
+		$sql1 = "SELECT buy.id,codeManu,buy.name,spec,circle,valid,loc,accuracy,
 				factory.depart factory,depart.depart,
 				status.status
 				from buy
@@ -330,7 +324,7 @@ class checkService{
 		$codeManu = empty($arr['codeManu']) ? "" : "codeManu = '{$arr['codeManu']}'";
 		$takeDpt = empty($arr['takeDpt']) ? "" : "takeDpt in (".substr($arr['takeDpt'], 0, -1).")";
 		$_arr = array_filter([$status, $name, $codeManu, $takeDpt]);
-		$sql1 = "SELECT `check`.id,`check`.time,codeManu,loc,`check`.res,`check`.devid,
+		$sql1 = "SELECT `check`.id,`check`.time,codeManu,loc,`check`.res,`check`.devid,`check`.track.`check`.conclu,`check`.`when`,
 				status.status,buy.name,factory.depart takeFct,
 				confirm.scale,confirm.error,confirm.`interval`,chkRes
 				from `check`
@@ -372,7 +366,7 @@ class checkService{
 		$codeManu = empty($arr['codeManu']) ? "" : "codeManu = '{$arr['codeManu']}'";
 		$takeDpt = empty($arr['takeDpt']) ? "" : "takeDpt in (".substr($arr['takeDpt'], 0, -1).")";
 		$_arr = array_filter([$status, $name, $codeManu, $takeDpt]);
-		$sql1 = "SELECT buy.id,codeManu,buy.name,spec,circle,valid,loc,class,
+		$sql1 = "SELECT buy.id,codeManu,buy.name,spec,circle,valid,loc,accuracy,
 				factory.depart factory,depart.depart,
 				status.status
 				from buy
@@ -406,7 +400,7 @@ class checkService{
 	}
 
 	public function getChkPaging($paging){
-		$sql1 = "SELECT `check`.id,`check`.time,codeManu,loc,`check`.res,`check`.devid,
+		$sql1 = "SELECT `check`.id,`check`.time,codeManu,loc,`check`.res,`check`.devid,`check`.track,`check`.conclu,`check`.`when`,
 				status.status,buy.name,factory.depart takeFct,
 				confirm.scale,confirm.error,confirm.`interval`,chkRes
 				from `check`
@@ -460,6 +454,14 @@ class checkService{
 				return "数字指示仪检定记录"; 
 			case 5:
 				return "压力（差压）变送器检定记录"; 
+		}
+	}
+
+	public function getChgStatus($res){
+		switch ($res) {
+			case 1: return 4;
+			case 2: return 8;
+			case 3: return 13;
 		}
 	}
 }

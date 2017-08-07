@@ -104,16 +104,16 @@ else{
           <ul class="dropdown-menu">
             <li><a href="checkMis.php">周检计划</a></li>
             <li><a href="checkList.php">检定记录</a></li>
-            <li ><a href="checkXls.php">表格模板</a></li>
+            <li  style="display: <?=(!in_array(7, $_SESSION['funcid']) && $_SESSION['user'] != 'admin') ? "none" : "inline"?>">
+              <a href="checkXls.php">表格模板</a>
+            </li>
           </ul>
         </li>
         <li class="dropdown">
           <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">维修调整 <span class="caret"></span></a>
           <ul class="dropdown-menu">
             <li><a href="repairMis.php">维修任务</a></li>
-            <li style="display: <?=(!in_array(7, $_SESSION['funcid']) && $_SESSION['user'] != 'admin') ? "none" : "inline"?>">
-              <a href="repairList.php">维修记录</a>
-            </li>
+            <li><a href="repairList.php">维修记录</a></li>
           </ul>
         </li>
       </ul>
@@ -162,7 +162,7 @@ else{
 	                <td>{$row['loc']}</td>
                   <td>{$row['valid']}</td>
 	                <td>{$row['status']}</td>
-                  <td><a class='glyphicon glyphicon-eye-open' href='javascript:checkOne({$row['id']},\"{$row['codeManu']}\",\"{$row['class']}\");'></a></td>
+                  <td><a class='glyphicon glyphicon-eye-open' href='javascript:checkOne({$row['id']},\"{$row['codeManu']}\",\"{$row['accuracy']}\");'></a></td>
 	              </tr>";
           }
         ?>  
@@ -205,7 +205,7 @@ else{
           <div class="form-group">
             <label class="col-sm-3 control-label">溯源方式：</label>
             <div class="col-sm-8">
-              <select class="form-control" name="chk[track]" id="track">
+              <select class="form-control" name="chk[track]">
                 <option value="检定">检定</option>
               </select>
             </div>
@@ -273,40 +273,54 @@ else{
               </select>
             </div>
           </div>
-          <div class="form-group">
-            <label class="col-sm-3 control-label">检定结果：</label>
-            <div class="col-sm-8">
-              <select class="form-control" name="chk[res]">
-                <option value="1">合格</option>
-                <option value="2">维修</option>
-                <option value="3">降级</option>
-                <option value="4">封存</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-group" id="downClass">
-            <label class="col-sm-3 control-label">管理类别：</label>
-            <div class="col-sm-8">
-              <select class="form-control" name="chk[downClass]" disabled>
-                  <option value="A">A</option>
-                  <option value="B">B</option>
-                  <option value="C">C</option>
+
+          <div id="checkRes">
+            <div class="form-group">
+              <label class="col-sm-3 control-label">检定结果：</label>
+              <div class="col-sm-8">
+                <select class="form-control" name="chk[check][res]" id="chkres">
+                  <option value="1">合格</option>
+                  <option value="2">维修</option>
+                  <option value="3">降级</option>
+                  <option value="4">封存</option>
                 </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-3 control-label">精度等级：</label>
+              <div class="col-sm-8">
+                <div class="input-group">
+                  <input class="form-control" name="chk[check][downAccu]" type="text" id="downAccu">
+                  <span class="input-group-addon">级</span>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="form-group" id="conclu">
-            <label class="col-sm-3 control-label">校准结果：</label>
-            <div class="col-sm-8">
-              <input type="text" class="form-control" name="chk[conclu]">
+
+          <div id="correctRes">
+            <div class="form-group">
+              <label class="col-sm-3 control-label">校准结果：</label>
+              <div class="col-sm-8">
+                <select class="form-control" name="chk[correct][res]" id="corres">
+                  <option value="5">合格</option>
+                  <option value="6">不合格</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-3 control-label">证书结论：</label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" name="chk[correct][conclu]" id="conclu">
+              </div>
             </div>
           </div>
-          
+
         </div>
         <div class="modal-footer">
           <input type="hidden" name="flag" value="checkOne">
           <input type="hidden" name="devid">
-          <span style="color:red; display:none" id="failPass">日期必填。</span>
-          <button class="btn btn-primary" id="yesPass">批量检定合格</button>
+          <span style="color:red; display:none" id="failCheckOne">信息填写不完整。</span>
+          <button class="btn btn-primary" id="yesCheckOne">确定</button>
         </div>
       </form>
     </div>
@@ -375,19 +389,6 @@ else{
 
 <?php include 'devJs.php';?>
 <script type="text/javascript">
-// 校准的证书结论显示
-$("#yesModal").on('click', '#track', function() {
-  showConclu();
-});
-
-$(function(){ showConclu();});
-function showConclu(){
-  if ($("#track").val() == "检定") 
-    $("#conclu").hide();
-  else
-    $("#conclu").show();
-}
-
 $("#yesFind").click(function(){
   var allow_submit = true;
   var nodesPy = treePy.getCheckedNodes(true);
@@ -399,16 +400,8 @@ $("#yesFind").click(function(){
     dpt += n.id+",";
   });
   $("#dpt").val(dpt);
-  // if ($.inArray("",$("#searchForm input").val()) != -1) {
-  // }
-  // $("#searchForm input").each(function(){
-  //   if ($(this).val() == "") 
-  //   allow_submit = false;
-  //   $("#failSearch").show();
-  // })
   return allow_submit;
 });
-
 
 // 树形部门结构基础配置
 var settingModal = {
@@ -435,33 +428,68 @@ dptTree = {
   gp: <?= $dptService->getDptForRole(3) ?>
 };
 
-function checkOne(devid,code,clas){
+// 溯源方式
+$("#checkOneModal").on('click', '#track', checkOrCorrect);
+function checkOrCorrect(){
+  if ($("#track").val() == "检定") {
+    $("#checkRes").show();
+    $("#correctRes").hide();
+  }else{
+    $("#checkRes").hide();
+    $("#correctRes").show();
+  }
+}
+
+// 检定记录不合格备注显示input
+$("#checkOneModal").on('click', '#chkres', chgAccu);
+function chgAccu(){
+  if($("#chkres").val() == 3)
+    $("#downAccu").removeAttr('readonly');
+  else
+    $("#downAccu").attr("readonly", "readonly");
+}
+
+
+// 校准不合格填写证书结论
+$("#checkOneModal").on('click', '#corres', chgConclu);
+function chgConclu(){
+  if($("#corres").val() == 6)
+    $("#conclu").removeAttr('readonly').val("");
+  else{
+    var accu = $("#conclu").attr("correct");
+    $("#conclu").val(accu).attr("readonly", "readonly");
+  }
+  
+}
+
+
+function checkOne(devid,code,accu){
   $("#checkOneModal input[name=devid]").val(devid);
   $("#checkOneModal input[name=codeManu]").val(code);
-  // // if($("#chkres").val() == 3)
-  // //   $("#downClass").show();
-  // // else
-  // //   $("#downClass").hide();
+  $("#downAccu").val(accu).attr("readonly", "readonly");
+  $("#conclu").val(accu+"级").attr({readonly:"readonly", correct: accu+"级"});
+
+  checkOrCorrect();
+  chgAccu();
+  chgConclu();
+
   $('#checkOneModal').modal({
     keyboard: true
   });
 }
 
-$("#yesNoCheck").click(function(){
+$("#yesCheckOne").click(function(){
   var allow_submit = true;
-  if ($("#noModal input[name=time],#noModal textarea").val() == "") {
-    $("#failNoCheck").show();
+  var datetime = $("#checkOneModal .datetime").val() == "" ? false : true;
+  var conclu = $("#track").val == "校准" && 
+               $("#corres").val() == 6 &&
+               $("#conclu").val() == "" ? false : true; 
+
+  if (!datetime && !conclu) {
+    $("#failCheckOne").show();
     allow_submit = false;
   }
   return allow_submit;
-});
-
-// 检定记录不合格备注显示input
-$("#chkres").click(function(){
-  if($(this).val() == 3)
-    $("#downClass").show();
-  else
-    $("#downClass").hide();
 });
 
 $("#yesCheck").click(function(){

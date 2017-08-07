@@ -8,45 +8,47 @@ $userService = new userService($sqlHelper);
 
 if (!empty($_REQUEST['flag'])) {
 	$flag=$_REQUEST['flag'];
-	// if($flag=="checkOne"){ 
-	// 	$arr = $_POST;
-	// 	unset($arr['flag']);
-	// 	// check记录的添加
-	// 	$res = $checkService->checkOne($arr);
-
-	// 	// 不合格时做相应调整
-	// 	if ($arr['res'] == 2) {
-	// 		// 检定结果为维修，① 更改状态；② 添加statusLog记录
-	// 		$statusChange = $devService->uptDev(["status" => $arr['status']], $arr['devid']);
-	// 		$statusLog = $devService->logStatus($arr['status'], $arr['devid']);
-	// 	}else if ($arr['res'] == 3) {
-	// 		$classDown = $devService->uptDev(["class" => $arr['class']], $arr['devid']);
-	// 	}
-
-	// 	if ($res !== false) 
-	// 		header("location: ./../using.php?id=".$arr['devid']);
-	// }
-
-	// else
-	if ($flag == "noCheck") {
+	if($flag=="checkOne"){ 
+		$devid = $_POST['devid'];
 		$chk = $_POST['chk'];
-		$devid = $_POST['id'];
-		switch ($chk['res']) {
-			case 3:
-				// 降级
-				$devService->uptDev(['class'=>'downClass'], $devid);
-				break;
-			default:
-				// 封存 | 维修
-				$chk['downClass'] = "";
-				$chk['chgStatus'] = $chk['res'] == 2 ? 8 : 13;
-				$chk['devid'] = $devid;
-				$devService->uptDev(['status' => $chk['chgStatus']],$devid);
-				$devService->logStatus($chk['chgStatus'], $devid);
-				break;
+		$chk['devid'] = $devid;
+
+		if ($chk['track'] == '检定') {
+			$chk['res'] = $chk['check']['res'];
+			switch ($chk['res']) {
+				case 3: //检定 降级
+					$chk['downAccu'] = $chk['check']['downAccu'];
+					$devService->uptDev(['accuracy' => $chk['downAccu']], $devid);
+					break;
+				default: // 检定 合格、维修、封存
+					$chk['chgStatus'] = $checkService->getChgStatus($chk['res']);
+					$devService->uptDev(['status' => $chk['chgStatus']], $devid);
+					$devService->logStatus($chk['chgStatus'], $devid);	
+					break;
+			}
+		}else{
+			$chk['res'] = $chk['correct']['res'];
+			$chk['conclu'] = $chk['conclu'];
+
+			$chk['chgStatus'] = 4;
+			$devService->uptDev(['status' => $chk['chgStatus']], $devid);
+			$devService->logStatus($chk['chgStatus'], $devid);	
 		}
+		unset($chk['correct'], $chk['check']);
+
+		$chk['valid'] = $checkService->getValid($devid);
+
 		$checkService->addCheck($chk);
 		$checkService->setValid($devid, $chk['time']);
+
+		header("location:".$_SERVER['HTTP_REFERER']);
+	}
+
+	else if ($flag == "noCheck") {
+		$chk = $_POST['chk'];
+		$chkid = $_POST['chkid'];
+
+		$checkService->uptCheck($chk, $chkid);
 		header("location:".$_SERVER['HTTP_REFERER']);
 	}
 

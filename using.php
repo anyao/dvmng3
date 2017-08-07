@@ -31,13 +31,13 @@ $res = $devService->getDevById($id);
     overflow-y: scroll;
   }
 
-  #chgStatus,#downClass{
+  #chgStatus,#downAccu{
     display: none;
   }
   
-  .glyphicon-thumbs-up{
-    display: inline !important;
-  }
+  .glyphicon-thumbs-up,.glyphicon-option-horizontal, .glyphicon-thumbs-down{
+      display:inline !important;
+    }
 </style>
 <?php include "./buyVendor.php"; ?>
 </head>
@@ -167,29 +167,40 @@ $res = $devService->getDevById($id);
     <table class="table table-striped table-hover">
       <thead><tr>
         <th>检定类型</th><th>有效日期</th><th>实际完成</th><th>溯源方式</th>
-        <th>结果</th><th>备注</th><th style="width:5%"></th>
+        <th>证书结论</th><th>计量要求</th><th style="text-align:center">验证结果</th>
       </tr></thead>
       <tbody style="overflow-y: scroll">
       <?php
         $check = $checkService->getCheckByDev($_GET['id']); 
-        for ($i=0; $i < count($check); $i++) {  
+        for ($i=0; $i < count($check); $i++) {
+          if (!empty($check[$i]['chkRes'])) {
+            $request = "{$check[$i]['scale']} / {$check[$i]['error']} / {$check[$i]['interval']}";
+            $confirm = "{$check[$i]['chkRes']}";
+          }elseif (in_array($check[$i]['res'], [1,5,6])) {
+           $request = "未计量确认";
+           $confirm = "<a class='glyphicon glyphicon-thumbs-up' href='javascript:addConfirm({$check[$i]['id']},\"{$res['codeManu']}\");'></a>";
+          }else{
+            $request = "检定不合格";
+            if (empty($check[$i]['when'])) 
+              $confirm = "<a class='glyphicon glyphicon-thumbs-down' href='javascript:failCheck({$check[$i]['id']},\"{$res['codeManu']}\");'></a>";
+            else
+              $confirm = "<a class='glyphicon glyphicon-option-horizontal' href='./controller/confirmProcess.php?flag=xlsUnqual&chkid={$check[$i]['id']}'></a>";
+          }  
           switch ($check[$i]['res']) {
             case 1:
-              $check[$i]['res'] = '合格';
-              break;
+              $check[$i]['res'] = '合格'; break;
             case 2:
-              $check[$i]['res'] = '维修';
-              $check[$i]['info'] = "状态:".$check[$i]['status']." 注:".$check[$i]['info'];
-              break;
+              $check[$i]['res'] = '维修'; break;
             case 3:
-              $check[$i]['res'] = '调整';
-              $check[$i]['info'] = "等级:".$check[$i]['downClass']." 注:".$check[$i]['info'];
-              break;
-          } 
+              $check[$i]['res'] = '降级'; break;
+            case 4:
+              $check[$i]['res'] = '封存'; break;
+            default:
+              $check[$i]['res'] = $res['conclu']; break;        
+          }
           
           if ($check[$i]['info'] == "") 
             $check[$i]['info'] = '无'; 
-          $confirm = $check[$i]['count']==0 ? "<td><a class='glyphicon glyphicon-thumbs-up' href='javascript:addConfirm({$check[$i]['id']});'></a></td>" : "<td></td>";
               
           echo 
           "<tr><td>{$check[$i]['type']}</td>
@@ -197,8 +208,8 @@ $res = $devService->getDevById($id);
               <td>{$check[$i]['checkTime']}</td>
               <td>{$check[$i]['track']}</td>
               <td>{$check[$i]['res']}</td>
-              <td>{$check[$i]['info']}</td>
-              {$confirm}
+              <td>{$request}</td>
+              <td style='text-align:center'>{$confirm}</td>
           </tr>";
         }
         ?>
@@ -280,6 +291,69 @@ $res = $devService->getDevById($id);
 </div>
 </form>
 
+<div class="modal fade" id="addModal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">计量确认</h4>
+      </div>
+      <form class="form-horizontal" action="./controller/confirmProcess.php" method="post">
+        <div class="modal-body"> 
+          <div class="form-group">
+            <label class="col-sm-3 control-label">出厂编号：</label>
+            <div class="col-sm-8">
+              <input type="text" class="form-control" name="codeManu" readonly>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-3 control-label">检定日期：</label>
+            <div class="col-sm-8">
+              <input type="text" class="form-control datetime" name="cfr[time]" readonly>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-3 control-label">测量范围：</label>
+            <div class="col-sm-8">
+              <input type="text" class="form-control" name="cfr[scale]">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-3 control-label">允许误差：</label>
+            <div class="col-sm-8">
+              <div class="input-group">
+                <input type="text" class="form-control" name="cfr[error]">
+                <span class="input-group-addon">级</span>
+              </div> 
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-3 control-label">分度值：</label>
+            <div class="col-sm-8">
+              <input type="text" class="form-control" name="cfr[interval]">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-3 control-label">验证结果：</label>
+            <div class="col-sm-8">
+              <select class="form-control" name="cfr[chkRes]">
+                <option value="合格">合格</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <input type="hidden" name="flag" value="addConfirm">
+          <input type="hidden" name="cfr[chkid]" class="chkid">
+          <input type="hidden" name="goto" value="checkList">
+          <span style="color:red; display:none" id="failAdd">信息不完整。</span>
+          <button class="btn btn-primary" id="yesAdd">确定</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <!-- 使用部门选择 -->
 <div class="modal fade" id="dptModal">
   <div class="modal-dialog" role="document">
@@ -330,58 +404,98 @@ $res = $devService->getDevById($id);
   </div>
 </div>
 
-<div class="modal fade" id="addModal">
+<!-- 不合格设备处置记录填写 -->
+<div class="modal fade" id="noModal">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">计量确认</h4>
+        <h4 class="modal-title">不合格记录</h4>
       </div>
-      <form class="form-horizontal" action="./controller/confirmProcess.php" method="post">
+      <form class="form-horizontal" action="./controller/checkProcess.php" method="post">
         <div class="modal-body"> 
-          <div class="form-group">
-            <label class="col-sm-3 control-label">检定日期：</label>
-            <div class="col-sm-8">
-              <input type="text" class="form-control datetime" name="cfr[time]" readonly>
+          <div class="row">
+            <div class="form-group">
+              <label class="col-sm-3 control-label">出厂编号：</label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" name="codeManu" readonly>
+              </div>
             </div>
-          </div>
-          <div class="form-group">
-            <label class="col-sm-3 control-label">测量范围：</label>
-            <div class="col-sm-8">
-              <input type="text" class="form-control" name="cfr[scale]">
+            <div class="form-group">
+              <label class="col-sm-3 control-label">发现场所：</label>
+              <div class="col-sm-8">
+                 <select class="form-control" name="chk[when]">
+                  <option value="检定校准">检定校准</option>
+                  <option value="使用中">使用中</option>
+                </select>
+              </div>
             </div>
-          </div>
-          <div class="form-group">
-            <label class="col-sm-3 control-label">允许误差：</label>
-            <div class="col-sm-8">
-              <div class="input-group">
-                <input type="text" class="form-control" name="cfr[error]">
-                <span class="input-group-addon">级</span>
-              </div> 
+            <div class="form-group">
+              <label class="col-sm-3 control-label">不合格原因：</label>
+              <div class="col-sm-8">
+                <div class="checkbox">
+                  <label class="checkbox-inline">
+                    <input type="checkbox" name="chk[reason1]" value="1">
+                    损坏
+                  </label>
+                  <label class="checkbox-inline">
+                    <input type="checkbox" name="chk[reason2]" value="1">
+                      过载
+                  </label>
+                  <label class="checkbox-inline">
+                    <input type="checkbox" name="chk[reason6]" value="1">
+                      误操作
+                  </label>
+                  <label class="checkbox-inline">
+                    <input type="checkbox" name="chk[reason9]" value="1">
+                      其它
+                  </label>
+                </div>
+                <div class="checkbox">
+                  <label>
+                    <input type="checkbox" name="chk[reason3]" value="1">
+                      可能使其预期用途无效的故障
+                  </label>
+                </div>
+                <div class="checkbox">
+                  <label>
+                    <input type="checkbox" name="chk[reason4]" value="1">
+                      产生不正确的测量结果
+                  </label>
+                </div>
+                <div class="checkbox">
+                  <label>
+                    <input type="checkbox" name="chk[reason5]" value="1">
+                      超过规定的计量确认间隔
+                  </label>
+                </div>
+                <div class="checkbox">
+                  <label>
+                    <input type="checkbox" name="chk[reason7]" value="1">
+                      封印或保护装置损坏或破裂
+                  </label>
+                </div>
+                <div class="checkbox">
+                  <label>
+                    <input type="checkbox" name="chk[reason8]" value="1">
+                      暴露在已有可能影响其预期用途的影响量中(如电磁场、灰尘)
+                  </label>
+                </div>
+              </div>
             </div>
-          </div>
-          <div class="form-group">
-            <label class="col-sm-3 control-label">分度值：</label>
-            <div class="col-sm-8">
-              <input type="text" class="form-control" name="cfr[interval]">
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="col-sm-3 control-label">验证结果：</label>
-            <div class="col-sm-8">
-              <select class="form-control" name="cfr[chkRes]">
-                <option value="合格">合格</option>
-              </select>
-            </div>
+            <div class="form-group">
+              <label class="col-sm-3 control-label">处理结果：</label>
+              <div class="col-sm-8">
+                <textarea class="form-control" rows="4" name="chk[info]"></textarea>
+              </div>
+            </div> 
           </div>
         </div>
         <div class="modal-footer">
-          <input type="hidden" name="flag" value="addConfirm">
-          <input type="hidden" name="cfr[chkid]" class="chkid">
-          <input type="hidden" name="goto" value="using">
-          <input type="hidden" name="devid" value="<?=$id?>">
-          <span style="color:red; display:none" id="failAdd">信息不完整。</span>
-          <button class="btn btn-primary" id="yesAdd">确定</button>
+          <input type="hidden" name="flag" value="noCheck">
+          <input type="hidden" name="chkid">
+          <span style="color:red; display:none" id="failNoCheck">信息不完整。</span>
+          <button class="btn btn-primary" id="yesNoCheck">确定</button>
         </div>
       </form>
     </div>
@@ -389,8 +503,29 @@ $res = $devService->getDevById($id);
 </div>
 
 <script type="text/javascript">
-function addConfirm(id){
+function failCheck(id, code){
+  $("#noModal input[name=chkid]").val(id);
+  $("#noModal input[name=codeManu]").val(code);
+  $("#failNoCheck").hide();
+  $('#noModal').modal({
+    keyboard: true
+  });
+}
+
+$("#yesAdd").click(function(){
+  var allow_submit = true;
+  $("#addModal input[type=text]").each(function(){
+    if ($(this).val() == "") {
+      allow_submit = false;
+      $("#failAdd").show();
+    }
+  })
+  return allow_submit;
+});
+
+function addConfirm(id, code){
   $("#addModal .chkid").val(id);
+  $("#addModal input[name=codeManu]").val(code);
   $('#addModal').modal({
     keyboard: true
   });

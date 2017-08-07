@@ -38,7 +38,7 @@ else{
   <link rel="icon" href="bootstrap/img/favicon.ico">
   <title>检定记录-设备管理系统</title>
   <style type="text/css">
-    .glyphicon-check, .glyphicon-unchecked,.glyphicon-thumbs-up,.glyphicon-option-horizontal{
+    .glyphicon-check, .glyphicon-unchecked,.glyphicon-thumbs-up,.glyphicon-option-horizontal, .glyphicon-thumbs-down{
       display:inline !important;
     }
 
@@ -75,10 +75,6 @@ else{
       padding-left: 0px
     }
 
-    #downClass{
-      display: none;
-    }
-
     #searchForm .ztree-row{
       overflow-y: scroll
     }
@@ -87,6 +83,7 @@ else{
   <?php include 'buyVendor.php'; ?>
 </head>
 <body role="document">
+<?php include 'message.php'; ?>
 <nav class="navbar navbar-inverse">
   <div class="container">
     <div class="navbar-header">
@@ -107,6 +104,9 @@ else{
           <ul class="dropdown-menu">
             <li><a href="checkMis.php">周检计划</a></li>
             <li><a href="checkList.php">巡检计划</a></li>
+            <li  style="display: <?=(!in_array(7, $_SESSION['funcid']) && $_SESSION['user'] != 'admin') ? "none" : "inline"?>">
+              <a href="checkXls.php">表格模板</a>
+            </li>
           </ul>
         </li>
         <li class="dropdown">
@@ -142,9 +142,8 @@ else{
       <table class="table table-striped table-hover">
         <thead><tr>
           <th><span class="glyphicon glyphicon-download-alt" id="confirmList"></span></th>
-          <th>检定日期</th><th>出厂编号</th><th>设备名称</th><th>所在分厂部门</th><th>安装地点</th>
-          <th>结果</th><th>状态</th><th>计量要求</th><th style="text-align:center">验证结果</th>
-          <th style="width:3%"></th>
+          <th>检定日期</th><th>出厂编号</th><th>设备名称</th><th>所在分厂部门</th><th>安装地点</th><th>溯源方式</th>
+          <th>证书结论</th><th>状态</th><th>计量要求</th><th style="text-align:center">验证结果</th>
         </tr></thead>
         <tbody class="tablebody">  
         <?php
@@ -155,17 +154,16 @@ else{
             $row=$paging->res_array[$i]; 
             if (!empty($row['chkRes'])) {
               $request = "{$row['scale']} / {$row['error']} / {$row['interval']}";
-              $confirm = "<td style='text-align:center'>{$row['chkRes']}</td>";
-            }elseif ($row['res'] == 1) {
+              $confirm = "{$row['chkRes']}";
+            }elseif (in_array($row['res'], [1,5,6])) {
              $request = "未计量确认";
-             $confirm = "<td style='text-align:center'>
-                          <a class='glyphicon glyphicon-thumbs-up' href='javascript:addConfirm({$row['id']},\"{$row['codeManu']}\");'></a>
-                         </td>";
+             $confirm = "<a class='glyphicon glyphicon-thumbs-up' href='javascript:addConfirm({$row['id']},\"{$row['codeManu']}\");'></a>";
             }else{
               $request = "检定不合格";
-              $confirm = "<td style='text-align:center'>
-                            <a class='glyphicon glyphicon-option-horizontal' href='./controller/confirmProcess.php?flag=xlsUnqual&chkid={$row['id']}'></a>
-                          </td>";
+              if (empty($row['when'])) 
+                $confirm = "<a class='glyphicon glyphicon-thumbs-down' href='javascript:failCheck({$row['id']},\"{$row['codeManu']}\");'></a>";
+              else
+                $confirm = "<a class='glyphicon glyphicon-option-horizontal' href='./controller/confirmProcess.php?flag=xlsUnqual&chkid={$row['id']}'></a>";
             }
 
             switch ($row['res']) {
@@ -177,6 +175,8 @@ else{
                 $row['res'] = "降级"; break;
               case 4:
                 $row['res'] = "封存"; break;
+              default:
+                $row['res'] = $row['conclu']; break;
             }
             echo "<tr>
 	                <td><span class='glyphicon glyphicon-unchecked chosen' chosen='{$row['id']}'></span></td>
@@ -185,11 +185,11 @@ else{
                   <td><a href='using.php?id={$row['devid']}'>{$row['name']}</a></td>
 	                <td>{$row['takeFct']}</td>
 	                <td>{$row['loc']}</td>
+                  <td>{$row['track']}</td>
                   <td>{$row['res']}</td>
                   <td>{$row['status']}</td>
                   <td>$request</td>
-                  $confirm
-                  <td><a class='glyphicon glyphicon-download-alt' href='javascript:void(0);'></a></td>
+                  <td style='text-align:center'>$confirm</td>
 	              </tr>";
           }
         ?>  
@@ -263,6 +263,104 @@ else{
   </div>
 </div>
 
+<!-- 不合格设备处置记录填写 -->
+<div class="modal fade" id="noModal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">不合格记录</h4>
+      </div>
+      <form class="form-horizontal" action="./controller/checkProcess.php" method="post">
+        <div class="modal-body"> 
+          <div class="row">
+            <div class="form-group">
+              <label class="col-sm-3 control-label">出厂编号：</label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" name="codeManu" readonly>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-3 control-label">发现场所：</label>
+              <div class="col-sm-8">
+                 <select class="form-control" name="chk[when]">
+                  <option value="检定校准">检定校准</option>
+                  <option value="使用中">使用中</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-3 control-label">不合格原因：</label>
+              <div class="col-sm-8">
+                <div class="checkbox">
+                  <label class="checkbox-inline">
+                    <input type="checkbox" name="chk[reason1]" value="1">
+                    损坏
+                  </label>
+                  <label class="checkbox-inline">
+                    <input type="checkbox" name="chk[reason2]" value="1">
+                      过载
+                  </label>
+                  <label class="checkbox-inline">
+                    <input type="checkbox" name="chk[reason6]" value="1">
+                      误操作
+                  </label>
+                  <label class="checkbox-inline">
+                    <input type="checkbox" name="chk[reason9]" value="1">
+                      其它
+                  </label>
+                </div>
+                <div class="checkbox">
+                  <label>
+                    <input type="checkbox" name="chk[reason3]" value="1">
+                      可能使其预期用途无效的故障
+                  </label>
+                </div>
+                <div class="checkbox">
+                  <label>
+                    <input type="checkbox" name="chk[reason4]" value="1">
+                      产生不正确的测量结果
+                  </label>
+                </div>
+                <div class="checkbox">
+                  <label>
+                    <input type="checkbox" name="chk[reason5]" value="1">
+                      超过规定的计量确认间隔
+                  </label>
+                </div>
+                <div class="checkbox">
+                  <label>
+                    <input type="checkbox" name="chk[reason7]" value="1">
+                      封印或保护装置损坏或破裂
+                  </label>
+                </div>
+                <div class="checkbox">
+                  <label>
+                    <input type="checkbox" name="chk[reason8]" value="1">
+                      暴露在已有可能影响其预期用途的影响量中(如电磁场、灰尘)
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-3 control-label">处理结果：</label>
+              <div class="col-sm-8">
+                <textarea class="form-control" rows="4" name="chk[info]"></textarea>
+              </div>
+            </div> 
+          </div>
+        </div>
+        <div class="modal-footer">
+          <input type="hidden" name="flag" value="noCheck">
+          <input type="hidden" name="chkid">
+          <span style="color:red; display:none" id="failNoCheck">信息不完整。</span>
+          <button class="btn btn-primary" id="yesNoCheck">确定</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <!-- 搜索备件检定记录-->
 <div class="modal fade" id="searchForm">
   <div class="modal-dialog" role="document">
@@ -325,6 +423,27 @@ else{
 
 <?php include 'devJs.php';?>
 <script type="text/javascript">
+$("#yesNoCheck").click(function(){
+  var allow_submit = true;
+  var chked = $(".checkbox").find(":checked").length == 0 ? false : true;
+  var text = $("#noModal textarea").val() == "" ? false : true;
+  if (!chked || !text) {
+    $("#failNoCheck").show();
+    allow_submit = false;
+  }
+  return allow_submit;
+});
+
+
+function failCheck(id, code){
+  $("#noModal input[name=chkid]").val(id);
+  $("#noModal input[name=codeManu]").val(code);
+  $("#failNoCheck").hide();
+  $('#noModal').modal({
+    keyboard: true
+  });
+}
+
 $("#yesAdd").click(function(){
   var allow_submit = true;
   $("#addModal input[type=text]").each(function(){

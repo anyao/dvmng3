@@ -279,15 +279,16 @@ class devService{
 				for ($k=0; $k < count($check[$row['id']]); $k++) { 
 					$chk = $check[$row['id']][$k];
 					switch ($chk['res']) {
-						case '1':
-							$chk['res'] = '合格';
-							break;
-						case '2':
-							$chk['res'] = '维修';
-							break;
-						case '3':
-							$chk['res'] = '降级';
-							break;
+						case 1:
+							$chk['res'] = '合格'; break;
+						case 2:
+							$chk['res'] = '维修'; break;
+						case 3:
+							$chk['res'] = '降级'; break;
+						case 4:
+							$chk['res']	= '封存'; break;
+						default:
+							$chk['res'] = $res['conclu']; break;				
 					}
 					$checkNxt = date('Y-m-d',strtotime($chk['valid']."+ 1 day"));
 					$objPHPExcel->setActiveSheetIndex(0)

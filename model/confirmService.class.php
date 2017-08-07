@@ -280,7 +280,7 @@ class confirmService{
 
 		// Redirect output to a client’s web browser (Excel5)
 		header('Content-Type: application/vnd.ms-excel');
-		header('Content-Disposition: attachment;filename=test.xls');
+		header('Content-Disposition: attachment;filename='.$res['codeManu'].'不合格处置记录.xls');
 		header('Cache-Control: max-age=0');
 		// If you're serving to IE 9, then the following may be needed
 		header('Cache-Control: max-age=1');
