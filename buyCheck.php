@@ -78,7 +78,10 @@ $gaugeService->buyCheck($paging);
           <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">检定记录 <span class="caret"></span></a>
           <ul class="dropdown-menu">
             <li><a href="checkMis.php">周检计划</a></li>
-            <li><a href="checkList.php">巡检计划</a></li>
+            <li><a href="checkList.php">检定历史</a></li>
+            <li  style="display: <?=(!in_array(7, $_SESSION['funcid']) && $_SESSION['user'] != 'admin') ? "none" : "inline"?>">
+              <a href="checkXls.php">表格模板</a>
+            </li>
           </ul>
         </li>
         <li class="dropdown">
