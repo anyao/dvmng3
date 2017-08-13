@@ -7,8 +7,8 @@ class sqlHelper{
 	// public $password="puyang2016";
 	// public $host="172.20.32.79";
 
-	public $password="anyao";
-	public $host="localhost";
+	public $password="puyang2016";
+	public $host="172.20.32.79";
 
 
 	public function __construct(){
