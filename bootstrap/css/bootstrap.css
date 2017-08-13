@@ -5132,18 +5132,13 @@ a.thumbnail.active {
 .alert-info .alert-link {
   color: #245269;
 }
-/*.alert-warning {
-  color: #8a6d3b;
-  background-color: #fcf8e3;
-  border-color: #faebcc;
-}*/
 
 .alert-warning {
     filter:progid:DXImageTransform.Microsoft.gradient(startcolorstr=#5f081F34,endcolorstr=#5f081F34);  
     background-color: rgba(8, 31, 52, 0.2);
     border-color: rgba(8, 31, 52, 0.2);
     color: #081f34;
-    width: 25%;
+    width: 20%;
     margin-bottom: 0px;
 
     /*left:75%;*/
@@ -5232,7 +5227,7 @@ a.thumbnail.active {
           animation: progress-bar-stripes 2s linear infinite;
 }
 .progress-bar-success {
-  background-color: #5cb85c;
+  background-color: #081F34;
 }
 .progress-striped .progress-bar-success {
   background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
@@ -6895,9 +6890,8 @@ button.close {
 }
 
 .page-count{
-  position:fixed;
   bottom:12px;
-  width:40%;
+  padding-bottom:15px;
   text-align: center;
   margin-left: -15px;
 }
@@ -7016,7 +7010,8 @@ button.close {
 #message{
   position: absolute;
   bottom:0px;
-  width: 100%
+  width: 100%;
+  z-index: 1000;
 }
 
 

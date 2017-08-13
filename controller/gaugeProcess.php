@@ -1,301 +1,184 @@
 <?php  
-require_once '../model/gaugeService.class.php';
-require_once '../model/userService.class.php';
-header("content-type:text/html;charset=utf-8");
-$gaugeService=new gaugeService();
+require_once "../model/commonService.class.php";
+CommonService::autoloadController();
+$sqlHelper = new sqlHelper;
+$gaugeService = new gaugeService($sqlHelper);
+$checkService = new checkService($sqlHelper);
+$confirmService = new confirmService($sqlHelper);
 if (!empty($_REQUEST['flag'])) {
 	$flag=$_REQUEST['flag'];
-	if ($flag=="buyAdd") {
-		$CLJL=$_POST['CLJL'];
-		$applytime=$_POST['applytime'];
-		$dptid=$_POST['dptid'];
-		$gaugeSpr=$_POST['gaugeSpr'];
-		$uid=$_POST['uid'];
-
-		$res=$gaugeService->buyAdd($CLJL,$applytime,$dptid,$gaugeSpr,$uid);
-
-		if ($res!=0) {
-			header("location: ../buyApply.php");
-			exit();
-		}else{
-			echo "添加失败。";
-			exit();
+	if($flag == "file2Arr"){
+		$sort = ['C', 'V', 'W', 'X', 'AH', 'Z', 'T', 'S', 'O', 'P', 'R', 'AP'];
+		if (empty($_FILES['file'])) {
+		    echo json_encode(['error'=>'No files found for upload.']); 
+		    die; 
 		}
+		$tmp = $_FILES['file']['tmp_name'];
+		$obj = PHPExcel_IOFactory::load($tmp);
+		$sheetData = array_slice($gaugeService->unsetNull($obj->getActiveSheet()->toArray(null,true,true,true)), 17);
+		$sheetFilter = $gaugeService->array_columns($sheetData, $sort);
+		$gaugeService->dataCheck = $sheetFilter;
+		echo json_encode($sheetFilter, JSON_UNESCAPED_UNICODE);
+		die;
 	}
 
-	// 根据备件申报的基本信息id获取详细信息，用于展开
-	else if($flag=="getBuyDtl"){
-		$basic=$_GET['id'];
-		$res = $gaugeService->getBuyDtl($basic);
-		echo "$res";
-		exit();
+	else if ($flag == "addInfo") {
+		$data = json_decode($_POST['data'], true);
+		$res = $gaugeService->addInfo($data);
+		header("location: ./../buyCheck.php");
+		die;
 	}
 
-	// 获取单个申报备件的信息
-	else if ($flag=="getSprDtl") {
-		$id = $_GET['id'];
-		$res = $gaugeService->getSprDtl($id);
-		echo "$res";
-		exit();
-	}
-
-	// 修改单个备件申报信息
-	else if ($flag=="uptSprById") {
-		$code = $_POST['code'];
+	else if ($flag == "delInfo") {
 		$id = $_POST['id'];
+		$res = $gaugeService->delInfo($id);
+		echo $res !== false ? true: false;
+		die;
+	}
+
+	else if ($flag == "addCheck") {
+		$chk = $_POST['chk'];
+		$id = $_POST['id'];
+		
 		$info = $_POST['info'];
-		$name = $_POST['name'];
-		$no = $_POST['no'];
-		$num = $_POST['num'];
-		$unit = $_POST['unit'];
+		$info['valid'] = date('Y-m-d',strtotime($chk['time']." +".$info['circle']." month - 1 days"));
+		
+		$chk['res'] = 1; 
+		$chk['devid'] = $id;
+		$chk['type'] = 1;
+		// $chk['valid'] = date('Y-m-d',strtotime($chk['time']." +".$info['circle']." month"));
+		
+		$resInfo = $gaugeService->setBas($info, $id, 2);
+		$resChk = $checkService->addCheck($chk);
 
-		$res = $gaugeService->uptSprById($code,$id,$info,$name,$no,$num,$unit);
+		header("location:./../buyCheck.php");
+	}
 
-		if ($res!=0) {
-			header("location: ../buyApply.php");
-			exit();
-		}else{
-			echo "修改失败。";
-			exit();
+	else if ($flag == "uptCheck") {
+		$chk = $_POST['chk'];
+		$info = $_POST['info'];
+		$devid = $_POST['devid'];
+		$chkid = $_POST['chkid'];
+
+		$info['valid'] = date('Y-m-d',strtotime($chk['time']." +".$info['circle']." month - 1 days"));
+
+		$chk['devid'] = $devid;
+		$chk['type'] = 1;
+
+		$resInfo = $gaugeService->setBas($info, $devid, 2);
+		$resUptChk = $checkService->uptChkById($chk, $chkid);
+		header("location:".$_SERVER['HTTP_REFERER']);
+	}
+
+	else if ($flag == "addCheckAset") {
+		$pid = $_POST['pid'];
+		$path = '-'.$pid;
+		$spr = $_POST['spr'];
+		for ($i=0; $i < count($spr); $i++) { 
+			$info = $spr[$i]['info'];
+			$chk = $spr[$i]['chk'];
+
+			$info['valid'] = date('Y-m-d',strtotime($chk['time']." +".$info['circle']." month - 1 days"));
+			$info['pid'] = $pid;
+			$info['path'] = $path;
+			$id = $gaugeService->cloneCheck($pid, $info['name'], $info['spec'], $info['unit']);
+			
+			$chk['res'] = 1; 
+			$chk['devid'] = $id;
+			$chk['type'] = 1;
+			$gaugeService->setBas($info, $id, 2);
+			$checkService->addCheck($chk);
 		}
+		$gaugeService->chgStatus($pid);
+		header("location:./../buyCheck.php");
 	}
 
-	// 删除单个备件申报信息
-	else if ($flag=="delSprById") {
-		$id = $_GET['id'];
-
-		$res = $gaugeService->delSprById($id);
-		if ($res!=0) {
-			header("location: ../buyApply.php");
-			exit();
-		}else{
-			echo "删除失败。";
-			exit();
-		}
+	else if ($flag == "getChk") {
+		$devid = $_POST['devid'];
+		$chkid = $_POST['chkid'];
+		$res = $gaugeService->getChk($devid, $chkid);
+		echo json_encode($res, JSON_UNESCAPED_UNICODE);
 	}
 
-	// 删除某一备件申报列表
-	else if ($flag=="delBuy") {
-		$id = $_GET['id'];
-		$res = $gaugeService->delBuy($id);
-		if ($res!=0) {
-			header("location: ../buyApply.php");
-			exit();
-		}else{
-			echo "删除失败。";
-			exit();
-		}
+	else if ($flag ==  "takeSpr") {
+    	$dptid = $_POST['dptId'];
+		$sprid = substr($_POST['arrId'], 0, -1);
+		$gaugeService->takeSpr($sprid, $dptid);
+		header("location:./../buyCheckHis.php");
 	}
 
-	else if ($flag == "check") {
-		$pro = $_POST['pro'];
-		$phase = $_POST['phase'];
-		$res = $gaugeService->checkAuth($pro, $phase);
-		echo "$res";
-		exit();
+	else if ($flag == "useSpr") {
+		$bas = $_POST['bas'];
+		$bas['useTime'] = date("Y-m-d");
+
+		$yesChk = $_POST['yesChk'];
+		$devid = $_POST['devid'];
+		$yesChk['chkRes'] = '合格';
+		$gaugeService->setBas($bas, $devid, $bas['status']);
+		$yesChk['time'] = date("Y-m-d");
+		$confirmService->addConfirm($yesChk);
+
+		$ins = $_POST['ins'];
+		$ins['devid'] = $devid;
+ 		$gaugeService->addIns($ins);
+
+		header("location:./../buyInstall.php");
 	}
 
-	// 审核备件申报
-	else if ($flag == "apvBuy") {
-		$apvInfo = $_POST['apvInfo'];	
-		$apvRes = $_POST['apvRes'];	
+	else if ($flag == "storeSpr") {
+		$bas = $_POST['bas'];
+		$bas['useTime'] = date("Y-m-d");
+
+		$yesChk = $_POST['yesChk'];
+		$devid = $_POST['devid'];
+		$yesChk['chkRes'] = '合格';
+		$gaugeService->setBas($bas, $devid, $bas['status']);
+		$yesChk['time'] = date("Y-m-d");
+		$confirmService->addConfirm($yesChk);
+		header("location:./../buyInstall.php");
+	}
+
+	else if ($flag == "uptInstall") {
+		$bas = $_POST['bas'];
 		$id = $_POST['id'];
-		$res = $gaugeService->apvBuy($apvInfo,$apvRes,$id);
-		if ($res == 0) {
-			header("location: ./../buyApv.php");
-		}else{
-			echo "操作失败,请联系管理员";
+		$gaugeService->setBas($bas, $id, 4);
+
+		$ins = $_POST['ins'];
+		$ins['devid'] = $id;
+ 		$gaugeService->addIns($ins);
+
+		header("location: ./../buyInstallHis.php");
+	}
+
+	else if ($flag == "getXls") {
+		$id = $_GET['id'];
+		$bas = $gaugeService->getXls($id);
+		$ins = $gaugeService->getIns($id);
+		if ($res !== false) {
+			$gaugeService->installStyle($bas, $ins);
 		}
 	}
 
-	// 入厂检定
-	else if ($flag == "checkSpr") {
-		// 入厂检定全部为不合格
-		$checkRes = $_POST['checkRes'];
-		$checkTime = date("Y-m-d H:i:s");
+	else if ($flag == "getLeaf") {
 		$id = $_POST['id'];
-		$res = $gaugeService->checkSpr($id,$checkRes,$checkTime);
-		if ($res != 0) {
-			header("location: ./../buyCheck.php");
-		}else{
-			echo "操作失败,请联系管理员";
-		}
-	}
-
-	// 存库入账
-	else if($flag == "storeSpr"){
-		$storeId = json_decode($_GET['idArr']);
-		$storeUser = $_SESSION['user'];
-		$storeTime = date("Y-m-d H:i:s");
-		$res = $gaugeService->storeSpr($storeId,$storeUser,$storeTime);
-		if ($res != 0) {
-			echo "success";
-			exit();
-		}
-	}
-
-
-
-	else if ($flag == "addSprInCk") {
-		$sprId = $_POST['sprId'];
-		$check = $_POST['check'];
-    	$time = date("Y-m-d H:i:s"); 
-		// 将合格数量的信息添加到check表当中去
-    	$res[] = $gaugeService->addSprInCk($sprId,$check,$time); 
-		// 将dtl表的sprid修改check信息
-		$res[] = $gaugeService->checkSpr($sprId,2,$time);
-		if (!in_array(0,$res)) {
-			header("location: ./../buyCheckHis.php");
-		}else{
-			echo "操作失败。";
-		}
-	}
-
-	// // 获取单个备件的入场检定信息
-	// else if ($flag == "getCkInfo") {
-	// 	$sprId = $_GET['sprId'];
-	// 	$res = $gaugeService->getCkInfo($sprId);
-	// 	echo "$res";
-	// 	exit();
-	// }
-
-	// 库存在领取
-	else if ($flag == "takeSpr") {
-		$takeUser = $_POST['takeUser'];
-		$id = implode(",",json_decode($_POST['id']));
-		$dptId = $_POST['dptId'];
-		$takeAdmin = $_SESSION['user'];
-		$takeTime = date("Y-m-d H:i:s");
-		$res = $gaugeService->takeSpr($takeUser,$id,$dptId,$takeAdmin,$takeTime);
-		if ($res != 0) {
-			echo "success";
-			exit();
-		}
-
-	}
-
-	// 查看库存入库、领取、再领取的时间
-	else if ($flag == "getStoreInfo") {
-		$id = $_GET['id'];
-		$res = $gaugeService->getStoreInfo($id);
-		echo "$res";
-		exit();
-	}
-
-
-	// 如果是成套的设备则需要查询其在入厂检定时的info值用于添加其具体的参数属性
-	else if ($flag == "getChkInfo") {
-		$id = $_GET['id'];
-		$res = $gaugeService->getChkInfo($id);
+		$status = $_POST['status'];
+		$res = $gaugeService->getLeaf($id, $status);
 		echo json_encode($res, JSON_UNESCAPED_UNICODE);
 		die;
 	}
 
-	else if ($flag == "spareSpr") {
-		$num = 1;
-		$id = $_POST['id'];
-		$logTime = date("Y-m-d H:i:s");
-		$res = $gaugeService->transSpr($id,$num,'备用',0,$logTime);
-		echo "$res";
-		exit();
+	else if ($flag == "xlsFirstCheck") {
+		$devid = substr($_GET['devid'], 0, -1);
+		$chkid = substr($_GET['chkid'], 0, -1);
+		$devService = new devService($sqlHelper);
+		$bas = $devService->getXlsDev($devid); 
+
+		$check = $checkService->getXlsFirstChk($chkid);
+
+		$userService = new userService($sqlHelper);
+		$userDpt = $userService->getDpt();
+		$devService->listStyle($bas, $check, $userDpt);
 	}
-
-		// 安装验收备件，在dtl表中添加devid和installtime
-	else if($flag == "useSpr"){
-		$dateInstall = $_POST['dateInstall'];
-		$number = 1;
-		$para = $_POST['para'];
-		$id = $_POST['id'];
-
-		// 先添加备件基本信息
-		$devId = $gaugeService->transSpr($id,$number,'正常',0,$dateInstall);
-		$res = $gaugeService->useDtl($devId,$para);
-		echo '{"url":"usingSon","devid":'.$devId.'}';
-		exit();
-	}
-
-	else if ($flag == "useAset") {
-		$para = $_POST['para'];
-		$dateInstall = $_POST['dateInstall'];
-		$number = $_POST['number'];
-		$id = $_POST['id'];
-		$aSet = array_values($_POST['aSet']);
-		// 添加父设备并获取其添加后id用于之后子节点的添加
-		$fid = $gaugeService->transSpr($id,$number,'正常',0,$dateInstall);
-		for ($i=0; $i < count($aSet); $i++) { 
-			$aSet[$i] = json_decode(urldecode($aSet[$i]), true);
-			$v = array_column($aSet[$i],'value');
-			for ($k=0; $k < count($v); $k++) { 
-				$v[$k] = $gaugeService->unescape($v[$k]);
-			}
-			$aSet[$i] = array_combine(array_column($aSet[$i], 'name'), $v);
-			$sid = $gaugeService->asetSon($id,$aSet[$i]['number'],'正常',$fid,$dateInstall,$aSet[$i]['no'],$aSet[$i]['name']);
-			$res[] = $gaugeService->useDtl($sid,$para);
-		}
-		echo '{"url":"using","devid":'.$fid.'}';
-		die;
-	}
-
-	else if ($flag == "endSpr") {
-		$id = $_GET['id'];
-		$installtime = date("Y-m-d");
-		$res = $gaugeService->endSpr($id,$installtime);
-		if ($res != 0) {
-			header("location: ./../buyInstall.php");
-			exit();
-		}else{
-			echo "操作失败。";
-			exit();
-		}
-	}
-
-	else if ($flag == "installXls") {
-		$devId = $_GET['devid'];
-		$res = $gaugeService->installXls($devId);
-		echo "$res";
-		exit();
-	}
-
-	else if ($flag == "installInfo") {
-		$conclude = $_POST['conclude'];
-		$installInfo = $_POST['installInfo'];
-		$location = $_POST['location'];
-		$paraInfo = $_POST['paraInfo'];
-		$runInfo = $_POST['runInfo'];
-		$devId = $_POST['devId'];
-
-		$res = $gaugeService->installInfo($conclude,$installInfo,$location,$paraInfo,$devId,$runInfo);
-		if ($res != 0) {
-			header("location: ./../buyInstallHis.php");
-			exit();
-		}else{
-			echo "操作失败。";
-			exit();
-		}
-	}
-
-	else if ($flag == "flowInfo") {
-		$id =$_GET['id'];
-		$res = $gaugeService->getFlowInfo($id);
-		echo "$res";
-		exit();
-	}
-
-	else if($flag == "seeSpr"){
-		$sprId = $_GET['sprId'];
-		$res = $gaugeService->seeSpr($sprId);
-		echo "$res";
-		exit();
-	}
-
-	else if ($flag == "getCkInfo") {
-		$checkTime = $_GET['checktime'];
-		$sprid = $_GET['sprid'];
-		$res = $gaugeService->getCkInfo($checkTime,$sprid);
-		echo "$res";
-		exit();
-	}
-
 
 }
 ?>

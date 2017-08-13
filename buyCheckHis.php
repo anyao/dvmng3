@@ -1,33 +1,30 @@
 <?php 
-require_once "model/cookie.php";
-require_once 'model/paging.class.php';
-require_once 'model/gaugeService.class.php';
-checkValidate();
+include_once "./model/commonService.class.php";
+CommonService::checkValidate();
+CommonService::autoload();
 $user=$_SESSION['user'];
 
-$paging=new paging();
+$paging=new paging;
 $paging->pageNow=1;
 $paging->pageSize=18;
 $paging->gotoUrl="buyCheckHis.php";
 if (!empty($_GET['pageNow'])) {
   $paging->pageNow=$_GET['pageNow'];
 }
-
-$gaugeService = new gaugeService();
+$sqlHelper = new sqlHelper;
+$gaugeService = new gaugeService($sqlHelper);
 // 是否为搜索结果
 if (empty($_POST['flag'])) {
   $gaugeService->buyCheckHis($paging);
 }else if ($_POST['flag'] == 'findCheck') {
-  $checkTime = $_POST['checkTime'];
-  $depart = $_POST['dptId'];
-  $code = $_POST['sprCode'];
-  $name = $_POST['sprName'];
-  $no = $_POST['sprNo'];
+  $check_from = $_POST['check_from'];
+  $check_to = $_POST['check_to'];
+  $codeManu = $_POST['codeManu'];
+  $name = $_POST['name'];
+  $spec = $_POST['spec'];
 
-  $gaugeService->buyCheckFind($checkTime,$depart,$code,$name,$no,$paging);
+  $gaugeService->buyCheckFind($check_from, $check_to, $codeManu, $name, $spec, $paging);
 }
-
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -38,35 +35,40 @@ if (empty($_POST['flag'])) {
 <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 <meta name="description" content="普阳钢铁设备管理系统">
 <meta name="author" content="安瑶">
-<link rel="icon" href="img/favicon.ico">
+<link rel="icon" href="bootstrap/img/favicon.ico">
 <title>入厂检定历史记录-仪表管理</title>
 <style type="text/css">
-.open > th, .open > td{
-  background-color:#F0F0F0;
-}
+  .glyphicon-unchecked, .glyphicon-check{
+    display: inline !important;
+  }
 
-th > .glyphicon-trash{
-  display:none;
-} 
+  #takeAll, #downAll{
+    display:none;
+    cursor: pointer;
+  }
 
-tr:hover > th > .glyphicon-trash {
-  display: inline;
-}
+  .glyphicon-search{
+    float: right;
+    margin-right: 15px;
+  }
 
+  #uptCheck .input-group{
+    margin: 12px 0;
+  }
+
+  #uptCheck .modal-body{
+    padding: 0 25px !important;
+  }
+
+  #outComp{
+    display: none;
+  }
+
+  .glyphicon-resize-small, .glyphicon-resize-full{
+    display: inline !important;
+  }
 </style>
-<link rel="stylesheet" href="tp/datetimepicker.css">
-<link href="bootstrap/css/bootstrap.css" rel="stylesheet">
-
-<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-<!--[if lt IE 9]>
-  <script src="bootstrap/js/html5shiv.js"></script>
-  <script src="bootstrap/js/respond.js"></script>
-<![endif]-->
-<script src="bootstrap/js/jquery.js"></script>
-<script src="bootstrap/js/bootstrap.js"></script>
-<script src="tp/bootstrap-datetimepicker.js"></script>
-<script src="tp/bootstrap-datetimepicker.zh-CN.js"></script>
-<script src="bootstrap/js/bootstrap-suggest.js"></script>
+<?php include "./buyVendor.php"; ?>
 </head>
 <body role="document">
 <?php   include "message.php";?>
@@ -79,192 +81,529 @@ tr:hover > th > .glyphicon-trash {
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="homePage.php">设备管理系统</a>
+      <a class="navbar-brand" href="usingList.php">设备管理系统</a>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-        <li><a href="homePage.php">首页</a></li>
-        <li class="active dropdown">
-          <a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown" role="button">设备购置 <span class="caret"></span></a>
+        <li class="active"><a href="<?= (in_array(7, $_SESSION['funcid']) || $_SESSION['user'] == 'admin') ? "buyCheck.php" : "buyInstall.php"; ?>">备件申报</a></li>
+        <li><a href="usingList.php">设备台账</a></li>
+        <li class="dropdown">
+          <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">检定记录 <span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="buyGauge.php">仪表备件申报</a></li>
+            <li><a href="checkMis.php">周检计划</a></li>
+            <li><a href="checkList.php">巡检计划</a></li>
           </ul>
         </li>
         <li class="dropdown">
-          <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">设备档案 <span class="caret"></span></a>
+          <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">维修调整 <span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="usingList.php">在用设备</a></li>
-             <?php if (!in_array(4,$_SESSION['funcid'])  && $_SESSION['user'] != 'admin') {
-                        echo "<li role='separator' class='divider'></li><li>";
-                      } 
-                ?>
-                <li><a href="spareList.php">备品备件</a></li>
-                
-                <?php if (in_array(4,$_SESSION['funcid']) || $_SESSION['user'] == 'admin') {
-                        echo "<li role='separator' class='divider'></li><li><a href='devPara.php'>属性参数</a></li>";
-                      } 
-                ?>
-          </ul>
-        </li>
-        <li class="dropdown">
-          <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">日常巡检 <span class="caret"></span></a>
-          <ul class="dropdown-menu">
-            <li><a href="inspStd.php">巡检标准</a></li>
-            <li><a href="inspMis.php">巡检计划</a></li>
-            <li class="divider">&nbsp;</li>
-            <li><a href="inspList.php">巡检记录</a></li>
-          </ul>
-        </li>
-        <li class="dropdown">
-          <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button">维修保养 <span class="caret"></span></a>
-          <ul class="dropdown-menu">
-            <li><a href="repPlan.php">检修计划</a></li>
-            <li><a href="repMis.php">维修/保养任务</a></li>
-            <li class="divider">&nbsp;</li>
-            <li><a href="repList.php">维修记录</a></li>
+            <li><a href="repairMis.php">维修任务</a></li>
+            <li><a href="repairList.php">维修记录</a></li>
           </ul>
         </li>
       </ul>
        <ul class="nav navbar-nav navbar-right">
-       <?php if (in_array(10,$_SESSION['funcid']) || $_SESSION['user'] == 'admin') {
-                      echo "<li><a href='dptUser.php'>用户管理</a></li>";
-                    } 
-             ?>
-       
+        <li style="display: <?=(!in_array(10, $_SESSION['funcid']) && $_SESSION['user'] != 'admin') ? "none" : "inline"?>"><a href='dptUser.php'>用户管理</a></li>
         <li class="dropdown">
-        <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button"><?php 
-              if (empty($user)) {
-                echo "用户信息";
-              }else{
-                echo "$user";
-              } 
-            ?> <span class="caret"></span></a>
+        <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button"><?=$user?> <span class="caret"></span></a>
           <ul class="dropdown-menu">
             <li><a href="javascript:chgPwd();">更改密码</a></li>
-            <li class="divider">&nbsp;</li>
             <li><a href="login.php">注销</a></li>
           </ul>
-          </li>
+        </li>
       </ul>
-
     </div><!--/.nav-collapse -->
   </div>
 </nav>
 
-<div class="modal fade" id='ckInfo'>
-  <div class="modal-dialog modal-lg">
+<!-- 搜索备件检定记录-->
+<div class="modal fade" id="findCheck">
+  <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-        <h4 class="modal-title">检定登记信息</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">搜索检定记录</h4>
       </div>
-      <div class="modal-body">
-        <table class="table table-striped table-hover">
-          <thead>
-            <tr>
-              <th>设备名称</th><th>规格型号</th><th>精度等级</th><th>量程</th><th>出厂编号</th><th>制造厂</th>
-              <th>检定周期(月)</th><th>检定部门</th><th>检定日期</th><th>溯源方式</th><th>证书结论</th>
-            </tr>
-          </thead>
-          <tbody class="tablebody">
-            
-          </tbody>
-        </table>
+      <form class="form-horizontal" action="buyCheckHis.php" method="post">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="col-sm-4 control-label">检定时间起：</label>
+            <div class="col-sm-6">
+              <input type="text" class="form-control date" name="check_from" readonly>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-4 control-label">检定时间止：</label>
+            <div class="col-sm-6">
+              <input type="text" class="form-control date" name="check_to" readonly>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-4 control-label">出厂编号：</label>
+            <div class="col-sm-6">
+              <input type="text" class="form-control" name="codeManu">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-4 control-label">备件名称：</label>
+            <div class="col-sm-6">
+              <input type="text" class="form-control" name="name">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-4 control-label">规格型号：</label>
+            <div class="col-sm-6">
+              <input type="text" class="form-control" name="spec">
+            </div>
+          </div>
+          </div>
+          <div class="modal-footer">
+            <input type="hidden" name="flag" value="findCheck">
+            <button class="btn btn-primary yesFind">搜索</button>
+          </div>
+        </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" role="dialog" id="uptCheck">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">入厂检定</h4>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-        <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
-      </div>
-    </div><!-- /.modal-content -->
-  </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
+      <form action="./controller/gaugeProcess.php" method="post">
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="input-group">
+                <span class="input-group-addon">管理类别</span>
+                <select class="form-control" name="info[class]" data="class">
+                  <option value="A">A</option>
+                  <option value="B">B</option>
+                </select>
+              </div>  
+              <div class="input-group">
+                <span class="input-group-addon">出厂编号</span>
+                <input class="form-control" name="info[codeManu]" data="codeManu" type="text">
+              </div> 
+              <div class="input-group">
+                <span class="input-group-addon">精度等级</span>
+                <input class="form-control" name="info[accuracy]" data="accuracy" type="text">
+                <span class="input-group-btn">
+                  <button class="btn btn-default">级</button>
+                </span>
+              </div> 
+              <div class="input-group">
+                <span class="input-group-addon">量　　程</span>
+                <input class="form-control" name="info[scale]" data="scale" type="text">
+              </div> 
+              <div class="input-group">
+                <span class="input-group-addon">测量装置</span>
+                <input class="form-control" name="info[equip]" data="equip" type="text">
+              </div> 
+              <div class="input-group">
+                <span class="input-group-addon">用　　途</span>
+                <select class="form-control" name="info[usage]" data="usage">
+                  <option value="质检">质检</option>
+                  <option value="经营">经营</option>
+                  <option value="控制">控制</option>
+                  <option value="安全">安全</option>
+                  <option value="环保">环保</option>
+                  <option value="能源">能源</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="input-group">
+                <span class="input-group-addon">检定周期</span>
+                <input class="form-control" name="info[circle]" data="circle" value="6" readonly="readonly" type="text">
+                <span class="input-group-btn">
+                  <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-minus"></span></button>
+                  <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-plus"></span></button>
+                  <button class="btn btn-default">月</button>
+                </span>
+              </div>  
+              <div class="input-group">
+                <span class="input-group-addon">检定单位</span>
+                <select class="form-control" name="info[checkDpt]" data="checkdpt" id="checkDpt">
+                  <option value="199">计量室</option>
+                  <option value="isTake">使用部门</option>
+                  <option value="isOut">外检单位</option>
+                </select>
+              </div>
+              <div class="input-group" id="outComp">
+                <span class="input-group-addon">外检公司</span>
+                <input class="form-control" name="info[checkComp]" data="checkComp" type="text">
+              </div> 
+              <div class="input-group">
+                <span class="input-group-addon">检定日期</span>
+                <input class="form-control datetime" name="chk[time]" data="time" readonly="" type="text">
+              </div>  
+              <div class="input-group">
+                <span class="input-group-addon">溯源方式</span>
+                <select class="form-control" name="chk[track]" data="track">
+                  <option value="检定">检定</option>
+                  <option value="校准">校准</option>
+                </select>
+              </div> 
+              <div class="input-group">
+                <span class="input-group-addon">证书结论</span>
+                 <select class="form-control" name="chk[res]" data="res">
+                  <option value="1">合格</option>
+                </select>
+              </div> 
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <input type="hidden" name="flag" value="uptCheck">
+          <input type="hidden" name="devid">
+          <input type="hidden" name="chkid">
+          <span id="failAdd" style="color: red;display:none">信息填写不完整。</span>
+          <button class="btn btn-default" type="button" id='delCheck'>删除</button>
+          <button class="btn btn-primary" id='yesUpt'>修改</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" role="dialog" id="delInfo" >
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+         <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
+         </div>
+         <div class="modal-body"><br/>
+            <div class="loginModal">确定要删除该备件吗？</div><br/>
+         </div>
+         <div class="modal-footer">  
+          <button class="btn btn-primary" id="yesDelInfo">确定</button>
+        </div>
+    </div>
+  </div>
+</div>
 
 <div class="container">
   <div class="row">
-  <div class="col-md-10">
     <div class="page-header">
-        <h4>　历史入厂检定记录</h4>
+        <h4>　已登记备件 <a href="javascript:void(0);" class="glyphicon glyphicon-search"></a></h4>
     </div>
     <table class="table table-striped table-hover">
-        <thead>
-          <tr><th>检定时间</th><th>检定数量</th>
-            <th>存货编码</th><th>存货名称</th><th>规格型号</th><th>申报部门</th>
-            <th style="width:4%"></th><th style="width:4%"></th>
-          </tr>
-        </thead>
-        <tbody class="tablebody">
-        <?php 
-          if (count($paging->res_array) == 0) {
-            if (empty($_POST['flag'])) {
-              echo "<tr><td colspan=12>当前没有已经检定的备件</td></tr>";
-            }else{
-              echo "<tr><td colspan=12>没有符合当前搜索条件的记录，请重新核实。</td></tr>";
-            }
-          }
-          for ($i=0; $i < count($paging->res_array); $i++) { 
-            $row = $paging->res_array[$i];
-            //  [id] => 1 [code] => 510740110018 [name] => 超声波流量计 [no] => TJZ-100B [num] => 3 [unit] => 个 [info] => test upt spr info [depart] => 能源部 [cljl] => CLJL-30-09 [factory] => 办公楼
-            // glyphicon glyphicon-transfer
-            $addHtml = 
-            "<tr>
-                <td>{$row['checkTime']}</td>
-                <td>{$row['total']} {$row['unit']}</td>
-                <td>{$row['code']}</td>
-                <td><a href='javascript:flowInfo({$row['id']});'>{$row['name']}</td>
-                <td>{$row['no']}</td>
-                <td>{$row['factory']}{$row['depart']}</td>
-                <td><a class='glyphicon glyphicon-shopping-cart' href='javascript:flowInfo({$row['id']});'></a></td>
-                <td><a class='glyphicon glyphicon-folder-open' href='javascript:getCkInfo({$row['id']},\"{$row['checkTime']}\");'></a></td>
-             </tr>";
-             echo "$addHtml";
+      <thead>
+        <tr>
+            <th><span id="downAll" class="glyphicon glyphicon-download-alt"></span></th>
+            <th style="width: 8%">检定日期</th><th style="width: 8%">出厂编号</th><th>名称</th><th>规格</th>
+            <th>存货分类</th><th>供应商</th><th>存货编码</th>
+            <th style="width:3%"></th><th style="width:3%"></th>
+            <th style="width:3%"><span class='glyphicon glyphicon-log-out' id="takeAll"></span></th>
+        </tr>
+      </thead>
+      <tbody class="tablebody">
+      <?php 
+        if (count($paging->res_array) == 0) {
+          echo "<tr><td colspan=12>当前无新的已入库的备件</td></tr>";
+        }
+        for ($i=0; $i < count($paging->res_array); $i++) { 
+          $row = $paging->res_array[$i];
+          if (in_array(7, $_SESSION['funcid'])  || $_SESSION['user'] == 'admin') 
+            $uptCheck = "<td><a href='javascript:uptCheck({$row['id']}, {$row['chkid']});' class='glyphicon glyphicon-pencil'></a></td>";
+          else
+            $uptCheck ="<td></td>";
 
+          if ($row['unit'] == "套") {
+            $uptCheck ="<td></td>";
+            $leaf = "<td><a href='javascript:void(0);' onclick=\"getLeaf(this, {$row['id']});\" class='glyphicon glyphicon-resize-small'></a></td>";
+          }else{
+            $leaf = "<td></td>";
           }
-        ?>
-        </tbody>
-        </table>
-        <div class='page-count'><?php echo $paging->navi?></div>                    
-    </div>
-    <div class="col-md-2">
-    <div class="col-md-3">
-    <?php  include "buyNavi.php";?>
-    </div>
-    </div>
+          echo
+          "<tr>
+              <td><span class='glyphicon glyphicon-unchecked' chosen='{$row['id']}' chked='{$row['chkid']}'></span></td>
+              <td>{$row['checkTime']}</td>
+              <td>{$row['codeManu']}</td>
+              <td>{$row['name']}</td>
+              <td>{$row['spec']}</td>
+              <td>{$row['category']}</td>
+              <td>{$row['supplier']}</td>
+              <td>{$row['codeWare']}</td>
+              {$uptCheck}
+              {$leaf}
+              <td><a href='javascript:takeOne({$row['id']});' class='glyphicon glyphicon-log-out'></a></td>
+           </tr>";
+        }
+      ?>
+      </tbody>
+    </table>
+  </div>
 </div>
+
+<div class='foothome'><?php echo $paging->navi?></div>  
+
+<!-- 领取安装弹出框 -->
+<div class="modal fade" id="takeSpr">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">备件领取</h4>
+      </div>
+      <form class="form-horizontal" id="formTake" action="./controller/gaugeProcess.php" method="post">
+        <div class="modal-body">
+          <div class="row ztree-row">
+            <div class="col-md-4">
+              <ul id="tree-py" class="ztree"></ul>
+            </div>
+            <div class="col-md-4">
+              <ul id="tree-zp" class="ztree"></ul>
+            </div>
+            <div class="col-md-4">
+              <ul id="tree-gp" class="ztree"></ul>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <input type="hidden" name="flag" value="takeSpr">
+          <input type="hidden" name="dptId">
+          <input type="hidden" name="arrId">
+          <button class="btn btn-primary" id="yesTake">确认</button>
+        </div>
+        </form>
+    </div>
+  </div>
 </div>
+
+<div class="modal fade"  id="failRadio" >
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+         <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
+         </div>
+         <div class="modal-body"><br/>
+            <div class="loginModal">领取部门必须选择唯一。</div><br/>
+         </div>
+         <div class="modal-footer">  
+          <button class="btn btn-primary" data-dismiss="modal">关闭</button>
+        </div>
+    </div>
+  </div>
+</div> 
 
 <?php  include "./buyJs.php";?>
 <script type="text/javascript">
-function getCkInfo(sprid,checktime){
-  $.get("./controller/gaugeProcess.php",{
-    flag:'getCkInfo',
-    checktime:checktime,
-    sprid:sprid
-  },function(data,success){
-    // [{"name":"test2","no":"451kkk","accuracy":"1.200","scale":"1-12","codeManu":"123456","supplier":"qwe","circle":"6","depart":"能源部","checkNxt":"2016-11-10","track":"检定","certi":"aqikn"}
-    var addHtml = "";
-    for (var i = 0; i < data.length; i++) {
-       // <th>设备名称</th><th>规格型号</th><th>精度等级</th><th>量程</th><th>出厂编号</th><th>制造厂</th>
-       // <th>检定周期(月)</th><th>检定部门</th><th>检定日期</th><th>溯源方式</th><th>证书结论</th>
-      addHtml += "<tr>"+
-                 "   <td>"+data[i].name+"</td>"+
-                 "   <td>"+data[i].no+"</td>"+
-                 "   <td>"+data[i].accuracy+"</td>"+
-                 "   <td>"+data[i].scale+"</td>"+
-                 "   <td>"+data[i].codeManu+"</td>"+
-                 "   <td>"+data[i].supplier+"</td>"+
-                 "   <td>"+data[i].circle+"</td>"+
-                 "   <td>"+data[i].depart+"</td>"+
-                 "   <td>"+data[i].checkNxt+"</td>"+
-                 "   <td>"+data[i].track+"</td>"+
-                 "   <td>"+data[i].certi+"</td>"+
-                 " </tr>";
-    }
-    $("#ckInfo tbody").empty().append(addHtml);
-    $("#ckInfo").modal({
-      keyboard:false,
-    });
+function getLeaf(obj,id){
+    var flagIcon=$(obj).attr("class");
+    var $rootTr=$(obj).parents("tr");
+    // 列表是否未展开
+    if (flagIcon=="glyphicon glyphicon-resize-small") {
+      // 展开
+      $(obj).removeClass(flagIcon).addClass("glyphicon glyphicon-resize-full");
+      $.post("controller/gaugeProcess.php",{
+        flag: 'getLeaf',
+        id: id,
+        status: 2
+      },function(data){
+        var user = session.user;
+        var allow_enter = $.inArray(7,session.funcid);
+        if (user == "admin") {
+          allow_enter = 0;
+        }
 
-  },'json');
+        var addHtml = "";
+        for (var i = 0; i < data.length; i++){
+          if(allow_enter != -1)
+            $uptCheck = "<td><a href='javascript:uptCheck(" + data[i].id + ","+data[i].chkid+");' class='glyphicon glyphicon-pencil'></a></td>";
+          else
+            $uptCheck = "<td></td>";
+          addHtml += 
+          "<tr class='open "+data[i].id+" open-"+id+"' style='border: 1px solid #ddd !important;'>"+
+              "<td></td>"+
+              "<td>" + data[i].checkTime + "</td>" +
+              "<td>" + data[i].codeManu + "</td>" +
+              "<td>" + data[i].name + "</td>" +
+              "<td>" + data[i].spec + "</td>" +
+              "<td>" + data[i].category + "</td>" +
+              "<td>" + data[i].supplier + "</td>" +
+              "<td>" + data[i].codeWare + "</td>" +
+              $uptCheck+
+              "<td></td>"+
+              "<td><a href='javascript:takeOne(" + data[i].id + ");' class='glyphicon glyphicon-log-out'></a></td>"+
+           "</tr>";
+        }
+        $rootTr.after(addHtml);
+      },'json');
+    }else{
+      $(obj).removeClass(flagIcon).addClass("glyphicon glyphicon-resize-small");
+      $(".open-"+id).detach();
+    }
+}
+
+$("#yesFind").click(function(){
+  var allow_submit = true;
+  $("#findCheck input").each(function(){
+    if($(this).val() == ""){
+      allow_submit = false;
+      $('#failAdd').modal({
+        keyboard: true
+      });
+      return false;
+    }
+  });
+  return allow_submit;
+});
+
+// 领取部门树形结构
+var setting = {
+    view: {
+        selectedMulti: false,
+        showIcon: false
+    },
+    check: {
+        enable: true,
+        chkStyle:"radio",
+        radioType:'all',
+    },
+    data: {
+        simpleData: {
+            enable: true
+        }
+    }
+};
+
+var zTree = {
+  py: <?= $dptService->getDptForRole(1) ?>, 
+  zp: <?= $dptService->getDptForRole(2) ?>, 
+  gp: <?= $dptService->getDptForRole(3) ?>
+};
+
+
+function takeSpr(str){
+  $.fn.zTree.init($("#tree-py"), setting, zTree.py);
+  $.fn.zTree.init($("#tree-zp"), setting, zTree.zp);
+  $.fn.zTree.init($("#tree-gp"), setting, zTree.gp);
+  treePy = $.fn.zTree.getZTreeObj("tree-py");
+  treeZp = $.fn.zTree.getZTreeObj("tree-zp");
+  treeGp = $.fn.zTree.getZTreeObj("tree-gp");
+
+  $("#takeSpr").modal({
+    keyboard:true
+  });
+}
+
+// 确认领取按钮
+$("#yesTake").click(function(){
+  var allow_submit = true;
+  var nodesPy = treePy.getCheckedNodes(true);
+  var nodesZp = treeZp.getCheckedNodes(true);
+  var nodesGp = treeGp.getCheckedNodes(true);
+  var len = nodesPy.length + nodesZp.length + nodesGp.length;
+  if (len > 1 || len == 0) {
+    allow_submit = false;
+    $("#failRadio").modal({
+     keyboard:true
+    });
+  }else
+    var nodes = $.extend(nodesPy,nodesZp,nodesGp);
+  // 领取部门编号
+  $("#takeSpr input[name=dptId]").val(nodes[0].id);
+  return allow_submit;
+});
+
+// 外检input框显示
+$("#checkDpt").click(function(){
+  if ($(this).val() == "isOut") 
+    $("#outComp").show().css("display", "table");
+  else
+    $("#outComp").hide().find("input").val("");
+});
+
+$("#delCheck").click(function(){
+  $('#delInfo').modal({
+    keyboard: false
+  });
+});
+
+$("#yesDelInfo").click(function(){
+  var id = $(this).attr("delid");
+  $.post("./controller/gaugeProcess.php",{flag: 'delInfo', id: id},function(data){
+    if (data == true) 
+      location.href = "./buyCheck.php";
+  }, 'text');
+})
+
+function uptCheck(devid,chkid){
+  $.post("./controller/gaugeProcess.php",{flag: "getChk", devid: devid, chkid: chkid}, function(data){
+    if (data.checkdpt == "isOut") 
+      $("#outComp").show().css("display", "table");
+    else
+      $("#outComp").hide();
+
+    $("#uptCheck input[name=devid]").val(devid);
+    $("#uptCheck input[name=chkid]").val(chkid);
+    $("#yesDelInfo").attr("delid", devid);
+
+    $.each(data,function(k, v){
+      $("#uptCheck .form-control[data="+k+"]").val(v);
+    });
+    $('#uptCheck').modal({
+      keyboard: false
+    });
+  }, 'json');
+}
+
+// 确定添加检定信息到mysql中
+$("#yesUpt").click(function(){
+  var allow_submit = true;
+  if ($("#uptCheck .form-control[data==takedpt]").val() == "isOut" && $("#uptCheck .form-control[data!=checkComp]").val() == "") {
+      $("#failAdd").show();
+      allow_submit = false;
+  }
+  return allow_submit;
+});
+
+$(".glyphicon-search").click(function(){
+  $('#findCheck').modal({
+    keyboard: false
+  })
+});
+
+// 多选
+$(".tablebody").on("click","tr>td:first-child>span",function checked(){
+    $(this).toggleClass("glyphicon glyphicon-unchecked");
+    $(this).toggleClass("glyphicon glyphicon-check");
+    var isChosen = $(".glyphicon-check").length;
+    if (isChosen != 0) {
+      $("#takeAll, #downAll").show();
+    }else{
+      $("#takeAll, #downAll").hide();
+    }
+});
+
+$("#takeAll").click(function(){
+  var str = getChked('chosen');
+  $("#takeSpr input[name=arrId]").val(str);
+  takeSpr();
+});
+
+$("#downAll").click(function(){
+  var devstr = getChked('chosen');
+  var chkstr = getChked('chked');
+  location.href = "./controller/gaugeProcess.php?flag=xlsFirstCheck&devid="+devstr+"&chkid="+chkstr;
+});
+
+function getChked(attr){
+  var str = "";
+  $(".glyphicon-check").each(function(){
+    str += $(this).attr(attr) + ",";
+  });
+  return str;
+}
+
+function takeOne(id){
+  $("#takeSpr input[name=arrId]").val(id+",");
+  takeSpr();
 }
 
 </script>

@@ -1,9 +1,10 @@
 <?php 
-require_once '../model/dptService.class.php';
-header("content-type:text/html;charset=utf-8");
+require_once "../model/commonService.class.php";
+CommonService::autoloadController();
 if (!empty($_REQUEST['flag'])) {
 	$flag=$_REQUEST['flag'];
-	$dptService=new dptService();
+	$sqlHelper = new sqlHelper;
+	$dptService=new dptService($sqlHelper);
 	if ($flag=="getSector") {
 		$fid=$_GET['fid'];
 		$res=$dptService->getSector($fid);

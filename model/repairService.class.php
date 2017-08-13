@@ -1,344 +1,271 @@
-<?php
-require_once 'sqlHelper.class.php';
-require_once 'paging.class.php';
+<?php  
+header("content-type:text/html;charset=utf-8");
 class repairService{
-	public $authWhr="";
-	public $authAnd="";
+	private $authDpt = "";
+	private $sqlHelper;
+	function __construct($sqlHelper){
+		$this->authDpt = CommonService::getAuth();
+		$this->sqlHelper = $sqlHelper;
+	}
 
-	function __construct(){
-		$sqlHelper=new sqlHelper();
-		$upid=$_SESSION['dptid'];//用户所在部门id
-		// $pmt=$_SESSION['permit'];
-		$pmt="";
-		switch ($pmt) {
-			case '0':
-				$this->authWhr="";
-				$this->authAnd="";
-				break;
-			case '1':
-				$sql="select id from depart where id=$upid or path in('%-{$upid}','%-{$upid}-%')";
-				$upid=$sqlHelper->dql_arr($sql);
-				$upid=implode(",",array_column($upid,'id'));
-				$this->authWhr=" where device.depart in(".$upid.") ";
-				$this->authAnd=" and device.depart in(".$upid.") ";
-				break;
-			case '2':
-				$this->authWhr=" where device.depart=$upid ";
-				$this->authAnd=" and device.depart=$upid ";
-				break;
+	public function getMisPaging($paging){
+		$sql1 = "SELECT buy.id,buy.name,spec,codeManu,loc,factory.depart factory,
+				reason1,reason2,reason3,reason4,reason5,reason6,reason7,reason8,reason9
+				from buy
+				left join (
+					SELECT reason1,reason2,reason3,reason4,reason5,reason6,reason7,reason8,reason9,devid
+					FROM
+						`check`
+					WHERE
+						id IN (
+							SELECT
+								MAX(id)
+							FROM
+								`check`
+							WHERE
+								res = 2
+							GROUP BY
+								devid
+						)
+				) `check`
+				on `check`.devid = buy.id
+				left join depart 
+				on depart.id = buy.takeDpt
+				left join depart factory
+				on factory.id = depart.fid
+				where codeManu is not null
+				and takeDpt {$this->authDpt}
+				and buy.status = 8
+				limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
+		$sql2 = "SELECT count(*) 
+				from buy 
+				where codeManu is not null
+				and takeDpt {$this->authDpt}
+				and buy.status = 8";
+		$this->sqlHelper->dqlPaging($sql1,$sql2,$paging);
+	}
+
+	function unqualReason($reason){
+		switch ($reason) {
+			case 1: return "损坏";
+			case 2: return "过载";
+			case 3: return "可能使其预期用途无效的故障";
+			case 4: return "产生不正确的测量结果";
+			case 5: return "超过规定的计量确认间隔";
+			case 6: return "误操作";
+			case 7: return "封印或保护装置损坏或破裂";
+			case 8: return "暴露在已有可能影响其预期用途的影响量中(如电磁场、灰尘)";
+			case 9: return "其它";
 		}
-		$sqlHelper->close_connect();	
 	}
 
-
-
-	// 获取维修任务列表并分页显示
-	function getPagingMis($paging){
-		$uid=$_SESSION['uid'];
-		$sqlHelper=new sqlHelper();
-		$sql1="SELECT repmis.*,device.name,depart.depart,user.name as fxman
-			   FROM	repmis
-			   inner JOIN device
-			   ON repmis.devid=device.id
-			   inner join depart
-			   on depart.id=device.depart
-			   inner join user
-			   on user.id=repmis.liable".$this->authWhr." or repmis.liable=$uid
-			   ORDER BY repmis.id desc
-			  limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
-			  // echo "$sql1";
-			  // exit();
-		$sql2="select count(repmis.id) from repmis
-			   inner JOIN device
-			   ON repmis.devid=device.id
-			   inner join depart
-			   on depart.id=device.depart".$this->authWhr;		
-		$sqlHelper->dqlPaging($sql1,$sql2,$paging);
-		$sqlHelper->close_connect();	
+	public function addRepair($repair){
+		// [device] => 设备状况 [repair] => 维护调整情况 [surface] => 外观腐蚀情况 [time] => 2017-07-28 [devid] => 573
+		$_arr = ["user = '{$_SESSION['uid']}'"];
+		$sql = "INSERT INTO repair set ".CommonService::sqlTgther($_arr, $repair);
+		$this->sqlHelper->dml($sql);
 	}
 
-	// 获取维修记录并分页显示
-	function getPagingInfo($paging){
-
-		$sqlHelper=new sqlHelper();
-		$sql1="SELECT replist.*,device.name,depart.depart,factory.depart as factory
-			   FROM	replist
-			   inner JOIN device
-			   ON replist.devid=device.id
-			   inner join depart 
-			   on depart.id=device.depart
-			   inner join depart as factory
-			   on factory.id=device.factory".$this->authWhr."
-			   ORDER BY replist.id desc
-			  limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
-		$sql2="select count(replist.id) from replist
-			   inner JOIN device
-			   ON replist.devid=device.id
-			   inner join depart 
-			   on depart.id=device.depart
-			   inner join depart as factory
-			   on factory.id=device.factory".$this->authWhr;		
-		$sqlHelper->dqlPaging($sql1,$sql2,$paging);
-		$sqlHelper->close_connect();
+	public function findMisPaging($arr, $paging){
+		$name = empty($arr['name']) ? "" : "buy.name like '%{$arr['name']}'%";
+		$codeManu = empty($arr['codeManu']) ? "" : "codeManu = '{$arr['codeManu']}'";
+		$takeDpt = empty($arr['takeDpt']) ? "" : "takeDpt in (".substr($arr['takeDpt'], 0, -1).")";
+		$_arr = array_filter([$name, $codeManu, $takeDpt]);
+		$sql1 = "SELECT buy.id,buy.name,spec,codeManu,loc,factory.depart factory
+				from buy
+				left join depart 
+				on depart.id = buy.takeDpt
+				left join depart factory
+				on factory.id = depart.fid
+				where (
+						codeManu is not null
+					and buy.status = 8
+					and takeDpt {$this->authDpt}
+				) and (
+				".implode(" and ", $_arr)."
+				)
+				order by valid
+				limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
+		$sql2 = "SELECT count(*) 
+				 from buy 
+				 where (
+						codeManu is not null
+					and takeDpt {$this->authDpt}
+					and status = 8
+				) and (
+				".implode(" and ", $_arr).")";
+		$this->sqlHelper->dqlPaging($sql1,$sql2,$paging);
 	}
 
-	function setSeen($id){
-		$sql="update repmis set seen=1 where id=$id";
-		$sqlHelper=new sqlHelper();
-		$res=$sqlHelper->dml($sql);
-		$sqlHelper->close_connect();
+	public function getRepPaging($paging){
+		$sql1 = "SELECT repair.id,buy.name,spec,codeManu,loc,device,repair,surface,repair.time,repair.devid,
+				factory.depart factory
+				from repair
+				left join buy
+				on buy.id = repair.devid
+				left join depart
+				on buy.takeDpt = depart.id
+				left join depart factory
+				on factory.id = depart.fid
+				where codeManu is not null
+				and takeDpt {$this->authDpt}
+				limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
+		$sql2 = "SELECT count(*) 
+				from repair
+				left join buy
+				on buy.id=repair.devid
+				where codeManu is not null
+				and takeDpt {$this->authDpt}";
+		$this->sqlHelper->dqlPaging($sql1,$sql2,$paging);
+	}
+
+	public function findRepPaging($arr, $paging){
+		$name = empty($arr['name']) ? "" : "buy.name like '%{$arr['name']}'%";
+		$codeManu = empty($arr['codeManu']) ? "" : "codeManu = '{$arr['codeManu']}'";
+		$takeDpt = empty($arr['takeDpt']) ? "" : "takeDpt in (".substr($arr['takeDpt'], 0, -1).")";
+		$_arr = array_filter([$name, $codeManu, $takeDpt]);
+		$sql1 = "SELECT repair.id,buy.name,spec,codeManu,loc,device,repair,surface,repair.time,
+				factory.depart factory
+				from repair
+				left join buy
+				on buy.id = repair.devid
+				left join depart
+				on buy.takeDpt = depart.id
+				left join depart factory
+				on factory.id = depart.fid
+				where (
+					codeManu is not null
+					and takeDpt {$this->authDpt}
+				) and (
+				".implode(" and ", $_arr)."
+				)
+				limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
+		$sql2 = "SELECT count(*) 
+				 from repair
+				 left join buy
+				 on buy.id = repair.devid
+				 where (
+						codeManu is not null
+					and takeDpt {$this->authDpt}
+				) and (
+				".implode(" and ", $_arr).")";
+		$this->sqlHelper->dqlPaging($sql1,$sql2,$paging);
+	}
+
+	public function getXlsRep($idStr){
+		$sql = "SELECT buy.name,spec,codeManu,loc,device,repair,surface,user.name uname,time
+				from repair
+				left join buy
+				on buy.id = repair.devid
+				left join user
+				on user.id = repair.user
+				where repair.id in ({$idStr})";
+		$res = $this->sqlHelper->dql_arr($sql);
 		return $res;
 	}
 
-	// 添加新的维修任务
-	function addMis($devid,$err,$liable){
-		$sql="insert into repmis (devid,err,liable,result,infoid,seen,today) values($devid,'{$err}','{$liable}',0,0,0,0)";
-		$sqlHelper=new sqlHelper();
-		$res=$sqlHelper->dml($sql);
-		$sqlHelper->close_connect();
-		return $res;
-	}
+	public function listStyle($res, $uDpt){
+		// Create new PHPExcel object
+		$objPHPExcel = new PHPExcel();
 
-	// 获得新任务数量
-	function getMisCount(){
-		$uid=$_SESSION['uid'];
-		$sql="select count(repmis.id),repmis.liable from repmis 
-			  left join device
-			  on repmis.devid=device.id
-			  where seen=0 and liable='{$uid}'";
-		$sqlHelper=new sqlHelper();
-		$res=$sqlHelper->dql($sql);
-		$sqlHelper->close_connect();
-		return $res['count(repmis.id)'];
-	}
+		// 合并单元格
+		$objPHPExcel->setActiveSheetIndex(0)
+		->mergeCells('A1:J1')->mergeCells('H2:J2');
+		// 内容
+		// 表头
+		$objPHPExcel->setActiveSheetIndex(0)
+			->setCellValue('A1', '测量设备调整维修记录')
+			->setCellValue('H2', '编号：CLJL-'.$uDpt['num'].'-12')
+			->setCellValue('A3', '序号')
+			->setCellValue('B3', '设备名称')
+			->setCellValue('C3', '型号规格')
+			->setCellValue('D3', '出厂编号')
+			->setCellValue('E3', '安装地点')
+			->setCellValue('F3', '设备状况')
+			->setCellValue('G3', '维护调整情况')
+			->setCellValue('H3', '外观腐蚀情况')
+			->setCellValue('I3', '维护人')
+			->setCellValue('J3', '维护日期');
 
-	// 获取指定日期需执行的维修任务
-	function getMisNow($date){
-		$start=date("Y-m-d H:i",$date);
-		$end=date("Y-m-d",$date)." 23:59:59";
-		$sql="select * from repmis where time between '{$start}' and '{$end}'";
-		$sqlHelper=new sqlHelper();
-		$res=$sqlHelper->dql_arr($sql);
-		$sqlHelper->close_connect();
-		return $res;
-	}
+		// [name] => 耐震压力表 [spec] => Y-100AZ/1.6MPA [codeManu] => S4S923722642 [loc] => location [device] => 设备状况 
+		// [repair] => 维护调整情况 [surface] => 维护调整情况 [uname] => admin [time] => 2017-07-28
+		for ($i=0; $i < count($res); $i++) { 
+			$r = $i + 4;
+			$rid = $i + 1;
+			$row = $res[$i];
 
-	// 根据id获取任务
-	function getMis($id){
-		$sql="SELECT repmis.*,device.name,depart.depart,factory.depart as factory
-			  from repmis
-			  inner join device
-			  on repmis.devid=device.id
-			  inner join depart
-			  on depart.id=device.depart
-			  inner join depart as factory
-			  on factory.id=device.factory
-			  where repmis.id=$id";
-		$sqlHelper=new sqlHelper();
-		$res=$sqlHelper->dql($sql);
-		$res=json_encode($res,JSON_UNESCAPED_UNICODE);
-		$sqlHelper->close_connect();
-		return $res;
-	}
-
-	// 今日不再提醒
-	function noToday($id){
-		$sql="update repmis set today=1 where id=$id";
-		$sqlHelper=new sqlHelper();
-		$res=$sqlHelper->dml($sql);
-		$sqlHelper->close_connect();
-		return $res;
-	}
-
-	// 获得所有根设备的id,name
-	function getdevAll(){
-		$sql="select device.id,name,depart.depart,factory.depart as factory from device 
-			  inner join depart
-			  on device.depart=depart.id	
-			  inner join depart as factory
-			  on device.factory=factory.id		
-			  where device.pid=0".$this->authAnd;
-		$sqlHelper=new sqlHelper();
-		$res=$sqlHelper->dql_arr($sql);
-		$res=json_encode($res,JSON_UNESCAPED_UNICODE);
-		$sqlHelper->close_connect();
-		return $res;
-	}
-
-	// 修改维修任务基本信息
-	function updateMis($devid,$err,$liable,$misid){
-		$sql="update repmis set devid='{$devid}',err='{$err}',liable='{$liable}' where id='{$misid}'";
-		$sqlHelper=new sqlHelper();
-		$res=$sqlHelper->dml($sql);
-		$sqlHelper->close_connect();
-		return $res;
-	}
-
-	// 删除维修任务
-	function delMis($id){
-		$sql="delete from repmis where id=$id";
-		$sqlHelper=new sqlHelper();
-		$res=$sqlHelper->dml($sql);
-		$sqlHelper->close_connect();
-		return $res;
-	}
-
-	// 搜索任务
-	function findMis($devName,$devid,$result,$paging){
-		$sqlHelper=new sqlHelper();
-		$sql1="SELECT repmis.*,device.name,depart.depart
-			   FROM	repmis
-			   inner JOIN device
-			   ON repmis.devid=device.id 
-			   INNER JOIN depart
-			   on device.depart=depart.id ";
-		$info="where ";
-		if ($devid!="") {
-			$info.="devid=$devid ";
-			unset($devName);
-		}
-
-		if (!empty($result)) {
-			$result--;
-			if ($devName!="") {
-				$info.="and result='{$result}' and devName like'%{$devName}%' ";
-			}else{
-				$info.="and result='{$result}' ";
-			}
-		}
-		$sql1.=$info.$this->authAnd."limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
-
-		$sql2="SELECT count(repmis.id)
-			  FROM	repmis
-			  LEFT JOIN device
-			  ON repmis.devid=device.id ".$info.$this->authAnd;
-
-		$sqlHelper->dqlPaging($sql1,$sql2,$paging);
-		$sqlHelper->close_connect();
-	}
-
-
-	// 添加维修记录
-	function addInfoByMis($devid,$err,$liable,$reason,$solve,$time,$misid){
-		$sql="insert into replist (devid,err,liable,reason,solve,time) values($devid,'{$err}','{$liable}','{$reason}','{$solve}','{$time}')";
-		$sqlHelper=new sqlHelper();
-		$res[]=$sqlHelper->dml($sql);
-		$sql="select id from replist order by id desc limit 0,1";
-		$id=$sqlHelper->dql($sql);
-		$sql="update repmis set result=1,infoid={$id['id']} where id=$misid";
-		$res[]=$sqlHelper->dml($sql);
-		$sqlHelper->close_connect();
-		return $res;
-	}
-
-	// 获取维修记录
-	function getInfo($id){
-		$sql="select replist.*,device.name,depart.depart,factory.depart as factory
-			  from replist
-			  inner join device 
-			  on replist.devid=device.id
-			  inner join depart
-			  on depart.id=device.depart
-			  inner join depart as factory
-			  on factory.id=device.depart
-			  where replist.id = $id";
-		$sqlHelper=new sqlHelper();
-		$res=$sqlHelper->dql($sql);
-		$sqlHelper->close_connect();
-		$res=json_encode($res,JSON_UNESCAPED_UNICODE);
-		return $res;	  
-	}
-
-	// 在维修页面添加维修记录
-	function addInfo($devid,$err,$liable,$reason,$solve,$time){
-		$sql="INSERT INTO replist (devid,err,liable,reason,solve,`time`) VALUES ($devid,'{$err}','{$liable}','{$reason}','{$solve}','{$time}')";
-		$sqlHelper=new sqlHelper();
-		$res=$sqlHelper->dml($sql);
-		$sqlHelper->close_connect();
-		return $res;
-	}
-
-	// 在维修页面修改维修记录
-	function updateInfo($devid,$err,$id,$liable,$reason,$solve,$time){
-		$sql="UPDATE replist SET devid=$devid,err='{$err}',liable='{$liable}',reason='{$reason}',solve='{$solve}',`time`='{$time}' where id=$id";
-		$sqlHelper=new sqlHelper();
-		$res=$sqlHelper->dml($sql);
-		$sqlHelper->close_connect();
-		return $res;
-	}
-
-	// 在维修页面中删除维修记录
-	function delInfo($id){
-		$sql="DELETE FROM replist WHERE id=$id";
-		$sqlHelper=new sqlHelper();
-		$res=$sqlHelper->dml($sql);
-		$sqlHelper->close_connect();
-		return $res;
-	}
-
-	function findInfo($devid,$name,$time,$liable,$paging){
-		$sqlHelper=new sqlHelper();
-		$sql1="SELECT replist.*,device.name,depart.depart,factory.depart as factory
-			   FROM	replist
-			   inner JOIN device
-			   ON replist.devid=device.id
-			   inner join depart
-			   on depart.id=device.depart
-			   inner join depart as factory
-			   on factory.id=device.factory ";
-		$info="where ";
-		if ($devid!="") {
-			$info.="devid=$devid ";
-			unset($name);
+			// 设备基本信息
+			$objPHPExcel->setActiveSheetIndex(0)
+				->setCellValue('A'.$r, $rid)
+				->setCellValue('B'.$r, $row['name'])
+				->setCellValue('C'.$r, $row['spec'])
+				->setCellValue('D'.$r, $row['codeManu'])
+				->setCellValue('E'.$r, $row['loc'])
+				->setCellValue('F'.$r, $row['device'])
+				->setCellValue('G'.$r, $row['repair'])
+				->setCellValue('H'.$r, $row['surface'])
+				->setCellValue('I'.$r, $row['uname'])
+				->setCellValue('J'.$r, $row['time']);
 		}
 
-		if ($liable!="") {
-			$info.="and liable like '%{$liable}%' ";
-		}
 
-		if (!empty($time)) {
-			if ($name!="") {
-				$info.="and time like '{$time}%' and devName like'%{$devName}%' ";
-			}else{
-				$info.="and time like '{$time}%' ";
-			}
-		}
-		$sql1.=$info.$this->authAnd."limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
-		$sql2="SELECT count(replist.id)
-			  FROM	replist
-			  LEFT JOIN device
-			  ON replist.devid=device.id ".$info.$this->authAnd;		
-		$sqlHelper->dqlPaging($sql1,$sql2,$paging);
-		$sqlHelper->close_connect();
+		$lastRow = $objPHPExcel->getActiveSheet()->getHighestRow();
+
+		// 列宽
+		$objPHPExcel->getActiveSheet()->getDefaultColumnDimension()->setWidth(16.25)->setAutoSize(true);
+		$objPHPExcel->getActiveSheet()->getColumnDimension('A')->setWidth(6.25);
+
+		// 自动换行
+		$objPHPExcel->getActiveSheet()->getStyle('A3:J'.$lastRow)->getAlignment()->setWrapText(true);
+
+		// 行高
+		$objPHPExcel->getActiveSheet()->getDefaultRowDimension()->setRowHeight(30);
+		$objPHPExcel->getActiveSheet()->getRowDimension('1')->setRowHeight(56.25);
+
+		// 字体
+		$objPHPExcel->getActiveSheet()->getStyle('A1')->getFont()->setSize(18);
+		$objPHPExcel->getActiveSheet()->getStyle('A2:J'.$lastRow)->getFont()->setSize(12);
+
+		//居中
+		$objPHPExcel->setActiveSheetIndex(0)->getStyle('A1:J'.$lastRow)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER)->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER );
+
+		// 边框
+		$styleArray = [  
+			'borders' => [
+			    'allborders' => [
+			    	'style' => PHPExcel_Style_Border::BORDER_THIN,
+			    ],  
+			],  
+		];  
+		$objPHPExcel->getActiveSheet()->getStyle('A3:J'.$lastRow)->applyFromArray($styleArray);
+		// $objPHPExcel->getActiveSheet()->getStyle('A3:'.$lastColumn.$lastRow)->getBorders()->getAllBorders()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+
+		// Set active sheet index to the first sheet, so Excel opens this as the first sheet
+		$objPHPExcel->setActiveSheetIndex(0);
+
+
+		// Redirect output to a client’s web browser (Excel5)
+		header('Content-Type: application/vnd.ms-excel');
+		header('Content-Disposition: attachment;filename=维修调整情况.xls');
+		header('Cache-Control: max-age=0');
+		// If you're serving to IE 9, then the following may be needed
+		header('Cache-Control: max-age=1');
+
+		// If you're serving to IE over SSL, then the following may be needed
+		header ('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+		header ('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT'); // always modified
+		header ('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+		header ('Pragma: public'); // HTTP/1.0
+
+		$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+		$objWriter->save('php://output');
+		exit;
 	}
 
-	// 设备具体信息页面的维修记录查看
-	function getRepByDev($devid){
-		$sql="select id,liable,err,time from replist where devid=$devid order by id desc";
-		$sqlHelper=new sqlHelper();
-		$res=$sqlHelper->dql_arr($sql);
-		$sqlHelper->close_connect();
-		return $res;
+	public function delRepair($id){
+		$sql = "DELETE from repair where id = $id";
+		$this->sqlHelper->dml($sql);
 	}
 
-	// 设备具体信息页面获得单个维修记录
-	function getRep($id){
-		$sql="select * from replist where id=$id";
-		$sqlHelper=new sqlHelper();
-		$res=$sqlHelper->dql($sql);
-		$sqlHelper->close_connect();
-		$res=json_encode($res,JSON_UNESCAPED_UNICODE);
-		return $res;	  
-	}
-
-	// 设备具体信息页面修改维修记录
-	function updtRepByDev($err,$id,$liable,$reason,$solve,$time,$res){
-		$sql="UPDATE replist set err='{$err}',liable='{$liable}',reason='{$reason}',solve='{$solve}',time='{$time}' where id =$id";
-		$sqlHelper=new sqlHelper();
-		$res=$sqlHelper->dml($sql);
-		$sqlHelper->close_connect();
-		return $res;
-	}
 }
-
 ?>
