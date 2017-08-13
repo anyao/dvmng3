@@ -119,7 +119,6 @@ $gaugeService->buyCheck($paging);
                 <select class="form-control" name="info[class]">
                   <option value="A">A</option>
                   <option value="B">B</option>
-                  <option value="C">C</option>
                 </select>
               </div>  
               <div class="input-group">

@@ -262,7 +262,6 @@ $res = $devService->getDevById($id);
         <select class="form-control" name="class" disabled>
           <option value="A" <?=$res['class']=='A'? 'selected' : ''?>>A</option>
           <option value="B" <?=$res['class']=='B' ? 'selected' : ''?>>B</option>
-          <option value="C" <?=$res['class']=='C' ? 'selected' : ''?>>C</option>
         </select>
       </div>
       <div class="input-group">

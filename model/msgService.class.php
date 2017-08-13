@@ -12,7 +12,7 @@ class msgService{
 				where codeManu is not null
 				and valid <= NOW()
 				and takeDpt {$this->authDpt}
-				and status > 3";
+				and status > 3 and status != 13";
 		$res = $this->sqlHelper->dql($sql);
 		return $res['count'];
 	}

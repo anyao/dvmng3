@@ -306,7 +306,7 @@ class checkService{
 				where codeManu is not null
 				and (valid <= NOW() or buy.status = 11 )
 				and takeDpt {$this->authDpt}
-				and buy.status > 3
+				and buy.status > 3 and buy.status != 13
 				order by valid
 				limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
 		$sql2 = "SELECT count(*) 
@@ -314,7 +314,7 @@ class checkService{
 				 where codeManu is not null
 				 and valid <= NOW()
 				 and takeDpt {$this->authDpt}
-				 and buy.status > 3";
+				 and buy.status > 3 and buy.status != 13";
 		$this->sqlHelper->dqlPaging($sql1,$sql2,$paging);
 	}
 
@@ -341,7 +341,7 @@ class checkService{
 				where (
 					codeManu is not null
 					takeDpt {$this->authDpt}
-					and buy.status > 3
+					and buy.status > 3 and buy.status != 13
 				) and (
 					".implode(" and ", $_arr)."
 				)

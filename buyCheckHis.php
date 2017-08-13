@@ -182,7 +182,6 @@ if (empty($_POST['flag'])) {
                 <select class="form-control" name="info[class]" data="class">
                   <option value="A">A</option>
                   <option value="B">B</option>
-                  <option value="C">C</option>
                 </select>
               </div>  
               <div class="input-group">

@@ -37,6 +37,11 @@ tr:hover > th > .glyphicon-trash {
 tbody .glyphicon{
   display: inline !important;
 }
+
+#useModal .col-sm-9{
+  padding-left: 0px !important
+}
+
 </style>
 <?php include "buyVendor.php"; ?>
 </head>
@@ -88,48 +93,20 @@ tbody .glyphicon{
 
 <!-- 备件是否存入小仓库 -->
 <div class="modal fade" id="storeModal">
-  <div class="modal-dialog modal-sm" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">备用</h4>
-      </div>
-      <form class="form-horizontal" action="./controller/gaugeProcess.php" method="post">
-        <div class="modal-body">
-          <br>是否需要存入备用仓库？<br><br>
-        </div>
-        <div class="modal-footer">
-          <input type="hidden" name="flag" value="storeSpr">
-          <input type="hidden" name="id">
-          <button class="btn btn-primary">确定</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-<div class="modal fade" id="confirmChk">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">计量确认</h4>
+        <h4 class="modal-title">计量确认 • 备用</h4>
       </div>
-      <form class="form-horizontal" method="post" action="./controller/gaugeProcess.php">
+      <form class="form-horizontal" action="./controller/gaugeProcess.php" method="post">
         <div class="modal-body">
           <div class="form-group">
             <label class="col-sm-3 control-label">运行状态：</label>
             <div class="col-sm-8">
               <select class="form-control" name="bas[status]">
-                <option value="4">使用</option>
                 <option value="14">备用</option>
               </select>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="col-sm-3 control-label">安装地点：</label>
-            <div class="col-sm-8">
-              <input type="text" class="form-control" name="bas[loc]">
             </div>
           </div>
           <div class="form-group">
@@ -157,13 +134,102 @@ tbody .glyphicon{
           </div>
         </div>
         <div class="modal-footer">
-          <input type="hidden" name="flag" value="confirmChk">
-          <input type="hidden" name="yesChk[chkid]" id="chkid">
+          <input type="hidden" name="flag" value="storeSpr">
+          <input type="hidden" name="yesChk[chkid]" class="chkid">
+          <input type="hidden" name="devid">
+          <span class="failAdd" style="color:red;display:none">信息填写不完整。</span>
+          <button class="btn btn-primary" id="yesStore">确定</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="useModal">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">计量确认 • 安装验收</h4>
+      </div>
+      <form class="form-horizontal" method="post" action="./controller/gaugeProcess.php">
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-6" style="padding-right: 0px">
+              <div class="form-group">
+                <label class="col-sm-3 control-label">运行状态：</label>
+                <div class="col-sm-9">
+                  <select class="form-control" name="bas[status]">
+                    <option value="4">使用</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-3 control-label">测量范围：</label>
+                <div class="col-sm-9">
+                  <input type="text" class="form-control" name="yesChk[scale]">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-3 control-label">允许误差：</label>
+                <div class="col-sm-9">
+                  <div class="input-group">
+                    <input class="form-control" name="yesChk[error]" type="text">
+                    <span class="input-group-btn">
+                      <button class="btn btn-default">级</button>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-3 control-label">分度值：</label>
+                <div class="col-sm-9">
+                  <input type="text" class="form-control" name="yesChk[interval]">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-3 control-label">安装地点：</label>
+                <div class="col-sm-9">
+                  <input type="text" class="form-control" name="bas[loc]">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-3 control-label">安装情况：</label>
+                <div class="col-sm-9">
+                  <textarea class="form-control" rows="2" name="ins[info]"></textarea>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6" style="padding-left: 0px">
+              <div class="form-group">
+                <label class="col-sm-3 control-label">运行情况：</label>
+                <div class="col-sm-9">
+                  <textarea class="form-control" rows="4" name="ins[runinfo]"></textarea>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-3 control-label">技术参数：</label>
+                <div class="col-sm-9">
+                  <textarea class="form-control" rows="4" name="ins[tech]"></textarea>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-3 control-label">结论：</label>
+                <div class="col-sm-9">
+                  <textarea class="form-control" rows="3" name="ins[res]"></textarea>
+                </div>
+              </div>
+            </div>
+          </div> 
+        </div>
+        <div class="modal-footer">
+          <input type="hidden" name="flag" value="useSpr">
+          <input type="hidden" name="yesChk[chkid]" class="chkid">
           <input type="hidden" name="devid">
           <span class="failAdd" style="color:red;display:none">信息填写不完整。</span>
           <button class="btn btn-primary" id="yesUse">确定</button>
         </div>
-        </form>
+      </form>
     </div>
   </div>
 </div>
@@ -179,7 +245,7 @@ tbody .glyphicon{
           <tr>
             <th style="width: 4%"></th>
             <th>检定日期</th><th>出厂编号</th><th>名称</th><th>规格</th>
-            <th>单位</th><th>存货分类</th><th style="width:4%"></th>
+            <th>单位</th><th>存货分类</th><th style="width:4%"></th><th style="width:4%"></th>
           </tr>
         </thead>
       <tbody class="tablebody">
@@ -191,9 +257,11 @@ tbody .glyphicon{
           if ($row['unit'] == "套") {
             $leaf = "<td><a href='javascript:void(0);' onclick=\"getLeaf(this, {$row['id']});\" class='glyphicon glyphicon-resize-small' id='test'></a></td>";
             $use = "<td></td>";
+            $store = "<td></td>";
           }else{
             $leaf = "<td></td>";
-            $use = "<td><a href='javascript:use({$row['id']},{$row['chkid']});' class='glyphicon glyphicon-thumbs-up'></a></td>";
+            $use = "<td><a href='javascript:use({$row['id']},{$row['chkid']});' class='glyphicon glyphicon-cog'></a></td>";
+            $store = "<td><a href='javascript:store({$row['id']},{$row['chkid']});' class='glyphicon glyphicon-briefcase'></a></td>";
           }
           echo 
           "<tr>
@@ -204,7 +272,7 @@ tbody .glyphicon{
             <td>{$row['spec']}</td>
             <td>{$row['unit']}</td>
             <td>{$row['category']}</td>
-            {$use}
+            {$use}{$store}
           </tr>";
         } ?>
       <?php endif ?> 
@@ -245,7 +313,8 @@ function getLeaf(obj,id){
               "<td>" + data[i].spec + "</td>" +
               "<td>" + data[i].unit + "</td>" +
               "<td>" + data[i].category + "</td>" +
-              "<td><a href='javascript:use("+data[i].id+","+data[i].chkid+");' class='glyphicon glyphicon-thumbs-up'></a></td>"
+              "<td><a href='javascript:use("+data[i].id+","+data[i].chkid+");' class='glyphicon glyphicon-thumbs-up'></a></td>"+
+              "<td><a href='javascript:store("+data[i].id+","+data[i].chkid+");' class='glyphicon glyphicon-briefcase'></a></td>"+
            "</tr>";
         }
         $rootTr.after(addHtml);
@@ -257,35 +326,43 @@ function getLeaf(obj,id){
 }
 
 function use(id, chkid){
-  $("#confirmChk input[name=devid]").val(id);
-  $("#chkid").val(chkid);
-  $("#confirmChk").modal({
+  $("#useModal input[name=devid]").val(id);
+  $("#useModal .chkid").val(chkid);
+  $("#useModal").modal({
     keyboard:true
   });
 }
 
 $("#yesUse").click(function(){
   var allow_submit = true;
-  $("#confirmChk input[type=text]").each(function(){
+  $("#useModal input[type=text], #useModal textarea").each(function(){
     if($(this).val()==""){
       allow_submit =false;
-      $("#confirmChk .failAdd").show();
+      $("#useModal .failAdd").show();
       return false;
     }
   });
   return allow_submit;
 });
 
-function store(id){
-  $("#storeModal input[name=id]").val(id);
+function store(id, chkid){
+  $("#storeModal input[name=devid]").val(id);
+  $("#storeModal .chkid").val(chkid);
   $("#storeModal").modal({
     keyboard:true
   });
 }
 
-//时间选择器
-$(".datetime").datetimepicker({
-  format: 'yyyy-mm-dd', language: "zh-CN", autoclose: true,minView:2,
+$("#yesStore").click(function(){
+  var allow_submit = true;
+  $("#storeModal input[type=text]").each(function(){
+    if($(this).val()==""){
+      allow_submit =false;
+      $("#storeModal .failAdd").show();
+      return false;
+    }
+  });
+  return allow_submit;
 });
 
     </script>

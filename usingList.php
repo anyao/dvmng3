@@ -295,7 +295,6 @@ if (empty($_REQUEST['flag'])) {
                 <select class="form-control" name="class">
                   <option value="A">A</option>
                   <option value="B">B</option>
-                  <option value="C">C</option>
                 </select>
               </div>
               <div class="input-group">
@@ -434,7 +433,6 @@ if (empty($_REQUEST['flag'])) {
 
 <?php include 'devJs.php';?>
 <script type="text/javascript">
-
 $("#yesPass").click(function(){
   var allow_submit = true;
   if ($("#passCheck input[name=time]").val() == "") {
@@ -531,7 +529,7 @@ function zTreeOnClick(event, treeId, treeNode) {
   })
 };
 
-var zTree = <?= $dptService->getDptForUsing(implode(",", $_SESSION['dptid'])) ?>,
+var zTree = <?= $dptService->getDptForRole("1,2,3") ?>,
 dptTree = {
   py: <?= $dptService->getDptForRole(1) ?>, 
   zp: <?= $dptService->getDptForRole(2) ?>, 
@@ -614,7 +612,6 @@ function addDev(path){
 }
 
 $(function(){
-  // alert($(document).height());
   $(".col-md-2").height(0.9 * $(window).height());
   $.fn.zTree.init($("#tree"), setting, zTree);
   tree = $.fn.zTree.getZTreeObj("tree");

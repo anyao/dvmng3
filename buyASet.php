@@ -122,7 +122,6 @@ include "message.php";
                 <select class="form-control" name="spr[<?=$i?>][info][class]">
                   <option value="A">A</option>
                   <option value="B">B</option>
-                  <option value="C">C</option>
                 </select>
               </div>  
               <div class="input-group">
@@ -239,7 +238,6 @@ $("#addBtn").click(function(){
   '             <select class="form-control" name="spr['+i+'][info][class]">'+
   '               <option value="A">A</option>'+
   '               <option value="B">B</option>'+
-  '               <option value="C">C</option>'+
   '             </select>'+
   '           </div>  '+
   '           <div class="input-group">'+

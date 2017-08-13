@@ -22,12 +22,12 @@ if (!empty($_REQUEST['flag'])) {
 		die;
 	}
 
-	// else if ($flag == "addInfo") {
-	// 	$data = json_decode($_POST['data'], true);
-	// 	$res = $gaugeService->addInfo($data);
-	// 	header("location: ./../buyCheck.php");
-	// 	die;
-	// }
+	else if ($flag == "addInfo") {
+		$data = json_decode($_POST['data'], true);
+		$res = $gaugeService->addInfo($data);
+		header("location: ./../buyCheck.php");
+		die;
+	}
 
 	else if ($flag == "delInfo") {
 		$id = $_POST['id'];
@@ -108,16 +108,26 @@ if (!empty($_REQUEST['flag'])) {
 	}
 
 	else if ($flag == "useSpr") {
-		$loc = $_POST['loc'];
-		$id = $_POST['id'];
-		$res = $gaugeService->useSpr($id, $loc);
-		if ($res !== false) 
-			header("location: ./../buyInstall.php");
+		$bas = $_POST['bas'];
+		$bas['useTime'] = date("Y-m-d");
+
+		$yesChk = $_POST['yesChk'];
+		$devid = $_POST['devid'];
+		$yesChk['chkRes'] = '合格';
+		$gaugeService->setBas($bas, $devid, $bas['status']);
+		$yesChk['time'] = date("Y-m-d");
+		$confirmService->addConfirm($yesChk);
+
+		$ins = $_POST['ins'];
+		$ins['devid'] = $devid;
+ 		$gaugeService->addIns($ins);
+
+		header("location:./../buyInstall.php");
 	}
 
-	else if($flag == 'confirmChk'){
+	else if ($flag == "storeSpr") {
 		$bas = $_POST['bas'];
-		$bas['useTime'] = $bas['status'] == 4 ? date("Y-m-d") : '';
+		$bas['useTime'] = date("Y-m-d");
 
 		$yesChk = $_POST['yesChk'];
 		$devid = $_POST['devid'];
@@ -128,26 +138,24 @@ if (!empty($_REQUEST['flag'])) {
 		header("location:./../buyInstall.php");
 	}
 
-
-	else if ($flag == "storeSpr") {
-		$id = $_POST['id'];
-		$res = $gaugeService->storeSpr($id);
-		if ($res !== false) 
-			header("location: ./../buyInstall.php");
-	}
-
 	else if ($flag == "uptInstall") {
-		$bas = $_POST['info'];
+		$bas = $_POST['bas'];
 		$id = $_POST['id'];
-		$gaugeService->setBas($bas, $id, $bas['status']);
+		$gaugeService->setBas($bas, $id, 4);
+
+		$ins = $_POST['ins'];
+		$ins['devid'] = $id;
+ 		$gaugeService->addIns($ins);
+
 		header("location: ./../buyInstallHis.php");
 	}
 
 	else if ($flag == "getXls") {
 		$id = $_GET['id'];
-		$res = $gaugeService->getXls($id);
+		$bas = $gaugeService->getXls($id);
+		$ins = $gaugeService->getIns($id);
 		if ($res !== false) {
-			$gaugeService->installStyle($res);
+			$gaugeService->installStyle($bas, $ins);
 		}
 	}
 

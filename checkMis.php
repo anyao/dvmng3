@@ -80,6 +80,11 @@ else{
   #searchForm .ztree-row{
     overflow-y: scroll
   }
+
+  .authCheck{
+    width:4%;
+    display: <?=(!in_array(7, $_SESSION['funcid']) && $_SESSION['user'] != 'admin') ? "none" : "table-cell"?>
+  }
 </style>
 <?php include 'buyVendor.php'; ?>
 </head>
@@ -144,7 +149,7 @@ else{
           <th><span class="glyphicon glyphicon-download-alt" id="checkPlan"></span></th>
           <th>出厂编号</th><th>设备名称</th><th>规格型号</th><th>所在分厂部门</th>
           <th>安装地点</th><th>有效日期</th><th>状态</th>
-          <th style="width:4%"><span class="glyphicon glyphicon-ok" id="yesCheck"></span></th>
+          <th class="authCheck"><span class="glyphicon glyphicon-ok" id="yesCheck"></span></th>
         </tr></thead>
         <tbody class="tablebody">  
         <?php
@@ -162,7 +167,7 @@ else{
 	                <td>{$row['loc']}</td>
                   <td>{$row['valid']}</td>
 	                <td>{$row['status']}</td>
-                  <td><a class='glyphicon glyphicon-eye-open' href='javascript:checkOne({$row['id']},\"{$row['codeManu']}\",\"{$row['accuracy']}\");'></a></td>
+                  <td class='authCheck'><a class='glyphicon glyphicon-eye-open' href='javascript:checkOne({$row['id']},\"{$row['codeManu']}\",\"{$row['accuracy']}\");'></a></td>
 	              </tr>";
           }
         ?>  

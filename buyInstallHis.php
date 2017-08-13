@@ -6,7 +6,7 @@ $user=$_SESSION['user'];
 
 $paging=new paging;
 $paging->pageNow=1;
-$paging->pageSize=18;
+$paging->pageSize=50;
 $paging->gotoUrl="buyInstallHis.php";
 if (!empty($_GET['pageNow'])) {
   $paging->pageNow=$_GET['pageNow'];
@@ -97,29 +97,49 @@ if (empty($_POST['flag'])) {
 </nav>
 
 <div class="modal fade" id="uptModal">
-  <div class="modal-dialog modal-sm" role="document">
+  <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">修改</h4>
+        <h4 class="modal-title">安装验收</h4>
       </div>
       <form class="form-horizontal" method="post" action="./controller/gaugeProcess.php">
         <div class="modal-body">
-          <div class="input-group">
-            <span class="input-group-addon">使用方式</span>
-            <select class="form-control" name="info[status]" upt="status">
-              <option value="4">使用</option>
-              <option value="14">备用</option>
-            </select>
+          <div class="form-group">
+            <label class="col-sm-3 control-label">安装地点：</label>
+            <div class="col-sm-8">
+              <input type="text" class="form-control" name="bas[loc]">
+            </div>
           </div>
-          <div class="input-group">
-            <span class="input-group-addon">安装地点</span>
-            <input class="form-control" name="info[loc]" type="text" upt="loc">
-          </div>  
+          <div class="form-group">
+            <label class="col-sm-3 control-label">安装情况：</label>
+            <div class="col-sm-8">
+              <textarea class="form-control" rows="2" name="ins[info]"></textarea>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-3 control-label">运行情况：</label>
+            <div class="col-sm-8">
+              <textarea class="form-control" rows="2" name="ins[runinfo]"></textarea>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-3 control-label">技术参数：</label>
+            <div class="col-sm-8">
+              <textarea class="form-control" rows="3" name="ins[tech]"></textarea>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-3 control-label">结论：</label>
+            <div class="col-sm-8">
+              <textarea class="form-control" rows="2" name="ins[res]"></textarea>
+            </div>
+          </div>
         </div>
         <div class="modal-footer">
           <input type="hidden" name="flag" value="uptInstall">
           <input type="hidden" name="id">
+          <span style="display: none;color: red" class="failAdd">信息不完整。</span>
           <button class="btn btn-primary" id="yesUpt">确定</button>
         </div>
       </form>
@@ -141,7 +161,6 @@ if (empty($_POST['flag'])) {
             <th style="width:4%">
               <span class='glyphicon glyphicon-save' id='downXls' style='cursor:pointer;display:none'></span>
             </th>
-            <th style="width:4%"></th>
           </tr>
         </thead>
         <tbody class="tablebody">
@@ -156,7 +175,7 @@ if (empty($_POST['flag'])) {
               $down = "<td><a href='./controller/gaugeProcess.php?flag=getXls&id={$row['id']}' class='glyphicon glyphicon-save'></a></td>";
             }else{
               $icon = "<td><span class='glyphicon glyphicon-briefcase'></span></td>";
-              $down = "<td></td>";
+              $down = "<td><a href='javascript:uptInstall({$row['id']});' class='glyphicon glyphicon-pencil'></a></td>";
             }
             echo
               "<tr>{$icon}
@@ -165,7 +184,6 @@ if (empty($_POST['flag'])) {
               <td>{$row['spec']}</td>
               <td>{$row['codeManu']}</td>
               <td>{$row['factory']}{$row['depart']}</td><td>{$row['loc']}</td>
-              <td><a href='javascript:uptInstall({$row['id']},{$row['status']},\"{$row['loc']}\");' class='glyphicon glyphicon-pencil'></a></td>
               $down
               </tr>";
             }
@@ -185,38 +203,22 @@ if (empty($_POST['flag'])) {
 
 <?php  include "./buyJs.php";?>
 <script type="text/javascript">
-function uptStatus(status){
-  if (status == 14){
-    $("#uptModal input[upt=loc]").val("").parents(".input-group").hide();
-  }else
-    $("#uptModal input[upt=loc]").parents(".input-group").show();
-}
-
-function uptInstall(id, status, loc){
+function uptInstall(id){
   $("#uptModal input[name=id").val(id);
-  $("#uptModal select[upt=status]").val(status);
-  $("#uptModal input[upt=loc]").val(loc);
-  uptStatus(status);
   $("#uptModal").modal({
     keyboard:true
   });
 }
 
-$("#uptModal select").click(function(){
-  var status = $(this).val();
-  uptStatus(status);
-})
-
 $("#yesUpt").click(function(){
-  var status = $("#uptModal select").val(),
-      allow_submit = true
-      loc = $("#uptModal input[name=loc]").val();
-  if (status == 4 && loc == "") {
-    $("#failAdd").modal({
-      keyboard:true
-    });
-    allow_submit = false;
-  }
+  var allow_submit = true;
+  $("#uptModal input[type=text], #uptModal textarea").each(function(){
+    if($(this).val()==""){
+      allow_submit =false;
+      $("#uptModal .failAdd").show();
+      return false;
+    }
+  });
   return allow_submit;
 });
 

@@ -74,7 +74,14 @@ class gaugeService{
 
 		return $where;
 	}
- 
+ 	
+	public function addIns($arr){
+		$_arr = [];
+		$sql = "INSERT INTO install set ".CommonService::sqlTgther($_arr, $arr);
+		$res = $this->sqlHelper->dml($sql);
+		return $res;
+	}
+
 	function buyCheckFind($check_from, $check_to, $codeManu, $name, $spec, $paging){
 		$dtl = $this->findWhere($codeManu,$name,$spec);
 		$where = " 1 = 1 ";
@@ -292,7 +299,17 @@ class gaugeService{
 		return $res;
 	}
 
-	function installStyle(Array $res){
+	function getIns($id){
+		$sql = "SELECT tech,info,res,runinfo
+				from install 
+				where devid
+				order by id desc
+				limit 0,1";
+		$res = $this->sqlHelper->dql($sql);
+		return $res;
+	}
+
+	function installStyle($res, $ins){
 	  $res['date'] =  date('Y-m-d');
 	  $objPHPExcel = new PHPExcel();
 	  // 列宽
@@ -371,7 +388,11 @@ class gaugeService{
 	  ->setCellValue('E4', $res['loc'])
 	  ->setCellValue('B5', $res['codeManu'])
 	  ->setCellValue('E5', $res['scale'])
-	  ->setCellValue('E2', $res['CLJL']);
+	  ->setCellValue('E2', $res['CLJL'])
+	  ->setCellValue('B6', $ins['tech'])
+	  ->setCellValue('B7', $ins['info'])
+	  ->setCellValue('B8', $ins['runinfo'])
+	  ->setCellValue('B9', $ins['res']);
 
 
 	  // Redirect output to a client’s web browser (Excel5)

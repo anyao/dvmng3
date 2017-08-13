@@ -140,8 +140,8 @@ else{
       <table class="table table-striped table-hover">
         <thead><tr>
           <th><span class="glyphicon glyphicon-download-alt" id="repList"></span></th>
-          <th>设备名称</th><th>出厂编号</th><th>安装地点</th>
-          <th>设备情况</th><th>维护调整情况</th><th>外观腐蚀情况</th><th>维护日期</th>
+          <th>设备名称</th><th>出厂编号</th><th>安装地点</th><th>维护日期</th>
+          <th>设备情况</th><th>维护调整情况</th><th>外观腐蚀情况</th>
           <th style="width:3%"></th>
         </tr></thead>
         <tbody class="tablebody">  

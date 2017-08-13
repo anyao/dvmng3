@@ -76,7 +76,7 @@ class devService{
 
 	public function findDev($arr, $dptid, $paging){
 		// name,status,spec,codeManu
-		$whereDpt = is_null($dptid) ? "takeDpt {$this->authDpt}" : "takeDpt = $dptid";
+		$whereDpt = !is_null($dptid) && in_array($dptid, $_SESSION['dptid']) ? "takeDpt = $dptid" : "takeDpt {$this->authDpt}";
 		$_arr = [];
 		if (!empty($arr)){
 			foreach ($arr as $k => $v) {
