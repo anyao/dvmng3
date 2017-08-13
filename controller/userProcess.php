@@ -1,5 +1,6 @@
 <?php
 require_once "../model/commonService.class.php";
+header("content-type:text/html; charset=utf-8");
 CommonService::autoloadController();
 $sqlHelper = new sqlHelper;
 $userService=new userService($sqlHelper);
@@ -9,7 +10,6 @@ if (!empty($_REQUEST['flag'])) {
 		// 接受用户id和password
 		$code=$_POST['code'];
 		$psw=$_POST['psw'];
-		
 		// 是否保存cookie 如果保存则存1天
 		if (!empty($_POST['keep'])) {
 			if (!empty($code)) {
