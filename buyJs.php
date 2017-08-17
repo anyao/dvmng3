@@ -42,6 +42,7 @@ $(function ()
 //时间选择器
 $(".datetime").datetimepicker({
   format: 'yyyy-mm-dd', language: "zh-CN", autoclose: true,minView:2,
+  
 });
 
 var session = <?= json_encode($_SESSION,JSON_UNESCAPED_UNICODE);?>;

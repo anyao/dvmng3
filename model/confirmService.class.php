@@ -171,7 +171,7 @@ class confirmService{
 
 	public function getXlsUnqual($chkid){
 		$sql = "SELECT buy.name,factory.depart factory,spec,loc,codeManu,scale,`when`, `check`.time,
-				reason1,reason2,reason3,reason4,reason5,reason6,reason7,reason8,reason9,res
+				reason1,reason2,reason3,reason4,reason5,reason6,reason7,reason8,reason9,`check`.res, `check`.info
 				from `check`
 				left join buy
 				on buy.id = `check`.devid
@@ -235,7 +235,7 @@ class confirmService{
 				$res['res'] = "　经确认不合格，直接封存，粘贴停用标识"; break;
 		}
 		$objPHPExcel->setActiveSheetIndex(0)
-			->setCellValue('B7', $reason)->setCellValue('B8', $res['res']);
+			->setCellValue('B7', $reason)->setCellValue('B8', $res['res'])->setCellValue('B9', $res['info']);
 
 		// 列宽
 		$objPHPExcel->getActiveSheet()->getDefaultColumnDimension()->setWidth(18)->setAutoSize(true);

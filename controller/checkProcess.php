@@ -36,10 +36,10 @@ if (!empty($_REQUEST['flag'])) {
 		}
 		unset($chk['correct'], $chk['check']);
 
-		$chk['valid'] = $checkService->getValid($devid);
 
-		$checkService->addCheck($chk);
 		$checkService->setValid($devid, $chk['time']);
+		$chk['valid'] = $checkService->getValid($devid);
+		$checkService->addCheck($chk);
 
 		header("location:".$_SERVER['HTTP_REFERER']);
 	}
@@ -60,13 +60,13 @@ if (!empty($_REQUEST['flag'])) {
 		foreach ($idList as $v) {
 			$chk['chgStatus'] = 4;
 			$chk['devid'] = $v;
+			$checkService->setValid($v, $chk['time']);
 			$chk['valid'] = $checkService->getValid($chk['devid']);
 			$checkService->addCheck($chk);
 
 			$devService->uptDev(['status' => 4], $chk['devid']);
 			$devService->logStatus(4, $chk['devid']);
 
-			$checkService->setValid($v, $chk['time']);
 		}
 		header("location:".$_SERVER['HTTP_REFERER']);
 	}
@@ -82,10 +82,6 @@ if (!empty($_REQUEST['flag'])) {
 		$filename = $_GET['filename'];
 		$checkService->downXls($filename);
 	}
-
-	
-
-	
 
 }
 ?>

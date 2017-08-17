@@ -27,6 +27,7 @@ class devService{
 			 	) 
 			   ) and
 			   takeDpt {$this->authDpt}
+			   order by buy.id desc
 			   limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
 		$sql2 = "SELECT count(*) 
 				 from buy 
@@ -103,6 +104,7 @@ class devService{
 					SELECT pid from buy where pid is not null
 			 	) 
 			   ) and $whereDpt
+			   order by buy.id desc 
 			   limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
 		$sql2 = "SELECT count(*) 
 				 from buy 
@@ -275,9 +277,10 @@ class devService{
 
 			// 检定历史
 			$col = 'W';
-			if(isset($check[$row['id']]))
+			if(isset($check[$row['id']])){
 				for ($k=0; $k < count($check[$row['id']]); $k++) { 
 					$chk = $check[$row['id']][$k];
+					// CommonService::dump($chk);
 					switch ($chk['res']) {
 						case 1:
 							$chk['res'] = '合格'; break;
@@ -290,13 +293,17 @@ class devService{
 						default:
 							$chk['res'] = $res['conclu']; break;				
 					}
-					$checkNxt = date('Y-m-d',strtotime($chk['valid']."+ 1 day"));
+					$checkNxt = date("Y-m-d",strtotime("+1 day - ".$row['circle']." month",strtotime($chk['valid'])));
 					$objPHPExcel->setActiveSheetIndex(0)
 					    ->setCellValue($col++.$r, $checkNxt)->setCellValue($col++.$r, $chk['valid'])
 					    ->setCellValue($col++.$r, $chk['checkTime'])->setCellValue($col++.$r, $chk['track'])
 					    ->setCellValue($col++.$r, $chk['res'])->setCellValue($col++.$r, $chk['confirmTime'])
 					    ->setCellValue($col++.$r, $chk['chkRes']);
 				}
+			}else{
+				$checkNxt = date("Y-m-d",strtotime("+1 day - ".$row['circle']." month",strtotime($row['valid'])));
+				$objPHPExcel->setActiveSheetIndex(0)->setCellValue("W".$r, $checkNxt)->setCellValue("X".$r, $row['valid']);
+			}
 		}
 
 		$lastRow = $objPHPExcel->getActiveSheet()->getHighestRow();

@@ -46,7 +46,7 @@ if (!empty($_REQUEST['flag'])) {
 		$chk['res'] = 1; 
 		$chk['devid'] = $id;
 		$chk['type'] = 1;
-		// $chk['valid'] = date('Y-m-d',strtotime($chk['time']." +".$info['circle']." month"));
+		$chk['valid'] = $info['valid'];
 		
 		$resInfo = $gaugeService->setBas($info, $id, 2);
 		$resChk = $checkService->addCheck($chk);
@@ -64,6 +64,7 @@ if (!empty($_REQUEST['flag'])) {
 
 		$chk['devid'] = $devid;
 		$chk['type'] = 1;
+		$chk['valid'] = $info['valid'];
 
 		$resInfo = $gaugeService->setBas($info, $devid, 2);
 		$resUptChk = $checkService->uptChkById($chk, $chkid);
@@ -86,6 +87,8 @@ if (!empty($_REQUEST['flag'])) {
 			$chk['res'] = 1; 
 			$chk['devid'] = $id;
 			$chk['type'] = 1;
+			$chk['valid'] = $info['valid'];
+
 			$gaugeService->setBas($info, $id, 2);
 			$checkService->addCheck($chk);
 		}
@@ -172,7 +175,6 @@ if (!empty($_REQUEST['flag'])) {
 		$chkid = substr($_GET['chkid'], 0, -1);
 		$devService = new devService($sqlHelper);
 		$bas = $devService->getXlsDev($devid); 
-
 		$check = $checkService->getXlsFirstChk($chkid);
 
 		$userService = new userService($sqlHelper);
