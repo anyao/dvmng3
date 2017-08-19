@@ -102,9 +102,15 @@ class checkService{
 		// Create new PHPExcel object
 		$objPHPExcel = new PHPExcel();
 
+		$dat = array_column($res,'valid');
+		for ($i=0; $i < count($dat); $i++) { 
+			$mon[] = str_replace ("0", "", substr($dat[$i], 5, 2));
+ 		}
+ 		$mon = implode(",", array_unique($mon));
+ 		
 		// 内容
 		$objPHPExcel->setActiveSheetIndex(0)
-		->setCellValue('A1', '测量设备( '.$this->groupClass($res).'类 )周检计划')
+		->setCellValue('A1', '测量设备( '.$mon.'月 )周检计划')
 		->setCellValue('N2', 'CLJL-'.$userDpt['num'].'-06')
 		->setCellValue('A3', '序号')
 		->setCellValue('B3', '管理类别')
