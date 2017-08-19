@@ -77,7 +77,7 @@ class devService{
 
 	public function findDev($arr, $dptid, $paging){
 		// name,status,spec,codeManu
-		$whereDpt = !is_null($dptid) && in_array($dptid, $_SESSION['dptid']) ? "takeDpt = $dptid" : "takeDpt {$this->authDpt}";
+		$whereDpt = !is_null($dptid) && (in_array($dptid, $_SESSION['dptid']) || $_SESSION['user'] == 'admin') ? "takeDpt = $dptid" : "1=0";
 		$_arr = [];
 		if (!empty($arr)){
 			foreach ($arr as $k => $v) {
@@ -99,9 +99,9 @@ class devService{
 			   on status.id=buy.status
 			   where $where and (
 			   (
-			   	unit != '套' and buy.pid is null) or
+			   	unit != '套' and buy.pid is null and buy.status > 3 ) or
 				buy.id in (
-					SELECT pid from buy where pid is not null
+					SELECT pid from buy where pid is not null and buy.status > 3 
 			 	) 
 			   ) and $whereDpt
 			   order by buy.id desc 
@@ -291,7 +291,7 @@ class devService{
 						case 4:
 							$chk['res']	= '封存'; break;
 						default:
-							$chk['res'] = $res['conclu']; break;				
+							$chk['res'] = $chk['conclu']; break;				
 					}
 					$checkNxt = date("Y-m-d",strtotime("+1 day - ".$row['circle']." month",strtotime($chk['valid'])));
 					$objPHPExcel->setActiveSheetIndex(0)

@@ -82,7 +82,7 @@ class checkService{
 	}
 
 	function getXlsFirstChk($idStr){
-		$sql = "SELECT devid,`check`.time checkTime,res,valid,track,chkRes,confirm.time confirmTime
+		$sql = "SELECT devid,`check`.time checkTime,res,valid,track,chkRes,confirm.time confirmTime,conclu
 				from `check`
 				left join confirm 
 				on `check`.id = confirm.chkid

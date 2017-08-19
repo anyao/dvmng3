@@ -48,6 +48,14 @@ if (!empty($_REQUEST['flag'])) {
 		$chk['type'] = 1;
 		$chk['valid'] = $info['valid'];
 		
+		if ($chk['track'] == '检定') {
+			$chk['res'] = 1;	
+		}else{
+			$chk['res'] = $chk['correct']['res'];
+			$chk['conclu'] = $chk['correct']['conclu'];
+		}
+		unset($chk['correct'], $chk['check']);
+		
 		$resInfo = $gaugeService->setBas($info, $id, 2);
 		$resChk = $checkService->addCheck($chk);
 
@@ -66,6 +74,14 @@ if (!empty($_REQUEST['flag'])) {
 		$chk['type'] = 1;
 		$chk['valid'] = $info['valid'];
 
+		if ($chk['track'] == '检定') {
+			$chk['res'] = 1;	
+		}else{
+			$chk['res'] = $chk['correct']['res'];
+			$chk['conclu'] = $chk['correct']['conclu'];
+		}
+		unset($chk['correct'], $chk['check']);
+		
 		$resInfo = $gaugeService->setBas($info, $devid, 2);
 		$resUptChk = $checkService->uptChkById($chk, $chkid);
 		header("location:".$_SERVER['HTTP_REFERER']);

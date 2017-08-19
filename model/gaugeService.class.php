@@ -29,6 +29,7 @@ class gaugeService{
 					SELECT pid from buy where pid is not null
 			 	  ) 
 			 	 )
+				 order by `check`.id desc
 				 limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
 		$sql2 = "SELECT count(*) from buy where status=2 and pid is null ";
 		$res = $this->sqlHelper->dqlPaging($sql1,$sql2,$paging);

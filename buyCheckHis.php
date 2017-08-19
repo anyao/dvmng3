@@ -246,16 +246,30 @@ if (empty($_POST['flag'])) {
               </div>  
               <div class="input-group">
                 <span class="input-group-addon">溯源方式</span>
-                <select class="form-control" name="chk[track]" data="track">
+                <select class="form-control" name="chk[track]" data="track" id="track">
                   <option value="检定">检定</option>
                   <option value="校准">校准</option>
                 </select>
               </div> 
-              <div class="input-group">
-                <span class="input-group-addon">证书结论</span>
-                 <select class="form-control" name="chk[res]" data="res">
-                  <option value="1">合格</option>
-                </select>
+              <div id="checkRes">
+                <div class="input-group">
+                  <span class="input-group-addon">检定结果</span>
+                  <input class="form-control" name="chk[check][res]" value="合格" type="text" readonly>
+                </div> 
+              </div>
+
+              <div id="correctRes">
+                <div class="input-group">
+                  <span class="input-group-addon">校准结果</span>
+                  <select class="form-control" name="chk[correct][res]">
+                    <option value="5">合格</option>
+                    <option value="6">不合格</option>
+                  </select>
+                </div>
+                <div class="input-group">
+                  <span class="input-group-addon">证书结论</span>
+                  <input type="text" class="form-control" name="chk[correct][conclu]" id="conclu">
+                </div>
               </div> 
             </div>
           </div>
@@ -396,6 +410,19 @@ if (empty($_POST['flag'])) {
 
 <?php  include "./buyJs.php";?>
 <script type="text/javascript">
+// 溯源方式
+$("#uptCheck").on('click', '#track', checkOrCorrect);
+function checkOrCorrect(){
+  $("#conclu").val("");
+  if ($("#track").val() == "检定") {
+    $("#checkRes").show();
+    $("#correctRes").hide();
+  }else{
+    $("#checkRes").hide();
+    $("#correctRes").show();
+  }
+}
+
 function getLeaf(obj,id){
     var flagIcon=$(obj).attr("class");
     var $rootTr=$(obj).parents("tr");
@@ -550,6 +577,9 @@ function uptCheck(devid,chkid){
     $.each(data,function(k, v){
       $("#uptCheck .form-control[data="+k+"]").val(v);
     });
+
+    checkOrCorrect();
+
     $('#uptCheck').modal({
       keyboard: false
     });
@@ -559,10 +589,19 @@ function uptCheck(devid,chkid){
 // 确定添加检定信息到mysql中
 $("#yesUpt").click(function(){
   var allow_submit = true;
-  if ($("#uptCheck .form-control[data==takedpt]").val() == "isOut" && $("#uptCheck .form-control[data!=checkComp]").val() == "") {
-      $("#failAdd").show();
-      allow_submit = false;
-  }
+  $("#uptCheck .form-control").not("#outComp input, #conclu").each(function(){
+     if ($(this).val() == "" 
+      || ($(this).val() == 'isOut' && $("#outComp input").val() == "")
+      || ($("#track").val() == '校准' && $("#conclu").val() == "")
+      ) {
+        $("#failAdd").show();
+        allow_submit = false;
+      }
+  });
+  // if ($("#uptCheck .form-control[data==takedpt]").val() == "isOut" && $("#uptCheck .form-control[data!=checkComp]").val() == "") {
+  //     $("#failAdd").show();
+  //     allow_submit = false;
+  // }
   return allow_submit;
 });
 

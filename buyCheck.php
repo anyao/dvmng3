@@ -5,7 +5,7 @@ CommonService::autoload();
 $user=$_SESSION['user'];
 $paging=new paging;
 $paging->pageNow=1;
-$paging->pageSize=18;
+$paging->pageSize=50;
 $paging->gotoUrl="buyCheck.php";
 if (!empty($_GET['pageNow'])) {
   $paging->pageNow=$_GET['pageNow'];
@@ -183,14 +183,31 @@ $gaugeService->buyCheck($paging);
               </div>  
               <div class="input-group">
                 <span class="input-group-addon">溯源方式</span>
-                <select class="form-control" name="chk[track]">
+                <select class="form-control" name="chk[track]"  id="track">
                   <option value="检定">检定</option>
                   <option value="校准">校准</option>
                 </select>
               </div> 
-              <div class="input-group">
-                <span class="input-group-addon">证书结论</span>
-                <input class="form-control" name="chk[res]" value="合格" type="text" readonly>
+              
+              <div id="checkRes">
+                <div class="input-group">
+                  <span class="input-group-addon">检定结果</span>
+                  <input class="form-control" name="chk[check][res]" value="合格" type="text" readonly>
+                </div> 
+              </div>
+
+              <div id="correctRes">
+                <div class="input-group">
+                  <span class="input-group-addon">校准结果</span>
+                  <select class="form-control" name="chk[correct][res]">
+                    <option value="5">合格</option>
+                    <option value="6">不合格</option>
+                  </select>
+                </div>
+                <div class="input-group">
+                  <span class="input-group-addon">证书结论</span>
+                  <input type="text" class="form-control" name="chk[correct][conclu]" id="conclu">
+                </div>
               </div> 
             </div>
           </div>
@@ -269,35 +286,31 @@ $gaugeService->buyCheck($paging);
 </div>
 <?php  include "./buyJs.php";?>
 <script type="text/javascript">
-// 部门搜索提示
- $("#addSprInfo input[name=nDptCk]").bsSuggest({
-    allowNoKeyword: false,
-    showBtn: false,
-    indexId:2,
-    // indexKey: 1,
-    data: {
-         'value':<?php  echo "$dptAll"; ?>,
-    }
-}).on('onDataRequestSuccess', function (e, result) {
-    console.log('onDataRequestSuccess: ', result);
-}).on('onSetSelectValue', function (e, keyword, data) {
-   console.log('onSetSelectValue: ', keyword, data);
-   var idDepart=$(this).attr("data-id");
-   $(this).parents("form").find("input[name=dptCk]").val(idDepart);
-}).on('onUnsetSelectValue', function (e) {
-    console.log("onUnsetSelectValue");
-});
-
+// 溯源方式
+$("#addInfo").on('click', '#track', checkOrCorrect);
+function checkOrCorrect(){
+  $("#conclu").val("");
+  if ($("#track").val() == "检定") {
+    $("#checkRes").show();
+    $("#correctRes").hide();
+  }else{
+    $("#checkRes").hide();
+    $("#correctRes").show();
+  }
+}
 
 // 确定添加检定信息到mysql中
 $("#yesAddInfo").click(function(){
   var allow_submit = true;
 
-  $("#addInfo .form-control").not("#outComp input").each(function(){
-    if ($(this).val() == "" || ($(this).val() == 'isOut' && $("#outComp input").val() == "")) {
-      $("#failAdd").show();
-      allow_submit = false;
-    }
+  $("#addInfo .form-control").not("#outComp input, #conclu").each(function(){
+     if ($(this).val() == "" 
+      || ($(this).val() == 'isOut' && $("#outComp input").val() == "")
+      || ($("#track").val() == '校准' && $("#conclu").val() == "")
+      ) {
+        $("#failAdd").show();
+        allow_submit = false;
+      }
   });
   return allow_submit;
 });
@@ -323,6 +336,7 @@ function sprCheck(id, unit){
     location.href = "./buyASet.php?id="+id;
   else{
     $("#failAdd").hide();
+    checkOrCorrect();
     $("#addInfo").modal({
       keyboard:true
     });
