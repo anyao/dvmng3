@@ -431,7 +431,7 @@ $("#yesAddUser").click(function(){
 
 // 删除部门按钮
 $(document).on("click",".glyphicon-trash",function delDpt(){
-  var id=$(this).attr("dpt");
+  var id=$(this).attr("id");
   var user = session.user;
   var ifDpt = $.inArray(id.toString(),session.dptid);
   var ifFunc = $.inArray('11',session.funcid);
@@ -474,7 +474,7 @@ $("#yesDel").click(function(){
 
 // 修改部门信息弹出窗口
 $(document).on('click','.glyphicon-edit',function uptDpt(){
-  var dptid=$(this).attr("dpt");
+  var dptid=$(this).attr("id");
   // 部门对应和功能必须都要对应
   var user = session.user;
   var ifDpt = $.inArray(dptid.toString(),session.dptid);
@@ -507,7 +507,7 @@ $("#yesAddDpt").click(function(){
 
 // 部门的增加
 $(document).on("click",".glyphicon-import",function addDpt(){
-  var dptid=$(this).attr("dpt");
+  var dptid=$(this).attr("id");
 
   var user = session.user;
   var ifDpt = $.inArray(dptid.toString(),session.dptid);
