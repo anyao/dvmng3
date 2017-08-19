@@ -60,5 +60,15 @@ class CommonService{
 		print_R($arr);
 		die;
 	}
+
+	public static function downInstr(){
+		$file_name = "1.pdf";     //下载文件名    
+		$file_dir = dirname(__file__)."/xls/"; //下载文件存放目录    
+		//检查文件是否存在        
+	    header("Content-Type: application/force-download");//强制下载
+		//给下载的内容指定一个名字
+		header("Content-Disposition: attachment; filename=仪表管理系统说明书.pdf"); 
+		readfile($file_dir.$file_name); 
+	}
 }
 ?>

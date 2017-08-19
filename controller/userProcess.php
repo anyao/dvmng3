@@ -45,6 +45,10 @@ if (!empty($_REQUEST['flag'])) {
 			echo "suc"; die;
 		}
 	}
+
+	else if ($flag == "downInstr") {
+		CommonService::downInstr();
+	}
 }
 
 

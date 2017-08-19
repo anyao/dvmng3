@@ -106,6 +106,7 @@ include "message.php";
         <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button"><?=$user?> <span class="caret"></span></a>
           <ul class="dropdown-menu">
             <li><a href="javascript:chgPwd();">更改密码</a></li>
+            <li><a href="./controller/userProcess.php?flag=downInstr">说明书</a></li>
             <li><a href="login.php">注销</a></li>
           </ul>
         </li>
