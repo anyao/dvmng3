@@ -108,10 +108,13 @@ $validNum = $msgService->getCountValid();
        $.get("controller/userProcess.php",{
         flag: "chgPwd",
         new: $("#chgPwd input[name=new]").val(),
-        previous: $("#chgPwd input[name=pre]").val()
+        pre: $("#chgPwd input[name=pre]").val()
        },function(data){
+        // console.log(data);
          if (data == "suc") 
           $('#chgPwd').modal('hide');
+         else
+          alert("原密码错误。");
        },'text');
     }
   });

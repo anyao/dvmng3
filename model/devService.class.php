@@ -77,7 +77,17 @@ class devService{
 
 	public function findDev($arr, $dptid, $paging){
 		// name,status,spec,codeManu
-		$whereDpt = !is_null($dptid) && (in_array($dptid, $_SESSION['dptid']) || $_SESSION['user'] == 'admin') ? "takeDpt = $dptid" : "1=0";
+		// $whereDpt = !is_null($dptid) && (in_array($dptid, $_SESSION['dptid']) || $_SESSION['user'] == 'admin') ? "takeDpt = $dptid" : "1=1";
+		if (!is_null($dptid)) {
+			// 搜索里有部门限制 并且 部门在用户的管理范围内
+			if (in_array($dptid, $_SESSION['dptid']) || $_SESSION['user'] == 'admin') {
+				$whereDpt = "takeDpt = $dptid";	
+			}else{
+				$whereDpt = "1=0";	
+			}
+		}else{
+			$whereDpt = "takeDpt {$this->authDpt}";
+		}
 		$_arr = [];
 		if (!empty($arr)){
 			foreach ($arr as $k => $v) {
@@ -106,6 +116,7 @@ class devService{
 			   ) and $whereDpt
 			   order by buy.id desc 
 			   limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
+			  // echo "$sql1"; die;
 		$sql2 = "SELECT count(*) 
 				 from buy 
 				 where $where and (

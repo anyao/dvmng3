@@ -427,6 +427,8 @@ if (empty($_REQUEST['flag'])) {
           <input type="hidden" name="pid">
           <input type="hidden" name="category">
           <input type="hidden" name="flag" value="addDev">
+          <span style="display:none;color:red" id="failCate">未找到相关分类。</span>
+          <span style="display:none;color:red" id="failAdd">信息填写不完整。</span>
           <span style="display:none;color:red" id="failRadio">领取部门必须选择唯一。</span>
           <button class="btn btn-primary" id="yesAdd">确定</button>
         </div>
@@ -575,12 +577,25 @@ $("#addForm input[name=catename]").bsSuggest({
     }
 }).on('onSetSelectValue', function (e, keyword, data) {
    $("#addForm input[name=category]").val($(this).attr("data-id"));
-   $(this).parents("form").find("input[name=inspDpt]").val(dptid);
+   // $(this).parents("form").find("input[name=inspDpt]").val(dptid);
 });
 
 // 确认添加
 $("#yesAdd").click(function(){
+  $("#failAdd,#failRadio,#failCate").hide();
   var allow_submit = true;
+  $("#addForm .form-control[type!=hidden][name!=takeTime]").not("input[name=checkComp]").each(function(){
+    if($(this).val() == ""){
+      console.log($(this).attr("name"));
+      allow_submit = false;
+      $("#failAdd").show();
+    }
+  });
+  if ($("#addForm input[name=category]").val() == "") {
+    allow_submit = false;
+    $("#failCate").show();
+  }
+
   var nodesPy = treePy.getCheckedNodes(true);
   var nodesZp = treeZp.getCheckedNodes(true);
   var nodesGp = treeGp.getCheckedNodes(true);
