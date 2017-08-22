@@ -127,7 +127,7 @@ class gaugeService{
 				 on depart.id = buy.takeDpt
 				 left join depart factory
 				 on depart.fid = factory.id
-				 where status in(4,5) AND $where AND $dtl
+				 where status in(4,5) AND $where AND $dtl and codeWare is not null 
 				 AND takeDpt {$this->authDpt}
 				 order by buy.id  desc
 				 limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
@@ -274,6 +274,7 @@ class gaugeService{
 				 left join depart factory
 				 on depart.fid = factory.id
 				 where status in(4,14) 
+				 and codeWare is not null
 				 AND takeDpt {$this->authDpt}
 				 order by buy.id  desc
 				 limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";

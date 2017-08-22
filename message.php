@@ -34,7 +34,7 @@ $validNum = $msgService->getCountValid();
             <div class="form-group">
               <label class="col-sm-3 control-label">新密码：</label>
               <div class="col-sm-7">
-                  <input type="password" class="form-control" name="new">        
+                  <input type="password" class="form-control" name="new" placeholder="密码最长不可超过20位">        
               </div>
             </div>
 			
@@ -48,6 +48,9 @@ $validNum = $msgService->getCountValid();
 
         <div class="modal-footer">
           <input type="hidden" name="flag" value="chgPwd">
+          <span style="color:red;display:none" id="failPer">信息填写不完整。</span>
+          <span style="color:red;display:none" id="failLong">密码长度不可超过20位。</span>
+          <span style="color:red;display:none" id="failDif">两次输入的新密码不一致，请重新输入。</span>
           <button type="button" class="btn btn-default" id="yesChgPwd">确认修改</button>
           <button class="btn btn-primary" data-dismiss="modal">关闭</button>
         </div>
@@ -56,25 +59,10 @@ $validNum = $msgService->getCountValid();
     </div>
 </div>
 
-<!-- 添加记录不完整提示框 -->
-<div class="modal fade"  id="same_new" >
-  <div class="modal-dialog modal-sm" role="document">
-    <div class="modal-content">
-         <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
-         </div>
-         <div class="modal-body"><br/>
-            <div class="loginModal">两次输入的新密码不一致，请重新输入。</div><br/>
-         </div>
-         <div class="modal-footer">  
-          <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
-        </div>
-    </div>
-  </div>
-</div>
 
 <script type="text/javascript">
   function chgPwd(){
+    $("#failDif,#failPer,#failLong").hide();
     $('#chgPwd').modal({
         keyboard: true
     });
@@ -89,32 +77,32 @@ $validNum = $msgService->getCountValid();
       }
     });
 
+    if ($("#chgPwd input[name=new]").val().length > 20) 
+      f = "too_long";
+
     if ($("#chgPwd input[name=new]").val() != $("#chgPwd input[name=newAgain]").val()) {
       f = "dif_new";
     }
 
     switch (f){
       case "has_null":
-        $('#failAdd').modal({
-            keyboard: true
-        });
+        $("#failPer").show();
         break;
       case "dif_new":
-        $('#same_new').modal({
-            keyboard: true
-        });
+        $("#failDif").show();
         break;
+      case "too_long":
+        $("#failLong").show();
       default:
        $.get("controller/userProcess.php",{
         flag: "chgPwd",
         new: $("#chgPwd input[name=new]").val(),
         pre: $("#chgPwd input[name=pre]").val()
        },function(data){
-        // console.log(data);
          if (data == "suc") 
           $('#chgPwd').modal('hide');
          else
-          alert("原密码错误。");
+          alert("更改失败，"+data+"。");
        },'text');
     }
   });

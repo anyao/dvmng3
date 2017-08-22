@@ -38,6 +38,7 @@ if (!empty($_REQUEST['flag'])) {
 		$pre = $_GET['pre'];
 		$new = $_GET['new'];
 		$res = $userService->getPwd($_SESSION['code']);
+		// CommonService::dump($res);
 		if ($pre != $res['data']['psw']) {
 			echo "dif"; die;
 		}else{

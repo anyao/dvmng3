@@ -12,7 +12,7 @@ if (!empty($_REQUEST['flag'])) {
 		$arr = $_POST;
 		// commonService::dump($arr);
 		unset($arr['flag'], $arr['catename']);
-		$arr['useTime'] = $arr['status'] == 4 ? "" : $arr['useTime'];
+		// $arr['useTime'] = $arr['status'] == 4 ? "" : $arr['useTime'];
 		$arr['path'] = $arr['pid'] != "" ? "-".$arr['pid'] : "";
 		$devService->addDev($arr);
 		header("location: ./../usingList.php");

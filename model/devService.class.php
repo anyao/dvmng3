@@ -132,8 +132,8 @@ class devService{
 	// 根据id获取设备信息
 	public function getDevById($id){
 		$sql = "SELECT buy.name,spec,accuracy,scale,codeManu,supplier,loc,circle,valid,unit,
-				status.status, status.id statusid,stopTime,category.name,useTime,class,`usage`,equip,
-				CONCAT(tkFct.depart,tkDpt.depart) take,takeDpt,checkComp,
+				status.status, status.id statusid,stopTime,category.name catename,useTime,class,`usage`,equip,
+				CONCAT(IFNULL(tkFct.depart,''),tkDpt.depart) take,takeDpt,checkComp,
 				CONCAT(chkFct.depart,chkDpt.depart) `check`,checkDpt
 				from buy
 				left join status
@@ -149,6 +149,7 @@ class devService{
 				left join depart chkFct
 				on chkDpt.fid = chkFct.id
 				where buy.id = $id";
+				// echo "$sql";die;
 		$res = $this->sqlHelper->dql($sql);
 		return $res;
 	}
@@ -280,6 +281,7 @@ class devService{
 				->setCellValue('I'.$r, $row['loc'])
 				->setCellValue('J'.$r, $row['takeFct'])
 				->setCellValue('K'.$r, $row['status'])
+				->setCellValue('L'.$r, $row['useTime'])
 				->setCellValue('M'.$r, $row['takeTime'])
 				->setCellValue('N'.$r, $row['equip'])
 				->setCellValue('U'.$r, $row['circle']."个月")
@@ -442,7 +444,7 @@ class devService{
 	}
 
 	public function getXlsDev($idStr){
-		$sql = "SELECT buy.id,buy.name,spec,accuracy,scale,codeManu,supplier,loc,circle,valid,stopTime,takeTime,equip,`usage`,
+		$sql = "SELECT buy.id,buy.name,spec,accuracy,scale,codeManu,supplier,loc,circle,valid,stopTime,useTime,takeTime,equip,`usage`,
 				factory.depart takeFct,status.status,checkDpt,checkComp,class
 				from buy 
 				left join status

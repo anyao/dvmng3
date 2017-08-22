@@ -163,7 +163,7 @@ if (empty($_REQUEST['flag'])) {
           <th id="takeAll">
             <span class="glyphicon glyphicon-download-alt"></span> 
           </th>
-          <th>出厂编号</th><th>设备名称</th><th>规格型号</th><th>单位</th>
+          <th>出厂编号</th><th>设备名称</th><th>规格型号</th>
           <th>所在分厂部门</th><th>状态</th><th>安装地点</th>
           <th style="width:4%"><a class="glyphicon glyphicon-plus" href="javascript: addDev('root');"></a></th>
           <th style="width:4%" class="del-auth"></th>
@@ -189,7 +189,6 @@ if (empty($_REQUEST['flag'])) {
               <td>{$row['codeManu']}</td>
               <td><a href='using.php?id={$row['id']}'>{$row['name']}</a></td>
               <td>{$row['spec']}</td>
-              <td>{$row['unit']}</td>
               <td>{$row['factory']}{$row['depart']}</td>
               {$status}
               <td>{$row['loc']}</td>
@@ -379,8 +378,15 @@ if (empty($_REQUEST['flag'])) {
               </div> 
               <div class="input-group">
                 <span class="input-group-addon">单　　位</span>
+                <select class="form-control" name="unit">
+                  <option value="块">块</option>
+                  <option value="套">套</option>
+                </select>
+              </div>
+<!--               <div class="input-group">
+                <span class="input-group-addon">单　　位</span>
                 <input class="form-control" name="unit" type="text">
-              </div> 
+              </div>  -->
               <div class="input-group">
                 <span class="input-group-addon">分　　类</span>
                 <input type="text" class="form-control" name="catename">
@@ -676,7 +682,6 @@ function getLeaf(obj,id){
             "  <td>"+data[i].codeManu+"</td>"+
             "  <td><a href='using.php?id="+data[i].id+"'>"+data[i].name+"</a></td>"+
             "  <td>"+data[i].spec+"</td>"+
-            "  <td>"+data[i].unit+"</td>"+
             "  <td>"+data[i].factory+data[i].depart+"</td>"+
             "  <td>"+data[i].status+"</td>"+
             "  <td>"+data[i].loc+"</td><td></td>"+

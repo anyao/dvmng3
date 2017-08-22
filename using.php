@@ -155,7 +155,7 @@ $res = $devService->getDevById($id);
         </div>
         <div class="input-group">
           <span class="input-group-addon">有效日期</span>
-          <input type="text" class="form-control" name="valid" value="<?=$res['valid']?>" readonly>
+          <input type="text" class="form-control datetime" name="valid" value="<?=$res['valid']?>" readonly>
         </div> 
         <div class="input-group">
           <span class="input-group-addon">使用单位</span>
