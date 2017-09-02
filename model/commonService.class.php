@@ -26,8 +26,15 @@ class CommonService{
 		if ($_SESSION['user'] == 'admin') 
 			$authDpt = "";
 		else{
-			$arrDpt = implode(",",$_SESSION['dptid']);
-			$authDpt = " in($arrDpt) ";
+			if(!empty($_SESSION['dptid'])){
+				$arrDpt = implode(",",$_SESSION['dptid']);
+				$authDpt = " in($arrDpt) ";
+			}else{
+				echo "未分配管理部门权限,请联系计量室,修改用户配置
+				<a href='172.20.32.79/dev'>重新登录</a>
+				";
+				die;
+			}
 		}
 		return $authDpt;
 	}

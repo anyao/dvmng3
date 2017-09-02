@@ -11,6 +11,12 @@ class devService{
 	}
 
 	public function getPaging($paging){	
+			  // --  where(
+			  // --  		(unit != '套' and buy.pid is null and buy.status > 3 ) or
+					// -- buy.id in (
+					// -- 	SELECT pid from buy where pid is not null and buy.status > 3 
+			 	// -- 	) 
+			  // --  ) and
 		$sql1="SELECT buy.id,codeManu,name,spec,status.status,depart.depart,factory.depart factory,loc,unit
 			   from buy
 			   left join depart
@@ -19,16 +25,13 @@ class devService{
 			   on depart.fid=factory.id
 			   left join status
 			   on status.id=buy.status
-			   where(
-			   (
-			   	unit != '套' and buy.pid is null and buy.status > 3 ) or
-				buy.id in (
-					SELECT pid from buy where pid is not null and buy.status > 3 
-			 	) 
-			   ) and
-			   takeDpt {$this->authDpt}
+			   where 
+			   	( (unit != '套' and buy.pid is null) or unit = '套' ) 
+			   	and buy.status > 3
+			   	and takeDpt {$this->authDpt}
 			   order by buy.id desc
 			   limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
+			   // echo "$sql1"; die;
 		$sql2 = "SELECT count(*) 
 				 from buy 
 				 where(
@@ -107,13 +110,9 @@ class devService{
 			   on depart.fid=factory.id
 			   left join status
 			   on status.id=buy.status
-			   where $where and (
-			   (
-			   	unit != '套' and buy.pid is null and buy.status > 3 ) or
-				buy.id in (
-					SELECT pid from buy where pid is not null and buy.status > 3 
-			 	) 
-			   ) and $whereDpt
+			   where $where 
+			   and buy.status > 3
+			   and $whereDpt
 			   order by buy.id desc 
 			   limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
 			  // echo "$sql1"; die;
