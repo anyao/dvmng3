@@ -506,6 +506,8 @@ $res = $devService->getDevById($id);
 </div>
 
 <script type="text/javascript">
+JavaScript:window.history.forward(1);
+
 function failCheck(id, code){
   $("#noModal input[name=chkid]").val(id);
   $("#noModal input[name=codeManu]").val(code);

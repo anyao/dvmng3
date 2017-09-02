@@ -64,6 +64,15 @@ if (!empty($_REQUEST['flag'])) {
 		$devService->listStyle($bas, $check, $userDpt);
 	}
 
+	else if ($flag == "xlsAll") {
+		$data = isset($_GET['data']) ? $_GET['data'] : null;
+	    $dptid = isset($_GET['dptid']) ? $_GET['dptid'] : null;
+	    $bas = $devService->getXlsAll($data, $dptid); 
+	    $check = $chkService->getXlsChk(implode(",",array_column($bas, 'id')));
+	    $userDpt = $userService->getDpt();
+	    $devService->listStyle($bas, $check, $userDpt);
+	}
+
 
 }
 ?>

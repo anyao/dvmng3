@@ -1,4 +1,5 @@
 <?php 
+header("Cache-control: private");
 include_once "./model/commonService.class.php";
 CommonService::checkValidate();
 CommonService::autoload();
@@ -22,11 +23,14 @@ if (!empty($_GET['pageNow'])) {
 if (empty($_REQUEST['flag'])) {
   $devService->getPaging($paging);
 }else{ 
-    // $_POST['data'] = !is_array($_POST['data']) ? json_decode($_POST['data'], true) : $_POST['data']
-    $data = !is_array($_POST['data']) ? json_decode($_POST['data'], true) : $_POST['data'];
-    $dptid = $_POST['dptid'];
-    $devService->findDev($data, $dptid,$paging); 
+    $data = isset($_POST['data']) ? $_POST['data'] : null;
+    $dptid = isset($_POST['dptid']) ? $_POST['dptid'] : null;
+    $devService->findDev($data, $dptid, $paging); 
 }
+
+$where = $_POST;
+unset($where['flag']);
+$where = http_build_query($where);
 
 ?>
 <!DOCTYPE html>
@@ -92,6 +96,7 @@ if (empty($_REQUEST['flag'])) {
 
   .glyphicon-search{
     cursor:pointer;
+    padding-right: 15px !important
   }
 
   .del-auth{
@@ -156,6 +161,9 @@ if (empty($_REQUEST['flag'])) {
       <div class="page-header">
           <h4>　所有在用设备
             <span class="glyphicon glyphicon-search" ></span>
+            <span style="padding-right:10px">
+              <a style="font-size:12px;" href="./controller/devProcess.php?flag=xlsAll&<?=$where?>" >批量下载</a>
+            </span>
           </h4>
       </div>
       <table class="table table-striped table-hover">
@@ -165,8 +173,8 @@ if (empty($_REQUEST['flag'])) {
           </th>
           <th>出厂编号</th><th>设备名称</th><th>规格型号</th>
           <th>所在分厂部门</th><th>状态</th><th>安装地点</th>
-          <th style="width:4%"><a class="glyphicon glyphicon-plus" href="javascript: addDev('root');"></a></th>
           <th style="width:4%" class="del-auth"></th>
+          <th style="width:4%"><a class="glyphicon glyphicon-plus" href="javascript: addDev('root');"></a></th>
         </tr></thead>
         <tbody class="tablebody">  
         <?php
@@ -233,6 +241,19 @@ if (empty($_REQUEST['flag'])) {
               </div>
             </div> 
             <div class="form-group">
+              <label class="col-sm-3 control-label">用　　途：</label>
+              <div class="col-sm-8">
+                <select class="form-control" name="data[usage]">
+                  <option value="质检">质检</option>
+                  <option value="经营">经营</option>
+                  <option value="控制">控制</option>
+                  <option value="安全">安全</option>
+                  <option value="环保">环保</option>
+                  <option value="能源">能源</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
               <label class="col-sm-3 control-label">备件名称：</label>
               <div class="col-sm-8">
                 <input type="text" class="form-control" name="data[name]">
@@ -253,6 +274,7 @@ if (empty($_REQUEST['flag'])) {
           </div>
           <div class="modal-footer">
             <input type="hidden" name="flag" value="findDev">
+            <input type="hidden" name="dptid" value="<?= $dptid ?>">
             <button class="btn btn-primary" id="yesFind">确认</button>
           </div>
         </form>
@@ -383,7 +405,7 @@ if (empty($_REQUEST['flag'])) {
                   <option value="套">套</option>
                 </select>
               </div>
-<!--               <div class="input-group">
+        <!--  <div class="input-group">
                 <span class="input-group-addon">单　　位</span>
                 <input class="form-control" name="unit" type="text">
               </div>  -->
@@ -515,7 +537,7 @@ var setting = {
 };
 
 $.extend({
-    StandardPost:function(url,args){
+    StandardPost:function(url,args,data){
         var body = $(document.body),
             form = $("<form method='post'></form>"),
             input;
@@ -527,6 +549,14 @@ $.extend({
             form.append(input);
         });
 
+        if (data != 'all') 
+          $.each(data, function(key,value){
+            input = $("<input type='hidden'>");
+            input.attr({"name":"data["+key+"]"});
+            input.val(value);
+            form.append(input);
+          });
+
         form.appendTo(document.body);
         form.submit();
         document.body.removeChild(form[0]);
@@ -534,11 +564,8 @@ $.extend({
 });
 
 function zTreeOnClick(event, treeId, treeNode) {
-  $.StandardPost('./usingList.php', {
-    flag: 'findDev', 
-    dptid: treeNode.id,
-    <?= isset($_POST['data']) ? "data :'".json_encode($data, JSON_UNESCAPED_UNICODE)."'" : null?>
-  })
+  var data = <?= isset($_POST['data']) ? json_encode($_POST['data'], JSON_UNESCAPED_UNICODE) : "'all'";?>;
+  $.StandardPost('./usingList.php', {flag: 'findDev', dptid: treeNode.id}, data);  
 };
 
 var zTree = <?= $dptService->getDptForRole("1,2,3") ?>,

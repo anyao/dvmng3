@@ -78,10 +78,51 @@ class devService{
 		return $res;
 	}
 
+	public function getXlsAll($data, $dptid){
+		$where = $this->findWhere($data, $dptid);
+		$sql = "SELECT buy.id,buy.name,spec,accuracy,scale,codeManu,supplier,loc,circle,valid,stopTime,useTime,takeTime,equip,`usage`,
+				factory.depart takeFct,status.status,checkDpt,checkComp,class
+				from buy 
+				left join status
+				on status.id = buy.status
+				left join depart
+				on buy.takeDpt = depart.id
+				left join depart factory
+				on factory.id = depart.fid
+				where {$where['dpt']}
+			    and buy.status > 3
+			    and {$where['data']} 
+			    order by buy.id desc ";
+		$res = $this->sqlHelper->dql_arr($sql);
+		return $res;
+	}
+
 	public function findDev($arr, $dptid, $paging){
-		// name,status,spec,codeManu
-		// $whereDpt = !is_null($dptid) && (in_array($dptid, $_SESSION['dptid']) || $_SESSION['user'] == 'admin') ? "takeDpt = $dptid" : "1=1";
-		if (!is_null($dptid)) {
+		$where = $this->findWhere($arr, $dptid);
+		$sql1="SELECT buy.id,codeManu,name,spec,status.status,depart.depart,factory.depart factory,loc,unit
+			   from buy
+			   left join depart
+			   on depart.id=buy.takeDpt
+			   left join depart factory
+			   on depart.fid=factory.id
+			   left join status
+			   on status.id=buy.status
+			   where {$where['dpt']}
+			   and buy.status > 3
+			   and {$where['data']} 
+			   order by buy.id desc 
+			   limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
+			  	// echo "$sql1"; die;
+		$sql2 = "SELECT count(*) 
+				 from buy 
+				 where {$where['dpt']}
+				 and buy.status > 3
+				 and {$where['data']}  ";
+		$this->sqlHelper->dqlPaging($sql1,$sql2,$paging);	
+	}
+
+	private function findWhere($arr, $dptid){
+		if (!empty($dptid)) {
 			// 搜索里有部门限制 并且 部门在用户的管理范围内
 			if (in_array($dptid, $_SESSION['dptid']) || $_SESSION['user'] == 'admin') {
 				$whereDpt = "takeDpt = $dptid";	
@@ -101,31 +142,7 @@ class devService{
 		}else{
 			$where = "1 = 1";
 		}
-
-		$sql1="SELECT buy.id,codeManu,name,spec,status.status,depart.depart,factory.depart factory,loc,unit
-			   from buy
-			   left join depart
-			   on depart.id=buy.takeDpt
-			   left join depart factory
-			   on depart.fid=factory.id
-			   left join status
-			   on status.id=buy.status
-			   where $where 
-			   and buy.status > 3
-			   and $whereDpt
-			   order by buy.id desc 
-			   limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
-			  // echo "$sql1"; die;
-		$sql2 = "SELECT count(*) 
-				 from buy 
-				 where $where and (
-				 (
-				  unit != '套' and buy.pid is null) or
-				  buy.id in (
-					SELECT pid from buy where pid is not null
-			 	  ) 
-			     ) and $whereDpt ";
-		$this->sqlHelper->dqlPaging($sql1,$sql2,$paging);	
+		return ['data' => $where, 'dpt' => $whereDpt];
 	}
 
 	// 根据id获取设备信息
@@ -237,7 +254,7 @@ class devService{
 				case '199':
 					$row['checkDpt'] = '计量室';
 					break;
-				case 'isUse':
+				case 'isTake':
 					$row['checkDpt'] = $row['takeFct'];
 					break;
 				case 'isOut':
