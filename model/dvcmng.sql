@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50713
 File Encoding         : 65001
 
-Date: 2017-09-02 09:13:48
+Date: 2017-09-02 09:32:58
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -3513,21 +3513,3 @@ INSERT INTO `user` VALUES ('58', '蔡宁', 'CN', '123456', '221');
 INSERT INTO `user` VALUES ('59', '刘晓伟', 'LXW', '321', '223');
 INSERT INTO `user` VALUES ('61', '路树斌', 'LSB', '123456', '210');
 INSERT INTO `user` VALUES ('62', '王卫平', 'WWP', '123456', '186');
-
--- ----------------------------
--- Procedure structure for seeAll
--- ----------------------------
-DROP PROCEDURE IF EXISTS `seeAll`;
-DELIMITER ;;
-
-;;
-DELIMITER ;
-
--- ----------------------------
--- Function structure for hvSeeAll
--- ----------------------------
-DROP FUNCTION IF EXISTS `hvSeeAll`;
-DELIMITER ;;
-
-;;
-DELIMITER ;
