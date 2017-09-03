@@ -410,17 +410,23 @@ class devService{
 
 		// 检定历史的表头
 		$wIndex = PHPExcel_Cell::columnIndexFromString('V');
-		for ($i= $wIndex; $i != $indexLastColumn; $i+7) { 
-			$c = $i + 2;
-			$e = $i + 6;
-			$objPHPExcel->setActiveSheetIndex(0)->getStyleByColumnAndRow($i, 3, $i+2, 3)->applyFromArray($U3FontStyle);
-			$objPHPExcel->setActiveSheetIndex(0)->getStyleByColumnAndRow($c, 3, $e, 3)->applyFromArray($Z3FontStyle);
-	        $objPHPExcel->setActiveSheetIndex(0)
-	        	->setCellValueByColumnAndRow($i++, 3, "检定日期")->setCellValueByColumnAndRow($i++, 3, "有效日期")
-	        	->setCellValueByColumnAndRow($i++, 3, "实际完成日期")->setCellValueByColumnAndRow($i++, 3, "溯源方式")
-	        	->setCellValueByColumnAndRow($i++, 3, "证书结论")->setCellValueByColumnAndRow($i++, 3, "确认日期")
-	        	->setCellValueByColumnAndRow($i++, 3, "确认结论");
-	    }
+		// if(count($check)){
+			for ($i= $wIndex; $i != $indexLastColumn; $i+7) { 
+				$c = $i + 2;
+				$e = $i + 6;
+				$objPHPExcel->setActiveSheetIndex(0)->getStyleByColumnAndRow($i, 3, $i+2, 3)->applyFromArray($U3FontStyle);
+				$objPHPExcel->setActiveSheetIndex(0)->getStyleByColumnAndRow($c, 3, $e, 3)->applyFromArray($Z3FontStyle);
+		        $objPHPExcel->setActiveSheetIndex(0)
+		        	->setCellValueByColumnAndRow($i++, 3, "检定日期")->setCellValueByColumnAndRow($i++, 3, "有效日期")
+		        	->setCellValueByColumnAndRow($i++, 3, "实际完成日期")->setCellValueByColumnAndRow($i++, 3, "溯源方式")
+		        	->setCellValueByColumnAndRow($i++, 3, "证书结论")->setCellValueByColumnAndRow($i++, 3, "确认日期")
+		        	->setCellValueByColumnAndRow($i++, 3, "确认结论");
+		    }
+		// }else{
+			$objPHPExcel->setActiveSheetIndex(0)->getStyleByColumnAndRow('W', 3, 'X', 3)->applyFromArray($U3FontStyle);
+			$objPHPExcel->setActiveSheetIndex(0)
+		        ->setCellValueByColumnAndRow('W', 3, "检定日期")->setCellValueByColumnAndRow('X', 3, "有效日期");
+		// }
 
 		//居中
 		$objPHPExcel->setActiveSheetIndex(0)->getStyle('A1:'.$lastColumn.$lastRow)->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER)->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER );
