@@ -1,0 +1,1 @@
+C:\php\php.exe -q C:\ay_setup\dev\checkPlan.php 

@@ -12,37 +12,25 @@
           <div class="form-group">
             <label class="col-sm-3 control-label">用户编号：</label>
             <div class="col-sm-7">  
-              <input type="text" class="form-control" name="code" readonly>
+              <input type="text" class="form-control" name="data[code]" readonly getname="code">
             </div>
           </div>
           <div class="form-group">
             <label class="col-sm-3 control-label">用户名称：</label>
             <div class="col-sm-7">  
-              <input type="text" class="form-control" name="name">
+              <input type="text" class="form-control" name="data[name]" getname="name">
             </div>
           </div>
-
           <div class="form-group">
             <label class="col-sm-3 control-label">所在部门：</label>
-            <div class="col-sm-7">
-              <div class="input-group">
-              <input type="text" name="dptName" class="form-control">
-              <div class="input-group-btn">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-right" role="menu">
-                </ul>
-              </div>
-              <!-- /btn-group -->
-            </div>
+            <div class="col-sm-7">  
+              <ul id="TreeForUser" class="ztree" style="overflow-y: scroll; height: 150px"></ul>
             </div>
           </div>
-
           <div class="form-group">
             <label class="col-sm-3 control-label">登录密码：</label>
             <div class="col-sm-7">  
-              <input type="password" class="form-control" name="psw">
+              <input type="password" class="form-control" name="data[psw]" getname="psw">
             </div>
           </div>
 
@@ -50,7 +38,8 @@
           <div class="modal-footer">
             <input type="hidden" name="flag" value="uptUserBsc">
             <input type="hidden" name="id">
-            <input type="hidden" name="dptid">
+            <input type="hidden" name="data[dptid]" getname="dptid">
+            <span style="color:red;display:none" id="failUptUser">信息填写不完整</span>
             <button type="button" class="btn btn-primary" id="yesUptUserBsc">确认修改</button>
             <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
           </div>

@@ -23,15 +23,17 @@ if (!empty($_GET['pageNow'])) {
 if (empty($_REQUEST['flag'])) {
   $devService->getPaging($paging);
 }else{ 
-    $data = isset($_POST['data']) ? $_POST['data'] : null;
-    $dptid = isset($_POST['dptid']) ? $_POST['dptid'] : null;
-    $devService->findDev($data, $dptid, $paging); 
+    if (empty($_GET['para'])) {
+      $data = isset($_POST['data']) ? $_POST['data'] : null;
+      $dptid = isset($_POST['dptid']) ? $_POST['dptid'] : null;
+    }else{
+      $data = $_GET['para']['data'];
+      $dptid = $_GET['para']['dptid'];
+    }
+    $paging->para = ['para' => ['data' => $data, 'dptid' => $dptid], 'flag' => 'findDev'];
+    $devService->findDev($paging); 
 }
-
-$where = $_POST;
-unset($where['flag']);
-$where = http_build_query($where);
-
+$where = !empty($paging->para) ? http_build_query($paging->para['para']) : "";
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -195,7 +197,7 @@ $where = http_build_query($where);
             echo "<tr>
               {$leaf}
               <td>{$row['codeManu']}</td>
-              <td><a href='using.php?id={$row['id']}'>{$row['name']}</a></td>
+              <td><a href='using.php?id={$row['id']}' target='_blank'>{$row['name']}</a></td>
               <td>{$row['spec']}</td>
               <td>{$row['factory']}{$row['depart']}</td>
               {$status}
@@ -274,7 +276,7 @@ $where = http_build_query($where);
           </div>
           <div class="modal-footer">
             <input type="hidden" name="flag" value="findDev">
-            <input type="hidden" name="dptid" value="<?= $dptid ?>">
+            <input type="hidden" name="dptid" value="<?= isset($dptid) ? $dptid : "" ?>">
             <button class="btn btn-primary" id="yesFind">确认</button>
           </div>
         </form>
@@ -667,7 +669,7 @@ $(function(){
   $(".col-md-2").height(0.9 * $(window).height());
   $.fn.zTree.init($("#tree"), setting, zTree);
   tree = $.fn.zTree.getZTreeObj("tree");
-  var dptid = '<?= isset($_POST['dptid']) ? $_POST['dptid'] : ""?>';
+  var dptid = '<?= isset($dptid) ? $dptid : ""?>';
   if (dptid.length > 0) {
     var node = tree.getNodeByParam("id", dptid, null);
     for (var i = 0; i < node.getPath().length; i++) {

@@ -253,8 +253,9 @@ class dptService{
 		return $res;
 	}
 
-	function uptUserBsc($code,$dptid,$name,$psw,$id){
-		$sql="UPDATE user set code='{$code}',departid=$dptid,name='{$name}',psw='{$psw}' where id=$id";
+	function uptUserBsc($arr, $id){
+		$_arr = [];
+		$sql="UPDATE user set ".CommonService::sqlTgther($_arr, $arr)." where id=$id";
 		$res=$this->sqlHelper->dml($sql);
 	}
 

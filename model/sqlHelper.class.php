@@ -85,35 +85,39 @@ class sqlHelper{
 		$pageWhole=10;
 		$start=floor(($paging->pageNow-1)/$pageWhole)*$pageWhole+1;
 		$index=$start;
+
+		// 是否存在搜索条件
+		$para = !empty($paging->para) ? http_build_query($paging->para)."&" : "";
+
 		//整体10页翻动
     	//显示上一页
 		if ($paging->pageNow>1) {
 			$prePage=$paging->pageNow-1;
-			$navi.= "<a href='{$paging->gotoUrl}?pageNow=$prePage' class='glyphicon glyphicon-triangle-left'></a>&nbsp;";
+			$navi.= "<a href='{$paging->gotoUrl}?{$para}pageNow=$prePage' class='glyphicon glyphicon-triangle-left'></a>&nbsp;";
 		}
 
 
 		//显示下一页
 		if ($paging->pageNow<$paging->pageCount) {
 			$nextPage=$paging->pageNow+1;
-			$navi.= "<a href='{$paging->gotoUrl}?pageNow=$nextPage' class='glyphicon glyphicon-triangle-right'></a>&nbsp;";
+			$navi.= "<a href='{$paging->gotoUrl}?{$para}pageNow=$nextPage' class='glyphicon glyphicon-triangle-right'></a>&nbsp;";
 		}
 		$subnavi=$navi;
 		//前翻页
 		if ($paging->pageNow>$pageWhole) {
-			$navi.= "&nbsp;&nbsp;<a href='{$paging->gotoUrl}?pageNow=".($start-1)."' class=' glyphicon glyphicon-backward'></a>&nbsp;&nbsp;";
+			$navi.= "&nbsp;&nbsp;<a href='{$paging->gotoUrl}?{$para}pageNow=".($start-1)."' class=' glyphicon glyphicon-backward'></a>&nbsp;&nbsp;";
 		}
 
 		//显示10页页数
-		for (; $start < $index+$pageWhole; $start++) { 
-			$navi.= "&nbsp;<a href='{$paging->gotoUrl}?pageNow=$start' class='badge'>$start</a>&nbsp;&nbsp;";
-		}
+		$count = $paging->pageCount < $pageWhole ? $paging->pageCount+1 : $index+$pageWhole;
+		for (; $start < $count; $start++)  
+			$navi.= "&nbsp;<a href='{$paging->gotoUrl}?{$para}pageNow=$start' class='badge'>$start</a>&nbsp;&nbsp;";
 
 
 		// 后翻页
 		if (($paging->pageNow+$pageWhole)<$paging->pageCount) {
 
-			$navi.= "&nbsp;<a href='{$paging->gotoUrl}?pageNow=$start' class='glyphicon glyphicon-forward'></a>&nbsp;&nbsp;";
+			$navi.= "&nbsp;<a href='{$paging->gotoUrl}?{$para}pageNow=$start' class='glyphicon glyphicon-forward'></a>&nbsp;&nbsp;";
 		}
 
 		// 显示总页数

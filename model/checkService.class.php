@@ -299,7 +299,7 @@ class checkService{
 	}
 
 	public function getMisPaging($paging){
-		$sql1 = "SELECT buy.id,codeManu,buy.name,spec,circle,valid,loc,accuracy,
+		$sql1 = "SELECT buy.id,codeManu,buy.name,spec,circle,valid,loc,accuracy,checkDpt,
 				factory.depart factory,depart.depart,
 				status.status
 				from buy
@@ -372,7 +372,7 @@ class checkService{
 		$codeManu = empty($arr['codeManu']) ? "" : "codeManu = '{$arr['codeManu']}'";
 		$takeDpt = empty($arr['takeDpt']) ? "" : "takeDpt in (".substr($arr['takeDpt'], 0, -1).")";
 		$_arr = array_filter([$status, $name, $codeManu, $takeDpt]);
-		$sql1 = "SELECT buy.id,codeManu,buy.name,spec,circle,valid,loc,accuracy,
+		$sql1 = "SELECT buy.id,codeManu,buy.name,spec,circle,valid,loc,accuracy,checkDpt,
 				factory.depart factory,depart.depart,
 				status.status
 				from buy
@@ -469,6 +469,149 @@ class checkService{
 			case 2: return 8;
 			case 3: return 13;
 		}
+	}
+
+	private function monthToCapital($month){
+		return chr((int) substr($month, 5, 2) + 65);
+	}
+
+	public function listStyleFinish($year, $dptnum, $arr){
+		// Create new PHPExcel object
+		$objPHPExcel = new PHPExcel();
+
+		// 合并单元格
+		$objPHPExcel->setActiveSheetIndex(0)
+		->mergeCells('A1:M1')->mergeCells('B10:G10')->mergeCells('H10:M10')
+		->mergeCells('B9:C9')->mergeCells('D9:E9')->mergeCells('F9:G9')
+		->mergeCells('H9:I9')->mergeCells('J9:K9')->mergeCells('L9:M9');
+		// 内容
+		// 表头
+		$objPHPExcel->setActiveSheetIndex(0)
+			->setCellValue('A1', $year.'年计量目标完成情况')
+			->setCellValue('J2', '编号：CLJL-'.$dptnum['num'].'-21')
+			->setCellValue('A4', '计划送检')
+			->setCellValue('A5', '实际送检')
+			->setCellValue('A6', '计量确认率')
+			->setCellValue('A7', '设备周检率')
+			->setCellValue('A8', '计量确认合格率')
+			->setCellValue('A9', '人员培训完成情况')
+			->setCellValue('A10', '人员培训完成情况')
+			->setCellValue('A11', ' 备注：');
+
+		$col = 'B';
+		for ($i=1; $i <= 12 ; $i++) { 
+			$objPHPExcel->setActiveSheetIndex(0)
+			->setCellValue($col++.'3', $i.'月份');
+		}
+
+		foreach ($arr as $k => $v) {
+			$cap = $this->monthToCapital($k);
+			$objPHPExcel->setActiveSheetIndex(0)
+                ->setCellValue($cap.'4', $v['countPlan'])->setCellValue($cap.'5', $v['countChecked'])
+                ->setCellValue($cap.'6', $v['perConfirm'])->setCellValue($cap.'7', $v['perChecked'])
+                ->setCellValue($cap.'8', $v['perPass']);
+		}
+		
+
+		// 列宽
+		$objPHPExcel->getActiveSheet()->getDefaultColumnDimension()->setWidth(10)->setAutoSize(true);
+		$objPHPExcel->getActiveSheet()->getColumnDimension('A')->setWidth(22);
+
+		// 自动换行
+		$objPHPExcel->getActiveSheet()->getStyle('A3:M11')->getAlignment()->setWrapText(true);
+
+		// 行高
+		$objPHPExcel->getActiveSheet()->getDefaultRowDimension()->setRowHeight(40);
+		$objPHPExcel->getActiveSheet()->getRowDimension('1')->setRowHeight(84);
+		$objPHPExcel->getActiveSheet()->getRowDimension('2')->setRowHeight(22);
+		$objPHPExcel->getActiveSheet()->getRowDimension('3')->setRowHeight(54);
+
+		// 字体
+		$objPHPExcel->getActiveSheet()->getStyle('A1')->getFont()->setSize(20);
+		$objPHPExcel->getActiveSheet()->getStyle('A3:M11')->getFont()->setSize(11);
+
+		//居中
+		$objPHPExcel->setActiveSheetIndex(0)->getStyle('A1:M11')->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER)->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER );
+
+		// 边框
+		$styleArray = [  
+			'borders' => [
+			    'allborders' => [
+			    	'style' => PHPExcel_Style_Border::BORDER_THIN,
+			    ],  
+			],  
+		];  
+		$objPHPExcel->getActiveSheet()->getStyle('A3:M10')->applyFromArray($styleArray);
+		// $objPHPExcel->getActiveSheet()->getStyle('A3:'.$lastColumn.$lastRow)->getBorders()->getAllBorders()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+
+		// Set active sheet index to the first sheet, so Excel opens this as the first sheet
+		$objPHPExcel->setActiveSheetIndex(0);
+
+
+		// Redirect output to a client’s web browser (Excel5)
+		header('Content-Type: application/vnd.ms-excel');
+		header('Content-Disposition: attachment;filename='.$year.'-'.$dptnum['num'].'计量目标完成情况.xls');
+		header('Cache-Control: max-age=0');
+		// If you're serving to IE 9, then the following may be needed
+		header('Cache-Control: max-age=1');
+
+		// If you're serving to IE over SSL, then the following may be needed
+		header ('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+		header ('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT'); // always modified
+		header ('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+		header ('Pragma: public'); // HTTP/1.0
+
+		$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+		$objWriter->save('php://output');
+		exit;
+	}
+
+	public function getCountPlan($dptid, $month){
+		$dptid = $dptid != 0 ? " and buy.takeDpt = $dptid " : "";
+		$sql = "SELECT count(check_plan.devid) count, month
+				from check_plan
+				left join buy
+				on buy.id = check_plan.devid
+				where month between '{$month['first']}' and '{$month['last']}'
+				$dptid
+				group by month";
+		$res = $this->sqlHelper->dql_arr($sql);
+		return CommonService::mergeCountAndMonth($res);
+	}
+
+	public function getCountChecked($dptid, $month){
+		$dptid =  $dptid != 0 ? " and buy.takeDpt = $dptid " : "";
+		$sql = "SELECT count(devid) count, left(`check`.time, 7) month
+				from `check`
+				left join buy
+				on buy.id = `check`.devid
+				where `check`.time between '{$month['first']}' and '{$month['last']}'
+				$dptid
+				group by left(`check`.time, 7)";
+		$res = $this->sqlHelper->dql_arr($sql);
+		return CommonService::mergeCountAndMonth($res);
+	}
+
+	public function mergeCount($plan, $checked, $confirm){
+		$_arr = [];
+		foreach ($plan as $k => $v) {
+			$_arr[$k]['countPlan'] = $countPlan = $v ;
+			$_arr[$k]['countChecked'] = $countChecked = isset($checked[$k]) ? $checked[$k] : 0;
+			$_arr[$k]['countConfirm'] = $countConfirm = isset($confirm[$k]) ? $confirm[$k] : 0;
+			$countPass = $countConfirm;
+
+			// 计量确认率
+			$_arr[$k]['perConfirm'] = $this->percentAndRound($countConfirm, $countPlan);
+			// 设备周检率
+			$_arr[$k]['perChecked'] = $this->percentAndRound($countChecked, $countPlan);
+			$_arr[$k]['perPass'] = $_arr[$k]['perConfirm'];
+		}
+		return $_arr;
+	}
+
+	public function percentAndRound($numer, $deno){
+		$per = $deno ? round($numer / $deno * 100, 2) : 0;
+		return $per." %";
 	}
 }
 ?>

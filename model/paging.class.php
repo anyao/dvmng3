@@ -8,5 +8,6 @@ class paging{
 	public $navi; //分页导航
 	public $subnavi;
 	public $gotoUrl; //把分页请求提交给哪个网页
+	public $para = [];
 }
 ?>

@@ -94,34 +94,51 @@ function getBsc(id){
     flag:'getUserBsc',
     id:id
   },function(data,success){
-    $("#getUserBsc input[name=id]").val(id);
-    $("#getUserBsc input[name=name]").val(data.name);
-    $("#getUserBsc input[name=code]").val(data.code);
-    $("#getUserBsc input[name=dptid]").val(data.dptid);
-    $("#getUserBsc input[name=dptName]").val(data.depart);
-    $("#getUserBsc input[name=psw]").val(data.psw);
-    // 修改用户信息弹出框下的部门提示
-    $("#getUserBsc input[name=dptName]").bsSuggest({
-        allowNoKeyword: false,
-        showBtn: false,
-        indexId:1,
-        data: {
-             'value':<?php $dptAll = $dptService->getDpt();
-                           echo "$dptAll"; ?>
-        }
-    }).on('onDataRequestSuccess', function (e, result) {
-        console.log('onDataRequestSuccess: ', result);
-    }).on('onSetSelectValue', function (e, keyword, data) {
-       console.log('onSetSelectValue: ', keyword, data);
-       var dptid = $(this).attr("data-id");
-       $(this).parents("form").find("input[name=dptid]").val(dptid);
-    }).on('onUnsetSelectValue', function (e) {
-        console.log("onUnsetSelectValue");
-    });
+    console.log(data);
+    $("#getUserBsc input[getname=id]").val(id);
+    $("#getUserBsc input[getname=name]").val(data.name);
+    $("#getUserBsc input[getname=code]").val(data.code);
+    $("#getUserBsc input[getname=psw]").val(data.psw);
+    $("#getUserBsc input[getname=dptid]").val(data.dptid);
+
+    initTreeForUser();
+    var treeObj = $.fn.zTree.getZTreeObj("TreeForUser");
+    var node = treeObj.getNodeByParam("id", data.dptid, null);
+    treeObj.checkNode(node, true, true);
+
     $("#getUserBsc").modal({ 
       keyboard: true
     });
   },'json');
+}
+
+function initTreeForUser(){
+  var set = {
+      view: {
+          selectedMulti: false,
+          showIcon: false
+      },
+      data: {
+          simpleData: {
+              enable: true
+          }
+      },
+      check: {
+          enable: true,
+          chkStyle:"radio",
+          radioType:'all',
+      },
+      callback: {
+        onClick: setDpt
+      }
+  };
+  var zTree = <?= $dptService->getDptForRole("1,2,3") ?>;
+  $.fn.zTree.init($("#TreeForUser"), set, zTree);
+
+}
+
+function setDpt(event, treeId, treeNode){
+  $("#getUserBsc input[name=dptid]").val(treeNode.id);
 }
 
 // 提交用户修改
@@ -129,12 +146,19 @@ $("#yesUptUserBsc").click(function(){
   var allow_submit=true;
   $("#getUserBsc input[type!=hidden]").each(function(){
     if ($(this).val()=="") {
-      $("#failAdd").modal({ 
-        keyboard: true
-      });
+      $("#failUptUser").show();
       allow_submit=false;
+      return false;
     }
   });
+
+  var treeObj = $.fn.zTree.getZTreeObj("TreeForUser");
+  var nodes = treeObj.getCheckedNodes(true);
+  if (nodes.lenth == 0) {
+     $("#failUptUser").show();
+     allow_submit=false;
+  }
+
   if (allow_submit==true) {
     var dptid=$("#formUptUser input[name=dptid]").val();
     $.get("controller/dptProcess.php",$("#formUptUser").serialize(),function(){

@@ -5,6 +5,7 @@ $sqlHelper = new sqlHelper;
 $checkService = new checkService($sqlHelper);
 $devService = new devService($sqlHelper);
 $userService = new userService($sqlHelper);
+$confirmService = new confirmService($sqlHelper);
 
 if (!empty($_REQUEST['flag'])) {
 	$flag=$_REQUEST['flag'];
@@ -81,6 +82,52 @@ if (!empty($_REQUEST['flag'])) {
 	else if ($flag == "downXls") {
 		$filename = $_GET['filename'];
 		$checkService->downXls($filename);
+	}
+
+	else if ($flag == "finishMonth") {
+		$takeDpt = $_POST['takeDpt'];
+		$month = date('Y-m');
+		$countPlan = $checkService->getCountPlan($takeDpt, ['first' => $month, 'last' => $month]);
+
+		$day = CommonService::getTheMonth(date("Y-m-d"));
+		$countChecked = $checkService->getCountChecked($takeDpt, $day);
+		$countConfirm = $confirmService->getCountConfirmed($takeDpt, $day);
+		$countPass = $countConfirm;
+
+		$countPlan = $countPlan[$month]?: 0;
+		$countChecked = $countChecked[$month] ?: 0;
+		$countConfirm = $countConfirm[$month] ?: 0;
+		// 计量确认率
+		$perConfirm = $checkService->percentAndRound($countConfirm, $countPlan);
+		// 设备周检率
+		$perChecked = $checkService->percentAndRound($countChecked, $countPlan);
+		// 计量确认合格率
+		$perPass = $perConfirm;
+
+		$res = [
+			'countPlan' => $countPlan,
+			'countChecked' => $countChecked,
+			'perConfirm' => $perConfirm,
+			'perChecked' => $perChecked,
+			'perPass' => $perPass
+		];
+		echo json_encode($res, JSON_UNESCAPED_UNICODE);  
+		exit();
+	}
+
+	else if ($flag == "finishBefore") {
+		$takeDpt = $_POST['takeDpt'];
+		$before = $_POST['before'];
+		$countPlan = $checkService->getCountPlan($takeDpt, ['first' => $before.'-01', 'last' => $before.'-12']);
+
+		$day = ['first' => $before.'-01-01', 'last' => $before.'-12-31'];
+		$countChecked = $checkService->getCountChecked($takeDpt, $day);
+		$countConfirm = $confirmService->getCountConfirmed($takeDpt, $day);
+		$countPass = $countConfirm;
+
+		$res = $checkService->mergeCount($countPlan, $countChecked, $countConfirm);
+		$userDpt = $userService->getDpt();
+		$checkService->listStyleFinish($before, $userDpt, $res);
 	}
 
 }

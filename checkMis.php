@@ -40,7 +40,12 @@ else{
 <link rel="icon" href="bootstrap/img/favicon.ico">
 <title>周检计划-设备管理系统</title>
 <style type="text/css">
-  .glyphicon-check, .glyphicon-unchecked{
+  .glyphicon-check, 
+  .glyphicon-unchecked,
+  .glyphicon-time,
+  .glyphicon-home,
+  .glyphicon-send
+  {
     display:inline !important;
   }
 
@@ -148,6 +153,7 @@ else{
       <table class="table table-striped table-hover">
         <thead><tr>
           <th><span class="glyphicon glyphicon-download-alt" id="checkPlan"></span></th>
+          <th style="width:3%"></th>
           <th>出厂编号</th><th>设备名称</th><th>规格型号</th><th>所在分厂部门</th>
           <th>安装地点</th><th>有效日期</th><th>状态</th>
           <th class="authCheck"><span class="glyphicon glyphicon-ok" id="yesCheck"></span></th>
@@ -159,10 +165,23 @@ else{
           }
           for ($i=0; $i < count($paging->res_array); $i++) { 
             $row=$paging->res_array[$i];
+
+            switch ($row['checkDpt']) {
+              case '199':
+                $checkDpt = "<span class='glyphicon glyphicon-time'></span>";
+                break;
+              case 'isTake':
+                $checkDpt = "<span class='glyphicon glyphicon-home'></span>";
+                break;
+              default:
+                $checkDpt = "<span class='glyphicon glyphicon-send'></span>";
+            }
+
             echo "<tr>
 	                <td><span class='glyphicon glyphicon-unchecked chosen' chosen='{$row['id']}'></span></td>
+                  <td>{$checkDpt}</td>
 	                <td>{$row['codeManu']}</td>
-	                <td><a href='using.php?id={$row['id']}'>{$row['name']}</a></td>
+	                <td><a href='using.php?id={$row['id']}'  target='_blank'>{$row['name']}</a></td>
 	                <td>{$row['spec']}</td>
 	                <td>{$row['factory']}{$row['depart']}</td>
 	                <td>{$row['loc']}</td>

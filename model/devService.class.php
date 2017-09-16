@@ -97,7 +97,13 @@ class devService{
 		return $res;
 	}
 
-	public function findDev($arr, $dptid, $paging){
+	public function findDev($paging){
+		// echo "<pre>";
+		// print_r($paging->para);
+		// echo "</pre>";
+		$arr = $paging->para['para']['data'];
+		$dptid = $paging->para['para']['dptid'];
+		
 		$where = $this->findWhere($arr, $dptid);
 		$sql1="SELECT buy.id,codeManu,name,spec,status.status,depart.depart,factory.depart factory,loc,unit
 			   from buy

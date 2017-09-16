@@ -11,8 +11,7 @@ $dptService=new dptService($sqlHelper);
 <head>
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1
-">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 <meta name="description" content="普阳钢铁设备管理系统">
 <meta name="author" content="安瑶">
@@ -33,26 +32,7 @@ $dptService=new dptService($sqlHelper);
     padding: 0px 0px 8px 0px  !important;
   }
 </style>
-<link rel="stylesheet" type="text/css" href="tp/datetimepicker.css">
-<link rel="stylesheet" href="bootstrap/css/treeview.css">
-<link rel="stylesheet" href="bootstrap/css/metroStyle/metroStyle.css">
-<link rel="stylesheet" href="bootstrap/css/choose.css" media="all" type="text/css">
-<link href="bootstrap/css/bootstrap.css" rel="stylesheet">
-
-<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-<!--[if lt IE 9]>
-  <script src="bootstrap/js/html5shiv.js"></script>
-  <script src="bootstrap/js/respond.js"></script>
-<![endif]-->
-<script src="bootstrap/js/jquery.js"></script>
-<script src="bootstrap/js/bootstrap.js"></script>
-<script src="tp/bootstrap-datetimepicker.js"></script>
-<script src="tp/bootstrap-datetimepicker.zh-CN.js"></script>
-<script src="bootstrap/js/dptUser-treeview.js"></script>
-<script src="bootstrap/js/jsonToTree.js"></script>
-<script src="bootstrap/js/bootstrap-suggest.js"></script>
-<script src="bootstrap/js/jquery.ztree.core.js"></script>
-<script src="bootstrap/js/jquery.ztree.excheck.min.js"></script>
+<?php include "./buyVendor.php" ?>
 </head>
 <body role="document">
 <?php	include "message.php";?>

@@ -77,5 +77,21 @@ class CommonService{
 		header("Content-Disposition: attachment; filename=仪表管理系统说明书.pdf"); 
 		readfile($file_dir.$file_name); 
 	}
+
+	public static function getTheMonth($date){
+	   $firstday = date('Y-m-01', strtotime($date));
+	   $lastday = date('Y-m-d', strtotime("$firstday +1 month -1 day"));
+	   return ['first' => $firstday, 'last' => $lastday];
+	}
+
+	public static function mergeCountAndMonth($arr){
+		$_arr = [];
+		foreach ($arr as $v) {
+			$_arr[$v['month']] = $v['count']; 
+		}
+		return $_arr;
+	}
+
+
 }
 ?>

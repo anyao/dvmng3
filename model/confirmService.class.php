@@ -310,5 +310,20 @@ class confirmService{
 		}
 	}
 
+	public function getCountConfirmed($dptid, $month){
+		$dptid =  $dptid != 0 ? " and buy.takeDpt = $dptid " : "";
+		$sql = "SELECT count(confirm.id) count, left(`confirm`.time, 7) month
+				from confirm 
+				left join `check`
+				on confirm.chkid = `check`.id
+				left join buy
+				on buy.id = `check`.devid
+				where confirm.time between '{$month['first']}' and '{$month['last']}'
+				$dptid
+				group by left(confirm.time, 7)";
+		$res = $this->sqlHelper->dql_arr($sql);
+		return CommonService::mergeCountAndMonth($res);
+	}
+
 }
 ?>

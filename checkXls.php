@@ -5,6 +5,7 @@ CommonService::autoload();
 $user = $_SESSION['user'];
 
 $sqlHelper = new sqlHelper;
+$dptService = new dptService($sqlHelper);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -25,6 +26,28 @@ $sqlHelper = new sqlHelper;
 
   .col-md-12{
     margin:10px 5px;
+  }
+
+  #tree{
+    overflow-y: scroll;
+    height: 400px;
+  }
+
+  #treeBefore{
+    overflow-y: scroll;
+    height: 200px;
+  }
+
+  .table-bordered{
+    margin-top: 20px
+  }
+
+  .table-bordered th, .table-bordered td{
+    text-align: center !important;
+  }
+
+  #checkFinishedBefore .col-md-7 .input-group{
+    margin-top: 15px;
   }
 </style>
 <?php include 'buyVendor.php'; ?>
@@ -84,35 +107,193 @@ $sqlHelper = new sqlHelper;
 <div class="container">
   <div class="row">
     <div class="page-header">
-      <h4>　检定记录表格</h4>
+      <h4>　检定记录模板</h4>
     </div>
   </div>
-    <div class='row'>
-     <div class='col-md-12'>
-         <span class='glyphicon glyphicon-paperclip'></span> 
-         <a href='javascript: downXls(1)'>弹性元件式一般压力表检定记录</a>
-     </div>
-     <div class='col-md-12'>
-         <span class='glyphicon glyphicon-paperclip'></span> 
-         <a href='javascript: downXls(2)'>电流电压表检定记录</a>
-     </div>
-     <div class='col-md-12'>
-         <span class='glyphicon glyphicon-paperclip'></span> 
-         <a href='javascript: downXls(3)'>流量积算仪检定记录</a>
-     </div>
-     <div class='col-md-12'>
-         <span class='glyphicon glyphicon-paperclip'></span> 
-         <a href='javascript: downXls(4)'>数字指示仪检定记录</a>
-     </div>
-     <div class='col-md-12'>
-         <span class='glyphicon glyphicon-paperclip'></span> 
-         <a href='javascript: downXls(5)'>压力（差压）变送器检定记录</a>
-     </div>
+  <div class='row'>
+   <div class='col-md-12'>
+       <span class='glyphicon glyphicon-paperclip'></span> 
+       <a href='javascript: downXls(1)'>弹性元件式一般压力表检定记录</a>
+   </div>
+   <div class='col-md-12'>
+       <span class='glyphicon glyphicon-paperclip'></span> 
+       <a href='javascript: downXls(2)'>电流电压表检定记录</a>
+   </div>
+   <div class='col-md-12'>
+       <span class='glyphicon glyphicon-paperclip'></span> 
+       <a href='javascript: downXls(3)'>流量积算仪检定记录</a>
+   </div>
+   <div class='col-md-12'>
+       <span class='glyphicon glyphicon-paperclip'></span> 
+       <a href='javascript: downXls(4)'>数字指示仪检定记录</a>
+   </div>
+   <div class='col-md-12'>
+       <span class='glyphicon glyphicon-paperclip'></span> 
+       <a href='javascript: downXls(5)'>压力（差压）变送器检定记录</a>
+   </div>
+  </div>
+  <div class="row" style="margin-top: 30px">
+    <div class="page-header">
+      <h4>　计量目标完成情况</h4>
     </div>
+  </div>
+  <div class="row">
+    <div class='col-md-12'>
+      <span class='glyphicon glyphicon-paperclip'></span> 
+      <a href='javascript: finishBefore()'>历史</a>
+    </div>
+    <div class='col-md-12'>
+      <span class='glyphicon glyphicon-paperclip'></span> 
+      <a href='javascript: finishMonth();'>本月</a>
+    </div>
+  </div>
 </div>
+
+<div class="modal fade" id="checkFinishedMonth">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <form class="form-horizontal" id="formMonth">
+        <div class="modal-header">
+          <button class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span></button>
+          <h4 class="modal-title" id="myModalLabel">本月计量完成情况</h4>
+        </div>
+        <div class="modal-body">
+          <div class="row ztree-row">
+            <div class="col-md-5">
+              <ul id="tree" class="ztree"></ul>
+            </div>
+            <div class="col-md-7">
+              <table class="table table-bordered">
+                <tr><th>计划送检</th></tr>
+                <tr><td res="countPlan"> 0 </td></tr>
+                <tr><th>实际送检</th></tr>
+                <tr><td res="countChecked"> 0 </td></tr>
+                <tr><th>计量确认率</th></tr>
+                <tr><td res="perConfirm">0 %</td></tr>
+                <tr><th>设备周检率</th></tr>
+                <tr><td res="perChecked">0 %</td></tr>
+                <tr><th>计量确认合格率</th></tr>
+                <tr><td res="perPass">0 %</td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <input type="hidden" name="takeDpt">
+          <input type="hidden" name="flag" value="finishMonth">
+          <a class="btn btn-primary" type= id="allDpt" onclick="clickMonth(null, null, {id:0});">全部</a>
+        </div>
+      </form> 
+    </div>
+  </div>
+</div>  
+
+<div class="modal fade" id="checkFinishedBefore">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <form class="form-horizontal" id="formBefore" action="./controller/checkProcess.php" method="post">
+        <div class="modal-header">
+          <button class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span></button>
+          <h4 class="modal-title">历史计量完成情况</h4>
+        </div>
+        <div class="modal-body">
+          <div class="row ztree-row">
+            <div class="col-md-5">
+              <ul id="treeBefore" class="ztree"></ul>
+            </div>
+            <div class="col-md-7">
+              <div class="input-group" style="margin-top: 60px">
+                <div class="radio">
+                  <label>
+                    <input type="radio" onclick="clickBefore(null,null,{id:0});">
+                    全部
+                  </label>
+                </div>
+              </div>
+              <div class="input-group">
+                <span class="input-group-addon">选择年份</span>
+                <input class="form-control datetime" name="before" readonly="" type="text">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <input type="hidden" name="takeDpt">
+          <input type="hidden" name="flag" value="finishBefore">
+          <span style="color:red;display:none" id="failBefore">部门或年份没有选择。</span>
+          <button class="btn btn-primary" id="yesBefore">下载表格</button>
+        </div>
+      </form> 
+    </div>
+  </div>
+</div>  
+
 <script type="text/javascript">
   function downXls(filename){
     location.href = "./controller/checkProcess.php?flag=downXls&filename="+filename;
   }
+
+  var setting = {
+      view: {
+          selectedMulti: false,
+          showIcon: false
+      },
+      data: {
+          simpleData: {
+              enable: true
+          }
+      },
+      callback: {
+        onClick: null
+      }
+  };
+
+  var zTree = <?= $dptService->getDptForRole("1,2,3") ?>;
+  function finishMonth(){
+    setting.callback.onClick = clickMonth;
+    $.fn.zTree.init($("#tree"), setting, zTree);
+    $("#checkFinishedMonth input[name=takeDpt]").val();
+    $("#checkFinishedMonth").modal({ keyboard: true });
+  }
+
+  function clickMonth(event, treeId, treeNode){
+    $("#checkFinishedMonth input[name=takeDpt]").val(treeNode.id);
+    $.post("./controller/checkProcess.php", $("#formMonth").serialize(),function(data){
+      $.each(data, function(k, val){
+        $("#checkFinishedMonth td[res="+k+"]").text(val);
+      })
+    },'json');
+  }
+
+  function finishBefore(){
+    setting.callback.onClick = clickBefore;
+    $.fn.zTree.init($("#treeBefore"), setting, zTree);
+    $("#checkFinishedBefore input[name=takeDpt]").val();
+    $("#checkFinishedBefore").modal({ keyboard: true });
+  }
+
+  function clickBefore(event, treeId, treeNode){
+    if (treeNode.id != 0) 
+      $("#checkFinishedBefore input[type=radio]").removeAttr('checked');
+    $("#checkFinishedBefore input[name=takeDpt]").val(treeNode.id);
+  }
+
+  $("#yesBefore").click(function(){
+    var allow_submit = true,
+    before = $("#checkFinishedBefore input[name=before]").val(),
+    takeDpt = $("#checkFinishedBefore input[name=takeDpt]").val();
+
+    if (before == "" || takeDpt =="") {
+      $("#failBefore").show();
+      allow_submit = false;
+    }
+    return allow_submit;
+  });
+
+  $("#checkFinishedBefore .datetime").datetimepicker({
+    format: 'yyyy', language: "zh-CN", autoclose: true, minView: 4, startView: 4
+  });
+
+
 </script>
 </html>

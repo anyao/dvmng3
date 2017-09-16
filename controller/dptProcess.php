@@ -109,12 +109,9 @@ if (!empty($_REQUEST['flag'])) {
 	}
 
 	else if($flag=="uptUserBsc"){
-		$code = $_GET['code'];
-		$name = $_GET['name'];
-		$psw = $_GET['psw'];
-		$uid = $_GET['id'];
-		$dptid = $_GET['dptid'];
-		$dptService->uptUserBsc($code,$dptid,$name,$psw,$uid);
+		$arr = $_GET['data'];
+		$id = $_GET['id'];
+		$dptService->uptUserBsc($arr, $id);
 		exit();
 	}
 
