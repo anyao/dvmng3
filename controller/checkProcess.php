@@ -130,5 +130,40 @@ if (!empty($_REQUEST['flag'])) {
 		$checkService->listStyleFinish($before, $userDpt, $res);
 	}
 
+	else if ($flag == "planMonth") {
+		$month = $_POST['planMonth'];
+		$dpt = $_POST['takeDpt'];
+		$data = $checkService->getPlanComming($dpt);
+		for ($j=0; $j < count($data); $j++) { 
+			$id = $checkService->getValidComming($data[$j], $month);
+			if ($id)
+				$idArr[] = $id;
+		}
+		if (count($idArr) == 0) 
+			header("location:".$_SERVER['HTTP_REFERER'].'?err=0plan');
+		$idStr = implode(",", $idArr);
+		$userDpt = $userService->getDpt();
+		$arr = $checkService->getXlsPlan($idStr);
+		$res = $checkService->listStylePlan($arr, $userDpt);
+	}
+
+	else if ($flag == "planYear") {
+		// CommonService::dump($_POST);
+		$year = $_POST['planYear'];
+		$dpt = $_POST['takeDpt'];
+		$data = $checkService->getPlanComming($dpt);
+		for ($j=0; $j < count($data); $j++) { 
+			$id = $checkService->getValidYear($data[$j], $year);
+			if ($id)
+				$idArr[] = $id;
+		}
+		if (count($idArr) == 0) 
+			header("location:".$_SERVER['HTTP_REFERER'].'?err=0plan');
+		$idStr = implode(",", $idArr);
+		$userDpt = $userService->getDpt();
+		$arr = $checkService->getXlsPlan($idStr);
+		$res = $checkService->listStylePlan($arr, $userDpt);
+	}
+
 }
 ?>

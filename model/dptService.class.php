@@ -188,9 +188,9 @@ class dptService{
 	}
 
 	function findSon($id){
-		$sql="SELECT count(*) as num from depart where path like '-{$id}' or path like '%-{$id}-%' 
-			  union select count(*) as num from user where departid=$id
-			  union select count(*) as num from device where depart=$id or factory =$id";
+		$sql="SELECT count(*) num from depart where path like '-{$id}' or path like '%-{$id}-%' 
+			  union select count(*) num from user where departid=$id
+			  union select count(*) num from buy where takeDpt=$id";
 		$res=$this->sqlHelper->dql_arr($sql);
 		$res = array_sum(array_column($res,'num'));
 		return $res;

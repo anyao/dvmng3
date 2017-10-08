@@ -5,12 +5,12 @@ $validNum = $msgService->getCountValid();
 
 <?php if ($validNum != 0): ?>
   <div class="row" id="message">
-   <div class='col-md-12' >
+   <!-- <div class='col-md-12'> -->
       <div class='alert alert-warning' id='mesSee'>
          <a href=javascript:void(0) class='close' data-dismiss='alert'>&times;</a>
          <strong>当前有 <?=$validNum?> 个检定任务。</strong><a href='checkMis.php'>点击查看</a>
       </div>
-    </div>
+    <!-- </div> -->
   </div>
 <?php endif ?>
 

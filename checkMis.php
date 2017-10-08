@@ -478,13 +478,7 @@ function chgAccu(){
 // 校准不合格填写证书结论
 $("#checkOneModal").on('click', '#corres', chgConclu);
 function chgConclu(){
-  if($("#corres").val() == 6)
-    $("#conclu").removeAttr('readonly').val("");
-  else{
-    var accu = $("#conclu").attr("correct");
-    $("#conclu").val(accu).attr("readonly", "readonly");
-  }
-  
+    $("#conclu").removeAttr('readonly').val("");  
 }
 
 

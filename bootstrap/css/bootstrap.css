@@ -5138,7 +5138,7 @@ a.thumbnail.active {
     background-color: rgba(8, 31, 52, 0.2);
     border-color: rgba(8, 31, 52, 0.2);
     color: #081f34;
-    width: 20%;
+    width: 100%;
     margin-bottom: 0px;
 
     /*left:75%;*/
@@ -7010,7 +7010,8 @@ button.close {
 #message{
   position: absolute;
   bottom:0px;
-  width: 100%;
+  width: 20%;
+  right: 15px;
   z-index: 1000;
 }
 

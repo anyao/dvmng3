@@ -77,6 +77,8 @@ class confirmService{
 				->setCellValue('G'.$r, $row['supplier'])
 				->setCellValue('H'.$r, $row['class'])
 				->setCellValue('I'.$r, $row['circle'].'个月')
+				->setCellValue('K'.$r, $row['techscale'])
+				->setCellValue('L'.$r, $row['techaccu'])
 				->setCellValue('J'.$r, $row['loc'])
 				->setCellValue('P'.$r, $row['res'])
 				->setCellValue('Q'.$r, $row['checktime'])
@@ -157,7 +159,7 @@ class confirmService{
 	}
 
 	public function getXlsCfr($idStr){
-		$sql = "SELECT buy.name,spec,buy.scale buyscale,accuracy,codeManu,supplier,class,circle,loc,
+		$sql = "SELECT buy.name,spec,buy.scale buyscale,accuracy,codeManu,supplier,class,circle,loc,techsacle,techaccu,
 				confirm.scale,error,`interval`,`check`.conclu,`check`.time checktime, chkRes, `check`.res
 				from `check`
 				left join confirm

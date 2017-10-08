@@ -33,7 +33,9 @@ $dptService = new dptService($sqlHelper);
     height: 400px;
   }
 
-  #treeBefore{
+  #treeBefore,
+  #treePlanMonth,
+  #treePlanYear{
     overflow-y: scroll;
     height: 200px;
   }
@@ -46,11 +48,21 @@ $dptService = new dptService($sqlHelper);
     text-align: center !important;
   }
 
-  #checkFinishedBefore .col-md-7 .input-group{
+  #checkFinishedBefore .col-md-7 .input-group,
+  #planMonth .col-md-7 .input-group,
+  #planYear .col-md-7 .input-group{
     margin-top: 15px;
   }
+
+  .fail-submit{
+    display: none;
+    color: red;
+  }
 </style>
-<?php include 'buyVendor.php'; ?>
+<?php 
+include 'buyVendor.php';
+include 'devJs.php';
+?>
 </head>
 <body role="document">
 <?php include "message.php";?>
@@ -147,6 +159,21 @@ $dptService = new dptService($sqlHelper);
       <a href='javascript: finishMonth();'>本月</a>
     </div>
   </div>
+  <div class="row" style="margin-top: 30px">
+    <div class="page-header">
+      <h4>　周检计划下载</h4>
+    </div>
+  </div>
+  <div class="row">
+    <div class='col-md-12'>
+      <span class='glyphicon glyphicon-paperclip'></span> 
+      <a href='javascript: planYear()'>年周检计划</a>
+    </div>
+    <div class='col-md-12'>
+      <span class='glyphicon glyphicon-paperclip'></span> 
+      <a href='javascript: planMonth();'>月周检计划</a>
+    </div>
+  </div>
 </div>
 
 <div class="modal fade" id="checkFinishedMonth">
@@ -181,7 +208,7 @@ $dptService = new dptService($sqlHelper);
         <div class="modal-footer">
           <input type="hidden" name="takeDpt">
           <input type="hidden" name="flag" value="finishMonth">
-          <a class="btn btn-primary" type= id="allDpt" onclick="clickMonth(null, null, {id:0});">全部</a>
+          <a class="btn btn-primary" id="allDpt" onclick="clickMonth(null, null, {id:0});">全部</a>
         </div>
       </form> 
     </div>
@@ -228,7 +255,191 @@ $dptService = new dptService($sqlHelper);
   </div>
 </div>  
 
+<div class="modal fade" id="planMonth">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <form class="form-horizontal" action="./controller/checkProcess.php" method="post">
+        <div class="modal-header">
+          <button class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span></button>
+          <h4 class="modal-title">月周检计划</h4>
+        </div>
+        <div class="modal-body">
+          <div class="row ztree-row">
+            <div class="col-md-5">
+              <ul id="treePlanMonth" class="ztree"></ul>
+            </div>
+            <div class="col-md-7">
+              <div class="input-group" style="margin-top: 60px">
+                <div class="radio">
+                  <label>
+                    <input type="radio" onclick="clickBefore(null,null,{id:0});">
+                    全部
+                  </label>
+                </div>
+              </div>
+              <div class="input-group">
+                <span class="input-group-addon">选择月份</span>
+                <input class="form-control" name="planMonth" readonly="" type="text" value="<?=date('Y-m')?>">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <input type="hidden" name="takeDpt">
+          <input type="hidden" name="flag" value="planMonth">
+          <span class="fail-submit failNull">信息填写不完整。</span>
+          <span class="fail-submit failYear">最多只能看到下一年的计划。</span>
+          <button class="btn btn-primary" id="yesPlanMonth">下载表格</button>
+        </div>
+      </form> 
+    </div>
+  </div>
+</div>  
+
+<div class="modal fade" id="planYear">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <form class="form-horizontal" action="./controller/checkProcess.php" method="post">
+        <div class="modal-header">
+          <button class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span></button>
+          <h4 class="modal-title">年周检计划</h4>
+        </div>
+        <div class="modal-body">
+          <div class="row ztree-row">
+            <div class="col-md-5">
+              <ul id="treePlanYear" class="ztree"></ul>
+            </div>
+            <div class="col-md-7">
+              <div class="input-group" style="margin-top: 60px">
+                <div class="radio">
+                  <label>
+                    <input type="radio" onclick="clickBefore(null,null,{id:0});">
+                    全部
+                  </label>
+                </div>
+              </div>
+              <div class="input-group">
+                <span class="input-group-addon">选择年份</span>
+                <input class="form-control" name="planYear" readonly="" type="text" value="<?=date('Y')?>">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <input type="hidden" name="takeDpt">
+          <input type="hidden" name="flag" value="planYear">
+          <span class="fail-submit failNull">信息填写不完整。</span>
+          <span class="fail-submit failYear">最多只能看到下一年的计划。</span>
+          <button class="btn btn-primary" id="yesPlanYear" type="button">下载表格</button>
+        </div>
+      </form> 
+    </div>
+  </div>
+</div>  
+
+<!-- 删除失败弹出框 -->
+<div class="modal fade"  id="0plan">
+  <div class="modal-dialog modal-sm" role="document" >
+    <div class="modal-content">
+         <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top:-10px"><span aria-hidden="true">&times;</span></button>
+         </div>
+         <div class="modal-body"><br/>
+            <div class="loginModal">所选部门所选日期没有仪表需要检定。</div><br/>
+         </div>
+         <div class="modal-footer">  
+          <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+        </div>
+    </div>
+  </div>
+</div> 
+
 <script type="text/javascript">
+  $(function(){
+    var err = <?= !empty($_GET['err']) ? $_GET['err'] : "\"suc\""?>;
+    if (err == '0plan') 
+      $("#0plan").modal({ keyboard: true });
+  })
+
+  $("#yesPlanMonth").click(function(){
+    var allow_submit =true,
+    planMonth = $("#planMonth input[name=planMonth]").val(),
+    takeDpt = $("#planMonth input[name=takeDpt]").val();
+    if (!planMonth || !takeDpt) {
+      $("#planMonth .fail-submit").show();
+      allow_submit = false;
+    }
+
+
+    var planYear = planMonth.substr(0, 4),
+    nxtYear = new Date().getFullYear() + 1; 
+    if (planYear > nxtYear) {
+      $("#planMonth .failYear").show();
+      allow_submit = false;
+    }else{
+      $("#planMonth .failYear").hide();
+      allow_submit = true;
+    }
+
+    // return false;
+    return allow_submit;
+  });
+
+    $("#yesPlanYear").click(function(){
+      var allow_submit =true,
+      planYear = $("#planYear input[name=planYear]").val(),
+      takeDpt = $("#planYear input[name=takeDpt]").val();
+      if (!planYear || !takeDpt) {
+        $("#planYear .failNull").show();
+        allow_submit = false;
+      }else{
+        $("#planYear .failNull").hide();
+        allow_submit = true;
+      }
+
+
+      var nxtYear = new Date().getFullYear() + 1; 
+      if (planYear > nxtYear) {
+        $("#planYear .failYear").show();
+        allow_submit = false;
+      }else{
+        $("#planYear .failYear").hide();
+        allow_submit = true;
+      }
+
+      // return false;
+      return allow_submit;
+    });
+
+  var zTree = <?= $dptService->getDptForRole("1,2,3") ?>;
+  function planMonth(){
+    setting.callback.onClick = clickPlanMonth;
+    $.fn.zTree.init($("#treePlanMonth"), setting, zTree);
+    $("#planMonth input[type=radio]").attr('checked', 'checked');
+    $("#planMonth input[name=takeDpt]").val(0);
+    $("#planMonth").modal({ keyboard: true });
+  }
+
+  function clickPlanMonth(event, treeId, treeNode){
+    if (treeNode.id != 0) 
+      $("#planMonth input[type=radio]").removeAttr('checked');
+    $("#planMonth input[name=takeDpt]").val(treeNode.id);
+  }
+
+  function planYear(){
+    setting.callback.onClick = clickPlanYear;
+    $.fn.zTree.init($("#treePlanYear"), setting, zTree);
+    $("#planYear input[type=radio]").attr('checked', 'checked');
+    $("#planYear input[name=takeDpt]").val(0);
+    $("#planYear").modal({ keyboard: true });
+  }
+
+  function clickPlanYear(event, treeId, treeNode){
+    if (treeNode.id != 0) 
+      $("#planYear input[type=radio]").removeAttr('checked');
+    $("#planYear input[name=takeDpt]").val(treeNode.id);
+  }
+
   function downXls(filename){
     location.href = "./controller/checkProcess.php?flag=downXls&filename="+filename;
   }
@@ -248,7 +459,6 @@ $dptService = new dptService($sqlHelper);
       }
   };
 
-  var zTree = <?= $dptService->getDptForRole("1,2,3") ?>;
   function finishMonth(){
     setting.callback.onClick = clickMonth;
     $.fn.zTree.init($("#tree"), setting, zTree);
@@ -268,7 +478,8 @@ $dptService = new dptService($sqlHelper);
   function finishBefore(){
     setting.callback.onClick = clickBefore;
     $.fn.zTree.init($("#treeBefore"), setting, zTree);
-    $("#checkFinishedBefore input[name=takeDpt]").val();
+    $("#checkFinishedBefore input[type=radio]").attr('checked', 'checked');
+    $("#checkFinishedBefore input[name=takeDpt]").val(0);
     $("#checkFinishedBefore").modal({ keyboard: true });
   }
 
@@ -290,10 +501,13 @@ $dptService = new dptService($sqlHelper);
     return allow_submit;
   });
 
-  $("#checkFinishedBefore .datetime").datetimepicker({
+  $("#checkFinishedBefore .datetime, #planYear input[name=planYear]").datetimepicker({
     format: 'yyyy', language: "zh-CN", autoclose: true, minView: 4, startView: 4
   });
 
+  $("#planMonth input[name=planMonth]").datetimepicker({
+    format: 'yyyy-mm', language: "zh-CN", autoclose: true, minView: 3, startView: 3
+  });
 
 </script>
 </html>

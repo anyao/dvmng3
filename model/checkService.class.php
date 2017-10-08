@@ -106,7 +106,10 @@ class checkService{
 		for ($i=0; $i < count($dat); $i++) { 
 			$mon[] = str_replace ("0", "", substr($dat[$i], 5, 2));
  		}
- 		$mon = implode(",", array_unique($mon));
+ 		// $mon = sort($mon);
+ 		$mon = array_unique($mon);
+ 		sort($mon);
+ 		$mon = implode(",", $mon);
  		
 		// 内容
 		$objPHPExcel->setActiveSheetIndex(0)
@@ -145,28 +148,6 @@ class checkService{
 					$row['checkDpt'] = $row['checkComp'];
 					break;
 			}
-
-			switch ($row['usage']) {
-				case '质检':
-					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('O'.$r, '*');
-					break;
-				case '经营':
-					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('P'.$r, '*');
-					break;
-				case '控制':
-					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('Q'.$r, '*');
-					break;
-				case '安全':
-					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('R'.$r, '*');
-					break;
-				case '环保':
-					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('S'.$r, '*');
-					break;
-				case '能源':
-					$objPHPExcel->setActiveSheetIndex(0)->setCellValue('T'.$r, '*');
-					break;
-			}
-
 
 			// 设备基本信息
 			$objPHPExcel->setActiveSheetIndex(0)
@@ -612,6 +593,54 @@ class checkService{
 	public function percentAndRound($numer, $deno){
 		$per = $deno ? round($numer / $deno * 100, 2) : 0;
 		return $per." %";
+	}
+
+	public function getPlanComming($dpt){
+		$where = $dpt==0 ? '' : 'where takeDpt = '.$dpt;
+		$sql = "SELECT buy.id,circle,valid
+				from buy ".$where;
+		$res = $this->sqlHelper->dql_arr($sql);
+		return $res;
+	}
+
+	public function getValidComming($arr, $month){
+		$id = $arr['id'];
+		$circle = $arr['circle'];
+		$valid = date("Y-m-d",strtotime("+ 1 day",strtotime($arr['valid'])));
+		$ifIn = strpos($valid, $month) !== false;
+		if ($ifIn) 
+			return $id;
+		
+		$before = strtotime($month.'-01') - strtotime($valid) > 0;
+		if ($before) {
+			$count = $circle <= 24 ? 24 / $circle : 0;
+			for ($i=1; $i <= $count; $i++) { 
+			 	$next = date("Y-m-d",strtotime("+ ".$circle * $i." month",strtotime($valid)));
+			 	if (strpos($next, $month) !== false) 
+			 		return $id;
+			 } 
+		}
+		return false;
+	}
+
+	public function getValidYear($arr, $year){
+		$id = $arr['id'];
+		$circle = $arr['circle'];
+		$valid = date("Y-m-d",strtotime("+ 1 day",strtotime($arr['valid'])));
+		$ifIn = strpos($valid, $year) !== false;
+		if ($ifIn) 
+			return $id;
+
+		$before = strtotime($year.'-01-01') - strtotime($valid) > 0;
+		if ($before) {
+			$count = $circle <= 24 ? 24 / $circle : 0;
+			for ($i=1; $i <= $count; $i++) { 
+			 	$next = date("Y-m-d",strtotime("+ ".$circle * $i." month",strtotime($valid)));
+			 	if (strpos($next, $year) !== false) 
+			 		return $id;
+			 } 
+		}
+		return false;
 	}
 }
 ?>

@@ -202,7 +202,7 @@ else{
 </div>
 
 <div class="modal fade" id="addModal">
-  <div class="modal-dialog" role="document">
+  <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
@@ -210,47 +210,67 @@ else{
       </div>
       <form class="form-horizontal" action="./controller/confirmProcess.php" method="post">
         <div class="modal-body"> 
-          <div class="form-group">
-            <label class="col-sm-3 control-label">出厂编号：</label>
-            <div class="col-sm-8">
-              <input type="text" class="form-control" name="codeManu" readonly>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="col-sm-4 control-label">出厂编号：</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" name="codeManu" readonly>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-4 control-label">检定日期：</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control datetime" name="cfr[time]" readonly>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-4 control-label">工艺测量范围：</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" name="cfr[techscale]">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-4 control-label">工艺控制精度：</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" name="cfr[techaccu]">
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="col-sm-4 control-label">计量测量范围：</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" name="cfr[scale]">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-4 control-label">计量允许误差：</label>
+                <div class="col-sm-8">
+                  <div class="input-group">
+                    <input type="text" class="form-control" name="cfr[error]">
+                    <span class="input-group-addon">级</span>
+                  </div> 
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-4 control-label">计量分度值：</label>
+                <div class="col-sm-8">
+                  <input type="text" class="form-control" name="cfr[interval]">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-4 control-label">验证结果：</label>
+                <div class="col-sm-8">
+                  <select class="form-control" name="cfr[chkRes]">
+                    <option value="合格">合格</option>
+                  </select>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="form-group">
-            <label class="col-sm-3 control-label">检定日期：</label>
-            <div class="col-sm-8">
-              <input type="text" class="form-control datetime" name="cfr[time]" readonly>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="col-sm-3 control-label">测量范围：</label>
-            <div class="col-sm-8">
-              <input type="text" class="form-control" name="cfr[scale]">
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="col-sm-3 control-label">允许误差：</label>
-            <div class="col-sm-8">
-              <div class="input-group">
-                <input type="text" class="form-control" name="cfr[error]">
-                <span class="input-group-addon">级</span>
-              </div> 
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="col-sm-3 control-label">分度值：</label>
-            <div class="col-sm-8">
-              <input type="text" class="form-control" name="cfr[interval]">
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="col-sm-3 control-label">验证结果：</label>
-            <div class="col-sm-8">
-              <select class="form-control" name="cfr[chkRes]">
-                <option value="合格">合格</option>
-              </select>
-            </div>
-          </div>
+       
+          
         </div>
         <div class="modal-footer">
           <input type="hidden" name="flag" value="addConfirm">
