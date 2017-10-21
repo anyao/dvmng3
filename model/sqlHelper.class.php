@@ -109,14 +109,12 @@ class sqlHelper{
 		}
 
 		//显示10页页数
-		$count = $paging->pageCount < $pageWhole ? $paging->pageCount+1 : $index+$pageWhole;
+		$count = $paging->pageCount < $start + $pageWhole ? $paging->pageCount+1 : $index+$pageWhole;
 		for (; $start < $count; $start++)  
 			$navi.= "&nbsp;<a href='{$paging->gotoUrl}?{$para}pageNow=$start' class='badge'>$start</a>&nbsp;&nbsp;";
 
-
 		// 后翻页
-		if (($paging->pageNow+$pageWhole)<$paging->pageCount) {
-
+		if ($start <= $paging->pageCount ) {
 			$navi.= "&nbsp;<a href='{$paging->gotoUrl}?{$para}pageNow=$start' class='glyphicon glyphicon-forward'></a>&nbsp;&nbsp;";
 		}
 
