@@ -77,31 +77,31 @@
           <div class="form-group">
             <label class="col-sm-4 control-label">领取时间起：</label>
             <div class="col-sm-6">
-              <input type="text" class="form-control date" name="install_from" readonly>
+              <input type="text" class="form-control date" name="data[install_from]" readonly>
             </div>
           </div>
           <div class="form-group">
             <label class="col-sm-4 control-label">领取时间止：</label>
             <div class="col-sm-6">
-              <input type="text" class="form-control date" name="install_to" readonly>
+              <input type="text" class="form-control date" name="data[install_to]" readonly>
             </div>
           </div>
           <div class="form-group">
             <label class="col-sm-4 control-label">出厂编号：</label>
             <div class="col-sm-6">
-              <input type="text" class="form-control" name="codeManu">
+              <input type="text" class="form-control" name="data[codeManu]">
             </div>
           </div>
           <div class="form-group">
             <label class="col-sm-4 control-label">备件名称：</label>
             <div class="col-sm-6">
-              <input type="text" class="form-control" name="name">
+              <input type="text" class="form-control" name="data[name]">
             </div>
           </div>
           <div class="form-group">
             <label class="col-sm-4 control-label">规格型号：</label>
             <div class="col-sm-6">
-              <input type="text" class="form-control" name="spec">
+              <input type="text" class="form-control" name="data[spec]">
             </div>
           </div>
           </div>

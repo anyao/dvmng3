@@ -4,27 +4,30 @@ CommonService::checkValidate();
 CommonService::autoload();
 $user=$_SESSION['user'];
 
+$sqlHelper = new sqlHelper;
+$gaugeService = new gaugeService($sqlHelper);
+
 $paging=new paging;
 $paging->pageNow=1;
 $paging->pageSize=18;
+
 $paging->gotoUrl="buyCheckHis.php";
 if (!empty($_GET['pageNow'])) {
   $paging->pageNow=$_GET['pageNow'];
 }
-$sqlHelper = new sqlHelper;
-$gaugeService = new gaugeService($sqlHelper);
+
 // 是否为搜索结果
 if (empty($_POST['flag'])) {
   $gaugeService->buyCheckHis($paging);
 }else if ($_POST['flag'] == 'findCheck') {
-  $check_from = $_POST['check_from'];
-  $check_to = $_POST['check_to'];
-  $codeManu = $_POST['codeManu'];
-  $name = $_POST['name'];
-  $spec = $_POST['spec'];
+  $data = empty($_GET['data']) ? $_POST['data'] : $_GET['para']['data'];
+  $paging->para = ['para' => ['data' => $data], 'flag' => 'findCheck'];
 
-  $gaugeService->buyCheckFind($check_from, $check_to, $codeManu, $name, $spec, $paging);
+  $gaugeService->buyCheckFind($paging);
 }
+
+// $where = !empty($paging->para) ? http_build_query($paging->para['para']) : "";
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -133,31 +136,31 @@ if (empty($_POST['flag'])) {
           <div class="form-group">
             <label class="col-sm-4 control-label">检定时间起：</label>
             <div class="col-sm-6">
-              <input type="text" class="form-control date" name="check_from" readonly>
+              <input type="text" class="form-control date" name="data[check_from]" readonly>
             </div>
           </div>
           <div class="form-group">
             <label class="col-sm-4 control-label">检定时间止：</label>
             <div class="col-sm-6">
-              <input type="text" class="form-control date" name="check_to" readonly>
+              <input type="text" class="form-control date" name="data[check_to]" readonly>
             </div>
           </div>
           <div class="form-group">
             <label class="col-sm-4 control-label">出厂编号：</label>
             <div class="col-sm-6">
-              <input type="text" class="form-control" name="codeManu">
+              <input type="text" class="form-control" name="data[codeManu]">
             </div>
           </div>
           <div class="form-group">
             <label class="col-sm-4 control-label">备件名称：</label>
             <div class="col-sm-6">
-              <input type="text" class="form-control" name="name">
+              <input type="text" class="form-control" name="data[name]">
             </div>
           </div>
           <div class="form-group">
             <label class="col-sm-4 control-label">规格型号：</label>
             <div class="col-sm-6">
-              <input type="text" class="form-control" name="spec">
+              <input type="text" class="form-control" name="data[spec]">
             </div>
           </div>
           </div>

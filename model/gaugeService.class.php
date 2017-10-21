@@ -62,16 +62,16 @@ class gaugeService{
 		$res = $this->sqlHelper->dqlPaging($sql1,$sql2,$paging);
 	}
 
-	public function findWhere($code, $name, $spec){
-		$where = " 1 = 1 ";
+	private function findWhere($code, $name, $spec){
+		$where = [];
 		if (!empty($code)) 
-			$where .= " AND codeManu= '{$code}' ";
+			$where[] = "codeManu= '{$code}'";
 
 		if (!empty($name)) 
-			$where .= " AND buy.name LIKE '%{$name}%' ";
+			$where[] = "buy.name LIKE '%{$name}%'";
 
 		if (!empty($spec)) 
-			$where .= " AND spec LIKE '%{$spec}%' ";
+			$where[] = "spec LIKE '%{$spec}%'";
 
 		return $where;
 	}
@@ -83,15 +83,18 @@ class gaugeService{
 		return $res;
 	}
 
-	function buyCheckFind($check_from, $check_to, $codeManu, $name, $spec, $paging){
-		$dtl = $this->findWhere($codeManu,$name,$spec);
-		$where = " 1 = 1 ";
-		if (!empty($check_from) && !empty($check_to)) 
-			$where .= " AND `check`.time between '{$check_from}' and '{$check_to}' ";
-		elseif (empty($check_from) && !empty($check_to)) 
-			$where .= " AND `check`.time < '{$check_to}' ";
-		elseif (!empty($check_from) && empty($check_to)) 
-			$where .= " AND `check`.time between '{$check_from}' and ".date("Y-m-d");
+	function buyCheckFind($paging){
+		extract($paging->para['para']['data']);
+
+		$where = $this->findWhere($codeManu,$name,$spec);
+
+		if (!empty($check_from)) 
+			$where[] = "`check`.time >= '$check_from'";
+
+		if (!empty($check_to))
+			$where[] = "`check`.time <= '$check_to'";
+
+		$where[] = "status = 2";
 
 		$sql1 = "SELECT buy.id id,`check`.time checkTime,codeManu,buy.name,spec,unit,category.name category,supplier,codeWare
 				 FROM buy
@@ -101,25 +104,31 @@ class gaugeService{
 					select * from `check` where type=1
 				 ) `check`
 				 on `check`.devid = buy.id
-				 where status=2 AND $where AND $dtl
+				 where ".
+				 implode(" and ", $where)."
 				 limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
 		$sql2 = "SELECT count(*) 
 				 from buy 
 				 left join `check`
 				 on buy.id = `check`.devid
-				 where status=2  AND $where AND $dtl";
+				 where ".implode(" and ", $where);
 		$res = $this->sqlHelper->dqlPaging($sql1,$sql2,$paging);
 	}
 
-	function buyInstallFind($take_from, $install_to, $codeManu, $name, $spec, $paging){
-		$dtl = $this->findWhere($codeManu,$name,$spec);
-		$where = " 1 = 1 ";
-		if (!empty($take_from) && !empty($install_to)) 
-			$where .= " AND (takeTime between '{$take_from}' and '{$install_to}'";
-		elseif (empty($take_from) && !empty($install_to)) 
-			$where .= " AND (takeTime < '{$install_to}'";
-		elseif (!empty($take_from) && empty($install_to)) 
-			$where .= " AND (takeTime between '{$take_from}' and ".date("Y-m-d");
+	function buyInstallFind($paging){
+		extract($paging->para['para']['data']);
+		$where = $this->findWhere($codeManu,$name,$spec);
+		$where[] = "status in(4,5)";
+		$where[] = "codeWare is not null";
+
+		if (!empty($take_from))
+			$where[] = "takeTime >= '{$install_from}'";
+
+		if (!empty($install_to))
+			$where[] = "takeTime <= '$install_to'";
+
+		if ($_SESSION['user'] != 'admin') 
+			$where[] = "takeDpt {$this->authDpt}";
 
 		$sql1 = "SELECT  takeTime, depart.depart, factory.depart factory, name, codeManu, spec, status, loc, buy.id
 				 from buy 
@@ -127,14 +136,15 @@ class gaugeService{
 				 on depart.id = buy.takeDpt
 				 left join depart factory
 				 on depart.fid = factory.id
-				 where status in(4,5) AND $where AND $dtl and codeWare is not null 
-				 AND takeDpt {$this->authDpt}
+				 where ".
+				 implode(" and ", $where)."
 				 order by buy.id  desc
 				 limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
 		$sql2 = "SELECT count(*)
-				 from buy
-				 where status in(4,5) AND $where AND $dtl
-				 AND takeDpt {$this->authDpt}";
+				from install
+				left join buy
+				on install.devid = buy.id
+				where ".implode(" and ", $where);
 		$res = $this->sqlHelper->dqlPaging($sql1,$sql2,$paging);
 	}
 
@@ -279,9 +289,11 @@ class gaugeService{
 				 order by buy.id  desc
 				 limit ".($paging->pageNow-1)*$paging->pageSize.",$paging->pageSize";
 		$sql2 = "SELECT count(*)
-				 from buy
-				 where status in(4,14) 
-				 AND takeDpt {$this->authDpt}";
+				from install
+				left join buy
+				on install.devid = buy.id
+				where status in(4,14) 
+				AND takeDpt {$this->authDpt}";
 		$res = $this->sqlHelper->dqlPaging($sql1,$sql2,$paging);
 	}
 

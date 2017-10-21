@@ -17,13 +17,10 @@ $gaugeService = new gaugeService($sqlHelper);
 if (empty($_POST['flag'])) {
   $gaugeService->buyInstallHis($paging);
 }else if ($_POST['flag'] == 'findInstall') {
-  $install_from = $_POST['take_from'];
-  $install_to = $_POST['take_to'];
-  $codeManu = $_POST['codeManu'];
-  $name = $_POST['name'];
-  $spec = $_POST['spec'];
+  $data = empty($_GET['data']) ? $_POST['data'] : $_GET['para']['data'];
+  $paging->para = ['para' => ['data' => $data], 'flag' => 'findInstall'];
 
-  $gaugeService->buyInstallFind($take_from, $take_to, $codeManu, $name, $spec, $paging);
+  $gaugeService->buyInstallFind($paging);
 }
 ?>
 <!DOCTYPE html>
