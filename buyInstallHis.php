@@ -6,7 +6,7 @@ $user=$_SESSION['user'];
 
 $paging=new paging;
 $paging->pageNow=1;
-$paging->pageSize=50;
+$paging->pageSize=40;
 $paging->gotoUrl="buyInstallHis.php";
 if (!empty($_GET['pageNow'])) {
   $paging->pageNow=$_GET['pageNow'];

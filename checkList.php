@@ -22,8 +22,9 @@ if (!empty($_GET['pageNow'])) {
 if (empty($_REQUEST['flag'])) 
   $checkService->getChkPaging($paging);
 else{
-  $arr = $_POST['data'];
-  $checkService->findCheckPaging($arr, $paging);
+  $data = !empty($_GET['para']) ? $_GET['para']['data'] : $_POST['data'];
+  $paging->para = ['para' => ['data' => $data], 'flag' => 'findCheck'];
+  $checkService->findCheckPaging($paging);
 }
 
 ?>

@@ -20,8 +20,9 @@ if (!empty($_GET['pageNow'])) {
 if (empty($_REQUEST['flag'])) 
   $repairService->getRepPaging($paging);
 else{
-  $arr = $_POST['data'];
-  $repairService->findRepPaging($arr, $paging);
+  $data = !empty($_POST['data']) ? $_POST['data'] : $_GET['para']['data'];
+  $paging->para = ['para' => ['data' => $data], 'flag' => 'findRepair'];
+  $repairService->findRepPaging($paging);
 }
 
 ?>

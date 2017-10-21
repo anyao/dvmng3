@@ -305,7 +305,8 @@ class checkService{
 		$this->sqlHelper->dqlPaging($sql1,$sql2,$paging);
 	}
 
-	public function findCheckPaging($arr,$paging){
+	public function findCheckPaging($paging){
+		$arr = $paging->para['para']['data'];
 		$status = empty($arr['status']) ? "" : "buy.status = {$arr['status']}";
 		$name = empty($arr['name']) ? "" : "buy.name like '%{$arr['name']}'%";
 		$codeManu = empty($arr['codeManu']) ? "" : "codeManu = '{$arr['codeManu']}'";
@@ -346,8 +347,10 @@ class checkService{
 		$this->sqlHelper->dqlPaging($sql1,$sql2,$paging);
 	}
 
-	public function findMisPaging($arr, $paging){
+	public function findMisPaging($paging){
 		// [status] => 4 [name] => 差压变送器 [codeManu] => 30112S16 [takeDpt] => 1,2,3,198,
+		$arr = $paging->para['para']['data'];
+
 		$status = empty($arr['status']) ? "" : "buy.status = {$arr['status']}";
 		$name = empty($arr['name']) ? "" : "buy.name like '%{$arr['name']}%'";
 		$codeManu = empty($arr['codeManu']) ? "" : "codeManu = '{$arr['codeManu']}'";

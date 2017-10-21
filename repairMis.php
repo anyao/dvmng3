@@ -22,8 +22,9 @@ if (!empty($_GET['pageNow'])) {
 if (empty($_REQUEST['flag'])) 
   $repairService->getMisPaging($paging);
 else{
-  $arr = $_POST['data'];
-  $repairService->findMisPaging($arr, $paging);
+  $data = !empty($_POST['data']) ? $_POST['data'] : $_GET['para']['data'];
+  $paging->para = ['para' => ['data' => $data], 'flag' => 'findMis'];
+  $repairService->findMisPaging($paging);
 }
 ?>
 <!DOCTYPE html>

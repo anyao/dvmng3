@@ -22,9 +22,9 @@ if (!empty($_GET['pageNow'])) {
 if (empty($_REQUEST['flag'])) 
   $checkService->getMisPaging($paging);
 else{
-  // [status] => 4, [name] => 差压变送器, [codeManu] => 30112S16, [takeDpt] => 1,2,3,198,
-  $arr = $_POST['data'];
-  $checkService->findMisPaging($arr, $paging);
+  $data = !empty($_GET['para']) ? $_GET['para']['data'] : $_POST['data'];
+  $paging->para = ['para' => ['data' => $data], 'flag' => 'findPlan'];
+  $checkService->findMisPaging($paging);
 }
 
 

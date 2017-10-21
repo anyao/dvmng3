@@ -66,7 +66,8 @@ class repairService{
 		$this->sqlHelper->dml($sql);
 	}
 
-	public function findMisPaging($arr, $paging){
+	public function findMisPaging($paging){
+		$arr = $paging->para['para']['data'];
 		$name = empty($arr['name']) ? "" : "buy.name like '%{$arr['name']}'%";
 		$codeManu = empty($arr['codeManu']) ? "" : "codeManu = '{$arr['codeManu']}'";
 		$takeDpt = empty($arr['takeDpt']) ? "" : "takeDpt in (".substr($arr['takeDpt'], 0, -1).")";
@@ -119,7 +120,8 @@ class repairService{
 		$this->sqlHelper->dqlPaging($sql1,$sql2,$paging);
 	}
 
-	public function findRepPaging($arr, $paging){
+	public function findRepPaging($paging){
+		$arr = $paging->para['para']['data'];
 		$name = empty($arr['name']) ? "" : "buy.name like '%{$arr['name']}'%";
 		$codeManu = empty($arr['codeManu']) ? "" : "codeManu = '{$arr['codeManu']}'";
 		$takeDpt = empty($arr['takeDpt']) ? "" : "takeDpt in (".substr($arr['takeDpt'], 0, -1).")";

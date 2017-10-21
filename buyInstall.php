@@ -10,7 +10,7 @@ $devService = new devService($sqlHelper);
 $gaugeService = new gaugeService($sqlHelper);
 
 $paging->pageNow=1;
-$paging->pageSize=18;
+$paging->pageSize=40;
 $paging->gotoUrl="buyInstall.php";
 if (!empty($_GET['pageNow'])) {
   $paging->pageNow=$_GET['pageNow'];
