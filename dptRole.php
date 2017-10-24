@@ -194,6 +194,12 @@ include "message.php";
               <div class="col-md-2"><p><span class='glyphicon glyphicon-unchecked' func='9'></span> 查询库存</p></div>
           </div>
           <div class="row">
+              <h4>安检设备</h4>
+              <div class="col-md-2"><p><span class='glyphicon glyphicon-unchecked' func='15'></span> 安检设备浏览</p></div>
+              <div class="col-md-2"><p><span class='glyphicon glyphicon-unchecked' func='16'></span> 台账管理</p></div>
+              <div class="col-md-2"><p><span class='glyphicon glyphicon-unchecked' func='17'></span> 设备检修</p></div>
+          </div>
+          <div class="row">
               <h4>用户管理</h4>
               <div class="col-md-2"><p><span class='glyphicon glyphicon-unchecked' func='10'></span> 用户管理</p></div>
               <div class="col-md-2"><p><span class='glyphicon glyphicon-unchecked' func='11'></span> 部门管理</p></div>

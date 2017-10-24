@@ -83,6 +83,7 @@ class dptService{
 				on staff_role_func.fid = staff_func.id
 				inner join staff_role
 				on staff_role.id = staff_role_func.rid";
+		// echo "$sql"; die;
 		$res = $this->sqlHelper->dql_arr($sql);
 		return $res;
 	}
