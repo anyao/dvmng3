@@ -5,7 +5,7 @@ CommonService::autoload();
 $user = $_SESSION['user'];
 
 $sqlHelper = new sqlHelper;
-$devService = new devService($sqlHelper);
+$safeCheckService = new safeCheckService($sqlHelper);
 $dptService = new dptService($sqlHelper);
 $checkService = new checkService($sqlHelper);
 
@@ -19,12 +19,12 @@ if (!empty($_GET['pageNow'])) {
 }
 
 
-if (empty($_REQUEST['flag'])) 
-  $checkService->getMisPaging($paging);
-else{
+if (empty($_REQUEST['flag'])) {
+  $safeCheckService->getMisPaging($paging);
+}else{
   $data = !empty($_GET['para']) ? $_GET['para']['data'] : $_POST['data'];
   $paging->para = ['para' => ['data' => $data], 'flag' => 'findPlan'];
-  $checkService->findMisPaging($paging);
+  $safeCheckService->findMisPaging($paging);
 }
 
 
@@ -49,13 +49,6 @@ else{
     display:inline !important;
   }
 
-  #checkPlan{
-    padding-left:0px;
-    padding-right: 0px;
-    width:5%;
-    display: none;
-    cursor: pointer;
-  }
   .page-header{
     margin-bottom: 0px !important
   }
@@ -141,10 +134,9 @@ else{
       </div>
       <table class="table table-striped table-hover">
         <thead><tr>
-          <th><span class="glyphicon glyphicon-download-alt" id="checkPlan"></span></th>
           <th>出厂编号</th><th>设备名称</th><th>所在分厂部门</th>
-          <th>安装地点</th><th>有效日期</th>
-          <th class="authCheck"><span class="glyphicon glyphicon-ok" id="yesCheck"></span></th>
+          <th>安装地点</th><th>有效日期</th><th>检修周期</th>
+          <th class="authCheck"></th>
         </tr></thead>
         <tbody class="tablebody">  
         <?php
@@ -153,70 +145,20 @@ else{
           }
           for ($i=0; $i < count($paging->res_array); $i++) { 
             $row=$paging->res_array[$i];
-
             echo "<tr>
-	                <td><span class='glyphicon glyphicon-unchecked chosen' chosen='{$row['id']}'></span></td>
 	                <td>{$row['codeManu']}</td>
-	                <td><a href='using.php?id={$row['id']}'  target='_blank'>{$row['name']}</a></td>
+	                <td>{$row['name']}</td>
 	                <td>{$row['factory']}{$row['depart']}</td>
 	                <td>{$row['loc']}</td>
                   <td>{$row['valid']}</td>
-                  <td class='authCheck'><a class='glyphicon glyphicon-eye-open' href='javascript:checkOne({$row['id']},\"{$row['codeManu']}\",\"{$row['accuracy']}\");'></a></td>
+                  <td>{$row['circle']}个月</td>
+                  <td class='authCheck'><a class='glyphicon glyphicon-eye-open' href='javascript:checkOne({$row['id']},\"{$row['codeManu']}\");'></a></td>
 	              </tr>";
           }
         ?>  
         </tbody>
       </table>
           <div class='page-count'><?= $paging->navi?></div>                
-    </div>
-  </div>
-</div>
-
-<!-- 批量合格 -->
-<div class="modal fade" id="yesModal">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">批量检定</h4>
-      </div>
-      <form class="form-horizontal" action="./controller/checkProcess.php" method="post">
-        <div class="modal-body"> 
-          <div class="form-group">
-            <label class="col-sm-3 control-label">检定日期：</label>
-            <div class="col-sm-8">
-              <input type="text" class="form-control datetime" name="chk[time]" readonly>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="col-sm-3 control-label">检定类型：</label>
-            <div class="col-sm-8">
-              <select class="form-control" name="chk[type]" id="chkType">
-                <?php  
-                  $chkType = $checkService->getTypeAll();
-                  for ($i=1; $i < count($chkType); $i++) { 
-                    echo "<option value='{$chkType[$i]['id']}'>{$chkType[$i]['name']}</option>";
-                  }
-                ?>
-              </select>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="col-sm-3 control-label">检定结果：</label>
-            <div class="col-sm-8">
-              <select class="form-control" name="chk[res]">
-                <option value="1">合格</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <input type="hidden" name="flag" value="yesCheck">
-          <input type="hidden" name="id">
-          <span style="color:red; display:none" id="failPass">日期必填。</span>
-          <button class="btn btn-primary" id="yesPass">批量检定合格</button>
-        </div>
-      </form>
     </div>
   </div>
 </div>
@@ -228,7 +170,7 @@ else{
         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
         <h4 class="modal-title">检定</h4>
       </div>
-      <form class="form-horizontal" action="./controller/checkProcess.php" method="post">
+      <form class="form-horizontal" action="./controller/safeCheckProcess.php" method="post">
         <div class="modal-body"> 
           <div class="form-group">
             <label class="col-sm-3 control-label">出厂编号：</label>
@@ -239,7 +181,7 @@ else{
           <div class="form-group">
             <label class="col-sm-3 control-label">检定日期：</label>
             <div class="col-sm-8">
-              <input type="text" class="form-control datetime" name="chk[time]" readonly>
+              <input type="text" class="form-control datetime chktime" name="chk[time]" readonly>
             </div>
           </div>
           <div class="form-group">
@@ -258,19 +200,24 @@ else{
           <div class="form-group">
             <label class="col-sm-3 control-label">检定结果：</label>
             <div class="col-sm-8">
-              <select class="form-control" name="chk[check][res]" id="chkres">
+              <select class="form-control" name="chk[res]" id="chkres">
                 <option value="1">合格</option>
-                <option value="2">维修</option>
+          <!--  <option value="2">维修</option>
                 <option value="3">降级</option>
-                <option value="4">封存</option>
+                <option value="4">封存</option> -->
               </select>
             </div>
           </div>
-
+           <div class="form-group">
+            <label class="col-sm-3 control-label">检修备注：</label>
+            <div class="col-sm-8">
+              <textarea class="form-control chkinfo" rows="4" name="chk[info]"></textarea>
+            </div>
+          </div> 
         </div>
         <div class="modal-footer">
-          <input type="hidden" name="flag" value="checkOne">
-          <input type="hidden" name="devid">
+          <input type="hidden" name="flag" value="addCheck">
+          <input type="hidden" class="devid" name="chk[devid]">
           <span style="color:red; display:none" id="failCheckOne">信息填写不完整。</span>
           <button class="btn btn-primary" id="yesCheckOne">确定</button>
         </div>
@@ -293,13 +240,13 @@ else{
             <div class="form-group">
               <label class="col-sm-3 control-label">备件名称：</label>
               <div class="col-sm-8">
-                <input type="text" class="form-control" name="data[name]">
+                <input type="text" class="form-control name" name="data[name]">
               </div>
             </div>
             <div class="form-group">
               <label class="col-sm-3 control-label">出厂编号：</label>
               <div class="col-sm-8">
-                <input type="text" class="form-control" name="data[codeManu]">
+                <input type="text" class="form-control codeManu" name="data[codeManu]">
               </div>
             </div>
           </div>
@@ -329,7 +276,9 @@ else{
 <?php include 'devJs.php';?>
 <script type="text/javascript">
 $("#yesFind").click(function(){
-  var allow_submit = true;
+  var allow_submit = true,
+  allow_dpt = true,
+  allow_add = true;
   var nodesPy = treePy.getCheckedNodes(true);
   var nodesZp = treeZp.getCheckedNodes(true);
   var nodesGp = treeGp.getCheckedNodes(true);
@@ -338,6 +287,22 @@ $("#yesFind").click(function(){
   $.each(nodes, function(i, n) {
     dpt += n.id+",";
   });
+
+  if(dpt == ""){
+    allow_dpt = false;
+  }
+
+  var name = $("#searchForm input.name").val();
+  var codeManu = $("#searchForm input.codeManu").val();
+  if (!name && !codeManu) {
+    allow_add = false;
+  }
+
+  allow_submit = allow_add || allow_dpt;
+  if(!allow_submit){
+    $("#failSearch").show();
+  }
+
   $("#dpt").val(dpt);
   return allow_submit;
 });
@@ -367,44 +332,9 @@ dptTree = {
   gp: <?= $dptService->getDptForRole(3) ?>
 };
 
-// 溯源方式
-$("#checkOneModal").on('click', '#track', checkOrCorrect);
-function checkOrCorrect(){
-  if ($("#track").val() == "检定") {
-    $("#checkRes").show();
-    $("#correctRes").hide();
-  }else{
-    $("#checkRes").hide();
-    $("#correctRes").show();
-  }
-}
-
-// 检定记录不合格备注显示input
-$("#checkOneModal").on('click', '#chkres', chgAccu);
-function chgAccu(){
-  if($("#chkres").val() == 3)
-    $("#downAccu").removeAttr('readonly');
-  else
-    $("#downAccu").attr("readonly", "readonly");
-}
-
-
-// 校准不合格填写证书结论
-$("#checkOneModal").on('click', '#corres', chgConclu);
-function chgConclu(){
-    $("#conclu").removeAttr('readonly').val("");  
-}
-
-
-function checkOne(devid,code,accu){
-  $("#checkOneModal input[name=devid]").val(devid);
+function checkOne(devid,code){
+  $("#checkOneModal .devid").val(devid);
   $("#checkOneModal input[name=codeManu]").val(code);
-  $("#downAccu").val(accu).attr("readonly", "readonly");
-  $("#conclu").val(accu+"级").attr({readonly:"readonly", correct: accu+"级"});
-
-  checkOrCorrect();
-  chgAccu();
-  chgConclu();
 
   $('#checkOneModal').modal({
     keyboard: true
@@ -413,50 +343,19 @@ function checkOne(devid,code,accu){
 
 $("#yesCheckOne").click(function(){
   var allow_submit = true;
-  var datetime = $("#checkOneModal .datetime").val() == "" ? false : true;
-  var conclu = $("#track").val == "校准" && 
-               $("#corres").val() == 6 &&
-               $("#conclu").val() == "" ? false : true; 
-
-  if (!datetime && !conclu) {
+  var time = $("#checkOneModal .chktime").val();
+  var info = $("#checkOneModal .chkinfo").val();
+  if (!time && !info) {
     $("#failCheckOne").show();
     allow_submit = false;
   }
   return allow_submit;
 });
 
-$("#yesCheck").click(function(){
-  var str = takeAll();
-  $("#yesModal input[name=id]").val(str);
-  $('#yesModal').modal({
-    keyboard: true
-  });
-})
-
-$("#yesPass").click(function(){
-  var allow_submit = true;
-  if ($("#chkType").val() == "") {
-    allow_submit = false;
-    $("#failPass").show();
-  }
-  return allow_submit;
-});
-
-$("#checkPlan").click(function(){
-  var str = takeAll();
-  location.href = "./controller/checkProcess.php?flag=xlsPlan&devid="+str;
-});
-
-function takeAll(){
-  var str = "";
-  $(".glyphicon-check").each(function(){
-    str += $(this).attr('chosen') + ",";
-  });
-  return str;
-}
 
 // 搜索
 $(".glyphicon-search").click(function(){
+  $("#failAdd, #failSearch").hide();
   $.fn.zTree.init($("#tree-py"), settingModal, dptTree.py);
   $.fn.zTree.init($("#tree-zp"), settingModal, dptTree.zp);
   $.fn.zTree.init($("#tree-gp"), settingModal, dptTree.gp);
@@ -475,9 +374,9 @@ $(".tablebody").on("click","span.chosen",function checked(){
     $(this).toggleClass("glyphicon glyphicon-check chosen");
     var isChosen = $(".glyphicon-check").length;
     if (isChosen != 0) {
-      $("#checkPlan, #yesCheck").show();
+      $("#yesCheck").show();
     }else{
-      $("#checkPlan, #yesCheck").hide();
+      $("#yesCheck").hide();
     }
 });
    </script>

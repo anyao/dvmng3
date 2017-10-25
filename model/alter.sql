@@ -36,3 +36,18 @@ create table `safe`(
 	circle int(11) not null,
 	takeDpt int(11) not null
 )engine=innodb default charset=utf8;
+
+DROP TABLE IF EXISTS `safe_check`;
+CREATE TABLE `safe_check` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `devid` int(11) DEFAULT NULL,
+  `time` date DEFAULT NULL,
+  `type` int(11) DEFAULT NULL,
+  `user` int(11) DEFAULT NULL,
+  `info` varchar(255) DEFAULT NULL,
+  `res` tinyint(1) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `devid` (`devid`) USING BTREE,
+  KEY `user` (`user`),
+  CONSTRAINT `safe_check_ibfk_1` FOREIGN KEY (`devid`) REFERENCES `safe` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;

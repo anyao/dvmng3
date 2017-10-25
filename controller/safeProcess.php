@@ -3,7 +3,6 @@ require_once "../model/commonService.class.php";
 CommonService::autoloadController();
 $sqlHelper = new sqlHelper;
 $safeService=new safeService($sqlHelper);
-$userService = new userService($sqlHelper);
 
 if (!empty($_REQUEST['flag'])) {
 	$flag=$_REQUEST['flag'];

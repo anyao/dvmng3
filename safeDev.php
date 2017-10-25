@@ -109,7 +109,7 @@ $where = !empty($paging->para) ? http_build_query($paging->para['para']) : "";
 <?php include 'buyVendor.php'; ?>
 </head>
 <body role="document">
-<?php include "message.php";?>
+<?php include "messageSafe.php";?>
 <nav class="navbar navbar-inverse">
   <div class="container">
     <div class="navbar-header">

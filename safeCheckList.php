@@ -5,26 +5,25 @@ CommonService::autoload();
 $user = $_SESSION['user'];
 
 $sqlHelper = new sqlHelper;
-$devService = new devService($sqlHelper);
 $dptService = new dptService($sqlHelper);
-$checkService = new checkService($sqlHelper);
+$safeCheckService = new safeCheckService($sqlHelper);
 
 $paging=new paging;
 $paging->pageNow=1;
 $paging->pageSize=50;
 
-$paging->gotoUrl="checkList.php";
+$paging->gotoUrl="safeCheckList.php";
 if (!empty($_GET['pageNow'])) {
   $paging->pageNow=$_GET['pageNow'];
 }
 
 
 if (empty($_REQUEST['flag'])) 
-  $checkService->getChkPaging($paging);
+  $safeCheckService->getChkPaging($paging);
 else{
   $data = !empty($_GET['para']) ? $_GET['para']['data'] : $_POST['data'];
   $paging->para = ['para' => ['data' => $data], 'flag' => 'findCheck'];
-  $checkService->findCheckPaging($paging);
+  $safeCheckService->findCheckPaging($paging);
 }
 
 ?>
@@ -79,12 +78,11 @@ else{
     #searchForm .ztree-row{
       overflow-y: scroll
     }
-
   </style>
   <?php include 'buyVendor.php'; ?>
 </head>
 <body role="document">
-<?php include 'message.php'; ?>
+<?php include 'messageSafe.php'; ?>
 <nav class="navbar navbar-inverse">
   <div class="container">
     <div class="navbar-header">
@@ -141,37 +139,16 @@ else{
           }
           for ($i=0; $i < count($paging->res_array); $i++) { 
             $row=$paging->res_array[$i]; 
-            if (!empty($row['chkRes'])) {
-              $request = "{$row['scale']} / {$row['error']} / {$row['interval']}";
-              $confirm = "{$row['chkRes']}";
-            }elseif (in_array($row['res'], [1,5,6])) {
-             $request = "未计量确认";
-             $confirm = "<a class='glyphicon glyphicon-thumbs-up' href='javascript:addConfirm({$row['id']},\"{$row['codeManu']}\");'></a>";
-            }else{
-              $request = "检定不合格";
-              if (empty($row['when'])) 
-                $confirm = "<a class='glyphicon glyphicon-thumbs-down' href='javascript:failCheck({$row['id']},\"{$row['codeManu']}\");'></a>";
-              else
-                $confirm = "<a class='glyphicon glyphicon-option-horizontal' href='./controller/confirmProcess.php?flag=xlsUnqual&chkid={$row['id']}'></a>";
-            }
 
             switch ($row['res']) {
               case 1:
                 $row['res'] = "合格"; break;
-              case 2:
-                $row['res'] = "维修"; break;
-              case 3:
-                $row['res'] = "降级"; break;
-              case 4:
-                $row['res'] = "封存"; break;
-              default:
-                $row['res'] = $row['conclu']; break;
             }
             echo "<tr>
                   <td>{$row['time']}</td>
 	                <td>{$row['codeManu']}</td>
-                  <td><a href='using.php?id={$row['devid']}'>{$row['name']}</a></td>
-	                <td>{$row['takeFct']}</td>
+                  <td>{$row['name']}</td>
+	                <td>{$row['factory']}{$row['depart']}</td>
 	                <td>{$row['loc']}</td>
                   <td>{$row['res']}</td>
 	              </tr>";
@@ -198,13 +175,19 @@ else{
             <div class="form-group">
               <label class="col-sm-3 control-label">设备名称：</label>
               <div class="col-sm-8">
-                <input type="text" class="form-control" name="data[name]">
+                <input type="text" class="form-control name" name="data[name]">
               </div>
             </div>
             <div class="form-group">
               <label class="col-sm-3 control-label">出厂编号：</label>
               <div class="col-sm-8">
-                <input type="text" class="form-control" name="data[codeManu]">
+                <input type="text" class="form-control codeManu" name="data[codeManu]">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-3 control-label">出厂编号：</label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control datetime time" name="data[time]" readonly>
               </div>
             </div>
           </div>
@@ -254,27 +237,10 @@ function failCheck(id, code){
   });
 }
 
-$("#yesAdd").click(function(){
-  var allow_submit = true;
-  $("#addModal input[type=text]").each(function(){
-    if ($(this).val() == "") {
-      allow_submit = false;
-      $("#failAdd").show();
-    }
-  })
-  return allow_submit;
-});
-
-function addConfirm(id, code){
-  $("#addModal .chkid").val(id);
-  $("#addModal input[name=codeManu]").val(code);
-  $('#addModal').modal({
-    keyboard: true
-  });
-}
-
 $("#yesFind").click(function(){
-  var allow_submit = true;
+  var allow_submit = true,
+  allow_dpt = true,
+  allow_add = true;
   var nodesPy = treePy.getCheckedNodes(true);
   var nodesZp = treeZp.getCheckedNodes(true);
   var nodesGp = treeGp.getCheckedNodes(true);
@@ -283,11 +249,23 @@ $("#yesFind").click(function(){
   $.each(nodes, function(i, n) {
     dpt += n.id+",";
   });
-  $("#dpt").val(dpt);
-  if ($.inArray("",$("input").val()) != -1) {
-    allow_submit = false;
+
+  if(dpt == ""){
+    allow_dpt = false;
+  }
+  var name = $("#searchForm input.name").val();
+  var codeManu = $("#searchForm input.codeManu").val();
+  var time = $("#searchForm input.time").val();
+  if (!name && !codeManu && !time) {
+    allow_add = false;
+  }
+
+  allow_submit = allow_add || allow_dpt;
+  if(!allow_submit){
     $("#failSearch").show();
   }
+
+  $("#dpt").val(dpt);
   return allow_submit;
 });
 
